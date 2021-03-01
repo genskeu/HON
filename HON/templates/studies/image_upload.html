@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<script src="{{url_for('static', filename = 'js/study/image_upload.js')}}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container h-100">
+  <div class="row justify-content-center align-items-center h-100">
+    <div class="col-12">
+
+      <span  class="badge badge-dark w-100 mt-1">
+        <h4 class="col-12 mt-1">File Management</h4>
+      </span>
+
+      <form action="{{ url_for('studies.study_design',study_id=study["id"]) }}" class="form-horizontal" method="get"
+        enctype=multipart/form-data id="files">
+        <button type="button" class="btn btn-dark btn-block mt-1" data-toggle="collapse"
+          data-target="#file_upload_rules" aria-expanded="false" aria-controls="file_upload_rules">
+          <h5 class="col-12 mt-1">Rules for file upload &#9776</h5>
+        </button>
+        <div class="row mx-auto collapse bg-light show" id="file_upload_rules">
+          <ul class="mt-3">
+            <li>max file size is 100mb</li>
+            <li>images can be uploaded as .zip files</li>
+            <li>zip files should contain only the images and no other files or folder structures</li>
+            <li>supported formats: dicom, jpeg, png</li>
+          </ul>
+        </div>
+
+
+        <button type="button" class="btn btn-dark btn-block mt-1" data-toggle="collapse" data-target="#naming"
+          aria-expanded="false" aria-controls="naming">
+          <h5 class="col-12 mt-1">File naming conventions &#9776</h5>
+        </button>
+        <div id="naming" class="collapse bg-light">
+          <br>
+          <p>To use all features of HON (auto AFC study creation, stack feature) the
+            following naming scheme needs to be used for the images:
+            POS_CLASS_GROUP_STACK
+          </p>
+          <p>
+            All images that are identical in POS, CLASS and GROUP will be combined into one scrollable image-stack.
+            STACK controls the position of each image within the stack.</li>
+            </ul>
+            POS defines he position of an stack during the study.
+            For the automatic generation of AFC image-sets it only needs to be defined
+            for the positive images i.e. images containing a signal.
+            For the negative class it can be left empty or used to avoid duplicate file names.
+            CLASS and GROUP are only relevant when creating AFC experiments.
+            CLASS defines which stacks contain the signal and which don't.
+            GROUP is used to link the positive to the negative class.
+            For each AFC stack-set one positive and n-1 negative stacks are combined.
+            If more than n-1 negative images match they will be subsampled randomly.
+          </p>
+          <p>
+            Example: 014_pos_Group1.dcm will be combined with n-1 images named _neg_Group1_REST.dcm to form
+            the 14th set of images shown during the study.
+          </p>
+        </div>
+
+        <button class="btn btn-dark btn-block mt-1" type="button" data-toggle="collapse" data-target="#uploaded_files"
+          aria-expanded="false" aria-controls="uploaded_files">
+          <h5 class="col-12 mt-1">Files already uploaded &#9776</h5>
+        </button>
+
+        <div class="row collapse mx-auto bg-light" id="uploaded_files">
+          <div class="w-100 mt-2">
+            <input id="select_files" class="btn" type="button" value="Select All">
+            <input id="delete_files" class="btn-danger btn" type="button" value="Delete Selected Files">
+            <br>
+            <br>
+            <table class="table table-hover text-left">
+              <thead class="thead-light">
+                <tr>
+                  <th style="width: 8%"></th>
+                  <th style="width: 42%">Name</th>
+                  <th style="width: 42%">Stackname</th>
+                  <th style="width: 8%"></th>
+                </tr>
+              </thead>
+              <tbody id="file_list">
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <button class="btn btn-dark btn-block mt-1" type="button" data-toggle="collapse" data-target="#files_upload"
+          aria-expanded="false" aria-controls="files_upload">
+          <h5 class="col-12 mt-1">File Upload &#9776</h5>
+        </button>
+        <div id="files_upload" class="collapse show bg-light">
+          <h6 class="badge badge-light w-100">Progress</h6>
+          <div id="progress_bars" class="overflow-auto row w-100 mx-auto" style="height:250px;"></div>
+          <div class="row mx-auto">
+            <div class="custom-file mx-auto col-6">
+              <input type="file" name="file" class="custom-file-input" id="file" multiple {% if study is none %}
+                required {% endif %} />
+              <label class="my-auto custom-file-label control-label form-control">Choose files</label>
+            </div>
+            <input id="upload_files" class="btn-success btn btn-block col-6" type="button" id="upload_files"
+              value="Upload Files">
+          </div>
+        </div>
+    </form>
+        <div class="row mx-auto mt-2 no-gutters">
+
+          <div class="col-4">
+            <button class="btn btn-block btn-secondary w-100">
+                <a style="color:white" href="{{ url_for('studies.overview')}}" class="nav-link" >
+                  Return to Study Overview
+                </a>
+            </button>
+          </div>
+
+          <div class="col-4">
+            <button class="btn btn-secondary w-100 ">
+                <a style="color:white" href="{{ url_for('studies.create_modify_study', id=study["id"]) }}" class="nav-link"  >
+                  Back to Basic Study Settings
+                </a>
+            </button>
+          </div>
+
+          <div class="col-4">
+            <button class="btn btn-secondary w-100">
+                <a style="color:white" href="{{ url_for('studies.study_design',study_id=study["id"]) }}" class="nav-link" >
+                  Continue to Study Design
+                </a>
+            </button>
+          </div>
+
+        </div>
+    </div>
+
+
+
+
+
+
+  </div>
+</div>
+</div>
+{% endblock %}

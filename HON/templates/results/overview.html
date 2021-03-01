@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<script src="{{url_for('static', filename = 'js/misc.js')}}">  </script>
+
+<div class="container">
+
+  <div class="row mx-auto mb-2">
+    <button type="button" class="btn btn-dark btn-block" data-toggle="collapse" data-target="#results_ov"
+      aria-expanded="true" aria-controls="results_ov">
+      <h4 class="col-12 mt-1">Results &#9776</h4>
+    </button>
+  </div>
+
+  <div id="results_ov" class="collapse show">
+    {% if g.user['access_level'] == 2%}
+    {% for study in studies %}
+    <div class="row mx-auto">
+      <button type="button" class="btn btn-secondary btn-block" data-toggle="collapse" data-target="#study_{{study.id}}"
+        aria-expanded="true" aria-controls="{{study.id}}">
+        <h5 class="col-12 mt-1">Study {{study.id}}: {{study.title}}</h5>
+      </button>
+    </div>
+    {% set study_length = study.imgsets|length %}
+    <div class="row mx-auto collapse show" id="study_{{study.id}}">
+      <table class="table table-hover">
+        <thead class="thead-light">
+          <tr>
+            <!-- col-3 for width of cloumns does not work in chrome for tables use style="width: 25%" -->
+            <th style="width: 25%">Username</th>
+            <th style="width: 25%">Created</th>
+            <th style="width: 25%">Status</th>
+            <th style="width: 25%"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user_study_progress in study.user_study_progress  %}
+          <tr>
+            <td class="align-middle">{{user_study_progress.user.username}}</td>
+            <td class="align-middle">{{user_study_progress.updated}}</td>
+            <td class="align-middle">{{((user_study_progress.imgset.position+1) /
+                   study_length * 100 )|round}} %</td>
+            <td class="align-middle">
+              <button class="btn-danger btn-sm"
+                onclick="delete_db_entry('result','{{study.id}}','{{user_study_progress.user_id}}')">delete
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+          <tr>
+            <td>
+              <form action="{{ url_for('results.download_all', study_id=study.id, version='short') }}" method="GET" class="w-100">
+                <button type="submit" class="btn btn-success btn-block">
+                  <h6 class="col-12 mt-1">download results (refined)</h6>
+                </button>
+              </form>
+            </td>
+            <td>
+              <form action="{{ url_for('results.download_all', study_id=study.id, version='full') }}" method="GET" class="w-100">
+                <button type="submit" class="btn btn-success btn-block">
+                  <h6 class="col-12 mt-1">download results (raw)</h6>
+                </button>
+              </form>
+            </td>
+            <td></td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+
+
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+</div>
+
+
+
+{% endblock %}

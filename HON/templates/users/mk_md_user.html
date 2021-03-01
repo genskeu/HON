@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+<div class="container h-100">
+  <div class="row justify-content-center align-items-center h-100">
+    <div class="col-5 my-auto">
+
+      <span  class="badge badge-dark w-100 mb-2" data-toggle="collapse"
+      data-target="#file_upload_rules" aria-expanded="false" aria-controls="file_upload_rules">
+        <h5 class="col-12 mt-1">User Settings</h5>
+      </span>
+
+      <form class="form-horizontal" method="post" enctype=multipart/form-data id="study_data">
+        <div class="input-group row mx-auto">
+          <div class="input-group-prepend col-4 px-0 mx-0">
+            <span class="input-group-text col-12">Username</span>
+          </div>
+          <input class="form-control form-control" name="username" id="username" placeholder="username"
+            {% if user is not none %} value="{{user['username']}}" {% endif %} required>
+        </div>
+
+        <div class="input-group row mx-auto">
+          <div class="input-group-prepend col-4 px-0 mx-0">
+            <span class="input-group-text col-12">Password</span>
+          </div>
+          <input class="form-control form-control" type="password" name="password" id="password" placeholder="password"
+            {% if user is none %} required {% endif %}>
+        </div>
+
+
+        {% if g.user.access_level == 3 and g.user.id != user.id %}
+        <div class="input-group row mx-auto">
+          <div class="input-group-prepend col-4 px-0 mx-0">
+            <span class="input-group-text col-12">Type</span>
+          </div>
+          <select class="custom-select" name="access_level" id="access_level">
+            {% set roles = { 1 : "user", 2 : "study admin", 3 : "user admin" } %}
+            {% for key in roles.keys() %}
+            {% if g.user.access_level >= key %}
+            <option value="{{key}}" {% if user is not none %} {% if user.access_level == key %} selected {% endif %}
+              {% endif %}>{{roles[key]}}</option>
+            {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+
+
+        <div class="input-group row mx-auto mt-2">
+          <input class="btn-secondary btn btn-block" type="submit" value={% if user is none %}"create user"{% else %}"modify user"{% endif %}>
+        </div>
+
+        {% else %}
+        <div class="row mx-auto mt-2">
+          <input class="btn-secondary btn btn-block" type="submit" value="update profile">
+        </div>
+        {% endif %}
+
+
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
