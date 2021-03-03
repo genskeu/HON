@@ -1,11 +1,10 @@
-FROM continuumio/miniconda:latest
+FROM python:3.6-slim-buster
 WORKDIR /HON_full
 
 # conda env
-COPY HON_env.yml ./
-RUN conda env create -f HON_env.yml
-RUN echo "source activate HON-env"
-ENV PATH /opt/conda/envs/HON-env/bin:$PATH
+COPY requirments.txt ./
+RUN pip install --upgrade pip
+RUN pip3 install -r ./requirments.txt
 
 # app folders with APP, tests ....
 COPY HON ./HON
@@ -13,10 +12,12 @@ COPY wsgi.py ./
 COPY config.py ./config.py
 ENV FLASK_APP=HON
 
+# set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
 # initilize db
 #RUN mkdir instance
 RUN flask init-db
 
-# start app
-CMD ["gunicorn","--bind","0.0.0.0:5000","wsgi:app"]
 
