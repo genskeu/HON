@@ -9,8 +9,7 @@ ENV PATH /opt/conda/envs/HON-env/bin:$PATH
 
 # app folders with APP, tests ....
 COPY HON ./HON
-COPY tests ./tests
-COPY run_HON.py ./
+COPY wsgi.py ./
 COPY config.py ./config.py
 ENV FLASK_APP=HON
 
@@ -19,5 +18,5 @@ ENV FLASK_APP=HON
 RUN flask init-db
 
 # start app
-CMD ["python", "run_HON.py"]
+CMD ["gunicorn","--bind","0.0.0.0:5000","wsgi:app"]
 
