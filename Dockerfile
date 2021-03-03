@@ -20,4 +20,5 @@ ENV PYTHONUNBUFFERED 1
 #RUN mkdir instance
 RUN flask init-db
 
+CMD ["gunicorn","wsgi:app"]
 

@@ -2,7 +2,7 @@ version: "3.9"
 services:
   web:
     build: ./HON
-    command: gunicorn --bind 0.0.0.0 wsgi:app
+    command: gunicorn --bind 0.0.0.0:8000 wsgi:app
     build: .
     ports:
       - "8000:8000"
