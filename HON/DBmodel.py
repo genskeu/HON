@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask.cli import with_appcontext
-from flask import current_app, request
+from flask import current_app
 from werkzeug.security import generate_password_hash
 from shapely.geometry import Point, Polygon, LineString
 from shapely.affinity import scale, rotate
@@ -620,8 +620,8 @@ def init_db_command():
     init_img_dir()
     init_default_users()
 
-
 @click.command("change-base-url-command")
+@click.option('--config')
 @with_appcontext
 def change_base_url_command():
     images = Image.query.all()

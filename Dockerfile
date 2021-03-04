@@ -10,7 +10,7 @@ RUN pip3 install -r ./requirments.txt
 COPY HON ./HON
 COPY wsgi.py ./
 COPY config.py ./config.py
-ENV FLASK_APP=HON
+ENV FLASK_ENV=docker
 
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
