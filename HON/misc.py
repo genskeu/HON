@@ -1,7 +1,4 @@
-from flask import (
-    Blueprint, flash, redirect, render_template, request, url_for,
-    jsonify, current_app, g, session
-)
+from flask import Blueprint, flash, render_template, request, jsonify
 from .auth import login_required, access_level_required
 from .DBmodel import RectangleRoi,EllipticalRoi
 

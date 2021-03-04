@@ -1,9 +1,8 @@
 import os
-from flask import (flash, request, current_app, send_file, redirect, Blueprint,abort, render_template, jsonify, g)
+from flask import flash, request, current_app, send_file, redirect, Blueprint,abort, jsonify, g
 from werkzeug.utils import secure_filename
 import zipfile
-import json
-from .DBmodel import Study, User, Image, db
+from .DBmodel import Study, Image, db
 from .auth import login_required, access_level_required
 
 
@@ -25,7 +24,6 @@ ALLOWED_EXTENSIONS = set(['jpg', 'jpeg', 'dcm', 'zip', 'png'])
 
 def allowed_file(filename):
     file_type=filename.split('.')[-1]
-    print(file_type)
     return '.' in filename and \
            file_type.lower() in ALLOWED_EXTENSIONS
 
@@ -63,8 +61,9 @@ def files(study_id):
     if request.method == "POST":
         files = request.files
         for f in files.getlist('file'):
-            if f.filename not in [image.name for image in study.images] and allowed_file(f.filename):
-                image = Image(name=f.filename,base_url=request.url_root + "get_file/{}/{}/".format(g.user.id,study.id))
+            filename = secure_filename(f.filename)
+            if filename not in [image.name for image in study.images] and allowed_file(filename):
+                image = Image(name=filename,base_url=request.url_root + "get_file/{}/{}/".format(g.user.id,study.id))
                 study.images.append(image)
         upload_files(files, image_dir)
         db.session.commit()

@@ -57,7 +57,7 @@ $(document).ready(function() {
           imgsets = response["imgsets"]
           imgsets.forEach(function(imgset){
             add_sidebar_entry(imgset.position,imgset.study_id)
-            $('#imgset_'+imgset.position).click(select_imgset)
+            $('#imgset_'+imgset.position).click(load_imgset_on_click)
           })
           if(response["error"]){
             alert(response["error"])
