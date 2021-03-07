@@ -2,12 +2,12 @@ FROM python:3.6-slim-buster
 WORKDIR /HON_full
 
 # conda env
-COPY requirments.txt ./
+COPY requirements.txt ./
 RUN pip install --upgrade pip
-RUN pip3 install -r ./requirments.txt
+RUN pip3 install -r ./requirements.txt
 
 # app folders with APP, tests ....
-COPY HON ./HON
+COPY app ./app
 COPY wsgi.py ./
 COPY config.py ./config.py
 ENV FLASK_ENV=docker
