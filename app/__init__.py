@@ -21,15 +21,18 @@ def create_app(config=None,config_path="../config.py"):
         pass
 
     if config is None:
-        # load the instance config, if it exists
-        app.config.from_pyfile(config_path, silent=True)
+        if app.config["ENV"] == "production":
+            app.config.from_object("config.ProductionConfig")
+        elif app.config["ENV"] == "development":
+            app.config.from_object("config.DevelopmentConfig")
+        elif app.config["ENV"] == "testing":
+            app.config.from_object("config.TestingConfig")
+        elif app.config["ENV"] == "docker":
+            app.config.from_object("config.DockerConfig")
     else:
         # load the config if passed in
         app.config.from_mapping(config)
     
-
-
-
     from . import DBmodel
     DBmodel.db.init_app(app)
     app.cli.add_command(DBmodel.init_db_command)

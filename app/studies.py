@@ -229,7 +229,6 @@ def design(study_id):
 @login_required
 @access_level_required([2])
 def get_cs_stack(study_id,image_ids):
-    data = request.get_json()
     image_ids = [int(image_id) for image_id in image_ids.split("-")]
     study = Study.query.filter_by(id=study_id).first()
     cs_stack = study.get_cs_stack_by_imageIds(image_ids)

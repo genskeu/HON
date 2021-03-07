@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask.cli import with_appcontext
-from flask import current_app, request
+from flask import current_app
 from werkzeug.security import generate_password_hash
 from shapely.geometry import Point, Polygon, LineString
 from shapely.affinity import scale, rotate
@@ -8,9 +8,7 @@ import os
 import shutil
 import click
 import json
-import re
 import random
-import copy
 
 db = SQLAlchemy()
 
@@ -90,7 +88,7 @@ class Study(db.Model):
         images = [image for image in self.images if image.id in image_ids]
         images.sort(key=lambda image: image.name)
         for image in images:
-            url = image.base_url + image.name
+            url = os.path.join(image.base_url,image.name)
             if ".dcm" in image.name:
                 url = "wadouri:" + url
             cs_stack["imageIds"].append(url)
@@ -100,7 +98,7 @@ class Study(db.Model):
         cs_stacks = {}
         self.images.sort(key=lambda image: image.name)
         for image in self.images:
-            url = image.base_url + image.name
+            url = os.path.join(image.base_url,image.name)
             if ".dcm" in image.name:
                 url = "wadouri:" + url
 
@@ -620,8 +618,8 @@ def init_db_command():
     init_img_dir()
     init_default_users()
 
-
 @click.command("change-base-url-command")
+@click.option('--config')
 @with_appcontext
 def change_base_url_command():
     images = Image.query.all()
