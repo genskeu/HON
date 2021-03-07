@@ -16,7 +16,11 @@
 <script src="https://unpkg.com/cornerstone-web-image-loader@2.1.1/dist/cornerstoneWebImageLoader.min.js"></script>
 
 <!-- cornerstone tools  -->
+{% if study.view == "study_admin" %}
 <script src="https://cdn.jsdelivr.net/npm/cornerstone-tools@5.1.2/dist/cornerstoneTools.min.js"></script>
+{% elif study.view == "participant" %}
+<script src= "{{url_for('static', filename = 'js/cornerstoneTools.js')}}"></script>
+{% endif %}
 
 
 <!--  JavaScript own -->
@@ -127,7 +131,7 @@
       <div class="row justify-content-center align-items-center">
         {% if study.view == "participant" %}
         <button id="start_study" type="btn" name="button" class=" btn-lg btn-dark" 
-        formaction="{{url_for('studies.imgset', study_id=study.id,position=imgset.position)}}" onclick="start_continue()">
+        formaction="{{url_for('studies.imgset', study_id=study.id,position=imgset.position)}}">
           {% if imgset.position|int > 0 %} Continue {% else %} Start {% endif %} {% else %} 
         </button>
         {% endif %}
