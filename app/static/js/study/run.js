@@ -39,7 +39,6 @@ $(document).ready(function () {
   $("#start_study").click(function () {
     //switch from discription to study
     const url = $(this).attr("formaction");
-    debugger
     $.when($('#study_description').fadeOut()).done(
       function () { $('#content').fadeTo(200, 1) }).done(
         //success

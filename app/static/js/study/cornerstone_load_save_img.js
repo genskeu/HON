@@ -3,13 +3,10 @@ function loadDicom(stack,div_id,viewport=null,tool_state=null){
   //where to display
   const element = document.getElementById(div_id)
   // reset tool data
-  cornerstoneTools.clearToolState(element,"EllipticalRoi")
-  cornerstoneTools.clearToolState(element,"FreehandRoi")
-  cornerstoneTools.clearToolState(element,"RectangleRoi")
-  cornerstoneTools.clearToolState(element,"Length")
-  cornerstoneTools.clearToolState(element,"StackScrollMouseWheel")
+  cornerstoneTools.globalImageIdSpecificToolStateManager.clear(element)
   // empty roi containers
-  $(".roi_pos").remove()
+  id = div_id.match(/\d+/)[0]
+  $("#rois_img_" + id).find(".roi_pos").remove()
   // preload entire stack
   stack.imageIds.map(imageId => cornerstone.loadAndCacheImage(imageId))
   // load and display specified image

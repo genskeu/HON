@@ -18,6 +18,8 @@ function add_roi_container(uuid,div_id_numb,toolName,tool_number,tool_state_data
 
   $("#rois_img_" + div_id_numb).append(roi_info)
 
+
+
   // get roi coordinates
   let points = []
   if (toolName == "FreehandRoi") {
@@ -37,13 +39,14 @@ function add_roi_container(uuid,div_id_numb,toolName,tool_number,tool_state_data
     add_roi_coordinates_container(points,toolName,uuid)
   }
 
-  //add delete button for roi 
+  //add copy and delete button for roi 
   let del_btn = '<div class="row mx-auto">\
-                    <button id="del_btn_' + uuid + '" class="col btn btn-danger">\
-                      delete ' + toolName + " " + tool_number + '\
-                    </button>\
-                  </div>'
+                  <button id="del_btn_' + uuid + '" class="col btn btn-danger">\
+                    delete ' + toolName + " " + tool_number + '\
+                  </button>\
+                </div>'
   $("#container_" + uuid).append(del_btn)
+
   $("#del_btn_" + uuid).click(function(){
     delete_tool_state_by_uuid(uuid)
     cornerstone.updateImage(element)
@@ -105,6 +108,9 @@ function add_completed_measurement(e) {
 
 // show roi coordinates on ui when loaded from db
 function restore_roi_container(e,image_id,element) {
+  // empty roi containers
+  id = element.id.match(/\d+/)[0]
+  $("#rois_img_" + id).find(".roi_pos").remove()
   let tool_states = cornerstoneTools.globalImageIdSpecificToolStateManager.toolState[image_id]
   let tool_names = Object.keys(tool_states)
   //loop over different tool types
@@ -190,31 +196,79 @@ function delete_tool_state_by_uuid(uuid){
 
 
 //delete all annotations
+//not needed anymore, also buggy
+// $(document).ready(function () {
+//   $(".delete_ann").click(function () {
+//     var index = this.id.match(/\d+/)[0]
+//     index = Number(index)
+//     var elements = cornerstone.getEnabledElements()
+//     var element = elements[index].element
+//     cornerstoneTools.globalImageIdSpecificToolStateManager.clear(element)
+//     var tools = $(".tool_select").filter(function(){return this.value != ""} )
+
+//     //delte scales for rois
+//     tools.each(function (i,tool) {
+//       let roi_scales = $("." + tool.value + " .scale_values:visible")
+//       roi_scales.each(function (index, scale) {
+//         $(scale).remove()
+//       })
+
+//       //delete roi data shown to user
+//       $("#rois_img_" + index).find(".roi_pos").remove()
+
+//       //delete rois from element
+//       cornerstoneTools.clearToolState(element, tool.value)
+//     })
+
+//     cornerstone.updateImage(element)
+//   })
+// })
+
+
+//import roi from other image
 $(document).ready(function () {
-  $(".delete_ann").click(function () {
-    var index = this.id.match(/\d+/)[0]
-    index = Number(index)
-    var elements = cornerstone.getEnabledElements()
-    var element = elements[index].element
-    var tools = $(".tool_select option:selected").filter(function(){return this.value != ""} )
-
-    //delte scales for rois
-    tools.each(function (i,tool) {
-      let roi_scales = $("." + tool.value + " .scale_values:visible")
-      roi_scales.each(function (index, scale) {
-        $(scale).remove()
+  $(".import_ann").click(function(){
+    // get information of target stack
+    id =  this.id.match(/\d+/)[0]
+    const element = document.getElementById("dicom_img_" + id)
+    var tool_state_displayed_image = cornerstoneTools.getElementToolStateManager(element).toolState
+    const currentImageIdIndex = tool_state_displayed_image.stack.data[0].currentImageIdIndex
+    const image_id = tool_state_displayed_image.stack.data[0].imageIds[currentImageIdIndex]
+    // collect user input
+    const imgset_id = Number($("#import_ann_is_" + id).val()) - 1
+    const image_pos = Number($("#import_ann_ip_" + id).val()) + 1
+    const stack_pos = Number($("#import_ann_sp_" + id).val())
+    const study_id = $("#content").attr("study_id");
+    const url = "/study/imgset/" + study_id + "/" + imgset_id
+    $.getJSON(url, function (response) {
+      //get image set
+      var image_stack = $(response.imgset.image_stacks).filter(function(){
+        return $(this).attr("div_id") == "dicom_img_" + image_pos
       })
-
-      //delete roi data shown to user
-      $("#rois_img_" + index).find(".roi_pos").remove()
-
-      //delete rois from element
-      cornerstoneTools.clearToolState(element, tool.value)
-    })
-
-    cornerstone.updateImage(element)
+      if(image_stack.length){
+        image_stack=image_stack[0]
+      }else{
+        alert("Image not found. Check Image-Position.")
+        return
+      }
+      // transfer tool_state
+      let state_to_import;
+      if(image_stack.tool_state){
+        $(image_stack.tool_state).each((index,state) => {
+          if(state && index == (stack_pos - 1)){
+            state_to_import = state
+            }
+        })
+      }
+      if(state_to_import){
+        cornerstoneTools.globalImageIdSpecificToolStateManager.restoreImageIdToolState(image_id,state_to_import)
+        $(element).trigger("cornerstonetoolsmeasurementrestored", [image_id, element])
+        cornerstone.updateImage(element)
+      }else{
+        alert("No ROIs found. Check Stack-Position.")
+      }
+    }).fail(function() {
+      alert( "Image-Set not found." );
+  })
   })
 })
-
-
-//copy roi from other image

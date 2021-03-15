@@ -893,7 +893,6 @@
                     </div>
                     <!-- window position -->
                     <div class="row mx-auto">
-
                       <div class="input-group">
                         <div class="input-group-prepend col-4 px-0 mx-0">
                           <span class="input-group-text col-12">Pos</span>
@@ -922,7 +921,7 @@
 
 
         <!--ROIs-->
-        <div id="roi_settings_container" class="w-100 mb-1">
+        <div id="roi_settings_container" class="w-100 mb-1" style="display: none;">
           <div class="row mx-auto roi_input">
             <button class="btn btn-dark col-12 mb-1" data-toggle="collapse" data-target="#roi_settings"
               aria-expanded="true" aria-controls="roi_settings">
@@ -940,12 +939,41 @@
                   <h5 class="col-12 mt-1">ROIs {% if i in [0,1]%}Ref-Image {{i+1}} {%else%} Image {{i-1}} {%endif%}</h5>
                 </button>
                 <div id="rois_img_{{i}}" class="collapse {% if study.view == "participant" %} show {%endif%}">
+                  {% if study.view == "study_admin" %}
                   <div class="row text-center mx-auto">
-                    <!-- <button id=undo_ann{{i}} class="btn btn-block btn-warning undo_ann col" style="display: none;">undo last
-                      roi</button> -->
-                    <button id=delete_ann{{i}} class="btn btn-block btn-danger delete_ann col">delete all roi(s)</button>
+                    <button id=import_ann_{{i}} class="btn btn-block btn-success import_ann col">Import Rois From</button>
+                  </div>
+                  <div class="row text-center mx-auto">
+                    <div class="input-group">
+                      <div class="input-group-prepend col-6 px-0 mx-0">
+                        <span class="input-group-text col-12">Image-Set</span>
+                      </div>
+                      <input id="import_ann_is_{{i}}" type="Number" min="1" class="form-control  col" placeholder="">
+                    </input>
+                    </div>
+                  </div>
+                  <div class="row text-center mx-auto">
+                    <div class="input-group">
+                      <div class="input-group-prepend col-6 px-0 mx-0">
+                        <span class="input-group-text col-12">Image-Position</span>
+                      </div>
+                      <input id="import_ann_ip_{{i}}" type="Number" min="1" class="form-control  col" placeholder="">
+                    </input>
+                    </div>
+                  </div>
+                  <div class="row text-center mx-auto">  
+                    <div class="input-group">
+                      <div class="input-group-prepend col-6 px-0 mx-0">
+                        <span class="input-group-text col-12">Stack-Position</span>
+                      </div>
+                      <input id="import_ann_sp_{{i}}" type="Number" min="1" class="form-control  col" placeholder="">
+                    </input>
+                    </div>
+                  </div>
+                  <div class="row text-center mx-auto">
                     <!-- <button id=overlap{{i}} class="btn btn-primary overlap">overlap</button> -->
                   </div>
+                  {%endif%}
                 </div>
               </span>
             </div>
