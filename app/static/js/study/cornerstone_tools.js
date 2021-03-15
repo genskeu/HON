@@ -11,6 +11,10 @@ $(document).ready(function () {
             cornerstoneTools.setToolDisabled(old_tool)
         }
         cornerstoneTools.setToolActive(new_tool, { mouseButtonMask: Number(mouse_btn) })
+        //if annotation tool selected show rois menue
+        if(new_tool.includes("Roi")){
+            $("#roi_settings_container").show()
+        }
 
         //redraw image to hide annotations created with other tools no longer active
         cornerstone.getEnabledElements().forEach(function (enabled_element) {

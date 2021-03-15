@@ -260,9 +260,12 @@ def imgset(study_id, position):
     imgset = Imgset.query.filter_by(study_id=study_id,position=position).first()
     study = Study.query.filter_by(id=study_id).first()
     data = request.get_json()
+    error = None
+    status_code = 200
+    
     if data:
         imgset_dict = data["imgset"]
-    error = None
+
     response = {}
     if request.method == "GET":
         if imgset is None:
@@ -318,8 +321,10 @@ def imgset(study_id, position):
             db.session.commit()
             study.update_imgset_pos()
 
-    response["error"] = error
-    return jsonify(response)
+    if error:
+        response["error"] = error
+        status_code = 404
+    return jsonify(response), status_code
 
 
 #auto create imgsets
