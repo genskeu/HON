@@ -5,7 +5,10 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 class ProductionConfig(Config):
-    pass
+    SQLALCHEMY_DATABASE_URI = "mysql://PhantomX:zxmdv21!@PhantomX.mysql.pythonanywhere-services.com/PhantomX$phantomX_04"
+    SQLALCHEMY_POOL_RECYCLE = 299
+    SQLALCHEMY_POOL_TIMEOUT = 20
+    IMAGE_PATH = "/home/PhantomX/HON/instance/images"
 
 class DevelopmentConfig(Config):
     pass

@@ -130,9 +130,9 @@
       </div>
       <div class="row justify-content-center align-items-center">
         {% if study.view == "participant" %}
-        <button id="start_study" type="btn" name="button" class=" btn-lg btn-dark" 
+        <button id="start_study" type="btn" name="button" class=" btn-lg btn-dark"
         formaction="{{url_for('studies.imgset', study_id=study.id,position=imgset.position)}}">
-          {% if imgset.position|int > 0 %} Continue {% else %} Start {% endif %} {% else %} 
+          {% if imgset.position|int > 0 %} Continue {% else %} Start {% endif %} {% else %}
         </button>
         {% endif %}
       </div>
@@ -390,7 +390,7 @@
                   </div>
                   <div id="dicom_img_10" class="dicom_img dicom_img_comp mx-auto"
                     {% if study.design.img_width and study.design.img_height %}
-                    style="width:{{study.design.img_width}}px; height:{{study.design.img_height}}px;" {% endif %}
+                    style="height:520px; width:520px" {% endif %}
                     oncontextmenu="return false">
                   </div>
                   <div class="card-body mx-auto">
@@ -965,7 +965,7 @@
                     </input>
                     </div>
                   </div>
-                  <div class="row text-center mx-auto">  
+                  <div class="row text-center mx-auto">
                     <div class="input-group">
                       <div class="input-group-prepend col-6 px-0 mx-0">
                         <span class="input-group-text col-12">Stack-Position</span>

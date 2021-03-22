@@ -5,7 +5,7 @@ cornerstoneTools.toolStyle.setToolWidth(3)
 
 
 // function to preload images before study can be started
-// validation check if all data is accessible 
+// validation check if all data is accessible
 $(document).ready(function(){
   $("#start_study").prop('disabled', true);
     study_id = $("#content").attr("study_id");
@@ -43,7 +43,7 @@ $(document).ready(function () {
       function () { $('#content').fadeTo(200, 1) }).done(
         //success
         function () {
-          //load first image set    
+          //load first image set
           $.getJSON(url, function (response) {
             image_stacks = response.imgset.image_stacks
             image_stacks.forEach(function (image_stack) {
@@ -79,7 +79,7 @@ $(document).ready(function () {
     // get scale data
     result["scale_input"] = get_scale_data()
 
-    // get infos on picked stack  
+    // get infos on picked stack
     result["picked_stack"] = get_stack_data("dicom_img_" + this.id[this.id.length - 1])
 
     //validate roi number
@@ -107,7 +107,6 @@ $(document).ready(function () {
           $("#imgset").replaceWith("<h1>You are done. Thanks!</h1>")
           $("#design_settings").fadeOut()
           $("#viewport_settings").fadeOut()
-          $("input:radio").prop("checked", false)
           updateProgressbar(Number(response["study_length"]), response["study_length"])
         } else {
           //load next imgset
@@ -126,6 +125,8 @@ $(document).ready(function () {
                 })
               Promise.all(promises_1).then(
                 function () {
+                  //reset scale
+                  $("input:radio").prop("checked", false)
                   //fade in after images loaded
                   image_stacks.forEach(function (image_stack) {
                     $("#" + image_stack["div_id"]).children().fadeIn()
