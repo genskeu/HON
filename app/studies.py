@@ -161,16 +161,14 @@ def study_design(study_id):
         Returns:
     """
     study = Study.query.filter_by(id=study_id).first()
-    if request.method == "GET":
-        # default design
-        if study.design is None:
-            study.design = Design(study_id=study_id)
-            study.design.get_defaults()
-            db.session.commit()
+    # default design
+    if study.design is None:
+        study.design = Design(study_id=study_id)
+        study.design.get_defaults()
+        db.session.commit()
 
-        study.view = "study_admin"
-        return render_template("studies/design.html",
-                                study=study)
+    study.view = "study_admin"
+    return render_template("studies/design.html",study=study)
 
 
 # set design for study json API endpoint

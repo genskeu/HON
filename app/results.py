@@ -165,22 +165,29 @@ def get_result_row(result,design,users,version):
                 row.append([None, None])
 
     # scale input
-    if result.scale_input:
-        scale_input = json.loads(result.scale_input)
-        # compatibility bug with old scale design (adjust db and remove these lines)
-        if isinstance(scale_input,int):
-            scale_input = {design.scales[0].text:{"values":[scale_input],"uuids":[]}}
+    # only display as many scale results as spec by the design
     for i in range(len(design.scales)):
-        row.append(design.scales[i].text)
-        scale_values = scale_input[design.scales[i].text]["values"]
-        # scales can have multiple values or just one depending on type
-        # types: roi scales (repeated when roi drawn) and "normal"
-        if len(scale_values):
-            row.append(scale_values[0])
+        if result.scale_input and result.scale_input != "null":
+            scale_input = json.loads(result.scale_input)
+            # compatibility bug with old scale design (adjust db and remove these lines)
+            if isinstance(scale_input,int):
+                scale_input = {design.scales[0].text:{"values":[scale_input],"uuids":[]}}
+            # loop over scale text in results because in an old version the results scale could differ from 
+            # the design scale (changes to study after it already started)
+            for scale_text in scale_input.keys():
+                row.append(scale_text)
+                scale_values = scale_input[scale_text]["values"]
+                # scales can have multiple values or just one depending on type
+                # types: roi scales (repeated when roi drawn) and "normal"
+                if len(scale_values):
+                    row.append(scale_values[0])
+                else:
+                    row.append("")
+                if version == "full":
+                    row.append(scale_input[design.scales[i].text]["uuids"])
         else:
             row.append("")
-        if version == "full":
-            row.append(scale_input[design.scales[i].text]["uuids"])
+            row.append("")
 
 
     # picked image etc.
