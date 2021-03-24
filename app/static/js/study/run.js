@@ -78,6 +78,9 @@ $(document).ready(function () {
     var result = {}
     // get scale data
     result["scale_input"] = get_scale_data()
+    if(!result["scale_input"]){
+      return
+    }
 
     // get infos on picked stack
     result["picked_stack"] = get_stack_data("dicom_img_" + this.id[this.id.length - 1])

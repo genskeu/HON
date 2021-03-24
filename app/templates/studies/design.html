@@ -178,9 +178,19 @@
           <h4 id="imgset_creation_mode_text" class="w-100 mt-1">Mode:manual</h4>
         </button>
       </div>
+
+      {% if study.user_study_progress %}
+      <h3 style="color: red;">There are results present for this study! You can still modify the design, 
+        however it is highly advised to backup and then delete study results before adjusting the design. 
+        Otherwise the application might fail.
+      </h3>
+      {% endif %}   
       {% endif %}
       <!-- Create Image Sets -->
       <div id="imgset_creation" class=" collapse show row mx-auto my-auto {% if study.view == 'participant' %} h-100 justify-content-center align-items-center {% endif %}">
+        <!-- Display warning if the study already started (results are present)
+             User can still modify design but should be aware that this can cause bugs 
+            -->
         {% set image_names = image_names|sort %}
         {% set image_paths = image_paths|sort %}
         <div id="imgset" class="w-100">
