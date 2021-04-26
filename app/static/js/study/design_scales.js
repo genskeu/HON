@@ -94,6 +94,14 @@ function repeat_scale(e) {
         $(this).children("input").prop("checked", false)
       })
       scale_copy.attr("id",scale_copy.attr("id") + "_" + id)
+      // add tool label to scale
+      const tool_header_last = $($("." + e.detail.toolType + ".roi_pos")[$("." + e.detail.toolType + ".roi_pos").length - 1]).text()
+      let tool_number = 1
+      if(tool_header_last){
+        tool_number = Number(tool_header_last.match(/\d+/)[0]) + 1
+      }
+      $(scale_copy).prepend("<div class='col-12 mx-auto'>" +  e.detail.toolType + " " + tool_number + "</div>")
+      // add scale
       $("#" + scale.parentElement.id).append(scale_copy)
       $('.'+id).show();
   })
@@ -101,10 +109,7 @@ function repeat_scale(e) {
 
 //remove scale on roi deleted
 $(document).ready(function () {
-  var elements = document.getElementsByClassName("dicom_img")
-  for (i = 0; i < elements.length; i++) {
-    elements[i].addEventListener('cornerstonetoolsmeasurementremoved', remove_scale);
-  }
+  $(".dicom_img").on("cornerstonetoolsmeasurementremoved", remove_scale)
 })
 
 //delete ann scales

@@ -88,7 +88,7 @@ function add_roi_coordinates_container(points,toolName,uuid){
 
 
 // show roi coordinates on ui when roi drawn by user
-function add_completed_measurement(e) {  
+function add_completed_measurement(e) {
   const uuid = e.detail.measurementData.uuid
   const toolName = e.detail.toolName
   const tool_state_data = e.detail.measurementData
@@ -97,7 +97,7 @@ function add_completed_measurement(e) {
   const div_id = e.currentTarget.id
   const div_id_numb = div_id.match(/\d+/)[0]
   // number tool by types
-  const tool_header_last = $($("." + toolName)[$("." + toolName).length - 1]).text()
+  const tool_header_last = $($("." + toolName + ".roi_pos")[$("." + toolName + ".roi_pos").length - 1]).text()
   let tool_number = 1
   if(tool_header_last){
     tool_number = Number(tool_header_last.match(/\d+/)[0]) + 1
@@ -188,7 +188,13 @@ function delete_tool_state_by_uuid(uuid){
           tool_states[image_id][tool_name].data.splice(index,1)
           //remove roi container
           let roi_div = $("#container_" + uuid)
-          roi_div.remove()        }
+          roi_div.remove()
+          //remove scales related to roi
+          let roi_scales = $("." + uuid + ".scale_values:visible")
+          roi_scales.each(function(index,scale){
+            $(scale).remove()
+          })        
+        }
       })
     })
   })

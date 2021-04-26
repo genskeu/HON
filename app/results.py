@@ -166,8 +166,7 @@ def get_result_row(result,design,users,version):
 
     # scale input
     # only display as many scale results as spec by the design
-    for i in range(len(design.scales)):
-        if result.scale_input and result.scale_input != "null":
+    if result.scale_input and result.scale_input != "null":
             scale_input = json.loads(result.scale_input)
             # compatibility bug with old scale design (adjust db and remove these lines)
             if isinstance(scale_input,int):
@@ -179,13 +178,15 @@ def get_result_row(result,design,users,version):
                 scale_values = scale_input[scale_text]["values"]
                 # scales can have multiple values or just one depending on type
                 # types: roi scales (repeated when roi drawn) and "normal"
-                if len(scale_values):
+                if len(scale_values)==1:
                     row.append(scale_values[0])
+                elif len(scale_values)>1:
+                    row.append(scale_values)
                 else:
                     row.append("")
                 if version == "full":
                     row.append(scale_input[design.scales[i].text]["uuids"])
-        else:
+    else:
             row.append("")
             row.append("")
 

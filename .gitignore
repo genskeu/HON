@@ -4,3 +4,4 @@
 cornerstoneTools.js
 /instance
 config.py
+.env

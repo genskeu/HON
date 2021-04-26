@@ -74,12 +74,18 @@ function updateProgressbar(current, max){
 //sent data to server (flask app)
 $(document).ready(function () {
   $(".vote_button").click(function () {
-
     var result = {}
     // get scale data
-    result["scale_input"] = get_scale_data()
-    if(!result["scale_input"]){
-      return
+    // no scale present
+    if(document.getElementById("scale_0") == null){
+      result["scale_input"] = null
+    // scale present
+    } else {
+      result["scale_input"] = get_scale_data()
+      // not all scales checked
+      if(!result["scale_input"]){
+        return
+      }
     }
 
     // get infos on picked stack
@@ -163,32 +169,39 @@ $(document).ready(function () {
 
 
 function get_scale_data(){
-  if(document.getElementById("scale_0") == null){
-      return null
-  }
-  scale_data = {}
+  var scale_data = {}
+  var one_scale_empty = false
+  //loop over all scales
   $(".scale").each(function(index,scale){
-    if(!scale_data){
-      return false
-    }
     let text = $(scale).find(".scale_text").text()
     scale_data[text] = {}
     scale_data[text]["uuids"] = []
     scale_data[text]["values"] = []
+    // for each scale check if a value has been selected
     $(scale).find(".scale_values:visible").each(function(index,values){
+      // scale not checked
       if(!$("input[name='" + values.id + "']:checked").val()){
         alert("No value selected: " + text)
-        scale_data = false
-        return false
+        one_scale_empty = true
+        return
       }
+      // scale checked
       scale_data[text]["values"].push($("input[name='" + values.id + "']:checked").val())
       if(values.classList[values.classList.length-1] != "scale_values"){
         scale_data[text]["uuids"].push(values.classList[values.classList.length-1])
       }
     })
   })
-  return scale_data
+  //check if all scales are filled
+  if(one_scale_empty){
+    return
+  } else {
+    return scale_data
+  }
 }
+
+
+
 
 //validation of annotation data before sending
 function check_ann_number(stack_tool_state){
