@@ -3,6 +3,7 @@ import copy
 import shutil
 import json
 import random
+from datetime import datetime
 from flask import (
     Blueprint, flash, redirect, render_template, request, url_for,
     jsonify, current_app, g, session
@@ -96,6 +97,7 @@ def create_modify_study(id):
                 if password:
                     study.password = generate_password_hash(password)
                 study.description = study_description
+                study.updated = datetime.now().replace(microsecond=0)
                 db.session.commit()
 
         # redirect
@@ -553,7 +555,7 @@ def study_login():
         if study is None:
             error = 'Study not found.'
         # password hack for testing purposes and debugging
-        elif not check_password_hash(study.password, password) and password != "zxmdv21":
+        elif not check_password_hash(study.password, password):
             error = 'Incorrect password.'
 
         if error is None:

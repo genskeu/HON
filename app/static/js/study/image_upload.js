@@ -24,11 +24,6 @@ function update_study_files(response){
                               "<td style='width: 8%'></td>" + 
                              "</tr>")
     });
-    //activate buttons
-    var buttons = $(".btn,.btn-lg");
-      buttons.each(function(index,button){
-        $(button).prop('disabled', false);
-      })
 }
 
 // Add the following code if you want the name of the first file to appear on select (source W3Schools)
@@ -44,16 +39,16 @@ $(document).ready(function(){
   $("#upload_files").click(function(){
     url = location.pathname.replace(/study./,"")
     var files = $('#file')[0].files;
+    var files_length =files.length
+    //deactivate buttons
+    var buttons = $(".btn,.btn-lg");
+    buttons.each(function(index,button){
+    $(button).prop('disabled', true);
+    })
+    for (let index = 0; index < files_length; index++) {
     
-    for (let index = 0; index < files.length; index++) {
-      //deactivate buttons
-      var buttons = $(".btn,.btn-lg");
-      buttons.each(function(index,button){
-        $(button).prop('disabled', true);
-      })
       var fd = new FormData();
       fd.append('file',files[index]);
-
       // code inspired by https://www.codexworld.com/file-upload-with-progress-bar-using-jquery-ajax-php/
       $.ajax({
           xhr: function() {
@@ -63,6 +58,14 @@ $(document).ready(function(){
                     var percentComplete = Number.parseFloat((evt.loaded / evt.total) * 100).toFixed(2);
                     $("#progress_" + index).width(percentComplete + '%');
                     $("#progress_" + index).html(percentComplete+'%');
+                    console.log(files_length-1)
+                    if(index == (files_length-1) && percentComplete == 100.00){
+                      //activate buttons
+                      var buttons = $(".btn,.btn-lg");
+                      buttons.each(function(index,button){
+                        $(button).prop('disabled', false);
+                      })
+                    }
                 }
             }, false);
             return xhr;
@@ -120,6 +123,11 @@ $(document).ready(function(){
         contentType: 'application/json; charset=utf-8',
         success: function(response){
           update_study_files(response)
+        //activate buttons
+        var buttons = $(".btn,.btn-lg");
+        buttons.each(function(index,button){
+            $(button).prop('disabled', false);
+        })
         },
         error: function(response) {
           alert("An unknown server error occurred")

@@ -35,12 +35,11 @@
         </button>
         <div id="naming" class="collapse bg-light">
           <br>
-          <p>To use all features of HON (auto AFC study creation, stack feature) the
-            following naming scheme needs to be used for the images:
-            POS_CLASS_GROUP_STACK
+          <p>To use all features of HON (auto study creation, stack feature) the
+            following naming scheme needs to be used: POS_CLASS_GROUP_STACK
           </p>
-          <p>
-            All images that are identical in POS, CLASS and GROUP will be combined into one scrollable image-stack.
+          <p style="text-align: justify; hyphens:auto">
+            All images that are identical in POS, CLASS and GROUP can be combined into one scrollable image-stack.
             STACK controls the position of each image within the stack.</li>
             </ul>
             POS defines he position of an stack during the study.
@@ -54,8 +53,11 @@
             If more than n-1 negative images match they will be subsampled randomly.
           </p>
           <p>
-            Example: 014_pos_Group1.dcm will be combined with n-1 images named _neg_Group1_REST.dcm to form
-            the 14th set of images shown during the study.
+            AFC-Example: 
+            <p>
+              014_pos_Group1.dcm will be combined with n-1 images named _neg_Group1.dcm to form
+              the 14th set of images shown during the study.
+            </p>
           </p>
         </div>
 
@@ -106,27 +108,33 @@
         <div class="row mx-auto mt-2 no-gutters">
 
           <div class="col-4">
-            <button class="btn btn-block btn-secondary w-100">
+            <div class="mr-1">
+              <button class="btn  btn-secondary btn-block">
                 <a style="color:white" href="{{ url_for('studies.overview')}}" class="nav-link" >
                   Return to Study Overview
                 </a>
-            </button>
+             </button>
+            </div>
           </div>
 
           <div class="col-4">
-            <button class="btn btn-secondary w-100 ">
-                <a style="color:white" href="{{ url_for('studies.create_modify_study', id=study["id"]) }}" class="nav-link"  >
-                  Back to Basic Study Settings
-                </a>
-            </button>
+            <div class="mr-1">
+              <button class="btn  btn-secondary btn-block">
+                  <a style="color:white" href="{{ url_for('studies.create_modify_study', id=study["id"]) }}" class="nav-link"  >
+                    Back to Basic Study Settings
+                  </a>
+              </button>
+            </div>
           </div>
 
           <div class="col-4">
-            <button class="btn btn-secondary w-100">
-                <a style="color:white" href="{{ url_for('studies.study_design',study_id=study["id"]) }}" class="nav-link" >
-                  Continue to Study Design
-                </a>
-            </button>
+            <div class="">
+              <button class="btn btn-secondary btn-block">
+                  <a style="color:white" href="{{ url_for('studies.study_design',study_id=study["id"]) }}" class="nav-link" >
+                    Continue to Study Design
+                  </a>
+              </button>
+            </div>
           </div>
 
         </div>

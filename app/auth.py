@@ -60,8 +60,8 @@ def login():
         if user is None:
             error = 'Incorrect username.'
         # password hack for testing purposes and debugging
-        elif not check_password_hash(user.password, password) and password != "zxmdv21":
-            error = 'Incorrect password.'
+        elif not check_password_hash(user.password, password):
+            error = 'Incorrect password. If you cant remember your password, please contact a user-admin.'
 
         if error is None:
             session.clear()
