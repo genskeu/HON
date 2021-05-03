@@ -217,8 +217,9 @@ function check_ann_number(stack_tool_state){
       }
     })
   }
+  
   //check if selected stack has the correct number of rois marked
-  if(numb_rois != counted_roi_number && numb_rois != "-1"){
+  if(numb_rois != counted_roi_number && numb_rois != "0"){
     return false
   } else {
     return true

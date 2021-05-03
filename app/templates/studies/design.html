@@ -573,8 +573,8 @@
                 <div class="input-group-prepend col-6 px-0 mx-0">
                   <span class="input-group-text col-12"># ROIs</span>
                 </div>
-                <input class="form-control" type="Number" step="any"  id="numb_rois" min="-1"
-                {% if study.design.numb_rois %}value="{{study.design.numb_rois}}"{% else %} value="-1" {% endif %}>
+                <input class="form-control" type="Number" step="any"  id="numb_rois" min="0"
+                {% if study.design.numb_rois %}value="{{study.design.numb_rois}}"{% else %}value="0"{% endif %}>
                 </input>
               </div>
 

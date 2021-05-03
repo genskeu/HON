@@ -87,12 +87,18 @@ def download_all(study_id,version):
     # write results
     for result in results:
         row = get_result_row(result,study.design,users,version)
-        writer.writerow(row)
+        #writer.writerow(row)
 
     output = make_response(si.getvalue())
     output.headers["Content-Disposition"] = "attachment; filename=" + file_name
     output.headers["Content-type"] = "text/csv"
     return output
+
+# new changes to get header
+# loop through results and check which tool data is present 
+# and how many measurements were taken max
+# scale header should be the text
+# max numb scale values should also be checked
 
 def get_header(design,version):
     header = ["user","imgset"]
@@ -107,27 +113,54 @@ def get_header(design,version):
             header.append("stack_" + str(i+1) + "_tool_states")
             header.append("stack_" + str(i+1) + "_viewport_info")
 
+
+    # get max number scale measurements and annotations
+    max_numb_scale_measurments = {}
+    max_numbtooldata_measurments = {}
+    for result in results:
+        if result.scale_input:
+            # scale input is a list dictonaries
+            # each scale is dict 
+            # keys are the text 
+            # values are two lists: scale values + uuid (needed to link to scale data)
+            scale_input = json.loads(result.scale_input)
+            for scale_text in scale_input.keys():
+                if scale_text in max_numb_scale_measurments.keys():
+                    max_numb_scale_measurments[scale_text] = max(max_numb_scale_measurments[scale_text], len(scale_input[scale_text]["values"]))
+                else:
+                    max_numb_scale_measurments[scale_text] = len(scale_input[scale_text]["values"])
+        # get numb anns
+        if result.tool_state:
+            # tools state is list of cornerstone tool states
+            # each entry corresponds to an image within the stack
+            # each tool state can consist of multiple roi and length measurments
+            stack_picked = result.stack_picked
+            for i,image in enumerate(stack_picked.images):
+                tool_state = json.loads(stack_picked.tool_state)[i]
+                if tool_state:
+                    for tool in tool_state:
+                        image_tool_state = image.name + "_" + tool
+                        if image_tool_state in max_numbtooldata_measurments.keys():
+                            max_numbtooldata_measurments[image_tool_state] = max(max_numbtooldata_measurments[image_tool_state],len(tool_state[tool]["data"]))
+                        else:
+                            max_numbtooldata_measurments[image_tool_state] = len(tool_state[tool]["data"])
+
     # scale_input
-    for i in range(len(design.scales)):
-        header.append("scale_text_" + str(i+1)  )
-        header.append("scale_values_" + str(i+1))
-        if version == "full":
-            header.append("scale_values_uuids_" + str(i+1))
+    for scale_text in max_numb_scale_measurments.keys():
+        for i in range(max_numb_scale_measurments[scale_text]):
+            header.append(scale_text + "_" + i)
+            if version == "full":
+                header.append(scale_text + "_uuid_" + i)
 
     # image picked etc
     header += ["picked_stack_name",
                "picked_stack_files",
-               "picked_stack_tool_states",
-               "date",
-               "length_measurements",
-               "length_start",
-               "length_end",
-               "perc_correct_pixels",
-               "ious", 
-               "dice"]
+               "date"]
 
-    if version == "short":
-        header.remove("picked_stack_tool_states")
+    # tools and overlap columns
+    for image_tool in max_numbtooldata_measurments.keys():
+        for i in range(max_numbtooldata_measurments[image_tool]):
+            header.append(image_tool + "_" + i)
 
     return header
 
