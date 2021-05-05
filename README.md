@@ -15,16 +15,14 @@ Once you successfully installed and started docker there are two options two bui
 - start the application 
 5. open your browser, enter 0.0.0.0:8000 in the address field to access the application
 
-<p align="text-center">
 or
-</p>
 
 ### Build and start the application using the docker CLI  
 3. open the terminal (MacOS, Linux)/ command line (windows)
 - using the cd command navigate to the path with the application code 
 4. build the application by typing 
 ```
-docker compose-build to 
+docker compose-build
 ```
 5. start the app with 
 ```
