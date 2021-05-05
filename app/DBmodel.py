@@ -540,7 +540,7 @@ def dice(polygon_1,polygon_2):
         """
         area_intersection = polygon_1.intersection(polygon_2).area
         area_polygon_1_polygon_2 = polygon_1.union(polygon_2).area
-        dice = (2*area_intersection)/(area_polygon_1_polygon_2) * 100
+        dice = (2*area_intersection)/(polygon_1.area + polygon_2.area) * 100
         return(dice)
 
 def perc_correct_pixels(polygon_1,polygon_2):

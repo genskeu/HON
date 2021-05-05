@@ -79,13 +79,16 @@
     <div class="row mt-2 mx-auto">
       {% if study.view == "study_admin" %}
       <div class="col-4">
-        <input id="stack_mode" class="btn btn-danger btn-block" type="button" value="Stackmode On">
+        <input id="stack_mode" class="btn btn-danger btn-block" type="button" value="Stackmode On" data-toggle="tooltip" data-placement="left"
+        title="Stackmode On: Images are combined to stacks according to naming scheme 
+(see tutorial video on study creation or file naming section on file upload page)
+Stackmode Off: Each image/file can be displayed separately">
       </div>
       {% endif %}
       <!-- tool select menus -->
       {% if study.view == "study_admin" or tools_user|length %}
         <div class="input-group col-8 {% if study.view == "participant" %} offset-4 {% endif %}" data-toggle="tooltip" data-placement="left"
-        title="Use the select menus to activate image handling tools for the left, middle and right mouse key (right now only the left mouse key and the wheel is working).">
+        title="Use the select menus to activate image handling tools for the left, middle and right mouse key.">
         <div class="input-group-prepend">
           <span class="input-group-text">Active Tools</span>
         </div>
@@ -146,7 +149,9 @@
     <div class="col-lg-2">
         <div class="row mx-auto sticky-top" style="top:4em;">
           <button class="btn btn-dark col-12 mb-2 sticky-top" data-toggle="collapse" data-target="#sidebar" aria-expanded="true"
-            aria-controls="sidebar">
+            aria-controls="sidebar" data-toggle="tooltip" data-placement="left"
+            title="Imgsets that will be shown to users during the study. 
+The currently selected image-set will be highlited green.">
             <h4 class="w-100 mt-1" id="imgset_btn">Image-Sets &#9776</h4>
           </button>
         </div>
@@ -170,13 +175,24 @@
           aria-controls="imgset_creation">
           <h4 class="mt-1">Create Image Sets &#9776</h4>
         </button>
-        <button id="imgset_creation_mode" class="btn btn-info col-6 mb-2">
+        <button id="imgset_creation_mode" class="btn btn-info col-6 mb-2" data-toggle="tooltip" data-placement="left"
+        title="Click to change mode.
+        
+Mode manual: 
+each imgset can be created manually by choosing images 
+from the dropdown menu and then pressing the append/insert imageset button
+
+Mode auto: 
+imgsets are created automatically either by adding images in sorted or random order 
+(ROC,LROC,FROC,VGA studies) 
+or by combining 1 signal positive image with m-1 signal negative images 
+(see file naming section and 4-AFC tutorial video)">
           <h4 id="imgset_creation_mode_text" class="w-100 mt-1">Mode:manual</h4>
         </button>
       </div>
 
       {% if study.user_study_progress %}
-      <h3 style="color: red;">There are results present for this study! You can still modify the design, 
+      <h3 style="color: red; text-align: justify; hyphens:auto">There are results present for this study! You can still modify the design, 
         however it is highly advised to backup and then delete study results before adjusting the design. 
         Otherwise the application might fail.
       </h3>
@@ -239,7 +255,7 @@
                     <div class="card-body mx-auto">
                       <!-- select menu to load image-->
                       {% if study.view == "study_admin" %}
-                      <div class="row mx-auto">
+                      <div class="row mx-auto" title="Select an image to display it.">
                         <div class="input-group">
                           <div class="input-group-prepend">
                             <span class="input-group-text" for="tools">{% if i in [0,1] %}Ref-Image {{i+1}} {% else %}
@@ -273,10 +289,10 @@
             <div id="imgset_buttons">
               <div class="row mt-3">
                 <div class="col-lg-12 text-center">
-                  <input type="button" value="append imgset" class="imgset_btn btn-success btn col-lg-2" id="add_imgset">
-                  <input type="button" value="insert imgset" class="imgset_btn btn-success btn col-lg-2" id="insert_imgset">
-                  <input type="button" value="update imgset" class="imgset_btn btn-light btn col-lg-2" id="upd_imgset">
-                  <input type="button" value="delete imgset" class="imgset_btn btn-danger btn col-lg-2" id="del_imgset">
+                  <input type="button" value="append imgset" class="imgset_btn btn-success btn col-lg-2" id="add_imgset" title="add imgset to the end of the study">
+                  <input type="button" value="insert imgset" class="imgset_btn btn-success btn col-lg-2" id="insert_imgset" title="inserts imgset at the currently selected position">
+                  <input type="button" value="update imgset" class="imgset_btn btn-light btn col-lg-2" id="upd_imgset" title="update currently selected imgset">
+                  <input type="button" value="delete imgset" class="imgset_btn btn-danger btn col-lg-2" id="del_imgset" title="delete currently selected imgset">
                   <input type="button" value="delete all imgsets" class="imgset_btn btn-danger btn col-lg-2"
                     id="del_all_imgsets">
                   <!-- <input type="button" value="shuffle dropdowns" class="imgset_btn btn-dark btn col-lg-2" id="shuffleSel"> -->
@@ -486,7 +502,7 @@
 
 
             <div class="row mb-2 mx-auto">
-                <button class="btn btn-secondary btn-block imgset_btn" value="generate imgsets" style="display:none;" id="btn_auto_imgset">
+                <button class="btn btn-secondary btn-block imgset_btn" value="generate imgsets" style="display:none;" id="btn_auto_imgset" disabled>
                   <h5>Create Imgsets</h5>
                 </button>
             </div>
@@ -500,27 +516,33 @@
         {% if study.view == "study_admin" %}
         <div class="row mx-auto  no-gutters">
           <div class="col-4">
-            <button class="btn btn-secondary w-100">
+            <div class="mr-1">
+              <button class="btn  btn-secondary btn-block">
                 <a style="color:white" href="{{ url_for('studies.overview')}}" class="nav-link" >
                   Return to Study Overview
                 </a>
-            </button>
+             </button>
+            </div>
           </div>
 
           <div class="col-4">
-            <button class="btn btn-secondary w-100">
-                <a style="color:white" href="{{ url_for('studies.create_modify_study', id=study["id"]) }}" class="nav-link"  >
-                  Back to Basic Study Settings
-                </a>
-            </button>
+            <div class="mr-1">
+              <button class="btn  btn-secondary btn-block">
+                  <a style="color:white" href="{{ url_for('studies.create_modify_study', id=study["id"]) }}" class="nav-link"  >
+                    Back to Basic Study Settings
+                  </a>
+              </button>
+            </div>
           </div>
 
           <div class="col-4">
-            <button class="btn btn-secondary w-100">
-                <a style="color:white" href="{{ url_for('studies.image_upload',study_id=study["id"]) }}" class="nav-link" >
-                  Back to File Upload
-                </a>
-            </button>
+            <div class="">
+              <button class="btn btn-secondary w-100">
+                  <a style="color:white" href="{{ url_for('studies.image_upload',study_id=study["id"]) }}" class="nav-link" >
+                    Back to File Upload
+                  </a>
+              </button>
+            </div>
           </div>
 
         </div>
@@ -533,6 +555,10 @@
         <!-- Design Settings -->
         <div class="row mx-auto" {% if study.view == "participant" %} style="display:none;" {% endif %}>
           <button class="btn btn-dark col-12 mb-1" data-toggle="collapse" data-target="#design_settings"
+          title="Click on the sections to expand the sub-menus. 
+Study design options were divided into general settings, tools, instructions and scales.
+After changing any design options dont forget to press the Save Design button.
+          "
             aria-expanded="true" aria-controls="design_settings">
             <h4 class="w-100 mt-1">Design Options &#9776</h4>
           </button>
@@ -541,13 +567,15 @@
           <!-- General Settings -->
           <div class="row mx-auto mt-1" {% if study.view == "participant" %} style="display:none;" {% endif %} >
             <button class="btn-secondary btn col-12" data-toggle="collapse" data-target="#general_settigs"
-              aria-expanded="true" aria-controls="general_settigs">
+              aria-expanded="true" aria-controls="general_settigs"
+              title="General settings include options to control the study layout and to customize the number and size of images displayed simultaneously. 
+               ">
               <h5 class="mt-1">General Settings</h5>
             </button>
           </div>
           <div id="general_settigs" class="collapse" {% if study.view == "participant" %} style="display:none;" {% endif %}>
             <div class="mx-auto">
-              <div class="input-group row mx-auto">
+              <div class="input-group row mx-auto" title="Controls the number of reference images">
                 <div class="input-group-prepend col-6 px-0 mx-0">
                   <span class="input-group-text col-12"># Ref-Images</span>
                 </div>
@@ -558,7 +586,7 @@
                 </select>
               </div>
 
-              <div class="input-group row mx-auto">
+              <div class="input-group row mx-auto" title="Controls the number of images (m-AFC tests)">
                 <div class="input-group-prepend col-6 px-0 mx-0">
                   <span class="input-group-text col-12"># Images</span>
                 </div>
@@ -569,21 +597,24 @@
                 </select>
               </div>
 
-              <div class="input-group row mx-auto">
+              <div class="input-group row mx-auto" title="Controls the number of annotations (e.g. rois) 
+that need to be drawn by participants 
+before evaluating the next picture. 
+Set to -1 to allow any number.">
                 <div class="input-group-prepend col-6 px-0 mx-0">
                   <span class="input-group-text col-12"># ROIs</span>
                 </div>
-                <input class="form-control" type="Number" step="any"  id="numb_rois" min="0"
-                {% if study.design.numb_rois %}value="{{study.design.numb_rois}}"{% else %}value="0"{% endif %}>
+                <input class="form-control" type="Number" step="any"  id="numb_rois" min="-1"
+                {% if study.design.numb_rois %}value="{{study.design.numb_rois}}"{% else %} value="-1" {% endif %}>
                 </input>
               </div>
 
 
               <!-- window size -->
               <div class="row mx-auto">
-                <div class="input-group">
+                <div class="input-group" title="Controls the size (width, height) of the screen section used for displaying images.">
                   <div class="input-group-prepend col-6 px-0 mx-0">
-                    <span class="input-group-text col-12">Image-Size</span>
+                    <span class="input-group-text col-12">Viewport-Size</span>
                   </div>
                   <input id="img_width" type="Number" step="any" class="image_size form-control" placeholder="width"
                     {% if study.design.img_width is not none %} value="{{study.design['img_width']}}" {% endif %}>
@@ -604,13 +635,13 @@
 
               <div class="input-group row mx-auto">
                 <div class="input-group-prepend col-6 px-0 mx-0">
-                  <span class="input-group-text col-12">Back Color</span>
+                  <span class="input-group-text col-12">BG Color</span>
                 </div>
                 <input class="form-control" type="text" id="background_color"
                   placeholder="Background-Color (Hex or Name)" value="{{study.design['background_color']}}">
               </div>
 
-              <div class="input-group row mx-auto">
+              <div class="input-group row mx-auto" title="Time (sec) the screen will be blank between two image-sets.">
                 <div class="input-group-prepend col-6 px-0 mx-0">
                   <span class="input-group-text col-12">Transition Time</span>
                 </div>
@@ -619,7 +650,7 @@
                   value="{{study.design['transition_time']}}" {% endif %}>
               </div>
 
-              <div class="row input-group mx-auto">
+              <div class="row input-group mx-auto" title="Controls the text of the buttons displayed beneath each image to continue to the next image-set.">
                 <div class="input-group-prepend col-6 px-0 mx-0">
                   <span class="input-group-text col-12">Button Label</span>
                 </div>
@@ -627,7 +658,7 @@
                   {% if study.design.button_labels is not none %} value="{{study.design['button_labels']}}" {% endif %}>
               </div>
 
-              <div class="input-group row mx-auto">
+              <div class="input-group row mx-auto" title="Controls if image settings such as windowing or zoom level are displayed.">
                 <div class="input-group-prepend col-6 px-0 mx-0">
                   <span class="input-group-text col-12">Viewport Info</span>
                 </div>
@@ -641,7 +672,9 @@
           {% if study.view == "study_admin" %}
           <div class="row mx-auto mt-1">
             <button class="btn-secondary btn col-12" data-toggle="collapse" data-target="#tools" aria-expanded="true"
-              aria-controls="tools">
+              aria-controls="tools"
+              title="Tools define DICOM viewer and annotation tools that are made available to participants 
+(e.g., scrolling, windowing, rectangular, elliptical or free-hand ROIs).">
               <h5 class="mt-1 col-12">Tools</h5>
             </button>
           </div>
@@ -667,7 +700,8 @@
             {% endfor %}
           </div>
           {% endif %}
-          <div class="row mx-auto {% if study.view == "study_admin" %} mt-1 {% endif %}">
+          <div class="row mx-auto {% if study.view == "study_admin" %} mt-1 {% endif %}" 
+          title="Instructions can be customized and are displayed to participants throughout studies.">
             <!-- instructions -->
             {% if study.view == "study_admin" or study.design.instructions|length > 0 %}
             <button class="btn-secondary btn col-12" data-toggle="collapse" data-target="#instructions_container"
@@ -690,7 +724,8 @@
           </div>
           <!-- scales -->
           {% if study.view == "study_admin" or study.design.scales|length > 0 %}
-          <div class="row mx-auto mt-1">
+          <div class="row mx-auto mt-1" 
+          title="Scales can be customized and are displayed to participants throughout studies.">
             <button class="btn btn-secondary col-12" data-toggle="collapse" data-target="#scales_container"
               aria-expanded="true" aria-controls="scales_container">
               <h5 class="mt-1">Scale(s)</h5>
@@ -749,7 +784,9 @@
                         id="scale_max_input_{{i}}" + placeholder="max" value="{{scale.max}}">
                     </div>
                   </div>
-                  <div class="row mx-auto scale_type_admin" id="scale_type_admin_{{i}}">
+                  <div class="row mx-auto scale_type_admin" id="scale_type_admin_{{i}}" 
+                  title="Can be left blank for most studies except for FROC designs,
+where a scale needs to be repeated each time a new roi is drawn.">
                     <div class="input-group">
                       <div class="input-group-prepend col-4 px-0 mx-0">
                         <span class="input-group-text col-12">Type</span>
@@ -797,7 +834,10 @@
         <!-- default viewport settings -->
         {% if study.view == "study_admin" or study.design.show_viewport_info %}
         {% if study.view == "study_admin" %}
-        <div id="viewport_settings_container" class="w-100">
+        <div id="viewport_settings_container" class="w-100" 
+        title= "Viewport settings control display options (zoom, position, window) for the uploaded study images.
+Each viewport can be controlled individually. 
+To globally control viewport settings use the defaults submenu.">
           <div class="row mt-1 mx-auto">
             <button class="btn btn-dark col-12 mb-2" data-toggle="collapse" data-target="#viewport_settings"
               aria-expanded="true" aria-controls="viewport_settings">
@@ -931,7 +971,9 @@
 
 
         <!--ROIs-->
-        <div id="roi_settings_container" class="w-100 mb-1" style="display: none;">
+        <div id="roi_settings_container" class="w-100 mb-1" style="display: none;"
+        title="The ROIs section shows the annotation coordinates drawn on each image.
+ROIs can be drawn on images to define the ground truth in LROC and FROC studies.">
           <div class="row mx-auto roi_input">
             <button class="btn btn-dark col-12 mb-1" data-toggle="collapse" data-target="#roi_settings"
               aria-expanded="true" aria-controls="roi_settings">
@@ -992,7 +1034,7 @@
         </div>
 
         {% if study.view == "study_admin" %}
-        <div id="results_container" class="w-100 mb-1">
+        <div id="results_container" class="w-100 mb-1" title="Load results from a study where annotation data was collected e.g. ROIs.">
           <div class="row mx-auto roi_input">
             <button class="btn btn-dark col-12 mb-1" data-toggle="collapse" data-target="#results"
               aria-expanded="true" aria-controls="results">

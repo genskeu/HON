@@ -82,25 +82,22 @@ def download_all(study_id,version):
     file_name = study.title + '_all_results.csv'
     si = io.StringIO()
     writer = csv.writer(si, delimiter=';')
-    writer.writerow(get_header(study.design,version))
+    header, max_numb_scale_measurments, max_numbtooldata_measurments, max_stack_size = write_header(study.design,results,version)
+    writer.writerow(header)
 
     # write results
     for result in results:
-        row = get_result_row(result,study.design,users,version)
-        #writer.writerow(row)
+        row = write_result_row(result,study.design,users,max_numb_scale_measurments, max_numbtooldata_measurments, max_stack_size,version)
+        writer.writerow(row)
 
     output = make_response(si.getvalue())
     output.headers["Content-Disposition"] = "attachment; filename=" + file_name
     output.headers["Content-type"] = "text/csv"
     return output
 
-# new changes to get header
-# loop through results and check which tool data is present 
-# and how many measurements were taken max
-# scale header should be the text
-# max numb scale values should also be checked
 
-def get_header(design,version):
+
+def write_header(design,results,version):
     header = ["user","imgset"]
     # images shown
     for i in range(0, design.numb_refimg):
@@ -109,16 +106,21 @@ def get_header(design,version):
     for i in range(0, design.numb_img):
         header.append("stack_" + str(i+1) + "_name")
         header.append("stack_" + str(i+1) + "_files")
-        if version == "full":
-            header.append("stack_" + str(i+1) + "_tool_states")
-            header.append("stack_" + str(i+1) + "_viewport_info")
 
 
-    # get max number scale measurements and annotations
+
+    # image picked etc
+    header += ["picked_stack_name",
+               "picked_stack_files",
+               "date"]
+
+    # get dimensions for table
     max_numb_scale_measurments = {}
     max_numbtooldata_measurments = {}
+    max_stack_size = 0
     for result in results:
-        if result.scale_input:
+        # get max number scale measurements and annotations
+        if result.scale_input != "null":
             # scale input is a list dictonaries
             # each scale is dict 
             # keys are the text 
@@ -129,42 +131,65 @@ def get_header(design,version):
                     max_numb_scale_measurments[scale_text] = max(max_numb_scale_measurments[scale_text], len(scale_input[scale_text]["values"]))
                 else:
                     max_numb_scale_measurments[scale_text] = len(scale_input[scale_text]["values"])
-        # get numb anns
-        if result.tool_state:
+        # get max numb for tool data columns (e.g. rois, length measurments)
+        stack_picked = result.stack_picked
+        max_stack_size = max(max_stack_size,len(stack_picked.images))
+        if stack_picked.tool_state:
             # tools state is list of cornerstone tool states
             # each entry corresponds to an image within the stack
             # each tool state can consist of multiple roi and length measurments
-            stack_picked = result.stack_picked
             for i,image in enumerate(stack_picked.images):
                 tool_state = json.loads(stack_picked.tool_state)[i]
                 if tool_state:
                     for tool in tool_state:
-                        image_tool_state = image.name + "_" + tool
-                        if image_tool_state in max_numbtooldata_measurments.keys():
-                            max_numbtooldata_measurments[image_tool_state] = max(max_numbtooldata_measurments[image_tool_state],len(tool_state[tool]["data"]))
+                        if tool in max_numbtooldata_measurments.keys():
+                            max_numbtooldata_measurments[tool] = max(max_numbtooldata_measurments[tool],len(tool_state[tool]["data"]))
                         else:
-                            max_numbtooldata_measurments[image_tool_state] = len(tool_state[tool]["data"])
+                            max_numbtooldata_measurments[tool] = len(tool_state[tool]["data"])
 
     # scale_input
     for scale_text in max_numb_scale_measurments.keys():
         for i in range(max_numb_scale_measurments[scale_text]):
-            header.append(scale_text + "_" + i)
-            if version == "full":
-                header.append(scale_text + "_uuid_" + i)
+            header.append(scale_text + "measurement " + str(i+1))
 
-    # image picked etc
-    header += ["picked_stack_name",
-               "picked_stack_files",
-               "date"]
+    # tools data columns
+    for i in range(max_stack_size):
+        for tool in max_numbtooldata_measurments.keys():
+            for j in range(max_numbtooldata_measurments[tool]):
+                header.append("stackpos" + "_" + str(i+1) + "_" + tool + "_" + str(j+1) + "_start")
+                header.append("stackpos" + "_" + str(i+1) + "_" + tool + "_" + str(j+1) + "_end" )
+                if "Roi" in tool:
+                    header.append("stackpos" + "_" + str(i+1) + "_" + tool + "_" + str(j+1) + "_area")
+                if "Length" in tool:
+                    header.append("stackpos" + "_" + str(i+1) + "_" + tool + "_" + str(j+1) + "_length")
+                
+    # overlap columns
+    for i in range(max_stack_size):
+        for tool in max_numbtooldata_measurments.keys():
+            for j in range(max_numbtooldata_measurments[tool]):
+                if "Roi" in tool:
+                    header.append("stackpos" + "_" + str(i+1) + "_" + tool + "_" + str(j+1) + "_ious")
+                    header.append("stackpos" + "_" + str(i+1) + "_" + tool + "_" + str(j+1) + "_dice")
+                    header.append("stackpos" + "_" + str(i+1) + "_" + tool + "_" + str(j+1) + "_perc")
+    
+    # add raw data columns
+    if version=="full":
+        for i in range(max_stack_size):
+            for tool in max_numbtooldata_measurments.keys():
+                for j in range(max_numbtooldata_measurments[tool]):
+                    if "Roi" in tool:
+                        header.append("stackpos" + "_" + str(i+1) + "_" + tool + "_" + str(j+1) + "_uuid")
+                        header.append(scale_text + "_" + "_measurement_" + str(i+1) + "_uuid")
+                        header.append("stackpos" + "_" + str(i+1) + "_" + tool + "_" + str(j+1) + "_raw_data")
+        for i in range(0, design.numb_img):
+            header.append("stack_" + str(i+1) + "_viewport_info")
 
-    # tools and overlap columns
-    for image_tool in max_numbtooldata_measurments.keys():
-        for i in range(max_numbtooldata_measurments[image_tool]):
-            header.append(image_tool + "_" + i)
 
-    return header
 
-def get_result_row(result,design,users,version):
+
+    return header, max_numb_scale_measurments, max_numbtooldata_measurments, max_stack_size
+
+def write_result_row(result,design,users, max_numb_scale_measurments, max_numbtooldata_measurments, max_stack_size, version):
     row = []
     # username and imgset pos
     user = [user.username for user in users if user.id ==
@@ -176,129 +201,136 @@ def get_result_row(result,design,users,version):
 
     stack_picked = result.stack_picked
     # add stack infos
-    tool_state_gt = []
+    ground_truth_tool_state = []
     range_images = chain(range(0, design.numb_refimg), range(2, design.numb_img+2))
     for i in range_images:
         div_id_ref = "dicom_img_" + str(i)
         stack = result.imgset.get_stack_by_div_id(div_id_ref)
         # stack can be none if left blank
-        if stack:
-            row.append(stack.name)
-            row.append("|".join([image.name for image in stack.images]))
-            # tools state and viewport only shown for none ref images
-            if i > 1 and version == "full":
-                row.append(stack.tool_state)
-                row.append(stack.viewport)
-            if stack.name == stack_picked.name:
-                tool_state_gt = stack.tool_state
-        else:
-            if i > 1 and version == "full":
-                row.append([None, None, None, None])
-            else:
-                row.append([None, None])
+        row.append(stack.name)
+        row.append("|".join([image.name for image in stack.images]))
+        # tools state and viewport only shown for none ref images
+        if stack.name == stack_picked.name:
+            ground_truth_tool_state = stack.tool_state
+
+
+    # picked image and date
+    row.append(stack_picked.name)
+    row.append("|".join([image.name for image in stack_picked.images]))
+    row.append(result.created)
+
 
     # scale input
     if result.scale_input and result.scale_input != "null":
         scale_input = json.loads(result.scale_input)
-        # compatibility bug with old scale design (adjust db and remove these lines)
-        if isinstance(scale_input,int):
-            scale_input = {design.scales[0].text:{"values":[scale_input],"uuids":[]}}
-        # loop over scale text in results because in an old version the results scale could differ from 
-        # the design scale (changes to study after it already started)
-        for scale_text in scale_input.keys():
-            row.append(scale_text)
-            scale_values = scale_input[scale_text]["values"]
-            # scales can have multiple values or just one depending on type
-            # types: roi scales (repeated when roi drawn) and "normal"
-            if len(scale_values)==1:
-                row.append(scale_values[0])
-            elif len(scale_values)>1:
-                row.append(scale_values)
-            else:
-                row.append("")
-            if version == "full":
-                row.append(scale_input[design.scales[i].text]["uuids"])
+        row.extend(write_scale_input(scale_input,max_numb_scale_measurments))
 
 
-
-    # picked image etc.
-    row.append(stack_picked.name)
-    row.append("|".join([image.name for image in stack_picked.images]))
-    if version == "full":
-        row.append(stack_picked.tool_state)
-    row.append(result.created)
-
-
-    # length measuremnts
-    length_info = ""
-    length_start = ""
-    length_end = ""
-
+    # tool measuremnts
     if stack_picked.tool_state:
-        if "Length" in stack_picked.tool_state:
-            for i in range(len([image.name for image in stack_picked.images])):
-                tool_state = json.loads(stack_picked.tool_state)[i]
-                length = []
-                start = []
-                end = []
-                if tool_state:
-                    length_data_raw = json.loads(stack_picked.tool_state)[i]["Length"]["data"]
-                    length = [str(round(length_raw["length"],2)) for length_raw in length_data_raw]
-                    start = ["x:" + str(round(length_raw["handles"]["start"]["x"],2)) + " y:" + str(round(length_raw["handles"]["start"]["y"],2)) for length_raw in length_data_raw]
-                    end = ["x:" + str(round(length_raw["handles"]["end"]["x"],2)) + " y:" + str(round(length_raw["handles"]["end"]["y"],2)) for length_raw in length_data_raw]
-                if i > 0:
-                    length_info += "|"
-                    length_start += "|"
-                    length_end += "|"
+        tool_data = write_tool_data(stack_picked.tool_state, max_numbtooldata_measurments, max_stack_size)
+        row.extend(tool_data)
 
-                length_info += " / ".join(length)
-                length_start += " / ".join(start)
-                length_end += " / ".join(end)
+    # overlap metrics
+    if ground_truth_tool_state and stack_picked.tool_state:        
+        metrics = write_roi_metrics(stack_picked.tool_state, max_numbtooldata_measurments,max_stack_size, ground_truth_tool_state)
+        row.extend(metrics)
 
-    row.append(length_info)
-    row.append(length_start)
-    row.append(length_end)
-    
-    row += calc_roi_metric(stack_picked,tool_state_gt,"perc_correct_pixels")
-    row += calc_roi_metric(stack_picked,tool_state_gt,"iou")
-    row += calc_roi_metric(stack_picked,tool_state_gt,"dice")
+    # raw data
+    if version == "full":
+        raw_data = write_raw_data(max_numb_scale_measurments, max_numbtooldata_measurments, max_stack_size)
+        row.extend(raw_data)
 
     return row
 
 
-def calc_roi_metric(stack_picked,tool_state_gt,metric):
-    #calc ious and perc correct for all roi tools
-    cell = []
-    for i in range(len([stack_picked.images])):
-        results = []
-        if tool_state_gt and stack_picked.tool_state:
-            tool_state_image_gt = json.loads(tool_state_gt)[i]
-            tool_state_image_pi = json.loads(stack_picked.tool_state)[i]
+def write_scale_input(scale_input, max_numb_scale_measurments):
+    row = []
+    # compatibility bug with old scale design (adjust db and remove these lines)
+    if isinstance(scale_input,int):
+        scale_input = {design.scales[0].text:{"values":[scale_input],"uuids":[]}}
+    # loop over scale text in results because in an old version the results scale could differ from 
+    # the design scale (changes to study after it already started)
+    for scale_text in max_numb_scale_measurments.keys():
+        if scale_text in scale_input.keys():
+            scale_values = scale_input[scale_text]["values"]
+            scale_uuids = scale_input[scale_text]["uuids"]
+
+            # scales can have multiple values or just one depending on type
+            # types: roi scales (repeated when roi drawn) and "normal"
+            if len(scale_values)==max_numb_scale_measurments[scale_text]:
+                row.extend(scale_values)
+            else:
+                row.extend(scale_values)
+                for i in range(max_numb_scale_measurments[scale_text] - len(scale_values)):
+                    row.append("")
+
+
+    return row
+
+
+def write_tool_data(stack_picked_tool_state,max_numbtooldata_measurments,max_stack_size):
+    row = []    
+    tool_state_images = json.loads(stack_picked_tool_state)
+
+    # stack_picked_tool_state is list of cornerstone tool states
+    # each entry corresponds to an image within the stack
+    # each tool state can consist of multiple roi and length measurments    
+    for i in range(max_stack_size):
+        tool_state_image = tool_state_images[i]
+        for tool in max_numbtooldata_measurments.keys():
+            for j in range(max_numbtooldata_measurments[tool]):
+                if tool in tool_state_image.keys() and len(tool_state_image[tool]["data"]) > j:
+                    tool_state_image_data = tool_state_image[tool]["data"][j]
+                    start_pos = (tool_state_image_data["handles"]["start"]["x"],
+                                 tool_state_image_data["handles"]["start"]["y"])
+                    end_pos = (tool_state_image_data["handles"]["end"]["x"],
+                               tool_state_image_data["handles"]["end"]["y"])
+
+                    row.append(start_pos)
+                    row.append(end_pos)
+                    # write area or length data
+                    if "Roi" in tool:
+                        row.append(str(round(tool_state_image_data["cachedStats"]["area"],2)))
+                    if "Length" in tool:
+                        row.append(str(round(tool_state_image[tool]["data"][j]["length"],2)))
+
+
+                else:
+                    row.extend(["","",""])
+
+
+    return row
+
+    
+
+def write_roi_metrics(stack_picked_tool_state, max_numbtooldata_measurments, max_stack_size, ground_truth_tool_state):
+    metrics = []
+    tool_state_images = json.loads(stack_picked_tool_state)
+    tool_state_images_gt = json.loads(ground_truth_tool_state)
+    for i in range(max_stack_size):
+        if len(tool_state_images) > i and len(tool_state_images_gt) > i:
+            tool_state_image = tool_state_images[i]
+            tool_state_image_gt = tool_state_images_gt[i]
         else:
+            metrics.extend(["","",""])
             continue
-        # filter and only keep valid tool data (rois)
-        roi_types = ["EllipticalRoi", "RectangleRoi", "FreehandRoi"]
-        tool_state_image_gt_filtered = {}
-        tool_state_image_pi_filtered = {}
-        for roi_type in roi_types:
-            if roi_type in tool_state_image_gt.keys():
-                tool_state_image_gt_filtered[roi_type] = tool_state_image_gt[roi_type]
-            if roi_type in tool_state_image_pi.keys():
-                tool_state_image_pi_filtered[roi_type] = tool_state_image_pi[roi_type]
-        # calc metrics
-        for roi_type_gt in tool_state_image_gt_filtered.keys():
-            for roi_type_pi in tool_state_image_pi_filtered.keys():            
-                Roi_gt = eval(roi_type_gt + "(tool_state_image_gt_filtered" + "['" + roi_type_gt + "'])" )  
-                Roi_pi = eval(roi_type_pi + "(tool_state_image_pi_filtered" + "['" + roi_type_pi + "'])" ) 
-                calc_metrics = Roi_pi.calc_seq_metric(Roi_gt, metric)
-                calc_metrics = [str(calc_metric) for calc_metric in calc_metrics]
-                results += calc_metrics
-        cell.append(" ".join(results))
-    cell = [" | ".join(cell)]
-    return cell
+        for tool in max_numbtooldata_measurments.keys():
+            for j in range(max_numbtooldata_measurments[tool]):
+                if tool in tool_state_image.keys() and len(tool_state_image[tool]["data"]) > j and \
+                   tool in tool_state_image_gt.keys():
+                    tool_data = {"data":[tool_state_image[tool]["data"][j]]}
+                    roi = eval(tool + "(tool_data)" ) 
+                    tool_data_gt = tool_state_image_gt[tool]
+                    rois_gt = eval(tool + "(tool_data_gt)" )  
+                    for metric in ["iou","dice","perc_correct_pixels"]:
+                        metrics.append(max(rois_gt.calc_seq_metric(roi, metric)))
+                else:
+                    metrics.extend(["","",""])
+
+    return metrics
 
 
-"""    if stack_picked.tool_state and tool_state_gt:
-        roi_types = ["EllipticalRoi", "RectangleRoi", "FreehandRoi"]
-        for roi_type in roi_types:
-            if roi_type in tool_state_gt and roi_type in stack_picked.tool_state:"""
+def write_raw_data(max_numb_scale_measurments, max_numbtooldata_measurments, max_stack_size):
+    raw_data = []
+    return raw_data

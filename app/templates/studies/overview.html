@@ -6,11 +6,17 @@
 <div class="container">
   <div class="row mx-auto">
     <form action="{{ url_for('studies.study_login') }}" method="get">
-      <input type="submit" class="btn btn-secondary mr-2" value="Access Study">
+      <input type="submit" class="btn btn-secondary mr-2" value="Access Study" 
+             data-toggle="tooltip" data-placement="left"
+             title="Access any study for which you have the login. This functionality was included for study-admins for testing purposes." >
     </form>
     {% if g.user.access_level == 2 %}
     <form action="{{ url_for('studies.create_modify_study') }}" method="get">
-      <input type="submit" class="btn btn-success" value="Create New Study">
+      <input type="submit" class="btn btn-success" value="Create New Study" data-toggle="tooltip" data-placement="left"
+      title="Study creation is a 3 step process: 
+      1) Study name, access password, and description are selected. 
+      2) Study images are uploaded. 
+      3) Study design is finalized by customizing layout, image display and annotation options." disabled>
     </form>
   </div>
   <div class="row mx-auto mt-2">
