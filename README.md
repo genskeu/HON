@@ -15,7 +15,7 @@ Once you successfully installed and started docker there are two options two bui
 - start the application 
 5. open your browser, enter 0.0.0.0:8000 in the address field to access the application
 
-<p align="center">
+<p align="text-center">
 or
 </p>
 
