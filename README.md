@@ -14,9 +14,11 @@ Once you successfully installed and started docker there are two options two bui
 - define a name for the project and set the path to the downloaded code
 - start the application 
 5. open your browser, enter 0.0.0.0:8000 in the address field to access the application
+
 <p align="center">
 or
 </p>
+
 ### Build and start the application using the docker CLI  
 3. open the terminal (MacOS, Linux)/ command line (windows)
 - using the cd command navigate to the path with the application code 
