@@ -25,11 +25,11 @@ cd /"path_to_app_code"
 ```
 4. Build the application by typing: 
 ```
-docker compose-build
+docker-compose build
 ```
 5. Start the app with: 
 ```
-docker compose-up
+docker-compose up
 ```
 6. open your browser, enter 0.0.0.0:8000 in the address field to access the application
 
