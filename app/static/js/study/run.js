@@ -227,16 +227,29 @@ function check_ann_number(stack_tool_state){
 }
 
 
-//input to scale via keyboard (not working)
+//input to scale via keyboard + spacebar next image (not working)
 document.addEventListener("keydown",function(event){
-  scale = document.getElementById("scale_1")
-  if (event.keyCode > 47 & event.keyCode < 58 & scale != null) {
-    scaleRadio = document.getElementById(event.key)
-    if(scaleRadio != null){
-        scaleRadio.checked = true
-    }
+  var key_value = Number(event.key)
+  if(isNaN(key_value)){
+    //hot keys tools
+  } else if(event.key == " " && $(".vote_button:visible").length == 1){
+    //next image in single image studies such as VGA or ROC
+    $(".vote_button:visible").click()
+  } else {
+    //fill empty scale with keyboard input
+    var scale_to_fill = $(".scale_values:visible")[0];
+    // find first empty scale
+    $(".scale_values:visible").each(function(index,scale){
+      // for each scale check if a value has been selected
+      if($(scale).find(":radio:checked").length == 0){
+        scale_to_fill = scale
+        return
+      }
+    })
+    // fill scale with key_value
+    $(scale_to_fill).find(":radio[value=" +  key_value +"]").prop('checked', true);
   }
-})
+}) 
 
 //set hotkeys for tools
 //$("#tool_act_left option, #tool_act_wheel option").each(function(index,option){
