@@ -9,12 +9,12 @@ $(document).ready(function() {
     url = this.value
     //case 1 imgset data has already been saved to db
     if(url){
-      $.getJSON(url, function(imgset){
-        const current_imgset = imgset.images
-        const image = current_imgset.filter(function(image){
-          return image["div_id"] == div_id
+      $.getJSON(url, function(response){
+        const image_stacks = response.imgset.image_stacks
+        const image_stack = image_stacks.filter(function(image_stack){
+          return image_stack["div_id"] == div_id
         })[0]
-        cornerstone.setViewport(element,image.viewport)
+        cornerstone.setViewport(element,image_stack.viewport)
       })
     } else {
       //case 2 imgset data has not been saved to db

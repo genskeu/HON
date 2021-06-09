@@ -14,6 +14,10 @@ $(document).ready(function () {
         //if annotation tool selected show rois menue
         if(new_tool.includes("Roi")){
             $("#roi_settings_container").show()
+            $("#results_container").show()
+        } else {
+            $("#roi_settings_container").hide()
+            $("#results_container").hide()
         }
 
         //redraw image to hide annotations created with other tools no longer active
