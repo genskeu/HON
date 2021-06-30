@@ -49,19 +49,16 @@
           {% endfor %}
           <tr>
             <td>
-              <form action="{{ url_for('results.download_all', study_id=study.id, version='short') }}" method="GET" class="w-100">
+              <form action="{{ url_for('results.download_all', study_id=study.id) }}" method="POST" class="w-100">
+                <input type="checkbox" id="include_explanations" name="include_explanations" title="Adds a row to the output that explains each column (recomended for new users)."> include column explanations</input>
+                <br>
+                <input type="checkbox" id="include_raw_data" name="include_raw_data" title="Include raw annotation data, all filenames if stacks were used ..."> include raw data</input>
                 <button type="submit" class="btn btn-success btn-block">
-                  <h6 class="col-12 mt-1">download results (refined)</h6>
+                  <h6 class="col-12 mt-1">download results</h6>
                 </button>
               </form>
             </td>
-            <td>
-              <form action="{{ url_for('results.download_all', study_id=study.id, version='full') }}" method="GET" class="w-100">
-                <button type="submit" class="btn btn-success btn-block">
-                  <h6 class="col-12 mt-1">download results (raw)</h6>
-                </button>
-              </form>
-            </td>
+            <td></td>
             <td></td>
             <td></td>
           </tr>
