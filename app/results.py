@@ -216,7 +216,6 @@ def write_header(design,results,imgsets,version):
                 if "Roi" in tool:
                     header.append(tool + str(j+1) + "-iou-stackpos" + str(i+1))
                     header.append(tool + str(j+1) + "-dice-stackpos" + str(i+1))
-                    header.append(tool + str(j+1) + "-perc-stackpos" + str(i+1))
     
     # add raw data columns
     if version=="full":
@@ -264,9 +263,9 @@ def write_result_row(result,design,users, max_numb_scale_measurments, max_numbto
 
 
     # picked image and date
-    if max_stack_size_sp>1:
-        row.append(stack_picked.name)
-    if len(stack_picked.images) > 1:
+    if design.numb_img > 1:
+        if max_stack_size_sp>1:
+            row.append(stack_picked.name)
         row.append("|".join([image.name for image in stack_picked.images]))
     row.append(result.created)
 
@@ -413,10 +412,10 @@ def write_roi_metrics(stack_picked_tool_state, max_numbtooldata_measurments, max
                     roi = eval(tool + "(tool_data)" ) 
                     tool_data_gt = tool_state_image_gt[tool]
                     rois_gt = eval(tool + "(tool_data_gt)" )  
-                    for metric in ["iou","dice","perc_correct_pixels"]:
+                    for metric in ["iou","dice"]:
                         metrics.append(max(rois_gt.calc_seq_metric(roi, metric)))
                 else:
-                    metrics.extend(["","",""])
+                    metrics.extend(["",""])
 
     return metrics
 
