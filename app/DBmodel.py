@@ -601,7 +601,7 @@ def init_img_dir():
 #needed for tests etc
 def init_default_users():
     #test users
-    users = [("default_user","user",1),("default_study_admin","study_admin",2),("default_user_admin","user_admin",3)]
+    users = [("user","user",1),("sadmin","sadmin",2),("uadmin","uadmin",3)]
     for username,password,access_level in users:
         user = User(username=username,
                     password=generate_password_hash(password),

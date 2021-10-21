@@ -8,6 +8,10 @@ $(document).ready(function () {
 
 // function used when drawing an roi manually and when restoring annotations from db
 function add_roi_container(uuid,div_id_numb,toolName,tool_number,tool_state_data,element){ 
+  //check if roi container exists already
+  if(!uuid | $("#container_" + uuid).length){
+    return
+  }
   // add roi container
     let roi_info =
     '<div id="container_' + uuid + '" class="mt-1 badge-light roi_pos  ' + toolName + '">\
@@ -71,10 +75,29 @@ function add_roi_coordinates_container(points,toolName,uuid){
                         </div>\
                       </div>'
 
-    $("#container_" + uuid).append(point_div)
+    // freehand rois have many points
+    // default = collapse them
+    if (i == 2){
+      let points_btn = 
+      '<button class="btn btn-dark col-12 mb-2" data-toggle="collapse" data-target="#points_' + uuid + '" aria-expanded="false"\
+      aria-controls="sidebar" data-toggle="tooltip" data-placement="left">\
+        Points\
+      </button>'
+      let points = 
+        '<div id="points_' + uuid + '" class="row mx-auto collapse">\
+        </div>'
+        $("#container_" + uuid).append(points_btn)
+        $("#container_" + uuid).append(points)
+
+    } 
+    if (i == 0 | i == points.length - 1){
+      $("#container_" + uuid).append(point_div)
+    } else {
+      $("#points_" + uuid).append(point_div)
+    }
 
     //fct to update roi pos on input
-    $("#x_" + i + uuid).change(function () {
+    $("#x_" + i + uuid).change(function () { 
       point.x = $(this).val()
       cornerstone.updateImage(element)
     })

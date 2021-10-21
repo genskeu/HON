@@ -93,7 +93,7 @@ $(document).ready(function () {
 
     //validate roi number
     if (!check_ann_number(result["picked_stack"].tool_state)) {
-      alert("Incorrect number of markings!\nPlease check that exactly " + $("#numb_rois").val() + " markings have been placed.")
+      alert("Incorrect number of annotations!\nPlease check a maximum of " + $("#numb_rois").val() + " annotations have been placed.")
       return
     }
 
@@ -219,7 +219,7 @@ function check_ann_number(stack_tool_state){
   }
   
   //check if selected stack has the correct number of rois marked
-  if(numb_rois != counted_roi_number && numb_rois != "0"){
+  if(numb_rois < counted_roi_number && numb_rois != "0"){
     return false
   } else {
     return true

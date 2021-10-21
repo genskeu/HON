@@ -23,9 +23,6 @@ SQLAlchemy==1.3.18
 toml==0.10.1
 Werkzeug==1.0.1
 wheel==0.34.2
-mkl-fft==1.0.6
-mkl-random==1.0.1.1
-mkl
-mysqlclient==2.0.1
-pytest==0.0.0
+gunicorn
+
 

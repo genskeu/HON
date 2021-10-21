@@ -394,7 +394,7 @@ or by combining 1 signal positive image with m-1 signal negative images
             <div id="viewport_settings_auto" style="display:none;">
               <div class="row mb-2 mx-auto" >
                 <span class="badge badge-secondary col-12">
-                  <h5 class="mt-1">Define Viewport Settings</h5>
+                  <h5 class="mt-1">Define Image Viewer Settings</h5>
                 </span>
               </div>
               <div class="row mb-2 mx-auto">
@@ -492,7 +492,7 @@ or by combining 1 signal positive image with m-1 signal negative images
                     </div>
                     <div class="row mt-2 mx-auto">
                       <div class="input-group-prepend px-0 mx-0">
-                        <span class="input-group-text">Viewport Settings for Reference Image Stack differs from other Stacks
+                        <span class="input-group-text">Image Viewer Settings for Reference Image Stack differs from other Stacks
                           <input type="checkbox" class="ml-3" id="ref_viewport_auto"
                         </span>
                       </div>
@@ -580,7 +580,7 @@ After changing any design options dont forget to press the Save Design button.
           </div>
           <div id="general_settigs" class="collapse" {% if study.view == "participant" %} style="display:none;" {% endif %}>
             <div class="mx-auto">
-              <div class="input-group row mx-auto" title="Controls the number of reference images">
+              <div class="input-group row mx-auto" title="Controls max number of reference images">
                 <div class="input-group-prepend col-6 px-0 mx-0">
                   <span class="input-group-text col-12"># Ref-Images</span>
                 </div>
@@ -607,7 +607,7 @@ that need to be drawn by participants
 before evaluating the next picture. 
 Set to 0 to allow any number.">
                 <div class="input-group-prepend col-6 px-0 mx-0">
-                  <span class="input-group-text col-12"># ROIs</span>
+                  <span class="input-group-text col-12"># Annotations</span>
                 </div>
                 <input class="form-control" type="Number" step="any"  id="numb_rois" min="0"
                 {% if study.design.numb_rois %}value="{{study.design.numb_rois}}"{% else %} value="0" {% endif %}>
@@ -665,7 +665,7 @@ Set to 0 to allow any number.">
 
               <div class="input-group row mx-auto" title="Controls if image settings such as windowing or zoom level are displayed.">
                 <div class="input-group-prepend col-6 px-0 mx-0">
-                  <span class="input-group-text col-12">Viewport Info</span>
+                  <span class="input-group-text col-12">Img Viewer Info</span>
                 </div>
                 <input type="button" name="show_display" id="show_viewport_info"
                   {% if study.design.show_viewport_info %} value="Enabled" class="btn btn-success form-control"
@@ -846,7 +846,7 @@ To globally control viewport settings use the defaults submenu.">
           <div class="row mt-1 mx-auto">
             <button class="btn btn-dark col-12 mb-2" data-toggle="collapse" data-target="#viewport_settings"
               aria-expanded="true" aria-controls="viewport_settings">
-              <h4 class="w-100 mt-1" id="imgset_btn">Viewport Settings &#9776</h4>
+              <h4 class="w-100 mt-1" id="imgset_btn">Image Viewer &#9776</h4>
             </button>
           </div>
           {% endif %}
@@ -918,7 +918,7 @@ To globally control viewport settings use the defaults submenu.">
                 <span class="badge-secondary badge col-12">
                   <button class="btn btn-secondary btn-block" data-toggle="collapse" data-target="#viewport_{{i}}"
                     aria-expanded="true" aria-controls="viewport_{{i}}">
-                    <h5 class="col-12 mt-1">Viewport {% if i in [0,1]%}Ref-Image {{i+1}} {%elif i in range(2,10)%} Image {{i-1}} {% elif i in range(10,11) %} Image(s) {% elif i in range(11,12) %} Ref-Image(s) {%endif%}</h5>
+                    <h5 class="col-12 mt-1">{% if i in [0,1]%}Ref-Image {{i+1}} {%elif i in range(2,10)%} Image {{i-1}} {% elif i in range(10,11) %} Image(s) {% elif i in range(11,12) %} Ref-Image(s) {%endif%} Viewer</h5>
                   </button>
 
                   <div id="viewport_{{i}}"
@@ -961,7 +961,7 @@ To globally control viewport settings use the defaults submenu.">
                       </div>
                     </div>
                     <!--reset buttons -->
-                    <button id=reset_{{i}} class="btn btn-block btn-light reset">reset viewport</button>
+                    <button id=reset_{{i}} class="btn btn-block btn-light reset">reset</button>
                   </div>
                 </span>
               </div>

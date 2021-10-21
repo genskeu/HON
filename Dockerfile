@@ -2,9 +2,9 @@ FROM python:3.6-slim-buster
 WORKDIR /HON_full
 
 # conda env
-COPY requirements.txt ./
+COPY requirements_docker.txt ./
 RUN pip install --upgrade pip
-RUN pip3 install -r ./requirements.txt
+RUN pip3 install -r ./requirements_docker.txt
 
 # app folders with APP, tests ....
 COPY app ./app
