@@ -8,7 +8,9 @@ class ProductionConfig(Config):
     pass
 
 class DevelopmentConfig(Config):
-    pass
+    DEBUG = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///////home/uli/Insync/uligenske@gmail.com/Google Drive/Projekte_Uli/HON/Code/instance/dev_SQLite.db'
+    IMAGE_PATH = "/home/uli/Insync/uligenske@gmail.com/Google Drive/Projekte_Uli/HON/Code/instance/dev_images"
 
 class TestingConfig(Config):
     pass

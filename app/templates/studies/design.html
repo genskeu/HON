@@ -16,8 +16,11 @@
 <script src="https://unpkg.com/cornerstone-web-image-loader@2.1.1/dist/cornerstoneWebImageLoader.min.js"></script>
 
 <!-- cornerstone tools  -->
-<script src="https://cdn.jsdelivr.net/npm/cornerstone-tools@5.1.2/dist/cornerstoneTools.min.js"></script>
-
+{% if study.view == "participant" %}
+  <script src= "https://cdn.jsdelivr.net/gh/genskeu/csTools/cornerstoneTools.js"></script>
+{% else %}
+  <script src="https://cdn.jsdelivr.net/npm/cornerstone-tools@5.1.2/dist/cornerstoneTools.min.js"></script>
+{% endif %}
 
 <!--  JavaScript own -->
 <!--  JavaScript general -->
