@@ -206,8 +206,8 @@ class Design(db.Model):
         self.button_labels="Next"
         self.background_color="black"
         self.text_color="white"
-        self.numb_img=2
-        self.numb_refimg=1
+        self.numb_img=1
+        self.numb_refimg=0
         self.img_width=512
         self.img_height=512
         self.numb_rois=None

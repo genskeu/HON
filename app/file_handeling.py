@@ -48,7 +48,8 @@ def upload_files(files, study_dir):
 
 
 
-#retrieve , upload or delete files to study API endpoint returning json
+#retrieve , upload or delete files to study
+# should be seperated into different routes and functions, bc bad design
 @bp.route('/files/<int:study_id>', methods=['GET', 'POST', 'DELETE'])
 @login_required
 @access_level_required([2])

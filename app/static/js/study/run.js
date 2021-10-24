@@ -217,7 +217,7 @@ function check_ann_number(stack_tool_state){
       }
     })
   }
-  
+
   //check if selected stack has the correct number of rois marked
   if(numb_rois < counted_roi_number && numb_rois != "0"){
     return false
@@ -227,7 +227,7 @@ function check_ann_number(stack_tool_state){
 }
 
 
-//input to scale via keyboard + spacebar next image (not working)
+//input to scale via keyboard + spacebar next image
 document.addEventListener("keydown",function(event){
   var key_value = Number(event.key)
   if(isNaN(key_value)){
@@ -237,19 +237,21 @@ document.addEventListener("keydown",function(event){
     $(".vote_button:visible").click()
   } else {
     //fill empty scale with keyboard input
-    var scale_to_fill = $(".scale_values:visible")[0];
+    var scale_to_fill;
     // find first empty scale
     $(".scale_values:visible").each(function(index,scale){
       // for each scale check if a value has been selected
       if($(scale).find(":radio:checked").length == 0){
         scale_to_fill = scale
-        return
+        return false
       }
     })
-    // fill scale with key_value
-    $(scale_to_fill).find(":radio[value=" +  key_value +"]").prop('checked', true);
+    if(scale_to_fill){
+        // fill scale with key_value
+        $(scale_to_fill).find(":radio[value=" +  key_value +"]").prop('checked', true);
+    }
   }
-}) 
+})
 
 //set hotkeys for tools
 //$("#tool_act_left option, #tool_act_wheel option").each(function(index,option){
