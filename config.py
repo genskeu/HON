@@ -17,4 +17,3 @@ class TestingConfig(Config):
 class DockerConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'sqlite://////HON_full/HON_SQLite.db'
     IMAGE_PATH = "/HON_full/instance/images"
-    SESSION_COOKIE_SECURE = False
