@@ -2,6 +2,7 @@
 
 {% block content %}
 <script src="{{url_for('static', filename = 'js/misc.js')}}">  </script>
+<script src="{{url_for('static', filename = 'js/study/get_results.js')}}">  </script>
 
 <div class="container">
 
@@ -22,7 +23,7 @@
       </button>
     </div>
     {% set study_length = study.imgsets|length %}
-    <div class="row mx-auto collapse show" id="study_{{study.id}}">
+    <div class="mx-auto collapse show" id="study_{{study.id}}">
       <table class="table table-hover">
         <thead class="thead-light">
           <tr>
@@ -47,24 +48,33 @@
             </td>
           </tr>
           {% endfor %}
-          <tr>
-            <td>
-              <form action="{{ url_for('results.download_all', study_id=study.id) }}" method="GET" class="w-100">
-                <input type="checkbox" id="include_explanations" name="include_explanations" title="Adds a row to the output that explains each column (recomended for new users)."> include column explanations</input>
-                <br>
-                <input type="checkbox" id="include_raw_data" name="include_raw_data" title="Include raw annotation data, all filenames if stacks were used ..."> include raw data</input>
-                <button type="submit" class="btn btn-success btn-block">
-                  <h6 class="col-12 mt-1">download results</h6>
-                </button>
-              </form>
-            </td>
-            <td></td>
-            <td></td>
-            <td></td>
-          </tr>
         </tbody>
       </table>
-
+      <div class="row mb-3">
+          <div class="col-4">
+            <button id="results_study_{{study.id}}" class="btn btn-success btn-block get_results_btn">
+              <h6 class="mt-1">download results</h6>
+            </button>
+          </div>
+          <div class="col-4">
+            <input type="checkbox" id="include_explanations_{{study.id}}" name="include_explanations"
+              title="Adds a row to the output that explains each column (recomended for new users).">
+            include column explanations
+            </input>
+            <br>
+            <input type="checkbox" id="include_raw_data_{{study.id}}" name="include_raw_data"
+              title="Include raw annotation data, all filenames if stacks were used ..."> include raw data
+            </input>
+          </div>
+      </div>
+      <div class="row mb-3">
+        <div class="col-4">
+          <div class="row justify-content-center">
+            <div id="loader_anim_man_{{study.id}}" class=""></div>
+            <div id="loader_text_man_{{study.id}}" class="mt-3" style="display: none;">Please wait</div>
+          </div>
+        </div>
+      </div>
 
     </div>
     {% endfor %}
@@ -72,7 +82,4 @@
   {% endif %}
 
 </div>
-
-
-
 {% endblock %}

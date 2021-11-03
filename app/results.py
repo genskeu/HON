@@ -1,5 +1,4 @@
-from app.studies import study
-from flask import Blueprint, g, render_template, jsonify, request, url_for,make_response, current_app
+from flask import Blueprint, g, render_template, jsonify, request, url_for, current_app, send_from_directory, send_file
 from .auth import login_required, access_level_required
 import json
 import csv
@@ -37,6 +36,7 @@ def get_result(id):
     response["result"] = result.to_dict()
     return response
 
+
 # results overview
 @bp.route('/results/overview')
 @login_required
@@ -68,29 +68,40 @@ def delete_result(study_id,user_id):
         response["redirect"] = url_for("results.overview")
         return jsonify(response)
 
-# results save all
+
+# download csv file 
+@bp.route('/results/download/<study_id>',methods=["GET"])
+@login_required
+@access_level_required([2])
+def download_csv(study_id):
+    filename = "results_study_%s.csv" % study_id
+    filepath=os.path.join(current_app.config["IMAGE_PATH"],filename)
+    return send_file(filepath, filename, as_attachment=True)
+
+
+# create csv file 
 @bp.route('/results/<study_id>',methods=["GET"])
 @login_required
 @access_level_required([2])
-def download_all(study_id):
+def create_csv(study_id):
     study = Study.query.filter_by(id=study_id).first()
     results = Result.query.filter_by(study_id=study_id).options(joinedload('imgset'),
                                                                 joinedload('imgset.image_stacks'),
                                                                 lazyload('imgset.results')).all()
     users = User.query.all()
     version = "short"
-    if request.form.get("include_raw_data"):
+    if request.args.get("include_raw_data"):
         version = "full"
 
     # write header
-    file_name = study.title + '_all_results.csv'
-    si = io.StringIO()
-    writer = csv.writer(si, delimiter=';')
+    filepath=os.path.join(current_app.config["IMAGE_PATH"],"results_study_%s.csv" % study_id)
+    f = open(filepath, "w")
+    writer = csv.writer(f, delimiter=';')
     header, max_numb_scale_measurments, max_numbtooldata_measurments_sp, max_stack_size_sp, max_numbtooldata_measurments_gt, max_stack_size_gt = write_header(study.design,results,study.imgsets,version)
     writer.writerow(header)
 
     # write column explanation (optional)
-    if request.form.get("include_explanations"):
+    if request.args.get("include_explanations"):
         expl = get_expl(header,max_numb_scale_measurments,max_numbtooldata_measurments_sp)
         writer.writerow(expl)
 
@@ -99,12 +110,10 @@ def download_all(study_id):
         row = write_result_row(result,study.design,users,max_numb_scale_measurments, max_numbtooldata_measurments_sp, max_stack_size_sp, max_numbtooldata_measurments_gt, max_stack_size_gt,version)
         writer.writerow(row)
 
-    output = make_response(si.getvalue())
-    output.headers["Content-Disposition"] = "attachment; filename=" + file_name
-    output.headers["Content-type"] = "text/csv"
+    f.close()
 
-    return output
-
+    resp = jsonify(success=True)
+    return resp
 
 
 def write_header(design,results,imgsets,version):
@@ -184,7 +193,6 @@ def write_header(design,results,imgsets,version):
 
     # scale_input
     for scale_text in max_numb_scale_measurments.keys():
-        print(max_numb_scale_measurments)
         if max_numb_scale_measurments[scale_text] < 2:
             header.append(scale_text)
         else:
@@ -473,7 +481,6 @@ def get_expl(header,max_numb_scale_measurments,max_numbtooldata_measurments_sp):
             for tool in max_numbtooldata_measurments_sp.keys():
                 ann_heading = re.sub(tool,"ann",heading)
                 if ann_heading in dictionary.keys() and tool in heading:
-                    print(ann_heading)
                     expl.append(dictionary[ann_heading])
         else:
             expl.append("")

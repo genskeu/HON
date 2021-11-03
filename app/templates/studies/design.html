@@ -41,7 +41,7 @@
   <script src="{{url_for('static', filename = 'js/study/design_misc.js')}}"></script>
 <!--  JavaScript run study -->
 {% elif study.view == "participant" %}
-  <script src= "{{url_for('static', filename = 'js/study/run.js')}}"></script>
+  <script src= "{{url_for('static', filename = 'js/study/study_participation.js')}}"></script>
 {% endif %}
 
 {% endblock %}
@@ -304,8 +304,8 @@ or by combining 1 signal positive image with m-1 signal negative images
                 </div>
               </div>
               <div class="row justify-content-center">
-                <div id="loader_anim_man" class="mt-1 ml-4"></div>
-                <div id="loader_text_man" class="col-1 mt-3 text-center" style="display: none;">Please wait</div>
+                <div id="loader_anim_man" class="mt-1"></div>
+                <div id="loader_text_man" class="mt-3 text-center" style="display: none;">Please wait</div>
               </div>
             </div>
 
