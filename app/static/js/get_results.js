@@ -24,7 +24,6 @@ $(document).ready(function(){
         $("#loader_text_man_" + study_id).text("An error occurred!")
       }).always(function(){
         $("#loader_anim_man_" + study_id).removeClass("loader")
-        var buttons = $(".get_results_btn");
         buttons.each(function (index, button) {
           $(button).prop('disabled', false);
         })
