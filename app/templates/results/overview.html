@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<script src="{{url_for('static', filename = 'js/misc.js')}}">  </script>
-<script src="{{url_for('static', filename = 'js/study/get_results.js')}}">  </script>
+<script src="{{url_for('static', filename = 'js/get_results.js')}}">  </script>
+<script src="{{url_for('static', filename = 'js/delete_result.js')}}">  </script>
 
 <div class="container">
 
@@ -43,7 +43,7 @@
                    study_length * 100 )|round}} %</td>
             <td class="align-middle">
               <button class="btn-danger btn-sm"
-                onclick="delete_db_entry('result','{{study.id}}','{{user_study_progress.user_id}}')">delete
+                onclick="delete_result('{{study.id}}','{{user_study_progress.user_id}}')">delete
               </button>
             </td>
           </tr>
@@ -71,7 +71,7 @@
         <div class="col-4">
           <div class="row justify-content-center">
             <div id="loader_anim_man_{{study.id}}" class=""></div>
-            <div id="loader_text_man_{{study.id}}" class="mt-3" style="display: none;">Please wait</div>
+            <div id="loader_text_man_{{study.id}}" class="ml-1 mt-3" style="display: none;">Please wait</div>
           </div>
         </div>
       </div>

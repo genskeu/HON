@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<script src="{{url_for('static', filename = 'js/misc.js')}}">  </script>
+<script src="{{url_for('static', filename = 'js/study/delete_study.js')}}">  </script>
 
 <div class="container">
   <div class="row mx-auto">
@@ -50,7 +50,7 @@
             </form>
           </td>
           <td>
-            <button class="btn-danger btn-sm" onclick="delete_db_entry('study','{{study.title}}','{{study.id}}')">delete
+            <button class="btn-danger btn-sm" onclick="delete_study('{{study.title}}','{{study.id}}')">delete
             </button>
           </td>
         </tr>

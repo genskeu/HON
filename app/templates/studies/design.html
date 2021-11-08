@@ -24,21 +24,21 @@
 
 <!--  JavaScript own -->
 <!--  JavaScript general -->
-<script src="{{url_for('static', filename = 'js/study/cornerstone_init.js')}}"></script>
-<script src="{{url_for('static', filename = 'js/study/cornerstone_tools.js')}}"></script>
-<script src="{{url_for('static', filename = 'js/study/cornerstone_load_save_img.js')}}"></script>
-<script src="{{url_for('static', filename = 'js/study/cornerstone_viewport.js')}}"></script>
-<script src="{{url_for('static', filename = 'js/study/cornerstone_rois.js')}}"></script>
-<script src="{{url_for('static', filename = 'js/study/design_options.js')}}"></script>
-<script src="{{url_for('static', filename = 'js/study/design_scales.js')}}"></script>
+<script src="{{url_for('static', filename = 'js/study/cornerstone/cornerstone_init.js')}}"></script>
+<script src="{{url_for('static', filename = 'js/study/cornerstone/cornerstone_tools.js')}}"></script>
+<script src="{{url_for('static', filename = 'js/study/cornerstone/cornerstone_load_save_img.js')}}"></script>
+<script src="{{url_for('static', filename = 'js/study/cornerstone/cornerstone_viewport.js')}}"></script>
+<script src="{{url_for('static', filename = 'js/study/cornerstone/cornerstone_rois.js')}}"></script>
+<script src="{{url_for('static', filename = 'js/study/design/design_options.js')}}"></script>
+<script src="{{url_for('static', filename = 'js/study/design/design_scales.js')}}"></script>
 
 
 <!--  JavaScript design -->
 {% if study.view == "study_admin" %}
-  <script src="{{url_for('static', filename = 'js/study/design_create_man.js')}}"></script>
-  <script src="{{url_for('static', filename = 'js/study/design_create_auto.js')}}"></script>
-  <script src="{{url_for('static', filename = 'js/study/design_sidebar.js')}}"></script>
-  <script src="{{url_for('static', filename = 'js/study/design_misc.js')}}"></script>
+  <script src="{{url_for('static', filename = 'js/study/design/design_create_man.js')}}"></script>
+  <script src="{{url_for('static', filename = 'js/study/design/design_create_auto.js')}}"></script>
+  <script src="{{url_for('static', filename = 'js/study/design/design_sidebar.js')}}"></script>
+  <script src="{{url_for('static', filename = 'js/study/design/design_misc.js')}}"></script>
 <!--  JavaScript run study -->
 {% elif study.view == "participant" %}
   <script src= "{{url_for('static', filename = 'js/study/study_participation.js')}}"></script>
