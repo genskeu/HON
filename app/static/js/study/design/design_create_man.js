@@ -101,6 +101,7 @@ $(document).ready(function () {
   });
 });
 
+// after an imgset has been added the sidebar needs to be updated
 function add_sidebar_entry(position, study_id) {
   $("#sidebar").append(
     '<div class="row">' +
@@ -211,6 +212,8 @@ $(document).ready(function () {
   )
 })
 
+// viewport defaults can be defined via the viewport menu
+// function needed to apply defaults before images are loaded
 function set_viewport_defaults(viewport) {
   var ww = $("#def_ww").val()
   var wc = $("#def_wc").val()

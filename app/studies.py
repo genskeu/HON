@@ -419,12 +419,13 @@ def random_imgsets():
             stack_name = "_".join(image.name.split("_")[0:3])
 
         if stack_name in image_stacks:
-            image_stacks[stack_name]["image_names"].append(image.name)
+            image_stacks[stack_name]["images"].append(image)
         else:
             image_stacks[stack_name] = {}
             image_stacks[stack_name]["name"] = stack_name
             image_stacks[stack_name]["viewport"] = viewport
-            image_stacks[stack_name]["image_names"] = [image.name]
+            image_stacks[stack_name]["images"] = [image]
+            
 
     if ref_stack_name in image_stacks.keys():
         ref_stack = image_stacks[ref_stack_name]
@@ -454,8 +455,7 @@ def random_imgsets():
                 image_stack.name = stack["name"]
                 image_stack.viewport = json.dumps(stack["viewport"])
                 with db.session.no_autoflush:
-                    for image_name in stack["image_names"]:
-                        image = Image.query.filter_by(name=image_name).first()
+                    for image in stack["images"]:
                         image_stack.images.append(image)
                     imgset.image_stacks.append(image_stack)
 
@@ -465,8 +465,7 @@ def random_imgsets():
                 image_stack_ref.name = ref_stack["name"]
                 image_stack_ref.viewport = json.dumps(viewport_ref)
                 with db.session.no_autoflush:
-                    for image_name in ref_stack["image_names"]:
-                        image = Image.query.filter_by(name=image_name).first()
+                    for image in ref_stack["images"]:
                         image_stack_ref.images.append(image)
                     imgset.image_stacks.append(image_stack_ref)
 
