@@ -6,7 +6,7 @@
 
 {% block content %}
 <div class="container h-100">
-  <div class="row justify-content-center align-items-center h-100">
+  <div class="row justify-content-center h-100">
     <div class="col-12">
 
       <span  class="badge badge-dark w-100 mt-1">
@@ -93,7 +93,16 @@
         </button>
         <div id="files_upload" class="collapse show bg-light">
           <h6 class="badge badge-light w-100">Progress</h6>
-          <div id="progress_bars" class="overflow-auto row w-100 mx-auto" style="height:250px;"></div>
+          <div id="upload_infos" class="overflow-auto w-100 mx-auto" style="height:250px;">
+            <div class='progress w-100'>
+              <div class='progress-bar' id='progress'></div>
+            </div>
+            <div class='row mx-auto' id='uploadStatus'></div>
+            <div class='row mx-auto' id='files_uploaded'></div>
+            <div class='row mx-auto' id='files_not_uploaded'></div>
+
+          </div>
+
           <div class="row mx-auto">
             <div class="custom-file mx-auto col-6">
               <input type="file" name="file" class="custom-file-input" id="file" multiple {% if study is none %}
