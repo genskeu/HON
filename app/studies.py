@@ -483,21 +483,6 @@ def random_imgsets():
     response["error_imgsets"] = error_imgsets
     return response
 
-# randomize imgset order of exisiting study
-@bp.route('/study/randomize/<int:study_id>', methods=['POST'])
-@login_required
-@access_level_required([2])
-def randomize(study_id):
-    study = Study.query.filter_by(id=study_id).first()
-    study.shuffle_imgsets()
-    #study.update_imgset_pos()
-    imgsets = []
-    for imgset in study.imgsets:
-        imgsets.append(imgset.to_dict())
-
-    response = {}
-    response["imgsets"] = imgsets
-    return jsonify(response)
 
 #get, delete or update all imgsets
 @bp.route('/study/imgsets/<int:study_id>', methods=['GET','DELETE','PUT'])
