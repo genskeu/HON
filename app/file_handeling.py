@@ -18,7 +18,8 @@ def get_file(user_id,study_id,image_name):
     else:
         abort(404, description="Resource not found")
 
-# upload images
+
+# helper functions fpr file upload
 ALLOWED_EXTENSIONS = set(['jpg', 'jpeg', 'dcm', 'zip', 'png'])
 
 
@@ -27,49 +28,80 @@ def allowed_file(filename):
     return '.' in filename and \
            file_type.lower() in ALLOWED_EXTENSIONS
 
-
-# code from flask-tutorial
-def upload_files(files, study_dir):
-    for file in files.getlist('file'):
-        # if user does not select file, browser also
-        # submit an empty part without filename
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(study_dir, filename))
-            if "zip" == filename[-3:]:
-                with zipfile.ZipFile(file, 'r') as zip_ref:
-                    zip_ref.extractall(study_dir)
-                    zip_ref.close
-                    os.remove(os.path.join(study_dir, filename))
-
-
-
-# add files to study
-@bp.route('/add_files/<int:study_id>', methods=['POST'])
+# upload files to study
+@bp.route('/upload_files/<int:study_id>', methods=['POST'])
 @login_required
 @access_level_required([2])
-def add_files(study_id):
+def upload_files(study_id):
     study = Study.query.filter_by(id=study_id).first()
     image_dir = study.get_image_dir()
+    image_names_study = [image.name for image in study.images]
     files = request.files
-    filenames = []
+    filenames_saved = []
+    filenames_not_saved = []
+    
+    # save file to image dir
     for f in files.getlist('file'):
         filename = secure_filename(f.filename)
-        filenames.append(f.filename)
-        if filename not in [image.name for image in study.images] and allowed_file(filename):
-            image = Image(name=filename,base_url=request.url_root + "get_file/{}/{}/".format(g.user.id,study.id))
-            study.images.append(image)
-    upload_files(files, image_dir)
-    db.session.commit()
+        if filename not in image_names_study and allowed_file(filename):
+            try:
+                f.save(os.path.join(image_dir, filename))
+                filenames_saved.append(f.filename)
+            except:
+                print("Error saving {}.".format(filename))
+            if "zip" == filename[-3:]:
+                filenames_saved.remove(f.filename)
+                filenames_unzipped, filenames_not_unzipped = unzip_images(filename, image_dir, study)
+                filenames_saved += filenames_unzipped
+                filenames_not_saved += filenames_not_unzipped
+        else:
+            filenames_not_saved.append(filename)
 
-    # validate that db entries == files in image dir and get names of files exisitng in both
+    # save image infos to db
+    for filename in filenames_saved:
+        image = Image(name=filename,base_url=request.url_root + "get_file/{}/{}/".format(g.user.id,study.id))
+        study.images.append(image)
+    try:
+        db.session.commit()
+    except:
+        print("Error saving uploaded images to database for study {} {}.".format(study.title, study.id))
+        for filename in filenames_saved:
+            os.remove(os.path.join(image_dir, filename))
+            filenames_saved.remove(filename)
+            filenames_not_saved.append(filename)
+
     response = {}
-    image_names,image_names_err = validate_imagedir_imagedb(study)
-    image_names_added = [image_name for image_name in image_names if image_name in filenames]
-    response["image_names"] = image_names
-    response["image_names_err"] = image_names_err
-    response["image_names_added"] = image_names_added
+    response["filenames_db"] = [image.name for image in study.images]
+    response["filenames_not_saved"] = filenames_not_saved
+    response["filenames_saved"] = filenames_saved
     return jsonify(response)
+
+
+# unzip fct
+def unzip_images(image_zip,image_dir, study):
+    with zipfile.ZipFile(os.path.join(image_dir, image_zip), 'r') as zip_ref:
+        filepaths = zip_ref.namelist()
+        filenames_unzipped = []
+        filenames_not_unzipped = []
+        for filepath in filepaths:
+            # skip directories
+            filename = os.path.basename(filepath)
+            if filename not in [image.name for image in study.images] and allowed_file(filename):
+                try:
+                    zip_ref.extract(filename, image_dir)
+                    filenames_unzipped.append(filename)
+                except:
+                    print("Error unzipping {}.".format(filename))
+            else:
+                filenames_not_unzipped.append(filename)
+    zip_ref.close
+    try:
+        os.remove(os.path.join(image_dir, image_zip)) 
+    except:
+        print("Error removing {}.".format(image_zip))
+
+    return filenames_unzipped, filenames_not_unzipped
+
 
 
 # get filenames of files attached to a study
@@ -80,9 +112,8 @@ def get_filenames(study_id):
     study = Study.query.filter_by(id=study_id).first()
     response = {}    
    
-    # validate that db entries == files in image dir and get names of files exisitng in both
-    image_names = validate_imagedir_imagedb(study)[0]
-    response["image_names"] = image_names
+    image_names_db = [image.name for image in study.images]
+    response["filenames_db"] = image_names_db
 
     return jsonify(response)
 
@@ -92,41 +123,33 @@ def get_filenames(study_id):
 @login_required
 @access_level_required([2])
 def delete_files(study_id):
-    response = {}     
     study = Study.query.filter_by(id=study_id).first()
     image_dir = study.get_image_dir()   
     filenames = request.get_json()
+    # delete from db
     for f in filenames:
-        image_path = os.path.join(image_dir,f)
-        os.remove(image_path)
         base_url=request.url_root + "get_file/{}/{}/".format(g.user.id,study.id)
         image = Image.query.filter_by(name = f,base_url=base_url).first()
-        db.session.delete(image)
-        db.session.commit()
+        try:
+            db.session.delete(image)
+        except:
+            print("Error deleting image {} from database for study {} {}.".format(f, study.title, study.id))
+            raise Exception
+    db.session.commit()
 
-    # validate that db entries == files in image dir and get names of files exisitng in both
-    image_names = validate_imagedir_imagedb(study)[0]
-    response["image_names"] = image_names
+    # delete from dir
+    image_names_dir = os.listdir(image_dir)
+    for f in filenames:
+        if f in image_names_dir:    
+            try:
+                image_path = os.path.join(image_dir,f)
+                os.remove(image_path)
+            except:
+                print("Error deleting image {} from dir for study {} {}.".format(image_path,study.title, study.id))
+    
+    response = {}     
+    image_names_db = [image.name for image in study.images]
+    response["filenames_db"] = image_names_db
     return jsonify(response)
 
 
-# check db entries and files in image dir are identical
-def validate_imagedir_imagedb(study):
-    image_dir = study.get_image_dir()
-    image_names_db = set([image.name for image in study.images])
-    image_names_dir = set(os.listdir(image_dir))
-
-    image_names = image_names_db.intersection(image_names_dir)
-    image_names_db_only = image_names_db.difference(image_names_dir)
-    image_names_dir_only = image_names_dir.difference(image_names_db)
-    for image_name_db_only in image_names_db_only:
-        base_url=request.url_root + "get_file/{}/{}/".format(g.user.id,study.id)
-        image = Image.query.filter_by(name = image_name_db_only,base_url=base_url).first()
-        db.session.delete(image)
-    db.session.commit()
-    
-    for image_name_dir_only in image_names_dir_only:
-        image_path = os.path.join(image_dir,image_name_dir_only)
-        os.remove(image_path)
-
-    return list(image_names), list(image_names_db_only) + list(image_names_dir_only)

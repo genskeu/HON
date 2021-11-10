@@ -16,7 +16,7 @@ $(document).ready(function(){
 // after fileupload, del .... update the list of files already uploaded
 function update_study_files(response){
     $("#file_list").empty();
-    response["image_names"].sort().forEach(element => {
+    response["filenames_db"].sort().forEach(element => {
       $("#file_list").append("<tr>" + 
                               "<td style='width: 8%'>" + "<input type='checkBox' class='file' id=" + element + "></td>" +
                               "<td style='width: 42%'><label>" + element + "</label></td>" + 
@@ -40,7 +40,7 @@ $(document).ready(function(){
   $("#upload_files").click(function(){
     //get request data
     var study_id = location.pathname.match(/\d+/)[0]
-    var url = "/add_files/" + study_id    
+    var url = "/upload_files/" + study_id    
     var files = $('#file')[0].files;
     if(files.length == 0){
       $('#uploadStatus').html('No files selected.');
@@ -83,17 +83,17 @@ $(document).ready(function(){
         $('#files_not_uploaded').html("")
       }
     }).done(function(response){
+        update_study_files(response)
         $('#files')[0].reset();
         $("#file").siblings(".custom-file-label").removeClass("selected").html("Choose files");
         $('#uploadStatus').html("Upload finished.")
-        $('#files_uploaded').html('<p style="color:#28A74B;">  The following files have been uploaded successfully:'  + response["image_names_added"] + '</p>');
-        if(response["image_names_err"].length){
-          $('#files_not_uploaded').html('<p style="color:#EA4335;"> The following files have have been uploaded but not saved! Please check the file format and ending.' + response["image_names_err"] + '</p>');
+        $('#files_uploaded').html('<p style="color:#28A74B;">  The following files have been uploaded successfully:'  + response["filenames_saved"] + '</p>');
+        if(response["filenames_not_saved"].length){
+          $('#files_not_uploaded').html('<p style="color:#EA4335;"> The following files have have not been uploaded: (Either a file with a similar name was already present or the file has an incorrect file format, check the ending) ' + response["filenames_not_saved"] + '</p>');
         }
     }).fail(function(){
       $('#uploadStatus').html('<p style="color:#EA4335;">File upload failed, please try again.</p>');
     }).always(function(response){
-      update_study_files(response)
       buttons.each(function(index,button){
         $(button).prop('disabled', false);
         })
