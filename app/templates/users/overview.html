@@ -19,7 +19,7 @@
       aria-expanded="false" aria-controls="table{{i}}">
       <h5 class="col-12 mt-1">{{roles[i]}}s &#9776</h5>
     </button>
-    <table class="table table-hover collapse" id="table{{i}}">
+    <table class="table table-hover show" id="table{{i}}">
       <thead class="thead-dark">
         <tr>
           <!-- col-3 for width of cloumns does not work in chrome for tables use style="width: 25%" -->
@@ -38,14 +38,14 @@
           <td class="align-middle">{{user["id"]}}</td>
           <td class="align-middle">{{user["created"]}}</td>
           <td class="align-middle">
-            {% if g.user.access_level == 3 %}
+            {% if g.user.access_level == 3 and user.access_level < 3 %}
             <form class="" action="{{url_for('users.get_user', id = user.id)}}" method="get">
               <button class="btn-secondary btn-sm">modify</button>
             </form>
             {% endif %}
           </td>
           <td class="align-middle">
-            {% if g.user.access_level  == 3 %}
+            {% if g.user.access_level  == 3 and user.access_level < 3 %}
             <button class="btn-danger btn-sm" onclick="delete_user('{{user.username}}','{{user.id}}')">delete
             </button>
             {% endif %}

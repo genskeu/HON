@@ -25,7 +25,7 @@ function delete_user(name, id) {
         $("#loader_text").text("An error occurred!")
       }
     }).always(function(){
-      $("#loader_anim_man").removeClass("loader")
+      $("#loader_anim").removeClass("loader")
       buttons.each(function (index, button) {
         $(button).prop('disabled', false);
       })

@@ -85,19 +85,22 @@ def modify_user(id):
         error = "User {} is already registered.".format(username)
 
     if error is None:
-        # only update attr which are not none
-        if username:
-            user.username = username
-        if password:
-            user.password = generate_password_hash(password)
-        user.access_level = access_level
-        db.session.commit()
-        # for study admin create folder in image dir 
-        path = os.path.join(current_app.config['IMAGE_PATH'],str(user.id))
-        if user.access_level == 2 and not os.path.isdir(path):
-            os.makedirs(path)
-                
-        return redirect(url_for('users.overview'))
+        if user.access_level < 3:
+            # only update attr which are not none
+            if username:
+                user.username = username
+            if password:
+                user.password = generate_password_hash(password)
+            user.access_level = access_level
+            db.session.commit()
+            # for study admin create folder in image dir 
+            path = os.path.join(current_app.config['IMAGE_PATH'],str(user.id))
+            if user.access_level == 2 and not os.path.isdir(path):
+                os.makedirs(path)
+            return redirect(url_for('users.overview'))
+        else:
+            error = "Permission denied." 
+            flash(error)
     else:
         flash(error)
     return render_template("users/mk_md_user.html", user=user)
@@ -157,4 +160,4 @@ def profile():
 
         else:
             flash(error)
-    return render_template("users/mk_md_user.html", user= user)
+    return render_template("users/mk_md_user.html", user=user, profile=True)
