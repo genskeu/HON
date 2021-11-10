@@ -113,10 +113,9 @@ $(document).ready(function(){
       })
 
     // loading animation
-    $("#loader_anim_man").addClass("loader")
-    $("#loader_text_man").fadeIn()
-    $("#loader_text_man").text("Please wait")
-
+    $("#loader_anim_del").addClass("loader")
+    $("#loader_text_del").text("Please wait")
+    $("#files_del").fadeIn()
     var study_id = location.pathname.match(/\d+/)[0]
     var url = "/delete_files/" + study_id        
     var file_names = [];
@@ -133,11 +132,17 @@ $(document).ready(function(){
         contentType: 'application/json; charset=utf-8'
       }).done(function(response){
         update_study_files(response)
-        $("#loader_text_man").text("Files deleted!")
+        $("#loader_text_del").text("Deletion finished.")
+        $("#loader_text_del").fadeIn()
+        $("#files_del").html('<p>The following files were deleted: ' + response["files_del"] + '</p>')
+        if(response["files_not_del"].length){
+          $("#files_not_del").fadeIn()
+          $("#files_not_del").html('<p>The following files could not be deleted: ' + response["files_not_del"] + '</p>')
+        }
       }).fail(function(){
-        $("#loader_text_man").text("An error occurred!")
+        $("#loader_text_del").text("An error occurred!")
       }).always(function(){
-        $("#loader_anim_man").removeClass("loader")
+        $("#loader_anim_del").removeClass("loader")
         //activate buttons
         var buttons = $(".btn,.btn-lg");
         buttons.each(function(index,button){

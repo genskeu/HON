@@ -46,9 +46,10 @@ def upload_files(study_id):
         if filename not in image_names_study and allowed_file(filename):
             try:
                 f.save(os.path.join(image_dir, filename))
-                filenames_saved.append(f.filename)
             except:
                 print("Error saving {}.".format(filename))
+            else:
+                filenames_saved.append(f.filename)
             if "zip" == filename[-3:]:
                 filenames_saved.remove(f.filename)
                 filenames_unzipped, filenames_not_unzipped = unzip_images(filename, image_dir, study)
@@ -60,15 +61,14 @@ def upload_files(study_id):
     # save image infos to db
     for filename in filenames_saved:
         image = Image(name=filename,base_url=request.url_root + "get_file/{}/{}/".format(g.user.id,study.id))
-        study.images.append(image)
-    try:
-        db.session.commit()
-    except:
-        print("Error saving uploaded images to database for study {} {}.".format(study.title, study.id))
-        for filename in filenames_saved:
+        try:
+            study.images.append(image)
+        except:
+            print("Error saving image {} to database for study {} {}.".format(filename,study.title, study.id))
             os.remove(os.path.join(image_dir, filename))
             filenames_saved.remove(filename)
-            filenames_not_saved.append(filename)
+            filenames_not_saved.append(filename)            
+    db.session.commit()
 
     response = {}
     response["filenames_db"] = [image.name for image in study.images]
@@ -80,18 +80,20 @@ def upload_files(study_id):
 # unzip fct
 def unzip_images(image_zip,image_dir, study):
     with zipfile.ZipFile(os.path.join(image_dir, image_zip), 'r') as zip_ref:
-        filepaths = zip_ref.namelist()
+        zip_infolist = zip_ref.infolist()
         filenames_unzipped = []
         filenames_not_unzipped = []
-        for filepath in filepaths:
+        for zip_info in zip_infolist:
             # skip directories
-            filename = os.path.basename(filepath)
+            filename = os.path.basename(zip_info.filename)
             if filename not in [image.name for image in study.images] and allowed_file(filename):
                 try:
-                    zip_ref.extract(filename, image_dir)
-                    filenames_unzipped.append(filename)
+                    zip_info.filename = filename
+                    zip_ref.extract(zip_info, image_dir)
                 except:
                     print("Error unzipping {}.".format(filename))
+                else:
+                    filenames_unzipped.append(filename)
             else:
                 filenames_not_unzipped.append(filename)
     zip_ref.close
@@ -126,23 +128,28 @@ def delete_files(study_id):
     study = Study.query.filter_by(id=study_id).first()
     image_dir = study.get_image_dir()   
     filenames = request.get_json()
+    files_del = []
+    files_not_del = []
+
     # delete from db
-    for f in filenames:
+    for filename in filenames:
         base_url=request.url_root + "get_file/{}/{}/".format(g.user.id,study.id)
-        image = Image.query.filter_by(name = f,base_url=base_url).first()
+        image = Image.query.filter_by(name = filename,base_url=base_url).first()
         try:
             db.session.delete(image)
         except:
-            print("Error deleting image {} from database for study {} {}.".format(f, study.title, study.id))
-            raise Exception
+            print("Error deleting image {} from database for study {} {}.".format(filename, study.title, study.id))
+            files_not_del.append(filename)
+        else:
+            files_del.append(filename)
     db.session.commit()
 
     # delete from dir
     image_names_dir = os.listdir(image_dir)
-    for f in filenames:
-        if f in image_names_dir:    
+    for filename in filenames:
+        if filename in image_names_dir:    
             try:
-                image_path = os.path.join(image_dir,f)
+                image_path = os.path.join(image_dir,filename)
                 os.remove(image_path)
             except:
                 print("Error deleting image {} from dir for study {} {}.".format(image_path,study.title, study.id))
@@ -150,6 +157,8 @@ def delete_files(study_id):
     response = {}     
     image_names_db = [image.name for image in study.images]
     response["filenames_db"] = image_names_db
+    response["files_del"] = files_del
+    response["files_not_del"] = files_not_del
     return jsonify(response)
 
 

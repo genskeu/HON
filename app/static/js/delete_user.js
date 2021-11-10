@@ -3,8 +3,8 @@ function delete_user(name, id) {
   var url = "/user/delete/"+ id
   if(proceed){
     // loading animation
-    $("#loader_anim_man").addClass("loader")
-    $("#loader_text_man").fadeIn()
+    $("#loader_anim").addClass("loader")
+    $("#loader_text").fadeIn()
     //disable buttons
     var buttons = $(".btn-danger");
     buttons.each(function (index, button) {
@@ -17,12 +17,12 @@ function delete_user(name, id) {
       type: 'DELETE',
     }).done(function(response){
        window.location = response.redirect
-       $("#loader_text_man").text("Delete successful!")
+       $("#loader_text").text("Delete successful!")
     }).fail(function(response){
       if(response.responseJSON.error){
-        $("#loader_text_man").text(response.responseJSON.error)
+        $("#loader_text").text(response.responseJSON.error)
       } else {
-        $("#loader_text_man").text("An error occurred!")
+        $("#loader_text").text("An error occurred!")
       }
     }).always(function(){
       $("#loader_anim_man").removeClass("loader")
