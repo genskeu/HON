@@ -13,14 +13,8 @@ services:
       - PYTHONDONTWRITEBYTECODE 1
       # Turns off buffering for easier container logging
       - PYTHONUNBUFFERED 1
-    command: gunicorn --bind 0.0.0.0:5000 wsgi:app
-    expose: 
-      - 5000
-  nginx:
-    container_name: nginx
-    build: ./nginx
+    volumes: 
+      - './:/home/HON'
+    command: flask run --host 0.0.0.0
     ports:
-      - 80:80
-    depends_on:
-      - app
-  
+      - "5000:5000"
