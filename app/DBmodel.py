@@ -595,11 +595,14 @@ def init_img_dir():
     image_folder = current_app.config["IMAGE_PATH"]
     if os.path.isdir(image_folder):
         shutil.rmtree(image_folder)
-    os.mkdir(image_folder)
-    click.echo("Initialized folders for images.")
+    try:
+        os.mkdir(image_folder)
+        click.echo("Initialized dir for images.")
+    except:
+        click.echo("Could not initialize dir for images.")
 
 #needed for tests etc
-def init_default_users():
+def add_default_users():
     #test users
     users = [("user","user",1),("sadmin","sadmin",2),("uadmin","uadmin",3)]
     for username,password,access_level in users:
@@ -611,12 +614,29 @@ def init_default_users():
     db.session.commit()
     os.mkdir(os.path.join(current_app.config["IMAGE_PATH"],"2"))
 
+
 @click.command("init-db")
 @with_appcontext
 def init_db_command():
     init_db()
+
+@click.command("init-imgdir")
+@with_appcontext
+def init_imgdir_command():
     init_img_dir()
-    init_default_users()
+
+@click.command("add-default-users")
+@with_appcontext
+def add_default_users_command():
+    add_default_users()
+
+@click.command("init-all")
+@with_appcontext
+def init_all_command():
+    init_db()
+    init_img_dir()
+    add_default_users()
+
 
 @click.command("change-base-url-command")
 @click.option('--config')

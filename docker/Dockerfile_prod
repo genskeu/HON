@@ -1,0 +1,6 @@
+FROM hon_dev
+LABEL maintainer "Ulrich Genske <uli.genske@gmail.com>"
+WORKDIR /home/HON
+
+
+COPY app /home/HON/app

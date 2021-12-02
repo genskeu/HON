@@ -1,0 +1,23 @@
+FROM alpine:3.14
+LABEL maintainer "Ulrich Genske <uli.genske@gmail.com>"
+WORKDIR /home/HON
+
+# install python req
+RUN  apk --no-cache update \
+  && apk --no-cache upgrade \
+  && apk --no-cache add nginx py3-pip py3-gunicorn tzdata py3-wheel inotify-tools python3-dev gcc g++ geos-dev mariadb-dev musl-dev
+COPY requirements.txt /home/HON
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir -r requirements.txt
+
+RUN cp /usr/share/zoneinfo/Europe/Berlin /etc/localtime \
+ && echo "Europe/Berlin" > /etc/timezone
+
+COPY config.py /home/HON/config.py
+COPY wsgi.py /home/HON/wsgi.py
+COPY docker/entrypoint.sh /entry.sh
+COPY docker/nginx.conf /etc/nginx/nginx.conf
+RUN nginx -t
+EXPOSE 80
+
+CMD /entry.sh
