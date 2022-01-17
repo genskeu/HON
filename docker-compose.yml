@@ -21,3 +21,5 @@ services:
       - './app:/home/HON/app'
       - './logs:/var/log/'
       - './images:/home/HON/images'
+    stdin_open: true
+    tty: true

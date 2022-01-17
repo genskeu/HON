@@ -4,3 +4,4 @@ WORKDIR /home/HON
 
 
 COPY app /home/HON/app
+CMD /entry.sh

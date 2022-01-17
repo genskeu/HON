@@ -10,7 +10,7 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 from .auth import login_required, access_level_required
-from .DBmodel import Study, Design, Imgset, db, Result, Scale, Tool, Image_stack, FreehandRoi,User, RectangleRoi,EllipticalRoi, User_study_progress, Image
+from .DBmodel import Study, Design, Imgset, db, Result, Scale, Tool, Image_stack, User_study_progress, Imgset_config
 from shapely.geometry import Point, LineString, LinearRing, Polygon
 from shapely.affinity import scale, rotate
 from sqlalchemy.orm import lazyload, joinedload, subqueryload
@@ -327,65 +327,6 @@ def imgset(study_id, position):
     return jsonify(response), status_code
 
 
-#auto create imgsets
-def create_AFC_imgsets(stacks, pos_pattern, neg_pattern, div_ids, order):
-    imgset_size = len(div_ids)
-    error = ""
-    pos_stacks = []
-    neg_stacks = []
-    for stack in stacks:
-        stack_info = stack["name"].split("_")
-        if len(stack_info) < 3:
-            error += stack["name"] + ": wrong naming scheme." + "\n"
-        elif pos_pattern == stack_info[1]:
-            pos_stacks.append(stack)
-        elif neg_pattern == stack_info[1]:
-            neg_stacks.append(stack)
-        else:
-            error += stack["name"] + ": group info not found." + "\n"
-    if order == "ordered":
-        pos_stacks.sort(key=lambda pos_stack: int(pos_stack["name"].split("_")[0]))
-    else:
-        random.shuffle(pos_stacks)
-    imgsets = []
-    for pos_stack in pos_stacks:
-        imgset = []
-        pos_stack_info = pos_stack["name"].split("_")
-        group_info = pos_stack_info[2]
-        neg_stacks_group = [neg_stack for neg_stack in neg_stacks if group_info == neg_stack["name"].split("_")[2]]
-        if len(neg_stacks_group) < (imgset_size-1):
-            error += "Not enough negative images found for " + pos_stack["name"] + "\n"
-            continue
-        # pick neg images
-        for rand_int in random.sample(range(len(neg_stacks_group)), imgset_size-1):
-            imgset.append(copy.deepcopy(neg_stacks_group[rand_int]))
-        # add pos stack
-        imgset.insert(random.randint(0,imgset_size),pos_stack)
-        for i in range(imgset_size):
-            imgset[i]["div_id"] = div_ids[i]
-        imgsets.append(imgset)
-    return imgsets,error
-
-
-def create_ROClike_imgsets(stacks, div_ids, order):
-    imgset_size = len(div_ids)
-    if order == "random":
-        random.shuffle(stacks)
-    else:
-        stacks.sort(key=lambda stack: stack["name"].split("_")[0])
-    imgsets = []
-    error = None
-    for i in range(0,len(stacks) - imgset_size + 1, imgset_size):
-        imgset = stacks[i:i+imgset_size]
-        for i, stack in enumerate(imgset):
-            stack["div_id"] = div_ids[i]
-        imgsets.append(imgset)
-
-    if order == "random":
-        random.shuffle(imgsets)
-
-    return imgsets,error
-
 
 @bp.route('/study/imgsets/auto', methods=['POST'])
 @login_required
@@ -395,77 +336,33 @@ def random_imgsets():
     data = request.get_json()
     study_id = data['study_id']
     study = Study.query.filter_by(id=study_id).options(joinedload('images')).first()
-    # pattern
-    pos_pattern = data['pos_pattern']
-    neg_pattern = data['neg_pattern']
-    # settings
-    ref_stack_name = data['ref_stack_name']
-    div_ids = data["div_ids"]
-    div_ids_ref = data["div_ids_ref"]
-    # viewport
-    viewport = data['viewport']
-    viewport_ref = data['viewport_ref']
-    imgset_type = data['imgset_type']
-    order = data["order"]
-    grouping_info = data["stackmode"]
+    config = Imgset_config(data)
+    imgsets, ref_stack, error_image_stacks, error_imgsets = study.auto_create_imgsets(config)
 
-    # build stacks from images
-    image_stacks = {}
-    study.images.sort(key=lambda image: image.name)
-    for image in study.images:
-        if grouping_info == "single_images":
-            stack_name = image.name
-        else:
-            stack_name = "_".join(image.name.split("_")[0:3])
-
-        if stack_name in image_stacks:
-            image_stacks[stack_name]["images"].append(image)
-        else:
-            image_stacks[stack_name] = {}
-            image_stacks[stack_name]["name"] = stack_name
-            image_stacks[stack_name]["viewport"] = viewport
-            image_stacks[stack_name]["images"] = [image]
-            
-
-    if ref_stack_name in image_stacks.keys():
-        ref_stack = image_stacks[ref_stack_name]
-    elif ref_stack_name != "" and ref_stack_name not in image_stacks.keys():
-        error = "Error creating the reference stack: " + ref_stack_name + "."
-    elif ref_stack_name == "" and div_ids_ref:
-        error = "No reference stack specified, but the number of reference images (general settings) is not 0."
-    image_stacks = [image_stacks[stack_name] for stack_name in image_stacks if stack_name != ref_stack_name]
-
-    # create imgsets
-    if imgset_type == "afc":
-        imgsets,error_imgsets  = create_AFC_imgsets(image_stacks,pos_pattern,neg_pattern,div_ids,order)
-    elif imgset_type == "standard":
-        imgsets,error_imgsets = create_ROClike_imgsets(image_stacks,div_ids,order)
-
-    if error is None:
+    if error is error_image_stacks:
         # add imgsets to DB
         study_length=len(study.imgsets)
 
         for i, imgset_dict in enumerate(imgsets):
             imgset = Imgset(study_id=study.id,position=i+study_length)
             study.imgsets.append(imgset)
-
             for stack in imgset_dict:
                 image_stack = Image_stack(imgset_id=imgset.id)
                 image_stack.div_id = stack["div_id"]
                 image_stack.name = stack["name"]
                 image_stack.viewport = json.dumps(stack["viewport"])
-                with db.session.no_autoflush:
-                    for image in stack["images"]:
-                        image_stack.images.append(image)
-                    imgset.image_stacks.append(image_stack)
+                for image in stack["images"]:
+                    image_stack.images.append(image)
+                imgset.image_stacks.append(image_stack)
 
-            for i in range(len(div_ids_ref)):
+            for i in range(len(config.div_ids_ref)):
                 image_stack_ref = Image_stack(imgset_id=imgset.id)
-                image_stack_ref.div_id = div_ids_ref[i]
+                image_stack_ref.div_id = config.div_ids_ref[i]
                 image_stack_ref.name = ref_stack["name"]
-                image_stack_ref.viewport = json.dumps(viewport_ref)
+                image_stack_ref.viewport = json.dumps(config.viewport_ref)
                 with db.session.no_autoflush:
-                    for image in ref_stack["images"]:
+                    for img in ref_stack["images"]:
+                        image = [image for image in study.images if image.name == img.name][0]
                         image_stack_ref.images.append(image)
                     imgset.image_stacks.append(image_stack_ref)
 
@@ -478,7 +375,7 @@ def random_imgsets():
 
     response = {}
     response["imgsets"] = imgsets
-    response["error"] = error
+    response["error"] = error_image_stacks
     response["error_imgsets"] = error_imgsets
     return response
 
@@ -603,8 +500,9 @@ def vote(study_id, imgset_position):
             result_dict = request.get_json()
             result = Result(user_id=user_id,
                             study_id=study_id,
-                            imgset_id=imgset.id,
-                            scale_input=json.dumps(result_dict["scale_input"]))
+                            imgset_id=imgset.id)
+            if result_dict["scale_input"]:
+                result.scale_input= json.dumps(result_dict["scale_input"])
             db.session.add(result)
             db.session.flush()
             picked_stack = Image_stack(result_id=result.id,

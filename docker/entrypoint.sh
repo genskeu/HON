@@ -1,7 +1,4 @@
 #!/usr/bin/env sh
-
-
-
 #start gunicorn
 echo "starting gunicorn"
 mkdir /var/log/gunicorn/

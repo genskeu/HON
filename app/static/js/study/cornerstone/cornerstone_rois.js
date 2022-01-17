@@ -40,7 +40,7 @@ function add_roi_container(uuid,div_id_numb,toolName,tool_number,tool_state_data
   // show roi coordinates in container
   // coordinates only show study during setup
   if(window.location.href.includes("design")){
-    add_roi_coordinates_container(points,toolName,uuid)
+    add_roi_coordinates_container(points,toolName,uuid,element)
   }
 
   //add copy and delete button for roi 
@@ -58,7 +58,7 @@ function add_roi_container(uuid,div_id_numb,toolName,tool_number,tool_state_data
 }
 
 // 
-function add_roi_coordinates_container(points,toolName,uuid){
+function add_roi_coordinates_container(points,toolName,uuid,element){
   points.forEach(function (point, i) {
     let point_name = "Point " + i
     if (i == 0) { point_name = "Start" }
@@ -68,9 +68,9 @@ function add_roi_coordinates_container(points,toolName,uuid){
                             <div class="input-group-prepend col-4 px-0 mx-0">\
                               <span class="input-group-text col-12">' + point_name + '</span>\
                             </div>\
-                            <input id="x_' + i + uuid + '" type="Number" data-roitype="' + toolName + '" data-uuid="' + uuid + '" step="any" class="form-control roi_pos_input" placeholder="x" value="' + Number.parseFloat(point.x).toFixed(2) + '">\
+                            <input id="x_' + i + uuid + '" type="Number" data-roitype="' + toolName + '" data-uuid="' + uuid + '" step="any" class="form-control roi_pos_input" placeholder="x" value="' + Number.parseFloat(point.x).toFixed(0) + '">\
                             </input>\
-                            <input id="y_' + i + uuid + '" type="Number" data-roitype="' + toolName + '" data-uuid="' + uuid + '" step="any" class="form-control roi_pos_input" placeholder="y" value="' + Number.parseFloat(point.y).toFixed(2) + '">\
+                            <input id="y_' + i + uuid + '" type="Number" data-roitype="' + toolName + '" data-uuid="' + uuid + '" step="any" class="form-control roi_pos_input" placeholder="y" value="' + Number.parseFloat(point.y).toFixed(0) + '">\
                             </input>\
                         </div>\
                       </div>'
@@ -97,12 +97,12 @@ function add_roi_coordinates_container(points,toolName,uuid){
     }
 
     //fct to update roi pos on input
-    $("#x_" + i + uuid).change(function () { 
-      point.x = $(this).val()
+    $("#x_" + i + uuid).change(function () {
+      point.x = Number($(this).val())
       cornerstone.updateImage(element)
     })
     $("#y_" + i + uuid).change(function () {
-      point.y = $(this).val()
+      point.y = Number($(this).val())
       cornerstone.updateImage(element)
     })
 
@@ -172,10 +172,11 @@ function update_roi_container(e) {
   //update ui and display points
   points.forEach(function (point, i) {
     let point_div = roi_div.find("#point_" + i)
-    point_div.find("#x_" + i + e.detail.measurementData.uuid).val(point.x)
-    point_div.find("#y_" + i + e.detail.measurementData.uuid).val(point.y)
+    point_div.find("#x_" + i + e.detail.measurementData.uuid).val(Number.parseFloat(point.x).toFixed(0))
+    point_div.find("#y_" + i + e.detail.measurementData.uuid).val(Number.parseFloat(point.y).toFixed(0))
   })
 }
+
 
 // delete roi ui when they are removed (draged out)
 // does not work for freehand => use delete button

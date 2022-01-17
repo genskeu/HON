@@ -19,7 +19,7 @@
 {% if study.view == "participant" %}
   <script src= "https://cdn.jsdelivr.net/gh/genskeu/csTools/cornerstoneTools.js"></script>
 {% else %}
-  <script src="https://cdn.jsdelivr.net/npm/cornerstone-tools@5.1.2/dist/cornerstoneTools.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/cornerstone-tools@latest/dist/cornerstoneTools.min.js"></script>
 {% endif %}
 
 <!--  JavaScript own -->
@@ -50,17 +50,22 @@
 <!-- tool select menus -->
 {%
   set tools_all = {
-                   "Wwwc":"windowing",
-                   "WwwcRegion": "windowing-region-auto",
-                   "ZoomMouseWheel":"zoom",
-                   "Pan": "pan",
-                   "EllipticalRoi":"elliptical-roi",
-                   "RectangleRoi":"rectangle-roi",
-                   "FreehandRoi":"freehand-roi",
-                   "Length":"length",
-                   "StackScrollMouseWheel":"stack scroll",
-                   "Magnify":"magnify",
-                   "Rotate":"rotate"
+                   "Wwwc":"Windowing",
+                   "WwwcRegion": "Windowing-region-auto",
+                   "ZoomMouseWheel":"Zoom",
+                   "Pan": "Move",
+                   "Magnify":"Magnify",
+                   "Rotate":"Rotate",
+                   "StackScrollMouseWheel":"Stack scroll",
+                   "EllipticalRoi":"Elliptical-roi",
+                   "RectangleRoi":"Rectangle-roi",
+                   "FreehandRoi":"Freehand-roi",
+                   "Length":"Length Measurment",
+                   "Eraser":"Remove ROI/Length",
+                   "Brush":"Brush-Segmentation (dont use for studies yet)",
+                   "FreehandScissors":"Freehand-Segmentation (dont use for studies yet)",
+                   "CorrectionScissors":"Freehand-Segmentation (with correction) (dont use for studies yet)",
+                   "RectangleScissors":"Rectangle-Segmentation (dont use for studies yet)"
                   }
 %}
 

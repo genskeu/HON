@@ -40,8 +40,6 @@ def create_app(config=None,config_path="../config.py"):
     app.cli.add_command(DBmodel.init_all_command)
     app.cli.add_command(DBmodel.add_default_users_command)
 
-    app.cli.add_command(DBmodel.change_base_url_command)
-
     from . import auth
     app.register_blueprint(auth.bp)
 
