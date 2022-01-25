@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   app:
-    container_name: HON
+    container_name: HON_dev
     image: hon_dev  
     build: 
       context: .
@@ -9,6 +9,9 @@ services:
     environment:
       - FLASK_APP=app
       - FLASK_ENV=development
+      - DB_HOST=/home/HON/instance
+      - DB_TYPE=sqlite
+      - DB_NAME=dev.db
       # Keeps Python from generating .pyc files in the container
       - PYTHONDONTWRITEBYTECODE=1
       # Turns off buffering for easier container logging
@@ -20,6 +23,6 @@ services:
     volumes: 
       - './app:/home/HON/app'
       - './logs:/var/log/'
-      - './images:/home/HON/instance/images'
+      - './instance:/home/HON/instance'
     stdin_open: true
     tty: true

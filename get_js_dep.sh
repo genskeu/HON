@@ -1,9 +1,12 @@
 static_dir="app/static/dependencies/"
 
-if [ !-d "$static_dir" ]; then
+if [ ! -d "$static_dir" ]
+then
     mkdir $static_dir
-fi
+else
 rm "$static_dir"*
+fi
+
 echo "Downloading static files to ${static_dir}..."
 
 # general js and bootstrap dependencies

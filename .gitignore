@@ -2,7 +2,6 @@
 .coverage
 *.mp4
 /instance
-config.py
 .env
 *.log
 /images

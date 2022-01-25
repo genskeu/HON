@@ -2,7 +2,6 @@ FROM alpine:3.14
 LABEL maintainer "Ulrich Genske <uli.genske@gmail.com>"
 WORKDIR /home/HON
 RUN mkdir /home/HON/instance
-RUN mkdir /home/HON/instance/images
 
 # install python req
 RUN  apk --no-cache update \
