@@ -2,24 +2,24 @@
 
 {% block header %}
 <!-- include the cornerstone library -->
-<script src="https://unpkg.com/cornerstone-core@2.2.8/dist/cornerstone.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/cornerstone-math@0.1.6/dist/cornerstoneMath.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
+<script src="{{ url_for('static', filename='dependencies/cornerstone.js') }}"></script>
+<script src="{{ url_for('static', filename='dependencies/cornerstoneMath.js') }}"></script>
+<script src="{{ url_for('static', filename='dependencies/hammer.min.js') }}"></script>
 
 <!-- include the dicomParser library as the WADO image loader depends on it -->
-<script src="https://unpkg.com/dicom-parser@1.8.3/dist/dicomParser.js"></script>
+<script src="{{ url_for('static', filename='dependencies/dicomParser.js') }}"></script>
 
 <!-- include the cornerstoneWADOImageLoader library -->
-<script src="https://unpkg.com/cornerstone-wado-image-loader@3.0.6/dist/cornerstoneWADOImageLoader.min.js"></script>
+<script src="{{ url_for('static', filename='dependencies/cornerstoneWADOImageLoader.min.js') }}"></script>
 
 <!-- include the cornerstoneWADOImageLoader library -->
-<script src="https://unpkg.com/cornerstone-web-image-loader@2.1.1/dist/cornerstoneWebImageLoader.min.js"></script>
+<script src="{{ url_for('static', filename='dependencies/cornerstoneWebImageLoader.min.js') }}"></script>
 
 <!-- cornerstone tools  -->
 {% if study.view == "participant" %}
-  <script src= "https://cdn.jsdelivr.net/gh/genskeu/csTools/cornerstoneTools.js"></script>
+  <script src= "{{ url_for('static', filename='dependencies/cornerstoneTools_mod.js') }}"></script>
 {% else %}
-  <script src="https://cdn.jsdelivr.net/npm/cornerstone-tools@latest/dist/cornerstoneTools.min.js"></script>
+  <script src="{{ url_for('static', filename='dependencies/cornerstoneTools.min.js') }}"></script>
 {% endif %}
 
 <!--  JavaScript own -->
@@ -65,7 +65,7 @@
                    "Brush":"Brush-Segmentation (dont use for studies yet)",
                    "FreehandScissors":"Freehand-Segmentation (dont use for studies yet)",
                    "CorrectionScissors":"Freehand-Segmentation (with correction) (dont use for studies yet)",
-                   "RectangleScissors":"Rectangle-Segmentation (dont use for studies yet)"
+                   "RectangleScissors":"Rectangle-Segmentation (dont use for studies yet)",
                   }
 %}
 

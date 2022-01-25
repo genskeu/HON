@@ -7,18 +7,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
 <!-- Jquery core -->
-<script src="https://code.jquery.com/jquery-3.4.0.js"
-			  integrity="sha256-DYZMCC8HTC+QDr5QNaIcfR7VSPtcISykd+6eSmBW5qo="
-			  crossorigin="anonymous"></script>
+<script src="{{ url_for('static', filename='dependencies/jquery-3.4.0.min.js') }}"></script>
 <!-- Bootstrap core CSS -->
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='dependencies/bootstrap.min.css') }}">
 <!-- Bootstrap core JS -->
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="{{ url_for('static', filename='dependencies/bootstrap.min.js') }}"></script>
 <!-- Custom styles for this template -->
 <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
 
 </head>
-
 
 <body>
 <!-- Navigation -->

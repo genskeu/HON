@@ -10,9 +10,9 @@ services:
       - FLASK_APP=app
       - FLASK_ENV=development
       # Keeps Python from generating .pyc files in the container
-      - PYTHONDONTWRITEBYTECODE 1
+      - PYTHONDONTWRITEBYTECODE=1
       # Turns off buffering for easier container logging
-      - PYTHONUNBUFFERED 1
+      - PYTHONUNBUFFERED=1
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
@@ -20,6 +20,6 @@ services:
     volumes: 
       - './app:/home/HON/app'
       - './logs:/var/log/'
-      - './images:/home/HON/images'
+      - './images:/home/HON/instance/images'
     stdin_open: true
     tty: true
