@@ -1,5 +1,5 @@
 import os
-from flask import request, current_app, send_file, redirect, Blueprint,abort, jsonify, g
+from flask import request, current_app, send_file, Blueprint,abort, jsonify, g
 from werkzeug.utils import secure_filename
 import zipfile
 from .DBmodel import Study, Image, db

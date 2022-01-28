@@ -1,8 +1,6 @@
 import os
-import copy
 import shutil
 import json
-import random
 from datetime import datetime
 from flask import (
     Blueprint, flash, redirect, render_template, request, url_for,
@@ -11,9 +9,7 @@ from flask import (
 from werkzeug.security import check_password_hash, generate_password_hash
 from .auth import login_required, access_level_required
 from .DBmodel import Study, Design, Imgset, db, Result, Scale, Tool, Image_stack, User_study_progress, Imgset_config
-from shapely.geometry import Point, LineString, LinearRing, Polygon
-from shapely.affinity import scale, rotate
-from sqlalchemy.orm import lazyload, joinedload, subqueryload
+from sqlalchemy.orm import joinedload
 
 bp = Blueprint("studies", __name__)
 
@@ -117,7 +113,7 @@ def create_modify_study(id):
 @bp.route('/study/<int:id>', methods=['DELETE'])
 @login_required
 @access_level_required([2])
-def study(id):
+def delete_study(id):
     """
         retrieve or delte study
         Args:
@@ -245,57 +241,97 @@ def get_cs_stacks(study_id,group_info):
     response["cs_stacks"] = cs_stacks
     return response
 
-#retrieve, save, delete imgset API endpoint returning json
-@bp.route('/study/imgset/<int:study_id>', methods=['POST'], defaults={'position':None})
-@bp.route('/study/imgset/<int:study_id>/<int:position>', methods=['GET','PUT','DELETE'])
+@bp.route('/study/imgset/<int:study_id>/<int:position>', methods=['GET'])
 @login_required
 @access_level_required([1,2])
-def imgset(study_id, position):
+def get_imgset(study_id, position):
+    imgset = Imgset.query.filter_by(study_id=study_id,position=position).first()
+    study = Study.query.filter_by(id=study_id).first()
+    error = None
+    response = {}
+    
+    if imgset is None:
+        error = "Imgset with position %s not found in study %s"%(position,study.title)
+        response["error"] = error
+        status_code = 404
+    else:
+        imgset_dict = imgset.to_dict()
+        # info important for progressbar during study run
+        response["study_length"] = len(study.imgsets)
+        response["imgset"] = imgset_dict
+        status_code = 200
+
+    return jsonify(response), status_code
+
+#retrieve, save, delete imgset API endpoint returning json
+@bp.route('/study/imgset/<int:study_id>', methods=['POST'])
+@login_required
+@access_level_required([2])
+def add_imgset(study_id):
     """
-        create/modify, retrieve or delte imageset
+        add imageset
         Args:
             id: study_id
         Returns:
     """
-    imgset = Imgset.query.filter_by(study_id=study_id,position=position).first()
     study = Study.query.filter_by(id=study_id).first()
+    image_error = ""
     data = request.get_json()
-    error = None
-    status_code = 200
-    
-    if data:
-        imgset_dict = data["imgset"]
-
+    imgset_dict = data["imgset"]
     response = {}
-    if request.method == "GET":
-        if imgset is None:
-            error = "Imgset not found"
 
-        if error is None:
-            imgset_dict = imgset.to_dict()
-            # info important for progressbar during study run
-            response["study_length"] = len(study.imgsets)
-            response["imgset"] = imgset_dict
-
-    if request.method == "POST" and g.user.access_level == 2:
-        imgset = Imgset(study_id=study_id,position=imgset_dict["position"])
+    imgset = Imgset(study_id=study_id,position=imgset_dict["position"])
+    if int(imgset_dict["position"]) < len(study.imgsets):
         study.insert_imgset(imgset,imgset_dict["position"])
-        db.session.add(imgset)
-        db.session.commit()
+    db.session.add(imgset)
+    db.session.commit()
 
-    if request.method == "PUT" and g.user.access_level == 2:
-        if imgset is None:
-            error = "Imgset not found"
+    # add images
+    for stack in imgset_dict["stacks"]:
+        image_stack = Image_stack(imgset_id=imgset.id,
+                                  div_id=stack["div_id"],
+                                  name=stack["name"],
+                                  viewport=json.dumps(stack["viewport"]))
+        if any(stack["tool_state"]):
+            image_stack.tool_state = json.dumps(stack["tool_state"])
+        if stack["segmentation_data"]:
+            image_stack.seg_data = stack["segmentation_data"]
 
-        if error is None:
-            data = request.get_json()
-            imgset_dict = data["imgset"]
-            # delete old images
-            for stack_old in imgset.image_stacks:
-                db.session.delete(stack_old)
-                db.session.commit()
+        for image_name in stack["image_names"]:
+            image = [image for image in study.images if image.name == image_name]
+            if image == []:
+                image_error += image_name + " not part of study %s."%study.title
+            else:
+                image_stack.images.append(image[0])
+        db.session.add(image_stack)
+    db.session.commit()
 
-    if request.method in ["POST","PUT"] and g.user.access_level == 2:
+    response["error"] = image_error
+    return jsonify(response)
+
+
+@bp.route('/study/imgset/<int:study_id>/<int:position>', methods=['PUT'])
+@login_required
+@access_level_required([2])
+def update_imgset(study_id, position):
+    study = Study.query.filter_by(id=study_id).first()
+    imgset = Imgset.query.filter_by(study_id=study_id,position=position).first()
+    error = None
+    image_error = ""
+    data = request.get_json()
+    imgset_dict = data["imgset"]
+    response = {}
+    if imgset is None:
+        error = "Imgset with position %s not found in study %s"%(position,study.title)
+
+    if error is None:
+        data = request.get_json()
+        imgset_dict = data["imgset"]
+        # delete old images
+        for stack_old in imgset.image_stacks:
+            db.session.delete(stack_old)
+            db.session.commit()
+
         # add images
         for stack in imgset_dict["stacks"]:
             image_stack = Image_stack(imgset_id=imgset.id,
@@ -304,26 +340,42 @@ def imgset(study_id, position):
                                       viewport=json.dumps(stack["viewport"]))
             if any(stack["tool_state"]):
                 image_stack.tool_state = json.dumps(stack["tool_state"])
+            if stack["segmentation_data"]:
+                image_stack.seg_data = stack["segmentation_data"]
+
             for image_name in stack["image_names"]:
                 image = [image for image in study.images if image.name == image_name]
                 if image == []:
-                    error = image_name + " not found part of study."
+                    image_error += image_name + " not part of study %s."%study.title
                 else:
                     image_stack.images.append(image[0])
             db.session.add(image_stack)
         db.session.commit()
+        response["error"] = image_error
+        status_code = 200
+    else:
+        status_code =404
 
-    if request.method == "DELETE" and g.user.access_level == 2:
-        if imgset is None:
-            error = "Imgset not found"
-        else:
-            db.session.delete(imgset)
-            db.session.commit()
-            study.update_imgset_pos()
+    return jsonify(response), status_code
 
-    if error:
-        response["error"] = error
+
+@bp.route('/study/imgset/<int:study_id>/<int:position>', methods=['DELETE'])
+@login_required
+@access_level_required([2])
+def delete_imgset(study_id, position):
+    response = {}
+    study = Study.query.filter_by(id=study_id).first()
+    imgset = Imgset.query.filter_by(study_id=study_id,position=position).first()
+    if imgset is None:
+        error = "Imgset with position %s not found in study %s"%(position,study.title)
         status_code = 404
+        response["error"] = error
+    else:
+        db.session.delete(imgset)
+        db.session.commit()
+        study.update_imgset_pos()
+        status_code = 200
+
     return jsonify(response), status_code
 
 
@@ -380,36 +432,42 @@ def random_imgsets():
     return response
 
 
-#get, delete or update all imgsets
-@bp.route('/study/imgsets/<int:study_id>', methods=['GET','DELETE','PUT'])
+
+@bp.route('/study/imgsets/<int:study_id>', methods=['GET'])
 @login_required
 @access_level_required([2])
-def del_all_imgsets(study_id):
+def get_all_imgsets(study_id):
     study = Study.query.filter_by(id=study_id).options(joinedload('imgsets')).first()
-    error = None
+    #response
+    response = {}
+    imgsets = []
+    for imgset in study.imgsets:
+        imgsets.append(imgset.to_dict())
+    response["imgsets"] = imgsets
+    return jsonify(response)
 
-    if request.method == "PUT":
-        viewport_settings = request.get_json()
-        for imgset in study.imgsets:
-            for stack in imgset.image_stacks:
-                viewport_settings_old = json.loads(stack.viewport)
-                if viewport_settings["zoom"]:
-                    viewport_settings_old["scale"] = float(viewport_settings["zoom"])
-                if viewport_settings["pos_x"]:
-                    viewport_settings_old["translation"]["x"] = int(viewport_settings["pos_x"])
-                if viewport_settings["pos_y"]:
-                    viewport_settings_old["translation"]["y"] = int(viewport_settings["pos_y"])
-                if viewport_settings["ww"]:
-                    viewport_settings_old["voi"]["windowWidth"] = int(viewport_settings["ww"])
-                if viewport_settings["wc"]:
-                    viewport_settings_old["voi"]["windowCenter"] = int(viewport_settings["wc"])
-                stack.viewport = json.dumps(viewport_settings_old)
-        db.session.commit()
+@bp.route('/study/imgsets/<int:study_id>', methods=['PUT'])
+@login_required
+@access_level_required([2])
+def upd_all_imgsets(study_id):
+    study = Study.query.filter_by(id=study_id).options(joinedload('imgsets')).first()
 
-    if request.method == "DELETE":
-        for imgset in study.imgsets:
-            db.session.delete(imgset)
-        db.session.commit()
+    viewport_settings = request.get_json()
+    for imgset in study.imgsets:
+        for stack in imgset.image_stacks:
+            viewport_settings_old = json.loads(stack.viewport)
+            if viewport_settings["zoom"]:
+                viewport_settings_old["scale"] = float(viewport_settings["zoom"])
+            if viewport_settings["pos_x"]:
+                viewport_settings_old["translation"]["x"] = int(viewport_settings["pos_x"])
+            if viewport_settings["pos_y"]:
+                viewport_settings_old["translation"]["y"] = int(viewport_settings["pos_y"])
+            if viewport_settings["ww"]:
+                viewport_settings_old["voi"]["windowWidth"] = int(viewport_settings["ww"])
+            if viewport_settings["wc"]:
+                viewport_settings_old["voi"]["windowCenter"] = int(viewport_settings["wc"])
+            stack.viewport = json.dumps(viewport_settings_old)
+    db.session.commit()
 
     #response
     response = {}
@@ -417,9 +475,26 @@ def del_all_imgsets(study_id):
     for imgset in study.imgsets:
         imgsets.append(imgset.to_dict())
     response["imgsets"] = imgsets
-    response["error"] = error
     return jsonify(response)
 
+
+@bp.route('/study/imgsets/<int:study_id>', methods=['DELETE'])
+@login_required
+@access_level_required([2])
+def del_all_imgsets(study_id):
+    study = Study.query.filter_by(id=study_id).options(joinedload('imgsets')).first()
+
+    for imgset in study.imgsets:
+        db.session.delete(imgset)
+    db.session.commit()
+
+    #response
+    response = {}
+    imgsets = []
+    for imgset in study.imgsets:
+        imgsets.append(imgset.to_dict())
+    response["imgsets"] = imgsets
+    return jsonify(response)
 
 
 # access study (login)
@@ -511,6 +586,8 @@ def vote(study_id, imgset_position):
                                        viewport = json.dumps(result_dict["picked_stack"]["viewport"]))
             if any(result_dict["picked_stack"]["tool_state"]):
                 picked_stack.tool_state = json.dumps(result_dict["picked_stack"]["tool_state"])
+            if result_dict["picked_stack"]["segmentation_data"]:
+                picked_stack.seg_data = result_dict["picked_stack"]["segmentation_data"]
             db.session.add(picked_stack)
             for image_name in result_dict["picked_stack"]["image_names"]:
                 image = [image for image in study.images if image.name == image_name]

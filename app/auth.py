@@ -134,3 +134,23 @@ def access_level_required(access_level):
             return view(**kwargs)
         return wrapped_view
     return decorator
+
+
+def user_is_study_admin(study_id):
+    """
+        check if a user is study admin and has the right to access a certain view or perform a request
+        Args:
+            access_level
+        Returns:
+            decorator
+    """
+    def decorator(view):
+        @functools.wraps(view)
+        def wrapped_view(**kwargs):
+            study = Study.query.filter_by(id=study_id).first()
+            if g.user.id != study.user_id: 
+                flash("user rights insufficient")
+                return redirect(url_for('studies.overview'))
+            return view(**kwargs)
+        return wrapped_view
+    return decorator

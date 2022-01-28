@@ -1,15 +1,10 @@
-from flask import Blueprint, g, render_template, jsonify, request, url_for, current_app, send_from_directory, send_file
+from flask import Blueprint, g, render_template, jsonify, request, url_for, current_app, send_file
 from .auth import login_required, access_level_required
-import json
-import csv
 import os
-import re
-from .DBmodel import Length, Result, Study, User, db, EllipticalRoi,RectangleRoi,FreehandRoi, User_study_progress, Output
+from .DBmodel import Result, Study, User, db, User_study_progress, Output
 from sqlalchemy import func
 from sqlalchemy.orm import lazyload, joinedload
-from itertools import chain
-import io
-import ast
+import tarfile
 
 bp = Blueprint("results", __name__)
 
@@ -49,23 +44,22 @@ def overview():
     return render_template("results/overview.html", studies=studies)
 
 
-# retrieve or delete results for user from study
-@bp.route('/result/<study_id>/<user_id>', methods=['GET','DELETE'])
+# delete results for user from study
+@bp.route('/result/<study_id>/<user_id>', methods=['DELETE'])
 @login_required
 @access_level_required([2])
 def delete_result(study_id,user_id):
-    if request.method == "DELETE":
-        results = Result.query.filter_by(study_id=study_id,user_id=user_id).all()
-        for result in results:
-            db.session.delete(result)
+    results = Result.query.filter_by(study_id=study_id,user_id=user_id).all()
+    for result in results:
+        db.session.delete(result)
 
-        user_study_progress = User_study_progress.query.filter_by(study_id=study_id,user_id=user_id).first()
-        db.session.delete(user_study_progress)
-        db.session.commit()
+    user_study_progress = User_study_progress.query.filter_by(study_id=study_id,user_id=user_id).first()
+    db.session.delete(user_study_progress)
+    db.session.commit()
 
-        response = {}
-        response["redirect"] = url_for("results.overview")
-        return jsonify(response)
+    response = {}
+    response["redirect"] = url_for("results.overview")
+    return jsonify(response)
 
 
 # download csv file 
@@ -105,4 +99,45 @@ def create_csv(study_id):
     resp = jsonify(success=True)
     return resp
 
+
+@bp.route('/result/seg_data/<int:study_id>', methods=['GET'])
+@login_required
+@access_level_required([2])
+def get_seg_data(study_id):
+    study = Study.query.filter_by(id=study_id).first()
+    results = Result.query.filter_by(study_id=study_id).all()
+
+    # ground truth
+    for imgset in study.imgsets:
+        for stack in imgset.image_stacks:
+            if stack.seg_data:
+                file_name = "%s_%s_%s_gt.nii.gz"%(study.title,imgset.position,stack.name)
+                file_path = os.path.join(study.get_image_dir(), file_name)
+                stack.save_seg_data(file_path)
+    
+    # participant seg
+    for result in results:
+        stack_picked = result.stack_picked
+        if stack_picked.seg_data:
+            print(result.id)
+            file_name = "%s_%s_%s_%s.nii.gz"%(study.title,result.imgset.position,stack_picked.name,result.user_id)
+            file_path = os.path.join(study.get_image_dir(), file_name)
+            result.stack_picked.save_seg_data(file_path)
+
+    tar_name = '%s_seg_masks.tar.gz'%study.title
+    tar_path = os.path.join(study.get_image_dir(),tar_name)
+    tardir(study.get_image_dir(),tar_path, "nii.gz")
+
+    return send_file(tar_path, tar_name, as_attachment=True)
+
+
+
+def tardir(path, tar_name, filter=None):
+    with tarfile.open(tar_name, "w:gz") as tar_handle:
+        for root, dirs, files in os.walk(path):
+            if filter:
+                files = [f for f in files if filter in f]
+            for file in files:
+                tar_handle.add(os.path.join(root, file),arcname=file)
+                os.remove(os.path.join(root, file))
 

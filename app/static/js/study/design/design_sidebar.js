@@ -38,7 +38,8 @@ function load_imgset_on_click() {
           image_stack["cs_stack"],
           image_stack["div_id"],
           image_stack["viewport"],
-          image_stack["tool_state"]
+          image_stack["tool_state"],
+          image_stack["seg_data"]
           ))       
       })
       Promise.all(promises_1).then(function () {

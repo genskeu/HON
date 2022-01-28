@@ -13,6 +13,7 @@ import pandas as pd
 import numpy as np
 import copy
 import re
+import nibabel as nib
 
 db = SQLAlchemy()
 
@@ -508,14 +509,13 @@ class Image_stack(db.Model):
     name = db.Column(db.String(120))
     images = db.relationship("Image",secondary=stack_images, backref=db.backref("image_stacks", lazy=True),lazy='subquery', order_by='Image.name')
     viewport = db.Column(db.String(1000))
-    tool_state = db.Column(db.Text())
+    tool_state = db.Column(db.Text(1000000))
+    seg_data = db.Column(db.Text(10000000))
 
     def to_dict(self):
         image_stack_dict = {}
         image_stack_dict["div_id"] = self.div_id
-        #dict["base_url"] = self.base_url
         image_stack_dict["name"] = self.name
-        #dict["image_names"] = json.loads(self.image_names)
         imageIds = ['wadouri:' + image.base_url + image.name if ".dcm" in  image.name else image.base_url + "/" + image.name for image in self.images]
         image_stack_dict["cs_stack"] = {"imageIds":imageIds,
                             "currentImageIdIndex":0}
@@ -523,13 +523,29 @@ class Image_stack(db.Model):
             image_stack_dict["viewport"] = json.loads(self.viewport)
         if self.tool_state:
             image_stack_dict["tool_state"] = json.loads(self.tool_state)
-
+        
+        image_stack_dict["seg_data"] = self.seg_data
+        
         return image_stack_dict
 
 
     def get_filenames(self):
         image_names = json.loads(self.image_names)
         return image_names
+
+    def save_seg_data(self,file_path):
+        data = json.loads(self.seg_data)
+        arrays2d = []
+        for array1d in data:
+            if array1d:
+                arrays2d.append(np.array(array1d,dtype=np.int16).reshape(512,512))
+            else:
+                arrays2d.append(np.zeros(512*512).reshape(512,512))
+                        
+        array3d = np.stack(arrays2d,-1)
+        new_image = nib.Nifti1Image(array3d, affine=np.eye(4))
+        new_image.header.get_xyzt_units()
+        new_image.to_filename(file_path)       
 
 
 

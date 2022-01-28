@@ -62,10 +62,10 @@
                    "FreehandRoi":"Freehand-roi",
                    "Length":"Length Measurment",
                    "Eraser":"Remove ROI/Length",
-                   "Brush":"Brush-Segmentation (dont use for studies yet)",
-                   "FreehandScissors":"Freehand-Segmentation (dont use for studies yet)",
-                   "CorrectionScissors":"Freehand-Segmentation (with correction) (dont use for studies yet)",
-                   "RectangleScissors":"Rectangle-Segmentation (dont use for studies yet)",
+                   "Brush":"Brush-Segmentation",
+                   "FreehandScissors":"Freehand-Segmentation",
+                   "CorrectionScissors":"Freehand with correction",
+                   "RectangleScissors":"Rectangle-Segmentation",
                   }
 %}
 
@@ -138,7 +138,7 @@ Stackmode Off: Each image/file can be displayed separately">
       <div class="row justify-content-center align-items-center">
         {% if study.view == "participant" %}
         <button id="start_study" type="btn" name="button" class=" btn-lg btn-dark"
-        formaction="{{url_for('studies.imgset', study_id=study.id,position=imgset.position)}}">
+        formaction="{{url_for('studies.get_imgset', study_id=study.id,position=imgset.position)}}">
           {% if imgset.position|int > 0 %} Continue {% else %} Start {% endif %} {% else %}
         </button>
         {% endif %}
@@ -167,7 +167,7 @@ The currently selected image-set will be highlited green.">
           {% for imgset in study.imgsets %}
           <div class="row">
             <button class='imgset btn btn-light col-lg-12' id="imgset_{{imgset.position}}"
-              action="{{url_for('studies.imgset', study_id=study.id,position=imgset.position)}}">
+              action="{{url_for('studies.get_imgset', study_id=study.id,position=imgset.position)}}">
               Image Set {{imgset.position + 1}}
             </button>
           </div>
@@ -523,7 +523,7 @@ or by combining 1 signal positive image with m-1 signal negative images
         {% endif %}
         </div>
         {% if study.view == "study_admin" %}
-        <div class="row mx-auto  no-gutters">
+        <div class="row mx-auto no-gutters">
           <div class="col-4">
             <div class="mr-1">
               <button class="btn  btn-secondary btn-block">
@@ -690,22 +690,15 @@ Set to 0 to allow any number.">
           <div id="tools" class="collapse ">
             {% for tool_name, tool_value in tools_all.items() %}
             <div class="row input-group text-center mx-auto">
-              <div class="input-group-prepend col-12 px-0 mx-0">
-                <span class="input-group-text col-12" for="{{tool_name}}">
+              <div class="input-group-prepend text-dark w-100">
+                <div class="input-group-text w-100">
                   <input type="checkbox" class="mr-3" id="{{tool_name}}" name="toolsCheck" value="{{tool_name}}"
                     {% if tool_name in tools_user.keys() %}checked{% endif %}>
-                  {{tool_value}}
-                </span>
+                    {{tool_value}}
+                </div>
               </div>
-              <select class="custom-select tool_hotkeys" id="{{tool_name}}_key_binding" style="display: none;">
-                <option value="" class="tool_hotkey" {% if tool_name not in tools_user.keys() %}selected{% endif %}></option>
-                {% for i in range(26) %}
-                {% set char = "abcdefghijklmnopqrstuvwxyz"[i] %}
-                <option value={{char}} class="tool_hotkey" {% if tools_user[tool_name] == char %}selected{% endif %}>{{char}}
-                </option>
-                {% endfor %}
-              </select>
             </div>
+
             {% endfor %}
           </div>
           {% endif %}
@@ -857,7 +850,6 @@ To globally control viewport settings use the defaults submenu.">
 
           <div id="viewport_settings" class="mb-3 collapse show">
             {% if study.view == "study_admin" %}
-            <span class="badge-secondary badge col-12">
               <button class="btn btn-secondary btn-block" data-toggle="collapse" data-target="#viewport_def"
                 aria-expanded="true" aria-controls="viewport_def">
                 <h5 class="mt-1 col-12">Defaults</h5>
@@ -896,10 +888,11 @@ To globally control viewport settings use the defaults submenu.">
                   <input id="def_pos_y" type="Number" step="any" class="form-control def_pos_y viewport_prop_def" placeholder="y"> </input>
                 </div>
               </div>
+              <div class="row mx-auto">
                <!-- position -->
-              <button id=update_viewports class="btn btn-block btn-light">update existing image-sets</button>
+                <button id=update_viewports class="btn btn-light col-12">update existing image-sets</button>
+              </div>
             </div>
-            </span>
             {% endif %}
 
             <div class="mx-auto" id="viewports">
@@ -919,12 +912,13 @@ To globally control viewport settings use the defaults submenu.">
                     class="mt-1 viewport_auto"
                     style="display: none;"
                   {%endif%}>
-                <span class="badge-secondary badge col-12">
-                  <button class="btn btn-secondary btn-block" data-toggle="collapse" data-target="#viewport_{{i}}"
-                    aria-expanded="true" aria-controls="viewport_{{i}}">
-                    <h5 class="col-12 mt-1">{% if i in [0,1]%}Ref-Image {{i+1}} {%elif i in range(2,10)%} Image {{i-1}} {% elif i in range(10,11) %} Image(s) {% elif i in range(11,12) %} Ref-Image(s) {%endif%} Viewer</h5>
-                  </button>
-
+                  <div class="row mx-auto mt-1">
+                    <button class="btn btn-secondary col-12" data-toggle="collapse" data-target="#viewport_{{i}}"
+                      aria-expanded="true" aria-controls="viewport_{{i}}">
+                      <h5 class="mt-1">{% if i in [0,1]%}Ref-Image {{i+1}} {%elif i in range(2,10)%} Image {{i-1}} {% elif i in range(10,11) %} Image(s) {% elif i in range(11,12) %} Ref-Image(s) {%endif%} Viewer</h5>
+                    </button>
+                  </div>
+                  
                   <div id="viewport_{{i}}"
                   class="collapse {% if study.view == "participant" %} show {%endif%}">
                     <!-- windowing -->
@@ -967,7 +961,6 @@ To globally control viewport settings use the defaults submenu.">
                     <!--reset buttons -->
                     <button id=reset_{{i}} class="btn btn-block btn-light reset">reset</button>
                   </div>
-                </span>
               </div>
               {% if i in [9,11] %}
                 </div>

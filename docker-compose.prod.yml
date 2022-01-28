@@ -9,9 +9,6 @@ services:
     environment:
       - FLASK_APP=app
       - FLASK_ENV=production
-      - DB_HOST=/home/HON/instance
-      - DB_TYPE=sqlite
-      - DB_NAME=prod.db
       # Keeps Python from generating .pyc files in the container
       - PYTHONDONTWRITEBYTECODE=1
       # Turns off buffering for easier container logging

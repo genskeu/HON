@@ -38,7 +38,12 @@ $(document).ready(function () {
     data = {};
     data["button"] = this.id;
     data["imgset"] = {};
-    data["imgset"]["stacks"] = get_imgset_data();
+    imgset_data = get_imgset_data();
+    if(imgset_data.length){
+      data["imgset"]["stacks"] = imgset_data
+    } else {
+      return
+    }
     data["imgset"]["position"] = position
     $("#loader_anim_man").addClass("loader")
     $("#loader_text_man").fadeIn()
