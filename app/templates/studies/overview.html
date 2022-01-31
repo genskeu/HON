@@ -11,7 +11,7 @@
              title="Access any study for which you have the login. This functionality was included for study-admins for testing purposes." >
     </form>
     {% if g.user.access_level == 2 %}
-    <form action="{{ url_for('studies.create_modify_study') }}" method="get">
+    <form action="{{ url_for('studies.get_study') }}" method="get">
       <input type="submit" class="btn btn-success" value="Create New Study" data-toggle="tooltip" data-placement="left"
       title="Study creation is a 3 step process: 
       1) Study name, access password, and description are selected. 
@@ -45,7 +45,7 @@
           <td class="align-middle">{{study["created"]}}</td>
           <td class="align-middle">{{study["updated"]}}</td>
           <td>
-            <form class="" action="{{url_for('studies.create_modify_study', id = study["id"])}}" method="get">
+            <form class="" action="{{url_for('studies.get_study', id = study["id"])}}" method="get">
               <button class="btn-secondary btn-sm">modify</button>
             </form>
           </td>

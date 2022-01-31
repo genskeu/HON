@@ -2,6 +2,7 @@ import os
 import shutil
 import json
 from datetime import datetime
+from urllib import response
 from flask import (
     Blueprint, flash, redirect, render_template, request, url_for,
     jsonify, current_app, g, session
@@ -33,11 +34,65 @@ def overview():
 
 # create and modify studies
 # should be seperated into html render and json api
-@bp.route('/study/create', methods=['GET','POST'], defaults={'id': None})
-@bp.route('/study/modify/<int:id>', methods=['GET','POST'])
+@bp.route('/study/create', methods=['GET'], defaults={'id': None})
+@bp.route('/study/update/<int:id>', methods=['GET'])
 @login_required
 @access_level_required([2])
-def create_modify_study(id):
+def get_study(id):
+    study = Study.query.filter_by(id=id).first()
+    return render_template("studies/create.html", study=study)
+
+
+
+@bp.route('/study', methods=['POST'])
+@login_required
+@access_level_required([2])
+def create_study():
+    response = {}
+    error = None
+    data = request.get_json()
+    title = data["title"]
+    password = data["password"]
+    study_description = data["description"]
+
+    # input validation
+    if Study.query.filter_by(title=title,user_id=g.user.id).first() is not None:
+        error = "Titel already used for a different study. Please choose a different study title."
+    elif not title:
+        error = "Title is required."
+    elif not password:
+        error = "Password is required."
+
+    if error is None:
+        study = Study()
+        # save in db
+        study.user_id = g.user.id
+        study.title = title
+        study.description = study_description
+        study.password = generate_password_hash(password)
+        db.session.add(study)
+        db.session.commit()
+
+        image_dir = study.get_image_dir()
+        try:
+            os.makedirs(image_dir)
+        except:
+            print("Error creating:" + image_dir)
+        
+        response["image_upload"] = url_for("studies.image_upload", study_id=study.id)
+        response["study_design"] = url_for("studies.design", study_id=study.id)
+        status_code = 200
+    else:
+        response["error"] = error
+        status_code = 400
+
+    return jsonify(response), status_code
+
+
+@bp.route('/study/<int:id>', methods=['PUT'])
+@login_required
+@access_level_required([2])
+def update_study(id):
     """
         create/modify study
         Args:
@@ -45,71 +100,35 @@ def create_modify_study(id):
         Returns:
             study create html
     """
-    study = Study.query.filter_by(id=id).first()
+    response = {}
     error = None
-
-    # create new study or update exisiting one
-    if request.method == 'POST':
-        title = request.form["title"]
-        password = request.form["password"]
-        study_description = request.form["description"]
-
-        # create new study
-        if study is None:
-
-            # input validation
-            if Study.query.filter_by(title=title,user_id=g.user.id).first() is not None:
-                error = "Titel already used for a different study. Please choose a different study title."
-            elif not title:
-                error = "Title is required."
-            elif not password:
-                error = "Password is required."
-
-            if error is None:
-                study = Study()
-                # save in db
-                study.user_id = g.user.id
-                study.title = title
-                study.description = study_description
-                study.password = generate_password_hash(password)
-                db.session.add(study)
-                db.session.commit()
-
-                image_dir = study.get_image_dir()
-                try:
-                    os.makedirs(image_dir)
-                except:
-                    print("Error creating:" + image_dir)
-
-        # update existing study
-        else:
-            if Study.query.filter(Study.id!=id,Study.title==title,Study.user_id==g.user.id).first() is not None:
-                error = "Titel already used for a different study. Please choose a different study title."
-
-            if error is None:
-                study.user_id = g.user.id
-                if title:
-                    study.title = title
-                if password:
-                    study.password = generate_password_hash(password)
-                study.description = study_description
-                study.updated = datetime.now().replace(microsecond=0)
-                db.session.commit()
-
-        # redirect
-        if error is None:
-            if "image_upload" in request.form.keys():
-                return redirect(url_for('studies.image_upload', study_id=study.id))
-            else:
-                return redirect(url_for('studies.study_design', study_id=study.id))
-
-        # flash errors
-        flash(error)
-
-    return render_template("studies/create.html", study=study)
+    data = request.get_json()
+    title = data["title"]
+    password = data["password"]
+    study_description = data["description"]    
+    study = Study.query.filter_by(id=id).first()
 
 
-# (retrieve and) delete studies API endpoints returning json objects
+    if Study.query.filter(Study.id!=id,Study.title==title,Study.user_id==g.user.id).first() is not None:
+        error = "Titel already used for a different study. Please choose a different study title."
+
+    if error is None:
+        if title:
+            study.title = title
+        if password:
+            study.password = generate_password_hash(password)
+    
+        study.description = study_description
+        study.updated = datetime.now().replace(microsecond=0)
+        db.session.commit()
+        status_code = 200
+    else:
+        response["error"] = error
+        status_code = 400
+
+    return jsonify(response), status_code
+
+
 @bp.route('/study/<int:id>', methods=['DELETE'])
 @login_required
 @access_level_required([2])
@@ -138,6 +157,8 @@ def delete_study(id):
         response = {}
         response["redirect"] = url_for("studies.overview")
         return jsonify(response)
+
+
 
 #render html file upload page
 @bp.route('/study/files/<int:study_id>', methods=['GET'])
