@@ -12,8 +12,8 @@ import random
 import pandas as pd
 import numpy as np
 import copy
-import re
 import nibabel as nib
+from pydicom import dcmread
 
 db = SQLAlchemy()
 
@@ -535,12 +535,20 @@ class Image_stack(db.Model):
 
     def save_seg_data(self,file_path):
         data = json.loads(self.seg_data)
+        arrays1d = data[0:-1]
+        x_res = data[-1][0]
+        y_res = data[-1][1]
         arrays2d = []
-        for array1d in data:
+        for array1d in arrays1d:
             if array1d:
-                arrays2d.append(np.array(array1d,dtype=np.int16).reshape(512,512))
+                array1d_temp = np.array(array1d,dtype=np.int16)
             else:
-                arrays2d.append(np.zeros(512*512).reshape(512,512))
+                array1d_temp = np.zeros(x_res*y_res)
+            array1d_temp = array1d_temp.reshape(x_res,y_res)
+            array1d_temp = np.flip(array1d_temp,1)
+            array1d_temp = np.rot90(array1d_temp)
+
+            arrays2d.append(array1d_temp)
                         
         array3d = np.stack(arrays2d,-1)
         new_image = nib.Nifti1Image(array3d, affine=np.eye(4))

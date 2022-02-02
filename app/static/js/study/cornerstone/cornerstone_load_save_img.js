@@ -69,7 +69,7 @@ function get_stack_data(div_id){
   const viewport = cornerstone.getViewport(element)
   const enabled_element = cornerstone.getEnabledElement(element)
   const element_tool_state_manager = cornerstoneTools.getElementToolStateManager(element)
-
+  const image = cornerstone.getImage(element)
   
   
   if(viewport && enabled_element.image && $("#"+div_id).children().is(':visible')){
@@ -77,7 +77,7 @@ function get_stack_data(div_id){
     stack["div_id"] = div_id
     image_ids = element_tool_state_manager.saveToolState().stack.data[0].imageIds
     stack["tool_state"] = image_ids.map((id) => cornerstoneTools.globalImageIdSpecificToolStateManager.saveImageIdToolState(id))
-    stack["segmentation_data"] = get_seg_data(image_ids)    
+    stack["segmentation_data"] = get_seg_data(image_ids, image.rows, image.columns)    
     image_ids = image_ids.map((id) => id.replace(/wadouri:/,""))
     url_list = image_ids[0].split("/")
     url_list.pop()
@@ -95,7 +95,7 @@ function get_stack_data(div_id){
   }
 }
 
-function get_seg_data(image_ids_stack){
+function get_seg_data(image_ids_stack, rows, cols){
   const segmentation_data = cornerstoneTools.getModule("segmentation").state.series
   const seg_ids = Object.keys(segmentation_data)
   var seg_arrays = null
@@ -109,6 +109,7 @@ function get_seg_data(image_ids_stack){
     for(i=0;i<image_ids_stack.length;i++){
       seg_arrays.push(labelmaps2D[i] ? Array.from(labelmaps2D[i].pixelData) : undefined)
     }
+    seg_arrays.push([rows,cols])
     seg_arrays = JSON.stringify(seg_arrays)
   }
   return seg_arrays

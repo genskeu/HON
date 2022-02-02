@@ -1,4 +1,4 @@
-from flask import Blueprint, g, render_template, jsonify, request, url_for, current_app, send_file
+from flask import Blueprint, g, render_template, jsonify, request, url_for, current_app, send_file, after_this_request
 from .auth import login_required, access_level_required
 import os
 from .DBmodel import Result, Study, User, db, User_study_progress, Output
@@ -63,12 +63,19 @@ def delete_result(study_id,user_id):
 
 
 # download csv file 
-@bp.route('/results/download/<study_id>',methods=["GET"])
+@bp.route('/results/<study_id>/download',methods=["GET"])
 @login_required
 @access_level_required([2])
 def download_csv(study_id):
     filename = "results_study_%s.xlsx" % study_id
     filepath=os.path.join(current_app.config["IMAGE_PATH"],filename)
+    @after_this_request
+    def remove_file(response):
+        try:
+            os.remove(filepath)
+        except Exception as error:
+            print("Error removing downloaded results file handle", error)
+        return response
     return send_file(filepath, filename, as_attachment=True)
 
 
@@ -100,7 +107,28 @@ def create_csv(study_id):
     return resp
 
 
-@bp.route('/result/seg_data/<int:study_id>', methods=['GET'])
+@bp.route('/results/seg_data/<int:study_id>/download', methods=['GET'])
+@login_required
+@access_level_required([2])
+def download_seg_data(study_id):
+    study = Study.query.filter_by(id=study_id).first()
+    tar_name = '%s_seg_masks.tar.gz'%study.title
+    tar_path = os.path.join(study.get_image_dir(),tar_name)
+    @after_this_request
+    def remove_file(response):
+        try:
+            os.remove(tar_path)
+        except Exception as error:
+            print("Error removing downloaded segmentation file handle", error)
+        return response
+
+    return send_file(tar_path, tar_name, as_attachment=True)
+
+
+
+
+
+@bp.route('/results/seg_data/<int:study_id>', methods=['GET'])
 @login_required
 @access_level_required([2])
 def get_seg_data(study_id):
@@ -119,7 +147,6 @@ def get_seg_data(study_id):
     for result in results:
         stack_picked = result.stack_picked
         if stack_picked.seg_data:
-            print(result.id)
             file_name = "%s_%s_%s_%s.nii.gz"%(study.title,result.imgset.position,stack_picked.name,result.user_id)
             file_path = os.path.join(study.get_image_dir(), file_name)
             result.stack_picked.save_seg_data(file_path)
@@ -128,7 +155,9 @@ def get_seg_data(study_id):
     tar_path = os.path.join(study.get_image_dir(),tar_name)
     tardir(study.get_image_dir(),tar_path, "nii.gz")
 
-    return send_file(tar_path, tar_name, as_attachment=True)
+    response = {}
+    return jsonify(response)
+
 
 
 

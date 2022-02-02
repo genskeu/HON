@@ -19,6 +19,11 @@ $(document).ready(function () {
             $("#roi_settings_container").hide()
             $("#results_container").hide()
         }
+        if(new_tool.includes("Brush")){
+            $("#seg_settings_container").show()
+        } else {
+            $("#seg_settings_container").hide()
+        }
 
         //redraw image to hide annotations created with other tools no longer active
         cornerstone.getEnabledElements().forEach(function (enabled_element) {
