@@ -18,7 +18,7 @@ Once you successfully installed and started docker there are two options two bui
 ### Option 1: Build and start the application using DockStation
 3. Download, install and then open <a href="https://dockstation.io/" target="_blank" rel="noopener noreferrer">Dockstation</a>.
 4. Open dockstation. An account is not necessary, you can use the application with a guest account.
-5. Add a new project with Dockstation.
+5. Add a new project.
 - define a name for the project and set the path to the downloaded code
 - build and start the application via the appropriate buttons
 
@@ -57,6 +57,8 @@ docker-compose up -d
 ```
 docker exec -it HON_dev flask init-app
 ```
+- this command initializes/resets the databases and creates 3 default users
+- 
 7. to access the application open your browser and enter 127.0.0.1 in the address field
 - the default user logins are: 
 
