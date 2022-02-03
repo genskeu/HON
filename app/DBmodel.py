@@ -1109,7 +1109,7 @@ def init_imgdir_command():
 def add_default_users_command():
     add_default_users()
 
-@click.command("init-all")
+@click.command("init-app")
 @with_appcontext
 def init_all_command():
     init_db()
