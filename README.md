@@ -58,7 +58,7 @@ docker-compose up -d
 docker exec -it HON_dev flask init-app
 ```
 - this command initializes/resets the databases and creates 3 default users
-- 
+
 7. to access the application open your browser and enter 127.0.0.1 in the address field
 - the default user logins are: 
 
