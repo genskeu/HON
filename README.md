@@ -31,6 +31,13 @@ flask init-app
 - this command initializes/resets the databases and creates 3 default users
 
 5. to access the application press the web button in dockstation or open your browser and enter 127.0.0.1 in the address field 
+- the default user logins are: 
+
+| username  | password | role |
+| ------------- | ------------- | ------------- |
+| user  | user  | study-participant |
+| sadmin  | sadmin | study-admin |
+| uadmin  | uadmin | user-admin |
 
 ### Option 2: Build and start the application using the docker CLI  
 3. open the terminal (MacOS, Linux)/ command line (windows)
@@ -50,7 +57,15 @@ docker-compose up -d
 ```
 docker exec -it HON_dev flask init-app
 ```
-7. to access the application open your browser and enter 127.0.0.1 in the address field 
+7. to access the application open your browser and enter 127.0.0.1 in the address field
+- the default user logins are: 
+
+| username  | password | role |
+| ------------- | ------------- | ------------- |
+| user  | user  | study-participant |
+| sadmin  | sadmin | study-admin |
+| uadmin  | uadmin | user-admin |
+
 
 ## Local Setup without docker
 to do
