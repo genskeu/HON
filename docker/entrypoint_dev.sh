@@ -1,10 +1,10 @@
 #!/usr/bin/env sh
 #start gunicorn
+static_dir="app/static/dependencies/"
 
-
-if [ ! -d "/home/HON/app/static/dependencies/" ]
-echo "download js dependencies"
+if [ ! -d "$static_dir" ]
 then
+    echo "download js dependencies"
     ./get_js_dep.sh
 fi
 echo "starting devlopment server"

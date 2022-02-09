@@ -4,7 +4,7 @@ if [ ! -d "$static_dir" ]
 then
     mkdir $static_dir
 else
-rm "$static_dir"*
+    rm "$static_dir"*
 fi
 
 echo "Downloading static files to ${static_dir}..."

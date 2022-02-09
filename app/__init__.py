@@ -2,7 +2,7 @@ import os
 from flask import Flask
 
 # setup as application factory (recommended in flask tutorial)
-def create_app(config=None,config_path="../config.py"):
+def create_app(config=None):
     """
         creates instance of HON
 

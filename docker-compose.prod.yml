@@ -9,12 +9,11 @@ services:
     environment:
       - FLASK_APP=app
       - FLASK_ENV=production
-      # Keeps Python from generating .pyc files in the container
       - PYTHONDONTWRITEBYTECODE=1
-      # Turns off buffering for easier container logging
       - PYTHONUNBUFFERED=1
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    # only needed for external mysql db
+    #extra_hosts:
+    #  - 'host.docker.internal:host-gateway'
     ports:
       - 80:80
     volumes: 

@@ -1,7 +1,7 @@
 import pytest
 from flask import g
 from flask import session
-from TAFC.DBmodel import User 
+from app.DBmodel import User 
 
 
 def test_register(client, app):
