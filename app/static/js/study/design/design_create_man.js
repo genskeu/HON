@@ -45,11 +45,11 @@ $(document).ready(function () {
       return
     }
     data["imgset"]["position"] = position
-    $("#loader_anim_man").addClass("loader")
-    $("#loader_text_man").fadeIn()
+    $("#loader_anim").addClass("loader")
+    $("#loader_text").fadeIn()
 
     //deactivate all other buttons to avoid conflicts/errors
-    var buttons = $(".imgset_btn");
+    var buttons = $(".btn");
     buttons.each(function (index, button) {
       $(button).prop('disabled', true);
     })
@@ -86,8 +86,8 @@ $(document).ready(function () {
             buttons.each(function (index, button) {
               $(button).prop('disabled', false);
             })
-            $("#loader_text_man").fadeOut()
-            $("#loader_anim_man").removeClass("loader")
+            $("#loader_text").fadeOut()
+            $("#loader_anim").removeClass("loader")
             console.log(Math.floor(Date.now() / 1000) - start)
 
           },
@@ -97,8 +97,8 @@ $(document).ready(function () {
             buttons.each(function(index,button){
               $(button).prop('disabled', false);
             })
-            $("#loader_text_auto").fadeOut()
-            $("#loader_anim_auto").removeClass("loader")
+            $("#loader_text").fadeOut()
+            $("#loader_anim").removeClass("loader")
           }
         })
       }
@@ -131,8 +131,8 @@ $(document).ready(function () {
     var study_id = $("#content").attr("study_id");
     let url = "/study/imgsets/" + study_id
 
-    $("#loader_anim_man").addClass("loader")
-    $("#loader_text_man").fadeIn()
+    $("#loader_anim").addClass("loader")
+    $("#loader_text").fadeIn()
     $.ajax({
       url: url,
       type: 'DELETE',
@@ -152,8 +152,8 @@ $(document).ready(function () {
         buttons.each(function (index, button) {
           $(button).prop('disabled', false);
         });
-        $("#loader_text_man").fadeOut()
-        $("#loader_anim_man").removeClass("loader")
+        $("#loader_text").fadeOut()
+        $("#loader_anim").removeClass("loader")
         console.log(Math.floor(Date.now() / 1000) - start)
       },
       error: function(response) {
@@ -162,8 +162,8 @@ $(document).ready(function () {
         buttons.each(function(index,button){
           $(button).prop('disabled', false);
         })
-        $("#loader_text_auto").fadeOut()
-        $("#loader_anim_auto").removeClass("loader")
+        $("#loader_text").fadeOut()
+        $("#loader_anim").removeClass("loader")
       }
     })
   })
@@ -178,10 +178,18 @@ $(document).ready(function () {
     var div_id = "dicom_img_" + this.id.split("_")[1]
     var study_id = $("#content").attr("study_id");
     if (image_ids) {
+      // loading animation
+      $("#loader_anim").addClass("loader")
+      $("#loader_text").fadeIn()
+      //disable buttons
+      var buttons = $(".btn");
+      buttons.each(function (index, button) {
+        $(button).prop('disabled', true);
+      })
       $.ajax({
         url: '/study/cs_stack/'+study_id+'/'+image_ids,
         type: 'GET',
-        success: function (cs_stack) {
+      }).done(function(cs_stack){
           $.when($("#" + div_id).children().fadeOut()).done(function () {
             loadDicom(cs_stack, div_id = div_id, viewport = null, tool_state = null).then(function () {
               var element = document.getElementById(div_id)
@@ -198,17 +206,17 @@ $(document).ready(function () {
           if (this.id == "sel0" & $("#dicom_img_1").is(':visible')) {
             $("#sel1").val(image_ids).change()
           }
-        },
-        error: function(response) {
+        }).fail(function(response){
           alert("An unknown server error occurred")
+        }).always(function(){
+          $("#loader_text").fadeOut()
+          $("#loader_anim").removeClass("loader")
           //reactivate all buttons
           buttons.each(function(index,button){
             $(button).prop('disabled', false);
           })
-          $("#loader_text_auto").fadeOut()
-          $("#loader_anim_auto").removeClass("loader")
-        }
-      })
+        })
+          
     } else {
       $("#" + div_id).children().fadeOut()
       $("#" + div_id).trigger("ImageDisplayFailed");

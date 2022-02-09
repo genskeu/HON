@@ -42,36 +42,55 @@ $("document").ready(function () {
         if ($("#stack_mode").val() == "Stackmode Off") {
             group_info = "stacks"
         }
+
+        //disable buttons
+        var buttons = $(".btn");
+        buttons.each(function (index, button) {
+            $(button).prop('disabled', true);
+        })
+        // loading animation
+        $("#loader_anim").addClass("loader")
+        $("#loader_text").fadeIn()
         $.ajax({
             url: '/study/get_cs_stacks/'+study_id+'/'+group_info,
-            type: 'GET',
-            success: function (response) {
-                    //set select menus to stacks
-                    $(".sel_image,#ref_image_auto").each((index, sel) => {
-                        $(sel).empty()
-                        $(sel).append(new Option("", ""));
-                        response["cs_stacks"].forEach((cs_stack) => {
-                            op_temp = new Option(cs_stack["name"], cs_stack["image_ids"])
-                            $(sel).append(op_temp);
-                        })
-                        $(sel).val("")
-                        $(sel).change()
-                    })
+            type: 'GET'
+        }).done(function(response){
+            sel_options = []
+            response["cs_stacks"].forEach((cs_stack) => {
+                op_temp = new Option(cs_stack["name"], cs_stack["image_ids"])
+                sel_options.push(op_temp);
+            })
+            //set select menus to stacks
+            $(".sel_image,#ref_image_auto").each((index, sel) => {
+                $(sel).empty()
+                $(sel).append(new Option("", ""));
+                sel_options.forEach((option) =>  $(sel).append( $(option).clone() ))
+                $(sel).val("")
+                $(sel).change()
+            })
 
-                    // change button
-                    if ($("#stack_mode").val() == "Stackmode Off") {
-                        $("#stack_mode").val("Stackmode On")
-                        $("#stack_mode").removeClass("btn-danger")
-                        $("#stack_mode").addClass("btn-success")
-                    } else {
-                        $("#stack_mode").val("Stackmode Off")
-                        $("#stack_mode").removeClass("btn-success")
-                        $("#stack_mode").addClass("btn-danger")
-                    }
-            },
-            error: function(response) {
-                alert("An unknown server error occurred")
-              }
+            // change button
+            if ($("#stack_mode").val() == "Stackmode Off") {
+                $("#stack_mode").val("Stackmode On")
+                $("#stack_mode").removeClass("btn-danger")
+                $("#stack_mode").addClass("btn-success")
+            } else {
+                $("#stack_mode").val("Stackmode Off")
+                $("#stack_mode").removeClass("btn-success")
+                $("#stack_mode").addClass("btn-danger")
+            }
+            $("#loader_anim").removeClass("loader")
+            $("#loader_text").fadeOut()
+        }).fail(function(response){
+            alert("An unknown server error occurred")
+        }).always(function(){
+            $("#loader_anim").removeClass("loader")
+            $("#loader_text").fadeOut()
+            //enable buttons
+            var buttons = $(".btn");
+            buttons.each(function (index, button) {
+                $(button).prop('disabled', false);
+            })
         })
     })
 })

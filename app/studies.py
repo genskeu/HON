@@ -2,14 +2,13 @@ import os
 import shutil
 import json
 from datetime import datetime
-from urllib import response
 from flask import (
     Blueprint, flash, redirect, render_template, request, url_for,
     jsonify, current_app, g, session
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 from .auth import login_required, access_level_required
-from .DBmodel import Study, Design, Imgset, db, Result, Scale, Tool, Image_stack, User_study_progress, Imgset_config
+from .DBmodel import Study, Design, Imgset, db, Result, Scale, Tool, Image_stack, User_study_progress, Imgset_config, Image
 from sqlalchemy.orm import joinedload
 
 bp = Blueprint("studies", __name__)
@@ -319,11 +318,11 @@ def add_imgset(study_id):
             image_stack.seg_data = stack["segmentation_data"]
 
         for image_name in stack["image_names"]:
-            image = [image for image in study.images if image.name == image_name]
-            if image == []:
+            image = Image.query.filter_by(name=image_name,base_url=stack["base_url"]).first()
+            if image is None:
                 image_error += image_name + " not part of study %s."%study.title
             else:
-                image_stack.images.append(image[0])
+                image_stack.images.append(image)
         db.session.add(image_stack)
     db.session.commit()
 
@@ -365,11 +364,11 @@ def update_imgset(study_id, position):
                 image_stack.seg_data = stack["segmentation_data"]
 
             for image_name in stack["image_names"]:
-                image = [image for image in study.images if image.name == image_name]
-                if image == []:
+                image = Image.query.filter_by(name=image_name,base_url=stack["base_url"]).first()
+                if image is None:
                     image_error += image_name + " not part of study %s."%study.title
                 else:
-                    image_stack.images.append(image[0])
+                    image_stack.images.append(image)
             db.session.add(image_stack)
         db.session.commit()
         response["error"] = image_error
@@ -611,11 +610,11 @@ def vote(study_id, imgset_position):
                 picked_stack.seg_data = result_dict["picked_stack"]["segmentation_data"]
             db.session.add(picked_stack)
             for image_name in result_dict["picked_stack"]["image_names"]:
-                image = [image for image in study.images if image.name == image_name]
-                if image == []:
+                image = Image.query.filter_by(name=image_name,base_url=result_dict["picked_stack"]["base_url"]).first()
+                if image is None:
                     error = image_name + " not found part of study."
                 else:
-                    picked_stack.images.append(image[0])
+                    picked_stack.images.append(image)
 
             study_progress = User_study_progress.query.filter_by(study_id=study_id,
                                                                  user_id=user_id).first()

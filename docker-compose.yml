@@ -12,8 +12,8 @@ services:
       - PYTHONDONTWRITEBYTECODE=1
       - PYTHONUNBUFFERED=1
     # only needed for external mysql db
-    #extra_hosts:
-    #  - 'host.docker.internal:host-gateway'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
     ports:
       - '80:80'
     volumes:

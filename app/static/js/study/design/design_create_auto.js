@@ -44,8 +44,8 @@ $(document).ready(function() {
       //buttons.each(function(index,button){
       //  $(button).prop('disabled', true);
       //})
-      $("#loader_anim_auto").addClass("loader")
-      $("#loader_text_auto").fadeIn()
+      $("#loader_anim").addClass("loader")
+      $("#loader_text").fadeIn()
     $.ajax({
         type: 'POST',
         url: "/study/imgsets/auto",
@@ -76,8 +76,8 @@ $(document).ready(function() {
           buttons.each(function(index,button){
             $(button).prop('disabled', false);
           })
-          $("#loader_text_auto").fadeOut()
-          $("#loader_anim_auto").removeClass("loader")
+          $("#loader_text").fadeOut()
+          $("#loader_anim").removeClass("loader")
         console.log(Math.floor(Date.now() / 1000) - start)
         },
         error: function(response) {
@@ -86,8 +86,8 @@ $(document).ready(function() {
           buttons.each(function(index,button){
             $(button).prop('disabled', false);
           })
-          $("#loader_text_auto").fadeOut()
-          $("#loader_anim_auto").removeClass("loader")
+          $("#loader_text").fadeOut()
+          $("#loader_anim").removeClass("loader")
         }
     })
   })

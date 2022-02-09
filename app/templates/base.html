@@ -82,10 +82,13 @@
     <div class="container flash text-center">{{ message }}</div>
   {% endfor %}
   <!--Error messages for ajax calls-->
-    <div class="container mb-3">
+    <div class="container mb-3 sticky-top" style="top:4em;">
         <div class="row justify-content-center">
           <div id="loader_anim" class=""></div>
           <div id="loader_text" class="ml-1 mt-3" style="display: none;">Please wait</div>
+        </div>
+        <div class="row">
+          <div id="error_msg" style="display: none;"></div>
         </div>
     </div>
   {% block content %}

@@ -9,8 +9,8 @@ function loadDicom(stack,div_id,viewport=null,tool_state=null,seg_data=null){
   // empty roi containers
   id = div_id.match(/\d+/)[0]
   $("#rois_img_" + id).find(".roi_pos").remove()
-  // preload entire stack
-  stack.imageIds.map(imageId => cornerstone.loadAndCacheImage(imageId))
+  // preload entire stack (performance issues big stacks)
+  // stack.imageIds.map(imageId => cornerstone.loadAndCacheImage(imageId))
   // load and display specified image
   const promise = cornerstone.loadAndCacheImage(stack.imageIds[stack.currentImageIdIndex]).then(function(image) {
     if(!viewport){
@@ -23,27 +23,27 @@ function loadDicom(stack,div_id,viewport=null,tool_state=null,seg_data=null){
       alert("Problem loading:"+stack.imageIds)
       throw error;
     }).then(function(image) {
-  //load saved tool state
-  if(tool_state){
-    $(tool_state).each((index,state) => {
-      if(state){
-        cornerstoneTools.globalImageIdSpecificToolStateManager.restoreImageIdToolState(stack.imageIds[index],state)
-        $(element).trigger("cornerstonetoolsmeasurementrestored", [stack.imageIds[index], element])
+      //load saved tool state
+      if(tool_state){
+        $(tool_state).each((index,state) => {
+          if(state){
+            cornerstoneTools.globalImageIdSpecificToolStateManager.restoreImageIdToolState(stack.imageIds[index],state)
+            $(element).trigger("cornerstonetoolsmeasurementrestored", [stack.imageIds[index], element])
+          }
+        })
       }
-    })
-  }
-  if(seg_data){
-    seg_data = JSON.parse(seg_data)
-    segmentation.setters.activeLabelmapIndex(element,0)
-    labelmap3D = segmentation.getters.labelmap3D(element,0)
-    labelmap3D.labelmaps2D = Array(seg_data.length)
-    seg_data.forEach(function(seg,index){
-      if(seg){
-        l2dforImageIdIndex = {pixelData : Uint16Array.from(seg),segmentsOnLabelmap : [0,1]  }
-        labelmap3D.labelmaps2D.splice(index,0,l2dforImageIdIndex)
+      if(seg_data){
+        seg_data = JSON.parse(seg_data)
+        segmentation.setters.activeLabelmapIndex(element,0)
+        labelmap3D = segmentation.getters.labelmap3D(element,0)
+        labelmap3D.labelmaps2D = Array(seg_data.length)
+        seg_data.forEach(function(seg,index){
+          if(seg){
+            l2dforImageIdIndex = {pixelData : Uint16Array.from(seg),segmentsOnLabelmap : [0,1]  }
+            labelmap3D.labelmaps2D.splice(index,0,l2dforImageIdIndex)
+          }
+        })
       }
-    })
-  }
     })        
   return promise
 }
