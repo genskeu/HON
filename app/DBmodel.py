@@ -859,7 +859,26 @@ class Output:
 
 
     def format_length_data(self,include_raw_tool_data):
-        pass
+        length_cols = [column for column in self.df if "Length" in column]
+        for length_col in length_cols:
+            start_col, end_col, len_col = [], [], []
+            for imgset in range(self.row_numb):
+                lengths = self.df[length_col][imgset]
+                start_img, end_img, length_img, = [], [], []
+                if lengths:
+                    for length in lengths:
+                        length = Length(length)
+                        l = length.get_stats()                            
+                        start, end = length.get_coords()   
+                        start_img.append(start), end_img.append(end), length_img.append(l)
+                start_col.append(start_img), end_col.append(end_img), len_col.append(length_img)            
+            # add roi stats and coords
+            self.df[length_col + "-start"] = start_col
+            self.df[length_col + "-end"] = end_col
+            self.df[length_col + "-length"] = len_col
+
+            if not include_raw_tool_data:
+                self.df.drop(length_col,inplace=True,axis=1)
 
     def format_segmentation_data(self,include_raw_tool_data):
         pass
@@ -923,7 +942,7 @@ class Annotation:
 class Length(Annotation):
     def __init__(self, tool_state_raw):
         super().__init__(tool_state_raw)
-        self.length = tool_state_raw["cachedStats"]["length"]
+        self.length = tool_state_raw["length"]
 
     def set_polygon(self):
         """
