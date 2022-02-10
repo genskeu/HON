@@ -11,8 +11,10 @@ function loadDicom(stack,div_id,viewport=null,tool_state=null,seg_data=null){
   $("#rois_img_" + id).find(".roi_pos").remove()
   // load and display specified image
   const promise = cornerstone.loadAndCacheImage(stack.imageIds[stack.currentImageIdIndex]).then(function(image) {
-    // preload entire stack (performance issues big stacks?)
-    stack.imageIds.map(imageId => cornerstone.loadAndCacheImage(imageId))
+    // preload entire stack (performance issues big stacks)
+    if(stack.imageIds.length < 100){
+      stack.imageIds.map(imageId => cornerstone.loadAndCacheImage(imageId))
+    }
     if(!viewport){
       viewport = cornerstone.getDefaultViewportForImage(element,image)
     }
