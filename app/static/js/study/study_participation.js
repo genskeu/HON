@@ -262,15 +262,3 @@ document.addEventListener("keydown",function(event){
     }
   }
 })
-
-//set hotkeys for tools
-//$("#tool_act_left option, #tool_act_wheel option").each(function(index,option){
-//  document.addEventListener("keydown",function(event){
-//    if(option.attributes.key){
-//      if (event.key == option.attributes.key.value) {
-//        option.selected = true
-//      $("#"+option.parentElement.id).change()
-//      }
-//    }
-//  })
-//})

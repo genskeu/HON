@@ -326,7 +326,7 @@ def add_imgset(study_id):
         db.session.add(image_stack)
     db.session.commit()
 
-    response["error"] = image_error
+    response["error_msg"] = image_error
     return jsonify(response)
 
 
@@ -371,7 +371,7 @@ def update_imgset(study_id, position):
                     image_stack.images.append(image)
             db.session.add(image_stack)
         db.session.commit()
-        response["error"] = image_error
+        response["error_msg"] = image_error
         status_code = 200
     else:
         status_code =404
@@ -389,7 +389,11 @@ def delete_imgset(study_id, position):
     if imgset is None:
         error = "Imgset with position %s not found in study %s"%(position,study.title)
         status_code = 404
-        response["error"] = error
+        response["error_msg"] = error
+    elif Result.query.filter_by(imgset_id=imgset.id).first():
+        error = "Results are present for imgset %s! First delete results, then delete imgset."%(position)
+        status_code = 409
+        response["error_msg"] = error
     else:
         db.session.delete(imgset)
         db.session.commit()
@@ -502,19 +506,20 @@ def upd_all_imgsets(study_id):
 @login_required
 @access_level_required([2])
 def del_all_imgsets(study_id):
+    response = {}
     study = Study.query.filter_by(id=study_id).options(joinedload('imgsets')).first()
 
-    for imgset in study.imgsets:
-        db.session.delete(imgset)
-    db.session.commit()
+    if Result.query.filter_by(study_id=study_id).first():
+        error = "Results are present for this study! First delete results, then delete imgsets."
+        status_code = 409
+        response["error_msg"] = error
+    else:
+        status_code = 200
+        for imgset in study.imgsets:
+            db.session.delete(imgset)
+        db.session.commit()
 
-    #response
-    response = {}
-    imgsets = []
-    for imgset in study.imgsets:
-        imgsets.append(imgset.to_dict())
-    response["imgsets"] = imgsets
-    return jsonify(response)
+    return jsonify(response), status_code
 
 
 # access study (login)

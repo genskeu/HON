@@ -15,14 +15,9 @@ $(document).ready(function () {
         if(new_tool.includes("Roi")){
             $("#roi_settings_container").show()
             $("#results_container").show()
-        } else {
-            $("#roi_settings_container").hide()
-            $("#results_container").hide()
-        }
+        } 
         if(new_tool.includes("Brush")){
             $("#seg_settings_container").show()
-        } else {
-            $("#seg_settings_container").hide()
         }
 
         //redraw image to hide annotations created with other tools no longer active
@@ -82,7 +77,8 @@ $("document").ready(function () {
             $("#loader_anim").removeClass("loader")
             $("#loader_text").fadeOut()
         }).fail(function(response){
-            alert("An unknown server error occurred")
+            $("#error_msg").fadeIn()
+            $("#error_msg").append("<p>An unknown server error occurred</p>")
         }).always(function(){
             $("#loader_anim").removeClass("loader")
             $("#loader_text").fadeOut()
@@ -93,4 +89,9 @@ $("document").ready(function () {
             })
         })
     })
+})
+
+// when page is loaded 
+$("document").ready(function () {
+    $("#stack_mode").click()
 })

@@ -9,10 +9,10 @@ function loadDicom(stack,div_id,viewport=null,tool_state=null,seg_data=null){
   // empty roi containers
   id = div_id.match(/\d+/)[0]
   $("#rois_img_" + id).find(".roi_pos").remove()
-  // preload entire stack (performance issues big stacks?)
-  stack.imageIds.map(imageId => cornerstone.loadAndCacheImage(imageId))
   // load and display specified image
   const promise = cornerstone.loadAndCacheImage(stack.imageIds[stack.currentImageIdIndex]).then(function(image) {
+    // preload entire stack (performance issues big stacks?)
+    stack.imageIds.map(imageId => cornerstone.loadAndCacheImage(imageId))
     if(!viewport){
       viewport = cornerstone.getDefaultViewportForImage(element,image)
     }
@@ -20,9 +20,10 @@ function loadDicom(stack,div_id,viewport=null,tool_state=null,seg_data=null){
     cornerstoneTools.addStackStateManager(element, ['stack']);
     cornerstoneTools.addToolState(element, 'stack', stack)
     },function(error){
-      alert("Problem loading:"+stack.imageIds)
+      $("#error_msg").fadeIn()
+      $("#error_msg").append("<p>" + "Problem loading:"+stack.imageIds + "</p>")
       throw error;
-    }).then(function(image) {
+    }).then(function() {
       //load saved tool state
       if(tool_state){
         $(tool_state).each((index,state) => {
@@ -32,6 +33,7 @@ function loadDicom(stack,div_id,viewport=null,tool_state=null,seg_data=null){
           }
         })
       }
+      //load saved seg state
       if(seg_data){
         seg_data = JSON.parse(seg_data)
         segmentation.setters.activeLabelmapIndex(element,0)

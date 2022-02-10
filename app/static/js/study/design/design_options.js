@@ -238,6 +238,5 @@ $(document).ready( function() {
   $("#scale_text_input_1").change();
   $("#tools").val("")
   $(".sel_image").each((index,sel) => $(sel).val("") )
-  $("#stack_mode").click()
 })
 

@@ -396,7 +396,7 @@ class Result(db.Model):
                                    cascade="all, delete-orphan", uselist=False)
     imgset = db.relationship("Imgset", backref="result", lazy=False, uselist=False)
     created = db.Column(db.DateTime(), server_default=db.func.now())
-    scale_input = db.Column(db.String(1000))
+    scale_input = db.Column(db.String(10000))
 
 
     def to_dict(self):

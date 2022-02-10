@@ -1,42 +1,77 @@
-//add or update imgSet
+//add imgSet
 $(document).ready(function () {
-  $("#add_imgset,#upd_imgset,#insert_imgset,#del_imgset").click(function () {
-    start = Math.floor(Date.now() / 1000)
+  $("#add_imgset, #insert_imgset").click(function () {
     // create url for request
-    // either a imgset is selected or not
     var study_id = $("#content").attr("study_id");
-
-    // insert or update
-    if (this.id != "add_imgset") {
-      try{
-        $(".imgset_active")[0]
-        var imgset = $(".imgset_active")[0];
-        var position = Number(imgset.id.split("_")[1]);
-      } catch {
-        alert("No imgset selected.")
-        return
-      }
-    //add to the end
+    var type = "POST"
+    var url = "/study/imgset/" + study_id;
+    
+    // insert or append
+    var imgset = $(".imgset_active")[0];
+    if(imgset && this.id == "insert_imgset"){
+      var position = Number(imgset.id.split("_")[1]);
     } else {
+    //add to the end{
       var position = $(".imgset").length;
-
     }
 
-    if (this.id == "add_imgset" || this.id == "insert_imgset") {
-      var type = "POST"
-      var url = "/study/imgset/" + study_id;
-    } else if(this.id == "del_imgset") {
-      var type = "DELETE"
-      var url = "/study/imgset/" + study_id + "/" + position;
+    // get data
+    var data = {}
+    data["imgset"] = {};
+    var imgset_data = get_imgset_data();
+    if(imgset_data.length){
+      data["imgset"]["stacks"] = imgset_data
     } else {
-      var type = "PUT"
-      var url = "/study/imgset/" + study_id + "/" + position;
+      return
     }
+    data["imgset"]["position"] = position
+    
+    //loading anim
+    $("#loader_anim").addClass("loader")
+    $("#loader_text").fadeIn()
+    //deactivate all other buttons to avoid conflicts/errors
+    var buttons = $(".btn");
+    buttons.each(function (index, button) {
+      $(button).prop('disabled', true);
+    })
+
+    //request
+    $.ajax({
+      type: type,
+      url: url,
+      data: JSON.stringify(data),
+      dataType: 'json',
+      contentType: 'application/json; charset=utf-8'
+    }).done(function(reponse){
+
+    }).fail(function(){
+      $("#error_msg").fadeIn()
+      $("#error_msg").append("<p>An unknown server error occurred</p>")  
+    }).always(function(){
+      reload_sidebar(study_id,position)
+    })
+  });
+});
+
+
+//update imgSet
+$(document).ready(function () {
+  $("#upd_imgset").click(function () {
+    // create url for request
+    var study_id = $("#content").attr("study_id");
+    var type = "PUT"
+    // insert or append
+    var imgset = $(".imgset_active")[0];
+    if(imgset){
+      var position = Number(imgset.id.split("_")[1]);
+    } else {
+      alert("No imgset selected.")
+      return
+    }
+    var url = "/study/imgset/" + study_id + "/" + position;
 
     // get request data
-    var imgset = {};
     data = {};
-    data["button"] = this.id;
     data["imgset"] = {};
     imgset_data = get_imgset_data();
     if(imgset_data.length){
@@ -54,57 +89,73 @@ $(document).ready(function () {
       $(button).prop('disabled', true);
     })
 
-
     //request
     $.ajax({
       type: type,
       url: url,
       data: JSON.stringify(data),
       dataType: 'json',
-      contentType: 'application/json; charset=utf-8',
-      success: function () {
-        $.ajax({
-          type: 'GET',
-          url: "/study/imgsets/" + study_id,
-          dataType: 'json',
-          contentType: 'application/json; charset=utf-8',
-          success: function (response) {
-            //on success reload sidebar entries
-            $("#sidebar").empty();
-            response["imgsets"].forEach(function (imgset) {
-              add_sidebar_entry(imgset.position, imgset.study_id);
-              $('#imgset_' + imgset.position).click(load_imgset_on_click);
-            });
-            $('#imgset_' + position).addClass("imgset_active");
-            $('#imgset_' + position).click()
-            // show sidebar (navigation between imgsets) if closed
-            var sidebar_width = $("#sidebar").width();
-            if (sidebar_width == 0) {
-              $("#sidebar_btn").click();
-            };
-            //reactivate all buttons
-            buttons.each(function (index, button) {
-              $(button).prop('disabled', false);
-            })
-            $("#loader_text").fadeOut()
-            $("#loader_anim").removeClass("loader")
-            console.log(Math.floor(Date.now() / 1000) - start)
-
-          },
-          error: function(response) {
-            alert("An unknown server error occurred")
-            //reactivate all buttons
-            buttons.each(function(index,button){
-              $(button).prop('disabled', false);
-            })
-            $("#loader_text").fadeOut()
-            $("#loader_anim").removeClass("loader")
-          }
-        })
-      }
-    });
+      contentType: 'application/json; charset=utf-8'
+    }).done(function(){
+      $('#imgset_' + position).click()
+    }).fail(function(){
+      $("#error_msg").fadeIn()
+      $("#error_msg").append("<p>An unknown server error occurred</p>")  
+    }).always(function(){
+      $("#loader_text").fadeOut()
+      $("#loader_anim").removeClass("loader")
+      //reactivate all buttons
+      buttons.each(function(index,button){
+        $(button).prop('disabled', false);
+      })
+    })
   });
 });
+
+
+//del imgset
+$(document).ready(function () {
+  $("#del_imgset").click(function () {
+    // create url for request
+    // either a imgset is selected or not
+    var study_id = $("#content").attr("study_id");
+    var type = "DELETE"
+    var imgset = $(".imgset_active")[0];
+    if(imgset){
+      var position = Number(imgset.id.split("_")[1]);
+    } else {
+      alert("No imgset selected.")
+      return
+    }
+    var url = "/study/imgset/" + study_id + "/" + position;
+
+    $("#loader_anim").addClass("loader")
+    $("#loader_text").fadeIn()
+
+    //deactivate all other buttons to avoid conflicts/errors
+    var buttons = $(".btn");
+    buttons.each(function (index, button) {
+      $(button).prop('disabled', true);
+    })
+
+
+    //request
+    $.ajax({
+      type: type,
+      url: url,
+      dataType: 'json',
+      contentType: 'application/json; charset=utf-8',
+    }).done(function(){
+
+    }).fail(function(response){
+      $("#error_msg").fadeIn()
+      $("#error_msg").append("<p>" + response.responseJSON["error_msg"] + "</p>")  
+    }).always(function(){
+      reload_sidebar(study_id,position)
+    })
+  });
+});
+
 
 // after an imgset has been added the sidebar needs to be updated
 function add_sidebar_entry(position, study_id) {
@@ -118,53 +169,75 @@ function add_sidebar_entry(position, study_id) {
   )
 }
 
+function reload_sidebar(study_id, active_position=null){
+    //loading anim
+    $("#loader_anim").addClass("loader")
+    $("#loader_text").fadeIn()
+    //deactivate all other buttons to avoid conflicts/errors
+    var buttons = $(".btn");
+    buttons.each(function (index, button) {
+      $(button).prop('disabled', true);
+    })
+    $.ajax({
+      type: 'GET',
+      url: "/study/imgsets/" + study_id,
+      dataType: 'json',
+      contentType: 'application/json; charset=utf-8',
+    }).done(function(response){
+      $("#sidebar").empty();
+      response["imgsets"].forEach(function (imgset) {
+        add_sidebar_entry(imgset.position, imgset.study_id);
+        $('#imgset_' + imgset.position).click(load_imgset_on_click);
+      });
+      if(active_position != null){
+        $('#imgset_' + active_position).addClass("imgset_active");
+        $('#imgset_' + active_position).click()
+      }
+      // show sidebar (navigation between imgsets) if closed
+      var sidebar_width = $("#sidebar").width();
+      if (sidebar_width == 0) {
+        $("#sidebar_btn").click();
+      };
+    }).fail(function(){
+      $("#error_msg").fadeIn()
+      $("#error_msg").append("<p>An unknown server error occurred</p>")  
+    }).always(function(){
+      $("#loader_text").fadeOut()
+      $("#loader_anim").removeClass("loader")
+      //reactivate all buttons
+      buttons.each(function(index,button){
+        $(button).prop('disabled', false);
+      })
+    })
+}
+
+
 
 //del all imgsets
 $(document).ready(function () {
   $("#del_all_imgsets").click(function () {
-    start = Math.floor(Date.now() / 1000)
-    //deactivate all other buttons to avoid conflicts/errors
-    var buttons = $(".imgset_btn");
-    buttons.each(function (index, button) {
-      $(button).prop('disabled', true);
-    })
+
     var study_id = $("#content").attr("study_id");
     let url = "/study/imgsets/" + study_id
 
+    //deactivate all other buttons to avoid conflicts/errors
+    var buttons = $(".btn");
+    buttons.each(function (index, button) {
+      $(button).prop('disabled', true);
+    })
     $("#loader_anim").addClass("loader")
     $("#loader_text").fadeIn()
+    
     $.ajax({
       url: url,
       type: 'DELETE',
-      success: function (response) {
-        //on success reload sidebar entries
-        $("#sidebar").empty();
-        response["imgsets"].forEach(function (imgset) {
-          add_sidebar_entry(imgset.position, imgset.study_id);
-          $('#imgset_' + imgset.position).click(load_imgset_on_click);
-        });
-        // show sidebar (navigation between imgsets) if closed
-        var sidebar_width = $("#sidebar").width();
-        if (sidebar_width == 0) {
-          $("#sidebar_btn").click()
-        };
-        //reactivate all buttons
-        buttons.each(function (index, button) {
-          $(button).prop('disabled', false);
-        });
-        $("#loader_text").fadeOut()
-        $("#loader_anim").removeClass("loader")
-        console.log(Math.floor(Date.now() / 1000) - start)
-      },
-      error: function(response) {
-        alert("An unknown server error occurred")
-        //reactivate all buttons
-        buttons.each(function(index,button){
-          $(button).prop('disabled', false);
-        })
-        $("#loader_text").fadeOut()
-        $("#loader_anim").removeClass("loader")
-      }
+    }).done(function(){
+
+    }).fail(function(response){
+      $("#error_msg").fadeIn()
+      $("#error_msg").append("<p>" + response.responseJSON["error_msg"] + "</p>")  
+    }).always(function(){
+      reload_sidebar(study_id)
     })
   })
 })
@@ -207,7 +280,8 @@ $(document).ready(function () {
             $("#sel1").val(image_ids).change()
           }
         }).fail(function(response){
-          alert("An unknown server error occurred")
+          $("#error_msg").fadeIn()
+          $("#error_msg").append("An unknown server error occurred")
         }).always(function(){
           $("#loader_text").fadeOut()
           $("#loader_anim").removeClass("loader")
@@ -216,7 +290,6 @@ $(document).ready(function () {
             $(button).prop('disabled', false);
           })
         })
-          
     } else {
       $("#" + div_id).children().fadeOut()
       $("#" + div_id).trigger("ImageDisplayFailed");
