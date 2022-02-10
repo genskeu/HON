@@ -510,7 +510,7 @@ class Image_stack(db.Model):
     images = db.relationship("Image",secondary=stack_images, backref=db.backref("image_stacks", lazy=True),lazy='subquery', order_by='Image.name')
     viewport = db.Column(db.String(1000))
     tool_state = db.Column(db.Text(1000000))
-    seg_data = db.Column(db.Text(10000000))
+    seg_data = db.Column(db.Text(100000000))
 
     def to_dict(self):
         image_stack_dict = {}
