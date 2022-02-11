@@ -171,7 +171,9 @@ $(document).ready(function () {
         }
       },
       error: function (response) {
-        alert("An unknown server error occurred.")
+        alert("An unknown server error occurred. Please reload the page and try again.")
+        $("#loader_text").fadeOut()
+        $("#loader_anim").removeClass("loader")
       }
     })
   })
