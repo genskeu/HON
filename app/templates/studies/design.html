@@ -52,12 +52,14 @@
 {%
   set tools_all = {
                    "Wwwc":"Windowing",
-                   "WwwcRegion": "Windowing-region-auto",
-                   "ZoomMouseWheel":"Zoom",
+                   "WwwcRegion": "Windowing (region auto)",
                    "Pan": "Move",
                    "Magnify":"Magnify",
                    "Rotate":"Rotate",
-                   "StackScrollMouseWheel":"Stack scroll",
+                   "ZoomMouseWheel":"Zoom (mouse wheel)",
+                   "Zoom":"Zoom",
+                   "StackScrollMouseWheel":"Stack scroll (mouse wheel)",
+                   "StackScroll":"Stack scroll",
                    "EllipticalRoi":"Elliptical-roi",
                    "RectangleRoi":"Rectangle-roi",
                    "FreehandRoi":"Freehand-roi",
@@ -107,7 +109,7 @@ Stackmode Off: Each image/file can be displayed separately">
             <option value="" disabled selected>{{mouseKey}}</option>
             {% for tool_name, tool_value in tools_all.items() %}
               {% if study.view == "study_admin" or tool_name in tools_user.keys() %}
-                {% if "Zoom" not in tool_name and "Stack" not in tool_name and mouseButtonMask in [1,2] or ("Zoom" in tool_name or "Stack" in tool_name) and mouseButtonMask == 4 %}
+                {% if "ZoomMouseWheel" not in tool_name and "StackScrollMouseWheel" not in tool_name and mouseButtonMask in [1,2] or ("ZoomMouseWheel" in tool_name or "StackScrollMouseWheel" in tool_name) and mouseButtonMask == 4 %}
                   <option value='{{tool_name}}' key='{{tools_user[tool_name]}}'>{{tool_value}}</option>
                 {% endif %}
               {% endif %}
