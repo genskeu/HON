@@ -70,10 +70,12 @@ docker exec -it HON_dev flask init-app
 
 
 ## Local Setup without docker
-to do
+1. open the terminal (MacOS, Linux)/ command line or PowerShell (windows)
+2. git clone this repository and navigate to the downloaded repo
+3. create a virtual environment using conda or python-venv
+4. activate virtual environment and pip install requirements
+5. set flask environment variables
+6. start application 
 
-## How to deploy the application on Pythonanywhere
-to do
-
-## How to deploy the application on Heroku
+## How to deploy the application using Pythonanywhere
 to do
