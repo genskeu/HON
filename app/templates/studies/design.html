@@ -2,65 +2,74 @@
 
 {% block header %}
 <!-- include the cornerstone library -->
-<script src="https://unpkg.com/cornerstone-core@2.2.8/dist/cornerstone.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/cornerstone-math@0.1.6/dist/cornerstoneMath.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
+<script src="{{ url_for('static', filename='dependencies/cornerstone.js') }}"></script>
+<script src="{{ url_for('static', filename='dependencies/cornerstoneMath.js') }}"></script>
+<script src="{{ url_for('static', filename='dependencies/hammer.min.js') }}"></script>
 
 <!-- include the dicomParser library as the WADO image loader depends on it -->
-<script src="https://unpkg.com/dicom-parser@1.8.3/dist/dicomParser.js"></script>
+<script src="{{ url_for('static', filename='dependencies/dicomParser.js') }}"></script>
 
 <!-- include the cornerstoneWADOImageLoader library -->
-<script src="https://unpkg.com/cornerstone-wado-image-loader@3.0.6/dist/cornerstoneWADOImageLoader.min.js"></script>
+<script src="{{ url_for('static', filename='dependencies/cornerstoneWADOImageLoader.min.js') }}"></script>
 
 <!-- include the cornerstoneWADOImageLoader library -->
-<script src="https://unpkg.com/cornerstone-web-image-loader@2.1.1/dist/cornerstoneWebImageLoader.min.js"></script>
+<script src="{{ url_for('static', filename='dependencies/cornerstoneWebImageLoader.min.js') }}"></script>
 
 <!-- cornerstone tools  -->
 {% if study.view == "participant" %}
-  <script src= "https://cdn.jsdelivr.net/gh/genskeu/csTools/cornerstoneTools.js"></script>
+  <script src= "{{ url_for('static', filename='dependencies/cornerstoneTools_mod.js') }}"></script>
 {% else %}
-  <script src="https://cdn.jsdelivr.net/npm/cornerstone-tools@5.1.2/dist/cornerstoneTools.min.js"></script>
+  <script src="{{ url_for('static', filename='dependencies/cornerstoneTools.min.js') }}"></script>
 {% endif %}
 
 <!--  JavaScript own -->
 <!--  JavaScript general -->
-<script src="{{url_for('static', filename = 'js/study/cornerstone_init.js')}}"></script>
-<script src="{{url_for('static', filename = 'js/study/cornerstone_tools.js')}}"></script>
-<script src="{{url_for('static', filename = 'js/study/cornerstone_load_save_img.js')}}"></script>
-<script src="{{url_for('static', filename = 'js/study/cornerstone_viewport.js')}}"></script>
-<script src="{{url_for('static', filename = 'js/study/cornerstone_rois.js')}}"></script>
-<script src="{{url_for('static', filename = 'js/study/design_options.js')}}"></script>
-<script src="{{url_for('static', filename = 'js/study/design_scales.js')}}"></script>
+<script src="{{url_for('static', filename = 'js/study/cornerstone/cornerstone_init.js')}}"></script>
+<script src="{{url_for('static', filename = 'js/study/cornerstone/cornerstone_tools.js')}}"></script>
+<script src="{{url_for('static', filename = 'js/study/cornerstone/cornerstone_load_save_img.js')}}"></script>
+<script src="{{url_for('static', filename = 'js/study/cornerstone/cornerstone_viewport.js')}}"></script>
+<script src="{{url_for('static', filename = 'js/study/cornerstone/cornerstone_rois.js')}}"></script>
+<script src="{{url_for('static', filename = 'js/study/cornerstone/cornerstone_segmentation.js')}}"></script>
+<script src="{{url_for('static', filename = 'js/study/design/design_options.js')}}"></script>
+<script src="{{url_for('static', filename = 'js/study/design/design_scales.js')}}"></script>
 
 
 <!--  JavaScript design -->
 {% if study.view == "study_admin" %}
-  <script src="{{url_for('static', filename = 'js/study/design_create_man.js')}}"></script>
-  <script src="{{url_for('static', filename = 'js/study/design_create_auto.js')}}"></script>
-  <script src="{{url_for('static', filename = 'js/study/design_sidebar.js')}}"></script>
-  <script src="{{url_for('static', filename = 'js/study/design_misc.js')}}"></script>
+  <script src="{{url_for('static', filename = 'js/study/design/design_create_man.js')}}"></script>
+  <script src="{{url_for('static', filename = 'js/study/design/design_create_auto.js')}}"></script>
+  <script src="{{url_for('static', filename = 'js/study/design/design_sidebar.js')}}"></script>
+  <script src="{{url_for('static', filename = 'js/study/design/design_misc.js')}}"></script>
 <!--  JavaScript run study -->
 {% elif study.view == "participant" %}
-  <script src= "{{url_for('static', filename = 'js/study/run.js')}}"></script>
+  <script src= "{{url_for('static', filename = 'js/study/study_participation.js')}}"></script>
 {% endif %}
 
 {% endblock %}
 
 
-<!-- tool select menus -->
+<!-- tool select menus 
+                   "Brush":"Brush-Segmentation",
+                   "FreehandScissors":"Freehand-Segmentation",
+                   "CorrectionScissors":"Freehand with correction",
+                   "RectangleScissors":"Rectangle-Segmentation",
+-->
 {%
   set tools_all = {
-                   "Wwwc":"windowing",
-                   "WwwcRegion": "windowing-region-auto",
-                   "ZoomMouseWheel":"zoom",
-                   "Pan": "pan",
-                   "EllipticalRoi":"elliptical-roi",
-                   "RectangleRoi":"rectangle-roi",
-                   "FreehandRoi":"freehand-roi",
-                   "Length":"length",
-                   "StackScrollMouseWheel":"stack scroll",
-                   "Magnify":"magnify",
-                   "Rotate":"rotate"
+                   "Wwwc":"Windowing",
+                   "WwwcRegion": "Windowing (region auto)",
+                   "Pan": "Move",
+                   "Magnify":"Magnify",
+                   "Rotate":"Rotate",
+                   "ZoomMouseWheel":"Zoom (mouse wheel)",
+                   "Zoom":"Zoom",
+                   "StackScrollMouseWheel":"Stack scroll (mouse wheel)",
+                   "StackScroll":"Stack scroll",
+                   "EllipticalRoi":"Elliptical-roi",
+                   "RectangleRoi":"Rectangle-roi",
+                   "FreehandRoi":"Freehand-roi",
+                   "Length":"Length Measurment",
+                   "Eraser":"Remove ROI/Length",
                   }
 %}
 
@@ -101,7 +110,7 @@ Stackmode Off: Each image/file can be displayed separately">
             <option value="" disabled selected>{{mouseKey}}</option>
             {% for tool_name, tool_value in tools_all.items() %}
               {% if study.view == "study_admin" or tool_name in tools_user.keys() %}
-                {% if "Zoom" not in tool_name and "Stack" not in tool_name and mouseButtonMask in [1,2] or ("Zoom" in tool_name or "Stack" in tool_name) and mouseButtonMask == 4 %}
+                {% if "ZoomMouseWheel" not in tool_name and "StackScrollMouseWheel" not in tool_name and mouseButtonMask in [1,2] or ("ZoomMouseWheel" in tool_name or "StackScrollMouseWheel" in tool_name) and mouseButtonMask == 4 %}
                   <option value='{{tool_name}}' key='{{tools_user[tool_name]}}'>{{tool_value}}</option>
                 {% endif %}
               {% endif %}
@@ -133,7 +142,7 @@ Stackmode Off: Each image/file can be displayed separately">
       <div class="row justify-content-center align-items-center">
         {% if study.view == "participant" %}
         <button id="start_study" type="btn" name="button" class=" btn-lg btn-dark"
-        formaction="{{url_for('studies.imgset', study_id=study.id,position=imgset.position)}}">
+        formaction="{{url_for('studies.get_imgset', study_id=study.id,position=imgset.position)}}">
           {% if imgset.position|int > 0 %} Continue {% else %} Start {% endif %} {% else %}
         </button>
         {% endif %}
@@ -162,7 +171,7 @@ The currently selected image-set will be highlited green.">
           {% for imgset in study.imgsets %}
           <div class="row">
             <button class='imgset btn btn-light col-lg-12' id="imgset_{{imgset.position}}"
-              action="{{url_for('studies.imgset', study_id=study.id,position=imgset.position)}}">
+              action="{{url_for('studies.get_imgset', study_id=study.id,position=imgset.position)}}">
               Image Set {{imgset.position + 1}}
             </button>
           </div>
@@ -292,7 +301,7 @@ or by combining 1 signal positive image with m-1 signal negative images
             <!-- modify buttons -->
             {% if study.view == "study_admin" %}
             <div id="imgset_buttons">
-              <div class="row mt-3">
+              <div class="row mt-3 mb-2">
                 <div class="col-lg-12 text-center">
                   <input type="button" value="append imgset" class="imgset_btn btn-success btn col-lg-2" id="add_imgset" title="add image-set to the end of the study">
                   <input type="button" value="insert imgset" class="imgset_btn btn-success btn col-lg-2" id="insert_imgset" title="inserts image-set at the currently selected position">
@@ -300,12 +309,7 @@ or by combining 1 signal positive image with m-1 signal negative images
                   <input type="button" value="delete imgset" class="imgset_btn btn-danger btn col-lg-2" id="del_imgset" title="delete currently selected image-set">
                   <input type="button" value="delete all imgsets" class="imgset_btn btn-danger btn col-lg-2"
                     id="del_all_imgsets">
-                  <!-- <input type="button" value="shuffle dropdowns" class="imgset_btn btn-dark btn col-lg-2" id="shuffleSel"> -->
                 </div>
-              </div>
-              <div class="row justify-content-center">
-                <div id="loader_anim_man" class="mt-1 ml-4"></div>
-                <div id="loader_text_man" class="col-1 mt-3 text-center" style="display: none;">Please wait</div>
               </div>
             </div>
 
@@ -511,15 +515,11 @@ or by combining 1 signal positive image with m-1 signal negative images
                   <h5>Create Imgsets</h5>
                 </button>
             </div>
-            <div class="row">
-              <div id="loader_anim_auto" class="mt-1 ml-4"></div>
-              <div id="loader_text_auto" class="col-1 mt-3 text-center" style="display: none;">Please wait</div>
-            </div>
           </div>
         {% endif %}
         </div>
         {% if study.view == "study_admin" %}
-        <div class="row mx-auto  no-gutters">
+        <div class="row mx-auto no-gutters">
           <div class="col-4">
             <div class="mr-1">
               <button class="btn  btn-secondary btn-block">
@@ -533,7 +533,7 @@ or by combining 1 signal positive image with m-1 signal negative images
           <div class="col-4">
             <div class="mr-1">
               <button class="btn  btn-secondary btn-block">
-                  <a style="color:white" href="{{ url_for('studies.create_modify_study', id=study["id"]) }}" class="nav-link"  >
+                  <a style="color:white" href="{{ url_for('studies.get_study', id=study["id"]) }}" class="nav-link"  >
                     Back to Basic Study Settings
                   </a>
               </button>
@@ -686,22 +686,15 @@ Set to 0 to allow any number.">
           <div id="tools" class="collapse ">
             {% for tool_name, tool_value in tools_all.items() %}
             <div class="row input-group text-center mx-auto">
-              <div class="input-group-prepend col-12 px-0 mx-0">
-                <span class="input-group-text col-12" for="{{tool_name}}">
+              <div class="input-group-prepend text-dark w-100">
+                <div class="input-group-text w-100">
                   <input type="checkbox" class="mr-3" id="{{tool_name}}" name="toolsCheck" value="{{tool_name}}"
                     {% if tool_name in tools_user.keys() %}checked{% endif %}>
-                  {{tool_value}}
-                </span>
+                    {{tool_value}}
+                </div>
               </div>
-              <select class="custom-select tool_hotkeys" id="{{tool_name}}_key_binding" style="display: none;">
-                <option value="" class="tool_hotkey" {% if tool_name not in tools_user.keys() %}selected{% endif %}></option>
-                {% for i in range(26) %}
-                {% set char = "abcdefghijklmnopqrstuvwxyz"[i] %}
-                <option value={{char}} class="tool_hotkey" {% if tools_user[tool_name] == char %}selected{% endif %}>{{char}}
-                </option>
-                {% endfor %}
-              </select>
             </div>
+
             {% endfor %}
           </div>
           {% endif %}
@@ -811,7 +804,7 @@ where a scale needs to be repeated each time a new roi is drawn.">
                   <button class="btn btn-danger btn-block scale_rm" id="scale_rm_{{i}}">rm scale</button>
                 </div>
                 <!-- participant view of scale -->
-                <div class="mx-auto scale_view_user {% if study.view == "participant" %} {{scale.type}} {% endif %}" id="scale_view_user_{{i}}">
+                <div class="mx-auto mb-3 scale_view_user {% if study.view == "participant" %} {{scale.type}} {% endif %}" id="scale_view_user_{{i}}">
                   <div class="row mx-auto justify-content-center">
                     <div id="scale_text_{{i}}" class="col scale_text"
                       style="white-space: pre-wrap; text-align: center;">
@@ -830,7 +823,7 @@ where a scale needs to be repeated each time a new roi is drawn.">
           {% if study.view == "study_admin" %}
           <form method="post">
             <div class="form-group">
-              <input class="btn-light btn-lg btn-block mt-1" type=button id="submit_design" value="Save Design">
+              <input class="btn btn-light btn-lg btn-block mt-1" type=button id="submit_design" value="Save Design">
             </div>
           </form>
           {% endif %}
@@ -853,7 +846,6 @@ To globally control viewport settings use the defaults submenu.">
 
           <div id="viewport_settings" class="mb-3 collapse show">
             {% if study.view == "study_admin" %}
-            <span class="badge-secondary badge col-12">
               <button class="btn btn-secondary btn-block" data-toggle="collapse" data-target="#viewport_def"
                 aria-expanded="true" aria-controls="viewport_def">
                 <h5 class="mt-1 col-12">Defaults</h5>
@@ -892,10 +884,11 @@ To globally control viewport settings use the defaults submenu.">
                   <input id="def_pos_y" type="Number" step="any" class="form-control def_pos_y viewport_prop_def" placeholder="y"> </input>
                 </div>
               </div>
+              <div class="row mx-auto">
                <!-- position -->
-              <button id=update_viewports class="btn btn-block btn-light">update existing image-sets</button>
+                <button id=update_viewports class="btn btn-light col-12">update existing image-sets</button>
+              </div>
             </div>
-            </span>
             {% endif %}
 
             <div class="mx-auto" id="viewports">
@@ -915,12 +908,13 @@ To globally control viewport settings use the defaults submenu.">
                     class="mt-1 viewport_auto"
                     style="display: none;"
                   {%endif%}>
-                <span class="badge-secondary badge col-12">
-                  <button class="btn btn-secondary btn-block" data-toggle="collapse" data-target="#viewport_{{i}}"
-                    aria-expanded="true" aria-controls="viewport_{{i}}">
-                    <h5 class="col-12 mt-1">{% if i in [0,1]%}Ref-Image {{i+1}} {%elif i in range(2,10)%} Image {{i-1}} {% elif i in range(10,11) %} Image(s) {% elif i in range(11,12) %} Ref-Image(s) {%endif%} Viewer</h5>
-                  </button>
-
+                  <div class="row mx-auto mt-1">
+                    <button class="btn btn-secondary col-12" data-toggle="collapse" data-target="#viewport_{{i}}"
+                      aria-expanded="true" aria-controls="viewport_{{i}}">
+                      <h5 class="mt-1">{% if i in [0,1]%}Ref-Image {{i+1}} {%elif i in range(2,10)%} Image {{i-1}} {% elif i in range(10,11) %} Image(s) {% elif i in range(11,12) %} Ref-Image(s) {%endif%} Viewer</h5>
+                    </button>
+                  </div>
+                  
                   <div id="viewport_{{i}}"
                   class="collapse {% if study.view == "participant" %} show {%endif%}">
                     <!-- windowing -->
@@ -963,7 +957,6 @@ To globally control viewport settings use the defaults submenu.">
                     <!--reset buttons -->
                     <button id=reset_{{i}} class="btn btn-block btn-light reset">reset</button>
                   </div>
-                </span>
               </div>
               {% if i in [9,11] %}
                 </div>
@@ -1038,6 +1031,43 @@ ROIs can be drawn on images to define the ground truth in LROC and FROC studies.
           </div>
         </div>
 
+        <!--Segmentations-->
+        <div id="seg_settings_container" class="w-100 mb-1" style="display: none;"
+        title="">
+          <div class="row mx-auto roi_input">
+            <button class="btn btn-dark col-12 mb-1" data-toggle="collapse" data-target="#seg_settings"
+              aria-expanded="true" aria-controls="seg_settings">
+              <h4 class="w-100 mt-1">Segmentation &#9776</h4>
+            </button>
+          </div>
+          <div id="seg_settings" class="collapse mb-3 show">
+            <!-- roi info -->
+            <div class="mt-1">
+              <div class="row text-center mx-auto">
+                <div class="input-group">
+                  <div class="input-group-prepend col-6 px-0 mx-0">
+                    <span class="input-group-text col-12">Brush-Size</span>
+                  </div>
+                  <input type="Number" min="1" class="form-control col" value="10" id="brush_size">
+                  </input>
+                </div>
+              </div>
+              <div class="row text-center mx-auto">
+                <div class="input-group">
+                  <div class="input-group-prepend col-6 px-0 mx-0">
+                    <span class="input-group-text col-12">Label</span>
+                  </div>
+                  <input type="Number" min="1" class="form-control col" value="1" id="seg_label">
+                  </input>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+
+
         {% if study.view == "study_admin" %}
         <div id="results_container" class="w-100 mb-1" style="display: none;" title="Load results from a study where annotation data was collected e.g. ROIs.">
           <div class="row mx-auto roi_input">
@@ -1059,11 +1089,6 @@ ROIs can be drawn on images to define the ground truth in LROC and FROC studies.
             <h4 class="w-100 mt-1" id="participant_view">Participant View</h4>
           </button>
         </div>
-<!--         <div class="row mx-auto">
-          <button class="btn btn-primary col-12 mb-2">
-            <h4 class="w-100 mt-1" id="randomize_imgsets">Randomize Imgsets</h4>
-          </button>
-        </div> -->
         {% endif %}
       </div>
     </div>

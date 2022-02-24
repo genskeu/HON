@@ -25,71 +25,64 @@ $(document).ready(function() {
       data["div_ids_ref"].push("dicom_img_" + i);
     }
 
-  let viewport = cornerstone.getViewport(document.getElementById("dicom_img_10"))
-  let viewport_ref = viewport
-  if($("#ref_viewport_auto").is(":checked")){
-    viewport_ref = cornerstone.getViewport(document.getElementById("dicom_img_11"))
-  }
+    let viewport = cornerstone.getViewport(document.getElementById("dicom_img_10"))
+    let viewport_ref = viewport
+    if($("#ref_viewport_auto").is(":checked")){
+      viewport_ref = cornerstone.getViewport(document.getElementById("dicom_img_11"))
+    }
 
-  if(!viewport | ($("#ref_viewport_auto").is(":checked") & !viewport_ref) ){
-    return alert("Please define the viewport settings.\n To do so use the dropdown menus to load an image and if necessary adjust the display settings.\n")
-  }
+    if(!viewport | ($("#ref_viewport_auto").is(":checked") & !viewport_ref) ){
+      return alert("Please define the viewport settings.\n To do so use the dropdown menus to load an image and if necessary adjust the display settings.\n")
+    }
 
-  data["viewport"] = viewport
-  data["viewport_ref"] = viewport_ref
+    data["viewport"] = viewport
+    data["viewport_ref"] = viewport_ref
 
-  console.log(data)
-  //deactivate all btn
-  var buttons = $(".imgset_btn");
-      //buttons.each(function(index,button){
-      //  $(button).prop('disabled', true);
-      //})
-      $("#loader_anim_auto").addClass("loader")
-      $("#loader_text_auto").fadeIn()
+    //deactivate all btn
+    var buttons = $(".btn");
+        buttons.each(function(index,button){
+          $(button).prop('disabled', true);
+        })
+    $("#loader_anim").addClass("loader")
+        $("#loader_text").fadeIn()
+    
+    // sent request
     $.ajax({
         type: 'POST',
         url: "/study/imgsets/auto",
         data: JSON.stringify(data),
         dataType: 'json',
         contentType: 'application/json; charset=utf-8',
-        success: function(response) {
-          $("#sidebar").empty()
-          imgsets = response["imgsets"]
-          imgsets.forEach(function(imgset){
-            add_sidebar_entry(imgset.position,imgset.study_id)
-            $('#imgset_'+imgset.position).click(load_imgset_on_click)
-          })
-          if(response["error"]){
-            alert(response["error"])
-          }
-          if(response["error_imgsets"]){
-            alert(response["error_imgsets"])
-          }
-          $('#imgset_'+0).addClass("imgset_active");
-          //$('#imgset_'+0).click()
-          // show sidebar (navigation between imgsets) if closed
-          var sidebar_width = $("#sidebar").width();
-          if(sidebar_width == 0){
-            $("#sidebar_btn").click();
-          };
-          //reactivate all buttons
-          buttons.each(function(index,button){
-            $(button).prop('disabled', false);
-          })
-          $("#loader_text_auto").fadeOut()
-          $("#loader_anim_auto").removeClass("loader")
-        console.log(Math.floor(Date.now() / 1000) - start)
-        },
-        error: function(response) {
-          alert("An unknown server error occurred")
-          //reactivate all buttons
-          buttons.each(function(index,button){
-            $(button).prop('disabled', false);
-          })
-          $("#loader_text_auto").fadeOut()
-          $("#loader_anim_auto").removeClass("loader")
+      }).done(function(response){
+        $("#sidebar").empty()
+        imgsets = response["imgsets"]
+        imgsets.forEach(function(imgset){
+          add_sidebar_entry(imgset.position,imgset.study_id)
+          $('#imgset_'+imgset.position).click(load_imgset_on_click)
+        })
+        if(response["error"]){
+          alert(response["error"])
         }
-    })
+        if(response["error_imgsets"]){
+          alert(response["error_imgsets"])
+        }
+        $('#imgset_'+0).addClass("imgset_active");
+        //$('#imgset_'+0).click()
+        // show sidebar (navigation between imgsets) if closed
+        var sidebar_width = $("#sidebar").width();
+        if(sidebar_width == 0){
+          $("#sidebar_btn").click();
+        };
+      }).fail(function(){
+        alert("An unknown server error occurred")
+      }).always(function(){
+        //reactivate all buttons
+        buttons.each(function(index,button){
+          $(button).prop('disabled', false);
+        })
+        $("#loader_text").fadeOut()
+        $("#loader_anim").removeClass("loader")
+      })
   })
 })
 

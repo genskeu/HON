@@ -1,7 +1,8 @@
 *pyc
 .coverage
 *.mp4
-cornerstoneTools.js
 /instance
-config.py
 .env
+*.log
+/images
+*/static/dependencies*

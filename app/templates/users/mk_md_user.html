@@ -11,7 +11,7 @@
         <h5 class="col-12 mt-1">User Settings</h5>
       </span>
 
-      <form class="form-horizontal" method="post" enctype=multipart/form-data id="study_data">
+      <form class="form-horizontal" method="post" id="study_data" action={% if user is none %}"{{url_for('users.create_user')}}"{% elif profile %}"{{url_for('users.profile')}}"  {% else %}"{{url_for('users.modify_user', id = user.id)}}"{% endif %}>
         <div class="input-group row mx-auto">
           <div class="input-group-prepend col-4 px-0 mx-0">
             <span class="input-group-text col-12">Username</span>

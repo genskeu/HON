@@ -9,6 +9,11 @@ import shutil
 import click
 import json
 import random
+import pandas as pd
+import numpy as np
+import copy
+import nibabel as nib
+from pydicom import dcmread
 
 db = SQLAlchemy()
 
@@ -26,7 +31,7 @@ class User(db.Model):
        results: links to results the user produced
     """
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), unique=True, nullable=False)
+    username = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(120), nullable=False)
     email = db.Column(db.String(60))
     access_level = db.Column(db.Integer(), nullable=False)
@@ -118,8 +123,6 @@ class Study(db.Model):
         cs_stacks = [cs_stacks[cs_stack] for cs_stack in cs_stacks]
         return cs_stacks
 
-
-
     def insert_imgset(self,imgset,position):
         self.imgsets.insert(position,imgset)
         # updating position
@@ -157,6 +160,125 @@ class Study(db.Model):
         for imgset in self.imgsets:
             imgset.position = self.imgsets.index(imgset)
         db.session.commit()
+
+    # to do fix and transfer code from studie.py
+    def auto_create_imgsets(self, imgset_config):
+        image_stacks, ref_stack, error_image_stacks = self.get_image_stacks(imgset_config)
+
+        # create imgsets
+        if imgset_config.imgset_type == "afc":
+            imgsets,error_imgsets  = self.auto_create_AFC_imgsets(image_stacks,imgset_config)
+        elif imgset_config.imgset_type == "standard":
+            imgsets,error_imgsets = self.auto_create_ROClike_imgsets(image_stacks, imgset_config)
+
+        return imgsets, ref_stack, error_image_stacks, error_imgsets
+
+    def get_image_stacks(self,imgset_config):
+        # build stacks from images
+        image_stacks = {}
+        ref_stack = {}
+        error = None
+
+        self.images.sort(key=lambda image: image.name)
+        for image in self.images:
+            if imgset_config.stackmode == "single_images":
+                stack_name = image.name
+            else:
+                stack_name = "_".join(image.name.split("_")[0:3])
+
+            if stack_name in image_stacks:
+                image_stacks[stack_name]["images"].append(image)
+            else:
+                image_stacks[stack_name] = {}
+                image_stacks[stack_name]["name"] = stack_name
+                image_stacks[stack_name]["viewport"] = imgset_config.viewport
+                image_stacks[stack_name]["images"] = [image]
+        
+        if imgset_config.ref_stack_name in image_stacks.keys():
+            ref_stack = image_stacks[imgset_config.ref_stack_name]
+        elif imgset_config.ref_stack_name != "" and imgset_config.ref_stack_name not in image_stacks.keys():
+            error = "Error creating the reference stack: " + imgset_config.ref_stack_name + "."
+        elif imgset_config.ref_stack_name == "" and imgset_config.div_ids_ref:
+            error = "No reference stack specified, but the number of reference images (general settings) is not 0."
+        image_stacks = [image_stacks[stack_name] for stack_name in image_stacks if stack_name != imgset_config.ref_stack_name]
+        
+        return image_stacks, ref_stack, error
+
+    def auto_create_AFC_imgsets(self, image_stacks, config):
+        #auto create imgsets
+        imgset_size = len(config.div_ids)
+        error = ""
+        pos_stacks = []
+        neg_stacks = []
+        for stack in image_stacks:
+            stack_info = stack["name"].split("_")
+            if len(stack_info) < 3:
+                error += stack["name"] + ": wrong naming scheme." + "\n"
+            elif config.pos_pattern == stack_info[1]:
+                pos_stacks.append(stack)
+            elif config.neg_pattern == stack_info[1]:
+                neg_stacks.append(stack)
+            else:
+                error += stack["name"] + ": group info not found." + "\n"
+        if config.order == "ordered":
+            pos_stacks.sort(key=lambda pos_stack: int(pos_stack["name"].split("_")[0]))
+        else:
+            random.shuffle(pos_stacks)
+        imgsets = []
+        for pos_stack in pos_stacks:
+            imgset = []
+            pos_stack_info = pos_stack["name"].split("_")
+            group_info = pos_stack_info[2]
+            neg_stacks_group = [neg_stack for neg_stack in neg_stacks if group_info == neg_stack["name"].split("_")[2]]
+            if len(neg_stacks_group) < (imgset_size-1):
+                error += "Not enough negative images found for " + pos_stack["name"] + "\n"
+                continue
+            # pick neg images
+            for rand_int in random.sample(range(len(neg_stacks_group)), imgset_size-1):
+                imgset.append(copy.copy(neg_stacks_group[rand_int]))
+            # add pos stack
+            imgset.insert(random.randint(0,imgset_size),pos_stack)
+            for i in range(imgset_size):
+                imgset[i]["div_id"] = config.div_ids[i]
+            imgsets.append(imgset)
+            
+        return imgsets,error
+
+
+    def auto_create_ROClike_imgsets(self, image_stacks, config):
+        imgset_size = len(config.div_ids)
+        if config.order == "random":
+            random.shuffle(image_stacks)
+        else:
+            image_stacks.sort(key=lambda stack: stack["name"].split("_")[0])
+        imgsets = []
+        error = None
+        for i in range(0,len(image_stacks) - imgset_size + 1, imgset_size):
+            imgset = image_stacks[i:i+imgset_size]
+            for i, stack in enumerate(imgset):
+                stack["div_id"] = config.div_ids[i]
+            imgsets.append(imgset)
+
+        if config.order == "random":
+            random.shuffle(imgsets)
+
+        return imgsets,error
+        
+
+class Imgset_config:
+    def __init__(self,config_dict):
+        self.pos_pattern = config_dict["pos_pattern"] 
+        self.neg_pattern = config_dict["neg_pattern"]
+        self.stackmode = config_dict["stackmode"]  
+        self.ref_stack_name = config_dict["ref_stack_name"] 
+        self.div_ids = config_dict["div_ids"] 
+        self.div_ids_ref = config_dict["div_ids_ref"] 
+        self.viewport = config_dict["viewport"] 
+        self.viewport_ref = config_dict["viewport_ref"] 
+        self.imgset_type = config_dict["imgset_type"] 
+        self.order = config_dict["order"] 
+        self.stackmode = config_dict["stackmode"]
+
 
 
 class Design(db.Model):
@@ -274,7 +396,7 @@ class Result(db.Model):
                                    cascade="all, delete-orphan", uselist=False)
     imgset = db.relationship("Imgset", backref="result", lazy=False, uselist=False)
     created = db.Column(db.DateTime(), server_default=db.func.now())
-    scale_input = db.Column(db.String(1000))
+    scale_input = db.Column(db.String(10000))
 
 
     def to_dict(self):
@@ -325,7 +447,6 @@ class Imgset(db.Model):
     study_id = db.Column(db.Integer(), db.ForeignKey("study.id"), nullable=False)
     position = db.Column(db.Integer(), nullable=False)
     image_stacks = db.relationship("Image_stack", lazy=False, cascade="all, delete-orphan")
-    results = db.relationship("Result", lazy=True, cascade="all, delete-orphan")
 
 
     def get_stack_by_div_id(self,div_id):
@@ -386,16 +507,15 @@ class Image_stack(db.Model):
     result_id = db.Column(db.Integer(), db.ForeignKey("result.id"))
     div_id = db.Column(db.String(120))
     name = db.Column(db.String(120))
-    images = db.relationship("Image",secondary=stack_images, backref=db.backref("image_stacks", lazy=True),lazy='subquery')
+    images = db.relationship("Image",secondary=stack_images, backref=db.backref("image_stacks", lazy=True),lazy='subquery', order_by='Image.name')
     viewport = db.Column(db.String(1000))
-    tool_state = db.Column(db.Text())
+    tool_state = db.Column(db.Text(1000000))
+    seg_data = db.Column(db.Text(100000000))
 
     def to_dict(self):
         image_stack_dict = {}
         image_stack_dict["div_id"] = self.div_id
-        #dict["base_url"] = self.base_url
         image_stack_dict["name"] = self.name
-        #dict["image_names"] = json.loads(self.image_names)
         imageIds = ['wadouri:' + image.base_url + image.name if ".dcm" in  image.name else image.base_url + "/" + image.name for image in self.images]
         image_stack_dict["cs_stack"] = {"imageIds":imageIds,
                             "currentImageIdIndex":0}
@@ -403,7 +523,9 @@ class Image_stack(db.Model):
             image_stack_dict["viewport"] = json.loads(self.viewport)
         if self.tool_state:
             image_stack_dict["tool_state"] = json.loads(self.tool_state)
-
+        
+        image_stack_dict["seg_data"] = self.seg_data
+        
         return image_stack_dict
 
 
@@ -411,102 +533,498 @@ class Image_stack(db.Model):
         image_names = json.loads(self.image_names)
         return image_names
 
+    def save_seg_data(self,file_path):
+        data = json.loads(self.seg_data)
+        arrays1d = data[0:-1]
+        x_res = data[-1][0]
+        y_res = data[-1][1]
+        arrays2d = []
+        for array1d in arrays1d:
+            if array1d:
+                array1d_temp = np.array(array1d,dtype=np.int16)
+            else:
+                array1d_temp = np.zeros(x_res*y_res)
+            array1d_temp = array1d_temp.reshape(x_res,y_res)
+            array1d_temp = np.flip(array1d_temp,1)
+            array1d_temp = np.rot90(array1d_temp)
 
-class Annotations:
+            arrays2d.append(array1d_temp)
+                        
+        array3d = np.stack(arrays2d,-1)
+        new_image = nib.Nifti1Image(array3d, affine=np.eye(4))
+        new_image.header.get_xyzt_units()
+        new_image.to_filename(file_path)       
+
+
+
+
+
+#### none db model classes
+# might be possible to move all of these classes and functions to the database model
+# not done so far since the design and requirments 
+# of scale input and tool data kept changing during development => compatibility to old dbs easier
+# both of these dont have their own table rigth now
+class Output:
     """
-    Class to handle annotation data (rois) collected with cornerstone tools (javascript library)
+    Class to handle the conversion of data from the db tables to the outputfile
+    
 
     Args:
-       tool_state (str in json format)
+       study_id
 
     Attributes:
-       annotations (dict): stores the toolstate data
+       table_header
+       col_info
+       table_data 
     """
-    def __init__(self,tool_state):
-        self.annotations = tool_state
-        self.set_polygons()
+
+    def __init__(self,study):
+        self.study = study
+        # meta data
+        self.row_numb = 0
+        self.max_stack_size = 0
+        self.incl_expl = False
+        # cols always present
+        self.imgset = {"imgset_id":[]} 
+        self.user = {"username":[]}
+        self.date = {"date":[]}
+        self.stacks_disp = {}
+        for i in range(self.study.design.numb_img):
+            self.stacks_disp["stack-%s"%str(i+1)] = []
+            self.stacks_disp["stack-%s-files"%str(i+1)] = []
+        self.stack_user = {"stack-user":[], "stack-user-files":[]}
+        # cols optional
+        self.ref_stacks = {}
+        for i in range(self.study.design.numb_refimg):
+            self.ref_stacks["ref-stack-%s"%str(i+1)] = []
+            self.ref_stacks["ref-stack-%s-files"%str(i+1)] = []
+        self.scale_input = {}
+        self.tool_gt = {}
+        self.tool_input = {}
+        self.overlap_data = {}
+        
+
+    def get_data(self,users):
+        for result in self.study.results:
+            # col always present
+            self.get_imgset_data(result)
+            self.get_user_data(result,users)
+            self.get_img_disp_data(result)
+            self.get_date_data(result)
+            self.get_img_user_data(result)
+            # optional columns
+            self.get_ref_img_data(result)
+            self.get_scale_data(result)
+            self.get_tool_gt_data(result)
+            self.get_tool_input_data(result)
+            self.row_numb += 1
+
+    # get data for columns always present
+    def get_imgset_data(self,result):
+        self.imgset["imgset_id"].append(result.imgset.position)
+
+
+    def get_user_data(self,result,users):
+        username = [user.username for user in users if user.id == result.user_id][0]
+        self.user["username"].append(username)    
+
+
+    def get_img_disp_data(self,result):
+        for i in range(self.study.design.numb_img):
+            div_id_ref = "dicom_img_" + str(i+2)
+            stack = result.imgset.get_stack_by_div_id(div_id_ref)
+            # stack can be none if left blank
+            if stack:
+                image_names = [image.name for image in stack.images]
+                self.stacks_disp["stack-%s"%str(i+1)].append(stack.name)
+                self.stacks_disp["stack-%s-files"%str(i+1)].append(image_names)
+                self.max_stack_size = max(self.max_stack_size,len(image_names))
+            else:
+                self.stacks_disp["stack-%s"%str(i+1)].append(None)
+                self.stacks_disp["stack-%s-files"%str(i+1)].append(None)
+
+    def get_img_user_data(self,result):
+        stack_picked = result.stack_picked
+        # stack can be none if left blank
+        if stack_picked:
+            image_names = [image.name for image in stack_picked.images]
+            self.stack_user["stack-user"].append(stack_picked.name)
+            self.stack_user["stack-user-files"].append(image_names)
+        else:
+            self.stack_user["stack-user"].append(None)
+            self.stack_user["stack-user-files"].append(None)
+
+   
+    def get_date_data(self,result):
+        self.date["date"].append(result.created)
+
+    # get data for optional columns
+    def get_ref_img_data(self,result):
+        for i in range(self.study.design.numb_refimg):
+            div_id_ref = "dicom_img_" + str(i)
+            stack = result.imgset.get_stack_by_div_id(div_id_ref)
+            # stack can be none if left blank
+            if stack:
+                image_names = [image.name for image in stack.images]
+                self.ref_stacks["ref-stack-%s"%str(i+1)].append(stack.name)
+                self.ref_stacks["ref-stack-%s-files"%str(i+1)].append(image_names)
+                self.max_stack_size = max(self.max_stack_size,len(image_names))
+            else:
+                self.ref_stacks["ref-stack-%s"%str(i+1)].append(None)
+                self.ref_stacks["ref-stack-%s-files"%str(i+1)].append(None)
+
+    def get_scale_data(self,result):
+        if result.scale_input:
+            scale_input = json.loads(result.scale_input)
+            # scale input is a list of dictonaries with sub-dictonaries
+            # dict keys are the scale text
+            # sub-dict keys are values (scale input collected from user) and uuid (was used to link scale data to annotations i.e. rois)
+            # values and uuids are lists as scales can be repeated (FROC studies)
+            for scale_text in scale_input.keys():
+                values = scale_input[scale_text]["values"]
+                scale_header = scale_text
+                if scale_header in self.scale_input.keys():
+                    self.scale_input[scale_header].append(values)
+                else:
+                    self.scale_input[scale_header] = [None] * self.row_numb + [values]
+            # ensure all cols have same length
+            for k,v in self.scale_input.items():
+                if k not in scale_input.keys():
+                    v.append(None)
+        else:
+            # ensure all cols have same length
+            for k,v in self.scale_input.items():
+                v.append(None)
+
+    def get_tool_gt_data(self,result):
+        for i in range(self.study.design.numb_img):
+            div_id_ref = "dicom_img_%s"%str(i+2)
+            stack = result.imgset.get_stack_by_div_id(div_id_ref)
+            # stack can be none if left blank
+            if stack and stack.tool_state:
+                stack_tool_states = json.loads(stack.tool_state)
+                # stack tools state is list of cornerstone tool states
+                # each entry corresponds to an image within the stack
+                # each image tool state can consist of multiple tool input
+                for img in range(len(stack.images)):
+                    tool_state = stack_tool_states[img]
+                    if tool_state:
+                        for tool in tool_state:
+                            col_name = "stack-%s-pos-%s-%s"%(i+1,img+1,tool)
+                            if col_name in self.tool_gt.keys():
+                                self.tool_gt[col_name].append(tool_state[tool]["data"])
+                            else:
+                                self.tool_gt[col_name] = [None] * self.row_numb + [tool_state[tool]["data"]]
+        # ensure all cols have same length
+        for k, v in self.tool_gt.items():
+            if len(v) < self.row_numb+1:
+                v.append(None)
+
+
+    def get_tool_input_data(self,result):
+        if result.stack_picked.tool_state:
+            stack_tool_states = json.loads(result.stack_picked.tool_state)
+            # stack tools state is list of cornerstone tool states
+            # each entry corresponds to an image within the stack
+            # each image tool state can consist of multiple tool inputs
+            for i in range(len(result.stack_picked.images)):
+                tool_state = stack_tool_states[i]
+                if tool_state:
+                    for tool in tool_state:
+                        col_name = "stack-user-pos-%s-%s"%(i+1,tool)
+                        # col already exists
+                        if col_name in self.tool_input.keys():
+                            self.tool_input[col_name].append(tool_state[tool]["data"])
+                        # col is new
+                        else:
+                            self.tool_input[col_name] = [None] * self.row_numb + [tool_state[tool]["data"]]
+        # ensure all cols have same length
+        for k,v in self.tool_input.items():
+            if len(v) < self.row_numb+1:
+                v.append(None)
+
+
+    def calc_overlap_data(self):
+        rois_cols_input = {k: v for k, v in self.tool_input.items() if "Roi" in k}
+
+        for row in range(self.row_numb):
+            stack_name_user = self.stack_user["stack-user"][row]
+            gt_ind= int([k.split("-")[1] for k,v in self.stacks_disp.items() if v[row] == stack_name_user][0]) 
+            for k_input, v_input in rois_cols_input.items():
+                roi_type = k_input.split("-")[4]
+                stack_pos_input = k_input.split("-")[3]
+                col_name_gt = "stack-%s-pos-%s-%s"%(str(gt_ind),stack_pos_input,roi_type)
+                
+                rois_input = v_input[row]
+                rois_gt = None
+                if col_name_gt in self.tool_gt:
+                    rois_gt = self.tool_gt[col_name_gt][row]                   
+                if not rois_gt or not rois_input or len(rois_gt) == 0 or len(rois_input) == 0:
+                    continue
+                # iterate over rois and calc metrics
+                for metric in ["dice"]:
+                    ov_gt = np.zeros(shape=(len(rois_gt),len(rois_input)))
+                    ov_input = np.zeros(shape=(len(rois_input),len(rois_gt)))
+                    for i, roi_gt in enumerate(rois_gt):
+                        roi_gt = eval(roi_type + "(roi_gt)" )
+                        for j, roi_input in enumerate(rois_input):
+                            roi_input = eval(roi_type + "(roi_input)" )
+                            overlap = roi_gt.calc_seq_metric(roi_input, metric)
+                            ov_gt[i][j] = overlap
+                            ov_input[j][i] = overlap
+                            
+                    col_name_gt = col_name_gt + "-%s"%(metric)
+                    ov_gt = [max(ov) for ov in ov_gt]
+                    if col_name_gt in self.overlap_data.keys():
+                        self.overlap_data[col_name_gt].append(ov_gt)                            
+                    else:
+                        self.overlap_data[col_name_gt] = [None] * row + [ov_gt]
+
+                    col_name_input = k_input + "-%s"%(metric)
+                    ov_input = [max(ov) for ov in ov_input]
+                    if col_name_input in self.overlap_data.keys():
+                        self.overlap_data[col_name_input].append(ov_input)                            
+                    else:
+                        self.overlap_data[col_name_input] = [None] * row + [ov_input]  
+              
+            # ensure all cols have same length
+            for k, v in self.overlap_data.items():
+                if len(v) < row+1:
+                    v.append(None)
+
+
+
+    def save_table(self,format = "excel", include_ov=True, include_raw_tool_data=False, include_expl=False):
+        # combine data into pandas dataframe
+        self.df = pd.DataFrame({**self.imgset,**self.user,**self.stacks_disp,**self.date,**self.scale_input,**self.stack_user})
+        for k,v in self.tool_gt.items():
+            self.df[k] = v
+        for k,v in self.tool_input.items():
+            self.df[k] = v
+
+
+        # add formatting e.g. col names, col splitting ....
+        self.format_tool_data(include_raw_tool_data)
+
+        if include_ov:
+            # calc metrics (e.g. dice, iou)
+            self.calc_overlap_data()
+            for k,v in self.overlap_data.items():
+                self.df[k] = v
+
+        # to do, add sepecial case for max stack size = 1
+        self.format_simplify()        
+
+        if format == "excel":
+            filepath=os.path.join(current_app.config["IMAGE_PATH"],"results_study_%s.xlsx" % self.study.id)
+            self.df.to_excel(filepath, index=False)
+        else:
+            filepath=os.path.join(current_app.config["IMAGE_PATH"],"results_study_%s.xlsx" % self.study.id)
+            self.df.to_csv(filepath, index=False)
+
+
+    def format_tool_data(self,include_raw_tool_data):
+        self.format_roi_data(include_raw_tool_data)
+        self.format_length_data(include_raw_tool_data)
+        self.format_segmentation_data(include_raw_tool_data)
+
+
+    def format_roi_data(self,include_raw_tool_data):
+        rois_cols = [column for column in self.df if "Roi" in column and not "dice" in column]
+        for roi_col in rois_cols:
+            roi_type = roi_col.split("-")[4]
+            area_col, mean_HU_col, sd_HU_col, start_col, end_col = [], [], [], [], []
+            for imgset in range(self.row_numb):
+                rois = self.df[roi_col][imgset]
+                area_img, mean_HU_img, sd_HU_img, start_img, end_img = [], [], [],[], []
+                if rois:
+                    for roi in rois:
+                        roi = eval(roi_type + "(roi)")
+                        area, mean_HU, sd_HU = roi.get_stats()                            
+                        start, end = roi.get_coords()   
+                        area_img.append(area), mean_HU_img.append(mean_HU), sd_HU_img.append(sd_HU)
+                        start_img.append(start), end_img.append(end)
+                area_col.append(area_img), mean_HU_col.append(mean_HU_img), sd_HU_col.append(sd_HU_img)
+                start_col.append(start_img), end_col.append(end_img)            
+            # add roi stats and coords
+            self.df[roi_col + "-area"] = area_col
+            self.df[roi_col + "-mean_HU"] = mean_HU_col
+            self.df[roi_col + "-sd_HU"] = sd_HU_col
+            self.df[roi_col + "-start"] = start_col
+            self.df[roi_col + "-end"] = end_col
+
+            if not include_raw_tool_data:
+                self.df.drop(roi_col,inplace=True,axis=1)
+
+
+
+    def format_length_data(self,include_raw_tool_data):
+        length_cols = [column for column in self.df if "Length" in column]
+        for length_col in length_cols:
+            start_col, end_col, len_col = [], [], []
+            for imgset in range(self.row_numb):
+                lengths = self.df[length_col][imgset]
+                start_img, end_img, length_img, = [], [], []
+                if lengths:
+                    for length in lengths:
+                        length = Length(length)
+                        l = length.get_stats()                            
+                        start, end = length.get_coords()   
+                        start_img.append(start), end_img.append(end), length_img.append(l)
+                start_col.append(start_img), end_col.append(end_img), len_col.append(length_img)            
+            # add roi stats and coords
+            self.df[length_col + "-start"] = start_col
+            self.df[length_col + "-end"] = end_col
+            self.df[length_col + "-length"] = len_col
+
+            if not include_raw_tool_data:
+                self.df.drop(length_col,inplace=True,axis=1)
+
+    def format_segmentation_data(self,include_raw_tool_data):
+        pass
+
+    def format_simplify(self):
+        # if stack size = 1 (single images evaluated)
+        # output can be simplified (remove file cols and list structure tool cols)
+        if self.study.design.numb_img == 1:
+            for col in self.stack_user.keys():
+                self.df.drop(col,inplace=True,axis=1)
+        
+        if self.max_stack_size == 1:
+            columns_names = {}
+            for col in self.df:
+                if "files" in col:
+                    self.df.drop(col,inplace=True,axis=1)
+                if "stack" in col:
+                    col_split = col.split("-")
+                    stack_ind = col_split[1]
+                    if len(col_split) > 2:
+                        columns_names[col] = col.replace("stack-%s-pos-1"%stack_ind,"image-%s"%stack_ind)
+                    else:
+                        columns_names[col] = col.replace("stack-%s"%stack_ind,"image-%s"%stack_ind)
+
+
+            self.df.rename(columns=columns_names, inplace=True)
+
+        # rm emtpy lists and None from results    
+        self.df = self.df.applymap(lambda x: None if x == [] else x )
+        self.df = self.df.applymap(lambda x: x[0] if type(x) is list and len(x) == 1 else x )
+
+        # sort cols 
+        # self.df = self.df.reindex(sorted(self.df.columns), axis=1)
+
+
+class Annotation:
+    """
+    Class to handle annotation data (rois, length measuerments) collected with cornerstone tools (javascript library)
+
+    Args:
+       tool_state_raw (dict in json format)
+
+    Attributes:
+       tool_state_raw (dict): stores the raw toolstate data
+    """
+    def __init__(self,tool_state_raw):
+        self.uuid = tool_state_raw["uuid"]
+        self.start_x = tool_state_raw["handles"]["start"]["x"]
+        self.start_y = tool_state_raw["handles"]["start"]["y"]
+        self.end_x = tool_state_raw["handles"]["end"]["x"]
+        self.end_y = tool_state_raw["handles"]["end"]["y"]
+
 
     def get_tool_state_string(self):
         return(json.dumps(self.annotations))
 
-    def get_tool_coordinates(self):
-        coordinates = []
-        for ann in self.annotations["data"]:
-            coordinates.append(ann["handles"])
-        return(coordinates)
+    def get_coords(self):
+        return (round(self.start_x,2),round(self.start_y,2)),\
+               (round(self.end_x,2),round(self.end_y,2))
 
-class Length(Annotations):
-        def set_polygons(self):
-            self.lines = []
-            """
-                generate shapley linestrings from annotation data and store them
-            """
-            for ann in self.annotations["data"]:
-                start_x = ann["handles"]["start"]["x"]
-                end_x = ann["handles"]["end"]["x"]
-                start_y = ann["handles"]["start"]["y"]
-                end_y = ann["handles"]["end"]["y"]
-                line = LineString([(start_x,start_y),(end_x,end_y)])
-                self.lines.append(line)
+class Length(Annotation):
+    def __init__(self, tool_state_raw):
+        super().__init__(tool_state_raw)
+        self.length = tool_state_raw["length"]
 
-class Rois(Annotations):
-    def calc_seq_metric(self,rois_gt,metric):
-        results = []
-        for polygon in self.polygons:
-            for polygon_gt in rois_gt.polygons:
-                result = eval(metric + "(polygon , polygon_gt)")
-                result = round(result,2)
-                results.append(result)
-        return(results)
+    def set_polygon(self):
+        """
+            generate shapley linestrings from annotation data and store them
+        """
+        line = LineString([(self.start_x,self.start_y),(self.end_x,self.end_y)])
+        self.line = line
+
+    def get_stats(self):
+        return round(self.length,2)
+
+class Rois(Annotation):
+    def __init__(self, tool_state_raw):
+        super().__init__(tool_state_raw)
+        self.area = tool_state_raw["cachedStats"]["area"]
+        self.mean = tool_state_raw["cachedStats"]["mean"]
+        self.sd = tool_state_raw["cachedStats"]["stdDev"]
+
+    def calc_seq_metric(self,roi,metric):
+        self.set_polygon()
+        roi.set_polygon()
+        result = eval(metric + "(self.polygon , roi.polygon)")
+        result = round(result,2)
+        return(result)
+
+    def get_stats(self):
+        return round(self.area,2), round(self.mean,2), round(self.sd,2)
 
 
 class EllipticalRoi(Rois):
-    def set_polygons(self):
-        self.polygons = []
+    def set_polygon(self):
         """
             generate shapley polygons from annotation data and store them
         """
-        for ann in self.annotations["data"]:
-            width = abs(ann["handles"]["end"]["x"] - ann["handles"]["start"]["x"])
-            height = abs(ann["handles"]["end"]["y"] - ann["handles"]["start"]["y"])
-            center_x = (ann["handles"]["end"]["x"] + ann["handles"]["start"]["x"])/2
-            center_y = (ann["handles"]["end"]["y"] + ann["handles"]["start"]["y"])/2
-            ellipsis = create_ellipse((center_x,center_y),width,height)
-            self.polygons.append(ellipsis)
+        width = abs(self.end_x - self.start_x)
+        height = abs(self.end_y - self.start_y)
+        center_x = (self.end_x  + self.start_x)/2
+        center_y = (self.end_y + self.start_y)/2
+        angle = 0 
+        
+        #Generate an ellipse using shapely. For more information see:
+        #https://gis.stackexchange.com/questions/243459/drawing-ellipse-with-shapely
+        center = Point((center_x,center_y))
+        circle = center.buffer(1)
+        ellipsis = scale(circle,(width/2),(height/2))
+        ellipsis = rotate(ellipsis,angle)
+        
+        self.polygon = ellipsis
+        
 
 class RectangleRoi(Rois):
-     def set_polygons(self):
-        self.polygons = []
+     def set_polygon(self):
         """
             generate shapley polygons from annotation data and store them
-        """
-        for ann in self.annotations["data"]:
-            start_x = ann["handles"]["start"]["x"]
-            end_x = ann["handles"]["end"]["x"]
-            start_y = ann["handles"]["start"]["y"]
-            end_y = ann["handles"]["end"]["y"]
-            center_x = (ann["handles"]["end"]["x"] + ann["handles"]["start"]["x"])/2
-            center_y = (ann["handles"]["end"]["y"] + ann["handles"]["start"]["y"])/2
-            width = abs(end_x - start_x)
-            height = abs(end_y - start_y)
-            rectangle = Polygon([(center_x - width/2, center_y + height/2),
-                                 (center_x + width/2, center_y + height/2),
-                                 (center_x + width/2, center_y - height/2),
-                                 (center_x - width/2, center_y - height/2)])
-            self.polygons.append(rectangle)
+        """     
+        center_x = (self.end_x + self.start_x)/2
+        center_y = (self.end_y + self.start_x)/2
+        width = abs(self.end_x - self.start_x)
+        height = abs(self.end_y - self.start_y)
+        rectangle = Polygon([(center_x - width/2, center_y + height/2),
+                             (center_x + width/2, center_y + height/2),
+                             (center_x + width/2, center_y - height/2),
+                             (center_x - width/2, center_y - height/2)])
+        self.polygon = rectangle
+
 
 class FreehandRoi(Rois):
+    def __init__(self, tool_state_raw):
+        self.uuid = tool_state_raw["uuid"]
+        self.points = []
+        for point in tool_state_raw["handles"]["points"]:
+            self.points.append(Point(point["x"],point["y"]))
+
     def set_polygons(self):
-        self.polygons = []
         """
-            generate shapley polygons from annotation data and store them
+        generate shapley polygons from annotation data and store them
         """
-        for ann in self.annotations["data"]:
-            points = []
-            for point in ann["handles"]["points"]:
-                points.append(Point(point["x"],point["y"]))
-            polygon = Polygon(points)
-            self.polygons.append(polygon)
+        polygon = Polygon(self.points)
+        self.polygon = polygon
+
+    def get_coords(self):
+        return round(self.points[0],2), round(self.points[-1],2)
 
 
 def iou(polygon_1,polygon_2):
@@ -524,7 +1042,7 @@ def iou(polygon_1,polygon_2):
         area_intersection = polygon_1.intersection(polygon_2).area
         area_polygon_1_polygon_2 = polygon_1.union(polygon_2).area
         iou = area_intersection/(area_polygon_1_polygon_2) * 100
-        return(iou)
+        return iou
 
 def dice(polygon_1,polygon_2):
         """
@@ -539,9 +1057,8 @@ def dice(polygon_1,polygon_2):
 
         """
         area_intersection = polygon_1.intersection(polygon_2).area
-        area_polygon_1_polygon_2 = polygon_1.union(polygon_2).area
         dice = (2*area_intersection)/(polygon_1.area + polygon_2.area) * 100
-        return(dice)
+        return dice
 
 def perc_correct_pixels(polygon_1,polygon_2):
         """
@@ -559,31 +1076,12 @@ def perc_correct_pixels(polygon_1,polygon_2):
         area_intersection = polygon_1.intersection(polygon_2).area
         try:
             perc_intersect = area_intersection/polygon_1.area * 100
-            return(perc_intersect)
+            return perc_intersect 
         except:
             return -1
 
-def create_ellipse(center,width,height,angle=0):
-    """
-    Generate an ellipse using shapely. For more information see:
-    https://gis.stackexchange.com/questions/243459/drawing-ellipse-with-shapely
 
-    Args:
-        center (double)
-        width (double)
-        height (double)
-        angle (double)
-
-    Returns:
-        shapely polygon object
-
-    """
-    center = Point(center)
-    circle = center.buffer(1)
-    ellipse = scale(circle,(width/2),(height/2))
-    ellipse = rotate(ellipse,angle)
-    return(ellipse)
-
+# comand line functions
 def init_db():
     # create db
     db.drop_all()
@@ -595,11 +1093,14 @@ def init_img_dir():
     image_folder = current_app.config["IMAGE_PATH"]
     if os.path.isdir(image_folder):
         shutil.rmtree(image_folder)
-    os.mkdir(image_folder)
-    click.echo("Initialized folders for images.")
+    try:
+        os.mkdir(image_folder)
+        click.echo("Initialized dir for images.")
+    except:
+        click.echo("Could not initialize dir for images.")
 
 #needed for tests etc
-def init_default_users():
+def add_default_users():
     #test users
     users = [("user","user",1),("sadmin","sadmin",2),("uadmin","uadmin",3)]
     for username,password,access_level in users:
@@ -611,18 +1112,25 @@ def init_default_users():
     db.session.commit()
     os.mkdir(os.path.join(current_app.config["IMAGE_PATH"],"2"))
 
+
 @click.command("init-db")
 @with_appcontext
 def init_db_command():
     init_db()
-    init_img_dir()
-    init_default_users()
 
-@click.command("change-base-url-command")
-@click.option('--config')
+@click.command("init-imgdir")
 @with_appcontext
-def change_base_url_command():
-    images = Image.query.all()
-    for image in images:
-        image.base_url = image.base_url.replace("http://127.0.0.1:5000/","https://phantomx.pythonanywhere.com/")
-    db.session.commit()
+def init_imgdir_command():
+    init_img_dir()
+
+@click.command("add-default-users")
+@with_appcontext
+def add_default_users_command():
+    add_default_users()
+
+@click.command("init-app")
+@with_appcontext
+def init_all_command():
+    init_db()
+    init_img_dir()
+    add_default_users()

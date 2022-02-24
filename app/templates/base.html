@@ -7,18 +7,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
 <!-- Jquery core -->
-<script src="https://code.jquery.com/jquery-3.4.0.js"
-			  integrity="sha256-DYZMCC8HTC+QDr5QNaIcfR7VSPtcISykd+6eSmBW5qo="
-			  crossorigin="anonymous"></script>
+<script src="{{ url_for('static', filename='dependencies/jquery-3.4.0.min.js') }}"></script>
 <!-- Bootstrap core CSS -->
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='dependencies/bootstrap.min.css') }}">
 <!-- Bootstrap core JS -->
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="{{ url_for('static', filename='dependencies/bootstrap.min.js') }}"></script>
 <!-- Custom styles for this template -->
 <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
 
 </head>
-
 
 <body>
 <!-- Navigation -->
@@ -80,16 +77,23 @@
   <header>
     {% block header %}{% endblock %}
   </header>
+  <!--Error messages from flask -->
   {% for message in get_flashed_messages() %}
     <div class="container flash text-center">{{ message }}</div>
   {% endfor %}
+  <!--Error messages for ajax calls-->
+    <div class="container mb-3 sticky-top" style="top:4em;">
+        <div class="row justify-content-center">
+          <div id="loader_anim" class=""></div>
+          <div id="loader_text" class="ml-1 mt-3" style="display: none;">Please wait</div>
+        </div>
+        <div class="row justify-content-center">
+          <div id="error_msg" style="display: none; max-height:200px;" class="overflow-auto"></div>
+        </div>
+    </div>
   {% block content %}
 
   {% endblock %}
-  <!-- Footer -->
-<!--   <div class="text-center bg-dark fixed-bottom">
-    <p class="text-center text-white mt-2">Copyright &copy; Phantom X 2018</p>
-  </div> -->
 </main>
 
 </body>

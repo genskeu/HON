@@ -1,6 +1,6 @@
 import pytest
 import os
-from TAFC.DBmodel import *
+from app.DBmodel import *
 
 
 def create_study(client,title,description,password):

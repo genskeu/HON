@@ -1,20 +1,25 @@
+#example of sqlite DB URI 'sqlite://////home/HON/instance/dev.db'
+#example of mysql DB URI 'mysql://user:password@db_host_adress/db_name
+
 class Config(object):
-    DEBUG = False
     TESTING = False
-    SECRET_KEY = "dev"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+class DevelopmentConfig(Config):
+    SECRET_KEY = "dev-key"
+    IMAGE_PATH = "/home/HON/instance/images_dev"
+    SQLALCHEMY_DATABASE_URI = "sqlite://////home/HON/instance/dev.db"
+    DEBUG = True
 
 class ProductionConfig(Config):
-    pass
-
-class DevelopmentConfig(Config):
-    pass
+    SECRET_KEY = "prod-key"
+    IMAGE_PATH = "/home/HON/instance/images_prod"
+    SQLALCHEMY_DATABASE_URI = "sqlite://////home/HON/instance/prod.db"
+    DEBUG = False
 
 class TestingConfig(Config):
-    pass
+    SECRET_KEY = "test-key"
+    IMAGE_PATH = "/home/HON/instance/images_test"
+    SQLALCHEMY_DATABASE_URI = "sqlite://////home/HON/instance/test.db"
+    TESTING = True
 
-class DockerConfig(Config):
-    SQLALCHEMY_DATABASE_URI = 'sqlite://////HON_full/HON_SQLite.db'
-    IMAGE_PATH = "/HON_full/instance/images"
-    SESSION_COOKIE_SECURE = False

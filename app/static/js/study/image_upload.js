@@ -1,22 +1,22 @@
+// get list of uploaded files
 $(document).ready(function(){
-  url = location.pathname.replace(/study./,"")
-  $('#file').val("")
+  study_id = location.pathname.match(/\d+/)[0]
+  url = "/get_filenames/" + study_id
   $.ajax({
     url: url,
-    type: 'GET',
-    success: function(response){
+    type: 'GET'
+  }).done(function(response){
       update_study_files(response)
-    },
-    error: function(response) {
+  }).fail(function(){
       alert("An unknown server error occurred")
-    } 
-  });
-})
+  }).always(function(){
+  })
+});
 
-
+// after fileupload, del .... update the list of files already uploaded
 function update_study_files(response){
     $("#file_list").empty();
-    response["image_names"].sort().forEach(element => {
+    response["filenames_db"].sort().forEach(element => {
       $("#file_list").append("<tr>" + 
                               "<td style='width: 8%'>" + "<input type='checkBox' class='file' id=" + element + "></td>" +
                               "<td style='width: 42%'><label>" + element + "</label></td>" + 
@@ -31,75 +31,79 @@ $(document).ready(function(){
   $(".custom-file-input").on("change", function() {
     var fileNames = $(this).val().split("\\").pop();
     $(this).siblings(".custom-file-label").addClass("selected").html(fileNames);
-    $("#progress_bars").empty()
   });
 })
 
+
+// upload files
 $(document).ready(function(){
   $("#upload_files").click(function(){
-    url = location.pathname.replace(/study./,"")
+    //get request data
+    var study_id = location.pathname.match(/\d+/)[0]
+    var url = "/upload_files/" + study_id    
     var files = $('#file')[0].files;
-    var files_length =files.length
+    if(files.length == 0){
+      $('#uploadStatus').html('No files selected.');
+      return false
+    }
+
     //deactivate buttons
     var buttons = $(".btn,.btn-lg");
     buttons.each(function(index,button){
     $(button).prop('disabled', true);
     })
-    for (let index = 0; index < files_length; index++) {
-    
-      var fd = new FormData();
-      fd.append('file',files[index]);
-      // code inspired by https://www.codexworld.com/file-upload-with-progress-bar-using-jquery-ajax-php/
-      $.ajax({
-          xhr: function() {
-            var xhr = new window.XMLHttpRequest();
-            xhr.upload.addEventListener("progress", function(evt) {
-                if (evt.lengthComputable) {
-                    var percentComplete = Number.parseFloat((evt.loaded / evt.total) * 100).toFixed(2);
-                    $("#progress_" + index).width(percentComplete + '%');
-                    $("#progress_" + index).html(percentComplete+'%');
-                    console.log(files_length-1)
-                    if(index == (files_length-1) && percentComplete == 100.00){
-                      //activate buttons
-                      var buttons = $(".btn,.btn-lg");
-                      buttons.each(function(index,button){
-                        $(button).prop('disabled', false);
-                      })
-                    }
-                }
-            }, false);
-            return xhr;
-          },
-          url: url,
-          type: 'post',
-          data: fd,
-          contentType: false,
-          processData: false,
-          beforeSend: function(){
-            $("#progress_bars").append("<div class='col-12' id=uploadStatus_" + index + "></div>")
-            $("#progress_bars").append("<div class='progress w-100'><div class='progress-bar' id=progress_" + index + "></div></div>")
-            $("#progress_" + index).width('0%');
 
-            $('#uploadStatus_'+index).html('Uploading: ' + files[index].name);
-          },
-          error:function(){
-              $('#uploadStatus_'+index).html('<p style="color:#EA4335;">File upload failed, please try again.</p>');
-          },
-          success: function(response){
-            if(response){
-              $('#files')[0].reset();
-              $("#file").siblings(".custom-file-label").removeClass("selected").html("Choose files");
-              $('#uploadStatus_'+index).html('<p style="color:#28A74B;">' + response["file_names"] + ' has uploaded successfully!</p>');
-            }else if(response == 'err'){
-              $('#uploadStatus_'+index).html('<p style="color:#EA4335;">Please select a valid file to upload.</p>');
-            }
-            update_study_files(response)
-          } 
-    })      
-    }
+    //upload files and display progress
+    var fd = new FormData();
+    $(files).each(function(index){
+      fd.append('file',files[index]);
+    }) 
+    // code inspired by https://www.codexworld.com/file-upload-with-progress-bar-using-jquery-ajax-php/
+    $.ajax({
+      xhr: function() {
+        var xhr = new window.XMLHttpRequest();
+        xhr.upload.addEventListener("progress", function(evt) {
+          if (evt.lengthComputable) {
+            var percentComplete = Number.parseFloat((evt.loaded / evt.total) * 100).toFixed(2);
+            $("#progress").width(percentComplete + '%');
+            $("#progress").html(percentComplete+'%');
+          }
+        }, false );
+        return xhr;
+      },
+      url: url,
+      type: 'post',
+      data: fd,
+      contentType: false,
+      processData: false,
+      beforeSend: function(){
+        $("#progress").width('0%');
+        $('#uploadStatus').html('Uploading ' + files.length + ' file(s)...');
+        $('#files_uploaded').html("")
+        $('#files_not_uploaded').html("")
+      }
+    }).done(function(response){
+        update_study_files(response)
+        $('#files')[0].reset();
+        $("#file").siblings(".custom-file-label").removeClass("selected").html("Choose files");
+        $('#uploadStatus').html("Upload finished.")
+        $('#files_uploaded').html('<p style="color:#28A74B;">  The following files have been uploaded successfully:'  + response["filenames_saved"] + '</p>');
+        if(response["filenames_not_saved"].length){
+          $('#files_not_uploaded').html('<p style="color:#EA4335;"> The following files have have not been uploaded: (Either a file with a similar name was already present or the file has an incorrect file format, check the ending) ' + response["filenames_not_saved"] + '</p>');
+        }
+    }).fail(function(){
+      $('#uploadStatus').html('<p style="color:#EA4335;">File upload failed, please try again.</p>');
+    }).always(function(response){
+      buttons.each(function(index,button){
+        $(button).prop('disabled', false);
+        })
+    })
   })
 })
 
+
+
+// delete selected files
 $(document).ready(function(){
   $("#delete_files").click(function(){
     //deactivate buttons
@@ -108,7 +112,12 @@ $(document).ready(function(){
         $(button).prop('disabled', true);
       })
 
-    url = location.pathname.replace(/study./,"")
+    // loading animation
+    $("#loader_anim_del").addClass("loader")
+    $("#loader_text_del").text("Please wait")
+    $("#files_del").fadeIn()
+    var study_id = location.pathname.match(/\d+/)[0]
+    var url = "/delete_files/" + study_id        
     var file_names = [];
     $(".file").each(function(index,file){
       if(file.checked){
@@ -120,22 +129,30 @@ $(document).ready(function(){
         type: 'DELETE',
         data: JSON.stringify(file_names),
         dataType: 'json',
-        contentType: 'application/json; charset=utf-8',
-        success: function(response){
-          update_study_files(response)
+        contentType: 'application/json; charset=utf-8'
+      }).done(function(response){
+        update_study_files(response)
+        $("#loader_text_del").text("Deletion finished.")
+        $("#loader_text_del").fadeIn()
+        $("#files_del").html('<p>The following files were deleted: ' + response["files_del"] + '</p>')
+        if(response["files_not_del"].length){
+          $("#files_not_del").fadeIn()
+          $("#files_not_del").html('<p>The following files could not be deleted: ' + response["files_not_del"] + '</p>')
+        }
+      }).fail(function(){
+        $("#loader_text_del").text("An error occurred!")
+      }).always(function(){
+        $("#loader_anim_del").removeClass("loader")
         //activate buttons
         var buttons = $(".btn,.btn-lg");
         buttons.each(function(index,button){
             $(button).prop('disabled', false);
-        })
-        },
-        error: function(response) {
-          alert("An unknown server error occurred")
-        } 
-    });
-  })
+      })
+    })
+  });
 })
 
+// select all files already uploaded for del
 $(document).ready(function(){
   $("#select_files").click(function(){
     $(".file").each(function(index,file){
@@ -143,16 +160,5 @@ $(document).ready(function(){
     })  
   })
 })
-$(document).ready(function(){
-  $("#naming_btn").click(function(){
-    event.preventDefault()
-    if($("#naming").is(':visible')){
-      $("#naming").fadeOut()
-      document.getElementById("naming_btn").innerHTML = "&#9776";
-    } else {
-      $("#naming").fadeIn()
-      document.getElementById("naming_btn").innerHTML = "&times;";
-    }
-  })
-})
+
 

@@ -129,7 +129,6 @@ $(document).ready(function(){
 //sent design settings to server
 $(document).ready( function() {
   $('#submit_design,#return_study_ov').click(function() {
-
     var design = {}
     var study_id = $("#content").attr("study_id")
     design["study_id"] = study_id
@@ -151,10 +150,7 @@ $(document).ready( function() {
     $('input:checkbox[name=toolsCheck]').each(function(){
         tool =  {}
         tool["label"] = this.value
-        tool["key_binding"] = $("#"+this.id+"_key_binding").val()
-        if(tool["key_binding"].length > 1){
-          tool["key_binding"] = tool["key_binding"]
-        }
+        tool["key_binding"] = null
         if(this.checked){
           tool["status"] = "active"
         } else {
@@ -242,6 +238,5 @@ $(document).ready( function() {
   $("#scale_text_input_1").change();
   $("#tools").val("")
   $(".sel_image").each((index,sel) => $(sel).val("") )
-  $("#stack_mode").click()
 })
 

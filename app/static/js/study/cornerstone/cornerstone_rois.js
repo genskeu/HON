@@ -40,7 +40,7 @@ function add_roi_container(uuid,div_id_numb,toolName,tool_number,tool_state_data
   // show roi coordinates in container
   // coordinates only show study during setup
   if(window.location.href.includes("design")){
-    add_roi_coordinates_container(points,toolName,uuid)
+    add_roi_coordinates_container(points,toolName,uuid,element)
   }
 
   //add copy and delete button for roi 
@@ -58,7 +58,7 @@ function add_roi_container(uuid,div_id_numb,toolName,tool_number,tool_state_data
 }
 
 // 
-function add_roi_coordinates_container(points,toolName,uuid){
+function add_roi_coordinates_container(points,toolName,uuid,element){
   points.forEach(function (point, i) {
     let point_name = "Point " + i
     if (i == 0) { point_name = "Start" }
@@ -68,9 +68,9 @@ function add_roi_coordinates_container(points,toolName,uuid){
                             <div class="input-group-prepend col-4 px-0 mx-0">\
                               <span class="input-group-text col-12">' + point_name + '</span>\
                             </div>\
-                            <input id="x_' + i + uuid + '" type="Number" data-roitype="' + toolName + '" data-uuid="' + uuid + '" step="any" class="form-control roi_pos_input" placeholder="x" value="' + Number.parseFloat(point.x).toFixed(2) + '">\
+                            <input id="x_' + i + uuid + '" type="Number" data-roitype="' + toolName + '" data-uuid="' + uuid + '" step="any" class="form-control roi_pos_input" placeholder="x" value="' + Number.parseFloat(point.x).toFixed(0) + '">\
                             </input>\
-                            <input id="y_' + i + uuid + '" type="Number" data-roitype="' + toolName + '" data-uuid="' + uuid + '" step="any" class="form-control roi_pos_input" placeholder="y" value="' + Number.parseFloat(point.y).toFixed(2) + '">\
+                            <input id="y_' + i + uuid + '" type="Number" data-roitype="' + toolName + '" data-uuid="' + uuid + '" step="any" class="form-control roi_pos_input" placeholder="y" value="' + Number.parseFloat(point.y).toFixed(0) + '">\
                             </input>\
                         </div>\
                       </div>'
@@ -97,12 +97,12 @@ function add_roi_coordinates_container(points,toolName,uuid){
     }
 
     //fct to update roi pos on input
-    $("#x_" + i + uuid).change(function () { 
-      point.x = $(this).val()
+    $("#x_" + i + uuid).change(function () {
+      point.x = Number($(this).val())
       cornerstone.updateImage(element)
     })
     $("#y_" + i + uuid).change(function () {
-      point.y = $(this).val()
+      point.y = Number($(this).val())
       cornerstone.updateImage(element)
     })
 
@@ -172,10 +172,11 @@ function update_roi_container(e) {
   //update ui and display points
   points.forEach(function (point, i) {
     let point_div = roi_div.find("#point_" + i)
-    point_div.find("#x_" + i + e.detail.measurementData.uuid).val(point.x)
-    point_div.find("#y_" + i + e.detail.measurementData.uuid).val(point.y)
+    point_div.find("#x_" + i + e.detail.measurementData.uuid).val(Number.parseFloat(point.x).toFixed(0))
+    point_div.find("#y_" + i + e.detail.measurementData.uuid).val(Number.parseFloat(point.y).toFixed(0))
   })
 }
+
 
 // delete roi ui when they are removed (draged out)
 // does not work for freehand => use delete button
@@ -299,5 +300,63 @@ $(document).ready(function () {
     }).fail(function() {
       alert( "Image-Set not found." );
   })
+  })
+})
+
+
+//roi manual input
+$(document).ready(function () {
+  $(".roi_width,.roi_height,.roi_pos_x,.roi_pos_y").change(function () {
+      var input = this.value
+      var input_type = this.id.match(/^\D*/)[0]
+      var id = this.id.match(/\d+$/)[0]
+      var element = document.getElementById("dicom_img_" + id)
+
+      var first = input.match(/-*\d+\.*\d*/)[0]
+      const active_tool = document.getElementById("tools").value
+      if (active_tool == "EllipticalRoi" || active_tool == "RectangleRoi") {
+          var tool_state = cornerstoneTools.getToolState(element, active_tool)
+          if (!tool_state) { return }
+          var roi_number = tool_state.data.length || 1
+          tool_state = tool_state.data[roi_number - 1].handles
+          if (tool_state) {
+              if (input_type == "roi_width") {
+                  var width = Math.abs(tool_state.end.x - tool_state.start.x)
+                  var width_new = Number(first)
+                  var end_x = tool_state.end.x
+                  var start_x = tool_state.start.x
+                  if (end_x > start_x) {
+                      tool_state.end.x += (width_new - width) / 2
+                      tool_state.start.x -= (width_new - width) / 2
+                  } else {
+                      tool_state.end.x -= (width_new - width) / 2
+                      tool_state.start.x += (width_new - width) / 2
+                  }
+              } else if (input_type == "roi_height") {
+                  var height = Math.abs(tool_state.end.y - tool_state.start.y)
+                  var height_new = Number(first)
+                  var end_y = tool_state.end.y
+                  var start_y = tool_state.start.y
+                  if (end_y > start_y) {
+                      tool_state.end.y += (height_new - height) / 2
+                      tool_state.start.y -= (height_new - height) / 2
+                  } else {
+                      tool_state.end.y -= (height_new - height) / 2
+                      tool_state.start.y += (height_new - height) / 2
+                  }
+              } else if (input_type == "roi_pos_x") {
+                  var center_x = Math.abs(tool_state.end.x + tool_state.start.x) / 2
+                  var center_x_new = Number(first)
+                  tool_state.end.x += (center_x_new - center_x)
+                  tool_state.start.x += (center_x_new - center_x)
+              } else if (input_type == "roi_pos_y") {
+                  var center_y = Math.abs(tool_state.end.y + tool_state.start.y) / 2
+                  var center_y_new = Number(first)
+                  tool_state.end.y += (center_y_new - center_y)
+                  tool_state.start.y += (center_y_new - center_y)
+              }
+              cornerstone.updateImage(element)
+          }
+      }
   })
 })

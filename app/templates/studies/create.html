@@ -1,11 +1,14 @@
 {% extends 'base.html' %}
+{% block header %}
+<script src="{{ url_for('static', filename='js/study/create_study.js') }}"></script>
+{% endblock %}
 
 
 {% block content %}
 <div class="container h-100">
   <div class="row justify-content-center align-items-center h-100">
     <div class="col-12 my-auto">
-      <form class="form-horizontal" action="12" method="post" enctype=multipart/form-data id="study_data">
+      <div class="form-horizontal" id="study_data">
 
         <span  class="badge badge-dark w-100 mt-1" data-toggle="collapse"
           data-target="#file_upload_rules" aria-expanded="false" aria-controls="file_upload_rules">
@@ -48,19 +51,47 @@ e.g. how many images have to be evaluated.">
             </div>
           </div>
 
-          <div class="row mx-auto mt-2">
-            <input name="image_upload"
-              formaction={% if study is not none %} "{{ url_for('studies.create_modify_study',id=study["id"]) }}"
-              {% else %} "{{ url_for('studies.create_modify_study') }}" {% endif %}
-              class="btn-secondary btn-lg btn-block col-6 my-auto" type="submit" value="Continue to File Upload">
-
-            <input name="study_design"
-              formaction={% if study is not none %} "{{ url_for('studies.create_modify_study',id=study["id"]) }}"
-              {% else %} "{{ url_for('studies.create_modify_study') }}" {% endif %}
-              class="btn-secondary btn-lg btn-block col-6 my-auto" type="submit" value="Continue to Study Design">
+          <div class="row mx-auto mt-2 no-gutters" >
+            <button class="btn btn-secondary btn-block" {% if study is none %}id="create_study"{% else %}id="update_study" data-study_id="{{study['id']}}"{% endif %}>
+              {% if study is none %}Create Study{% else %}Update Study{% endif%}
+            </button>
           </div>
 
-      </form>
+          <div class="row mx-auto mt-2 no-gutters" id="study_setup_navbar" {% if study is none %} style="display:none;" {% endif%}>
+            <div class="col-4">
+              <div class="mr-1">
+                <button class="btn btn-secondary btn-block">
+                  <a style="color:white", href="{{ url_for('studies.overview')}}" class="nav-link" >
+                    Return to Study Overview
+                  </a>
+               </button>
+              </div>
+            </div>
+  
+
+            <div class="col-4">
+              <div class="mr-1">
+                <button class="btn  btn-secondary btn-block">
+                    <a id="nav_image_upload", style="color:white", href={% if study is not none %}"{{ url_for('studies.image_upload',study_id=study["id"]) }}"{% else %}""{% endif %} class="nav-link">
+                      Continue to File Upload
+                    </a>
+                </button>
+              </div>
+            </div>
+  
+            <div class="col-4">
+              <div class="">
+                <button class="btn btn-secondary btn-block">
+                    <a id="nav_study_design", style="color:white" href={% if study is not none %}"{{ url_for('studies.study_design',study_id=study["id"]) }}"{% else %}""{% endif %} class="nav-link">
+                      Continue to Study Design
+                    </a>
+                </button>
+              </div>
+            </div>
+  
+          </div>
+
+        </div>
     </div>
   </div>
 </div>

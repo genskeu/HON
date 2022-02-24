@@ -7,10 +7,10 @@ cornerstoneTools.toolStyle.setToolWidth(3)
 // function to preload images before study can be started
 // validation check if all data is accessible
 $(document).ready(function(){
-  $("#start_study").prop('disabled', true);
+  //$("#start_study").prop('disabled', true);
     study_id = $("#content").attr("study_id");
     // ajax request to get all images
-    $.ajax({
+/*     $.ajax({
         type: 'GET',
         url: '/study/get_cs_stacks/' + study_id + '/single_images',
         dataType: 'json',
@@ -31,12 +31,14 @@ $(document).ready(function(){
             )
           })
         }
-    })
+    }) */
 })
 
 //button to start study (hides study description)
 $(document).ready(function () {
   $("#start_study").click(function () {
+    $("#loader_text").fadeIn()
+    $("#loader_anim").addClass("loader")
     //switch from discription to study
     const url = $(this).attr("formaction");
     $.when($('#study_description').fadeOut()).done(
@@ -52,6 +54,8 @@ $(document).ready(function () {
                 image_stack["div_id"],
                 image_stack["viewport"])
             })
+            $("#loader_text").fadeOut()
+            $("#loader_anim").removeClass("loader")
             updateProgressbar(Number(response.imgset.position), response["study_length"])
           })
           //error handling
@@ -101,6 +105,8 @@ $(document).ready(function () {
     $(".vote_button").each(function (index, button) {
       $(button).prop('disabled', true);
     })
+    $("#loader_text").fadeIn()
+    $("#loader_anim").addClass("loader")
 
     // ajax post request
     var url = $(this).val();
@@ -116,6 +122,8 @@ $(document).ready(function () {
           $("#imgset").replaceWith("<h1>You are done. Thanks!</h1>")
           $("#design_settings").fadeOut()
           $("#viewport_settings").fadeOut()
+          $("#loader_text").fadeOut()
+          $("#loader_anim").removeClass("loader")
           updateProgressbar(Number(response["study_length"]), response["study_length"])
         } else {
           //load next imgset
@@ -153,6 +161,8 @@ $(document).ready(function () {
                         $(scale).remove()
                       })
                     })
+                    $("#loader_text").fadeOut()
+                    $("#loader_anim").removeClass("loader")
                 })
             }, response["transition_time"] * 1000)
           })
@@ -161,7 +171,9 @@ $(document).ready(function () {
         }
       },
       error: function (response) {
-        alert("An unknown server error occurred.")
+        alert("An unknown server error occurred. Please reload the page and try again.")
+        $("#loader_text").fadeOut()
+        $("#loader_anim").removeClass("loader")
       }
     })
   })
@@ -252,15 +264,3 @@ document.addEventListener("keydown",function(event){
     }
   }
 })
-
-//set hotkeys for tools
-//$("#tool_act_left option, #tool_act_wheel option").each(function(index,option){
-//  document.addEventListener("keydown",function(event){
-//    if(option.attributes.key){
-//      if (event.key == option.attributes.key.value) {
-//        option.selected = true
-//      $("#"+option.parentElement.id).change()
-//      }
-//    }
-//  })
-//})

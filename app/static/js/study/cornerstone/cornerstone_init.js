@@ -42,7 +42,7 @@ function prepare_elements(){
     //display ww,wc,pos,zoom
     elements[i].addEventListener('cornerstoneimagerendered', onImageRendered);
     // Observe one or multiple elements
-    //resizing
+    // resizing when viewport size changes
     var ro = new ResizeObserver(entries => {
       for (let entry of entries) {
         cornerstone.resize(entry.target)

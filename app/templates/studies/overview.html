@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<script src="{{url_for('static', filename = 'js/misc.js')}}">  </script>
+<script src="{{url_for('static', filename = 'js/study/delete_study.js')}}">  </script>
 
 <div class="container">
   <div class="row mx-auto">
@@ -11,7 +11,7 @@
              title="Access any study for which you have the login. This functionality was included for study-admins for testing purposes." >
     </form>
     {% if g.user.access_level == 2 %}
-    <form action="{{ url_for('studies.create_modify_study') }}" method="get">
+    <form action="{{ url_for('studies.get_study') }}" method="get">
       <input type="submit" class="btn btn-success" value="Create New Study" data-toggle="tooltip" data-placement="left"
       title="Study creation is a 3 step process: 
       1) Study name, access password, and description are selected. 
@@ -45,12 +45,12 @@
           <td class="align-middle">{{study["created"]}}</td>
           <td class="align-middle">{{study["updated"]}}</td>
           <td>
-            <form class="" action="{{url_for('studies.create_modify_study', id = study["id"])}}" method="get">
+            <form class="" action="{{url_for('studies.get_study', id = study["id"])}}" method="get">
               <button class="btn-secondary btn-sm">modify</button>
             </form>
           </td>
           <td>
-            <button class="btn-danger btn-sm" onclick="delete_db_entry('study','{{study.title}}','{{study.id}}')">delete
+            <button class="btn-danger btn-sm" onclick="delete_study('{{study.title}}','{{study.id}}')">delete
             </button>
           </td>
         </tr>

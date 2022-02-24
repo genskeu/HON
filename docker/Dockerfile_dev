@@ -1,0 +1,28 @@
+FROM alpine:3.14
+LABEL maintainer "Ulrich Genske <uli.genske@gmail.com>"
+WORKDIR /home/HON
+RUN mkdir /home/HON/instance
+
+# install python req
+RUN  apk --no-cache update \
+  && apk --no-cache upgrade \
+  && apk --no-cache add py3-pip tzdata py3-wheel inotify-tools python3-dev gcc g++ geos-dev mariadb-dev musl-dev py3-pandas
+COPY requirements.txt /home/HON
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir -r requirements.txt
+
+RUN cp /usr/share/zoneinfo/Europe/Berlin /etc/localtime \
+ && echo "Europe/Berlin" > /etc/timezone
+
+# copy config
+COPY config.py /home/HON/config.py
+
+# download js dependencies
+COPY get_js_dep.sh /home/HON
+RUN ["chmod","+x","get_js_dep.sh"]
+
+# use flask dev sever during development
+EXPOSE 80
+COPY docker/entrypoint_dev.sh /entry.sh
+RUN ["chmod","+x","/entry.sh"]
+CMD /entry.sh

@@ -1,9 +1,9 @@
-import os
-import tempfile
 import pytest
+import sys
+sys.path.append('../HON')
 
-from TAFC import create_app
-from TAFC.DBmodel import *
+from app import create_app
+from app.DBmodel import *
 
 # general create test config file (copy config)
 # persistent db might be a better and more realisitc setting?
@@ -16,13 +16,13 @@ from TAFC.DBmodel import *
 def app():
     """Create and configure a new app instance for each test."""
     # create the app with common test config
-    app = create_app(config_path="test_config.py")        
+    app = create_app()        
     
     # init db before running tests
     with app.app_context():
         init_db()
         init_img_dir()
-        init_default_users()
+        add_default_users()
 
     yield app
 

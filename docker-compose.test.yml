@@ -1,23 +1,24 @@
 version: '3.9'
 services:
   app:
-    container_name: HON_dev
-    image: hon_dev
+    container_name: HON_test
+    image: hon_test
     build:
       context: .
       dockerfile: ./docker/Dockerfile_dev
     environment:
       - FLASK_APP=app
-      - FLASK_ENV=development
+      - FLASK_ENV=testing
       - PYTHONDONTWRITEBYTECODE=1
       - PYTHONUNBUFFERED=1
     # only needed for external mysql db
-    extra_hosts:
-      - 'host.docker.internal:host-gateway'
+    #extra_hosts:
+    #  - 'host.docker.internal:host-gateway'
     ports:
       - '80:80'
     volumes:
       - './app:/home/HON/app'
+      - './tests:/home/HON/tests'
       - './instance:/home/HON/instance'
     stdin_open: true
     tty: true
