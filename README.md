@@ -109,26 +109,27 @@ docker exec -it HON_prod flask init-app
 
 ## Setup without docker
 1. Git clone or download and unzip this git repo.
-2. It is recommended to create a virtual environment e.g. using conda or python-venv.
+2. It is recommended to create a virtual environment e.g. using <a href="https://docs.conda.io/projects/conda/en/latest/index.html" target="_blank" rel="noopener noreferrer"> conda </a> or <a href="https://docs.python.org/3/tutorial/venv.html" target="_blank" rel="noopener noreferrer"> python venv </a>.
 3. Activate the virtual environment.
 4. Install the python requirments by running the following command inside the repo
 ```
 pip install -r requirments.txt
 ```
-4. Set the flask environmental variables
+5. Run get_js_dep.sh or download the files listed within this script into "app/static/dependencies/" manually.
+6. Set the flask environmental variables
 ```
 export FLASK_APP=app
 export FLASK_ENV=development
 ```
-5. If you start HON for the first time enter 
+7. If you start HON for the first time enter 
 ```
 flask init-app 
 ```
-6. Start HON
+8. Start HON
 ```
 flask run
 ```
-7. to access the application open your browser and enter the ip address/domain name of your machine (e.g. 127.0.0.1 if you are using a local setup) 
+9. to access the application open your browser and enter the ip address/domain name of your machine (e.g. 127.0.0.1 if you are using a local setup) 
 - the default user logins are: 
 
 | username  | password | role |
