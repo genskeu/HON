@@ -22,7 +22,7 @@ Once you successfully installed and started docker there are two options two bui
 5. Add a new project.
 - define a name for the project and set the path to the downloaded code
 
-6. build and start the application
+6. Build and start the application.
 - you can start HON in development or production mode 
 - do not use the development mode when deploying HON, it is intended for use only during local development
 
@@ -36,7 +36,7 @@ Once you successfully installed and started docker there are two options two bui
 - press the build button again
 - start the application
 
-6. if you start HON for the first time switch to the containers menu 
+7. if you start HON for the first time switch to the containers menu 
 - select HON and press the exec button, this should open a terminal
 - in this terminal enter 
 ```
@@ -44,7 +44,8 @@ flask init-app
 ```
 - this command initializes/resets the databases and creates 3 default users
 
-7. to access the application press the web button in dockstation or open your browser and enter the  ip address/domain name of your machine (e.g. 127.0.0.1 if you are using a local setup) 
+8. Access the application
+- press the web button in dockstation or open your browser and enter the ip address/domain name of your machine (e.g. 127.0.0.1 if you are using a local setup) 
 - the default user logins are: 
 
 | username  | password | role |
@@ -55,7 +56,7 @@ flask init-app
 
 ### Docker setup option 2: Build and start the application using the docker CLI  
 3. open the terminal (MacOS, Linux)/ command line (windows)
-- using the cd command navigate to the path with the application code e.g.
+- using the cd command navigate to the path with the application code
 ```
 cd /"path_to_app_code"
 ```
@@ -86,7 +87,7 @@ docker-compose up -d
 ```
 docker-compose -f docker-compose.prod.yml up -d
 ```
-6. if you start HON for the first time enter 
+6. If you start HON for the first time enter 
 - development mode 
 ```
 docker exec -it HON_dev flask init-app
@@ -97,7 +98,8 @@ docker exec -it HON_prod flask init-app
 ```
 - this command initializes/resets the databases and creates 3 default users
 
-7. to access the application open your browser and enter the ip address/domain name of your machine (e.g. 127.0.0.1 if you are using a local setup) 
+7. Access the application 
+- open your browser and enter the ip address/domain name of your machine (e.g. 127.0.0.1 if you are using a local setup) 
 - the default user logins are: 
 
 | username  | password | role |
@@ -122,6 +124,9 @@ export FLASK_APP=app
 export FLASK_ENV=development
 ```
 7. If you start HON for the first time enter 
+- adjust the file config.py:
+- set IMAGE_PATH to "/PATH TO REPO/instance/images" 
+- set SQLALCHEMY_DATABASE_URI "/PATH TO REPO/instance/sqlite.db"
 ```
 flask init-app 
 ```
@@ -129,7 +134,8 @@ flask init-app
 ```
 flask run
 ```
-9. to access the application open your browser and enter the ip address/domain name of your machine (e.g. 127.0.0.1 if you are using a local setup) 
+9. Access the application 
+- open your browser and enter the ip address/domain name of your machine (e.g. 127.0.0.1 if you are using a local setup) 
 - the default user logins are: 
 
 | username  | password | role |
