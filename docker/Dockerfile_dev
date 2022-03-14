@@ -1,5 +1,5 @@
 FROM alpine:3.14
-LABEL maintainer "Ulrich Genske <uli.genske@gmail.com>"
+LABEL maintainer "Ulrich Genske <paul.jahnke.hon@gmail.com>"
 WORKDIR /home/HON
 RUN mkdir /home/HON/instance
 
