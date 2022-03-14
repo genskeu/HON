@@ -74,6 +74,12 @@ docker-compose build
 - open the config.py file using a text editor
 - under class ProductionConfig set the secret key
 - a guide to generate a good secret key can be found <a href="https://flask.palletsprojects.com/en/1.0.x/quickstart/#sessions" target="_blank" rel="noopener noreferrer">here</a>
+- the production build uses the development build as a basis
+- therefore after setting the secret-key first build HON in development mode 
+```
+docker-compose build
+```
+- follwed by running
 ```
 docker-compose -f docker-compose.prod.yml build 
 ```
