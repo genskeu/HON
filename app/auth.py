@@ -9,7 +9,26 @@ from .DBmodel import User, db, Study
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 
+def not_logged_in(view):
+    @functools.wraps(view)
+    def wrapped_view(**kwargs):
+        if g.user is not None:
+            error = ("You are already logged in as {g.user.username}."
+                     "You can't be logged in with multiple accounts using the same computer and browser or register a new user while logged in."
+                     "Please logout before logging in with another account or registering a new account.")
+            flash(error)
+            if g.user.access_level == 1:
+                return redirect(url_for('studies.study_login'))
+            elif g.user.access_level == 2:
+                return redirect(url_for('studies.overview'))
+            elif g.user.access_level == 3:
+                return redirect(url_for('users.overview'))
+        return view(**kwargs)
+    return wrapped_view
+
+
 @bp.route("/register", methods=("GET", "POST"))
+@not_logged_in
 def register():
     """
         register a user at HON
@@ -43,6 +62,7 @@ def register():
 
 
 @bp.route("/login", methods=("GET", "POST"))
+@not_logged_in
 def login():
     """
         login a user at HON
@@ -50,8 +70,8 @@ def login():
         Returns:
             page (html) to login
     """
+    error = None
     if request.method == "POST":
-        error = None
         username = request.form["username"]
         password = request.form["password"]
 
@@ -111,6 +131,8 @@ def login_required(view):
     return wrapped_view
 
 
+
+
 def access_level_required(access_level):
     """
         check if a user has sufficient user rights to access a certain view
@@ -135,22 +157,3 @@ def access_level_required(access_level):
         return wrapped_view
     return decorator
 
-
-def user_is_study_admin(study_id):
-    """
-        check if a user is study admin and has the right to access a certain view or perform a request
-        Args:
-            access_level
-        Returns:
-            decorator
-    """
-    def decorator(view):
-        @functools.wraps(view)
-        def wrapped_view(**kwargs):
-            study = Study.query.filter_by(id=study_id).first()
-            if g.user.id != study.user_id: 
-                flash("user rights insufficient")
-                return redirect(url_for('studies.overview'))
-            return view(**kwargs)
-        return wrapped_view
-    return decorator

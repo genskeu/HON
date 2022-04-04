@@ -319,7 +319,13 @@ or by combining 1 signal positive image with m-1 signal negative images
               <div class="progress w-100">
                 <div id="progressbar" class="progress-bar" role="progressbar"
                 aria-valuenow="70" aria-valuemin="0" aria-valuemax="100"
-                style="width:0%;color:black;">
+                {% if user_study_progress and study_length %}
+                  style="width:{{((user_study_progress.imgsets_finished) /
+                    study_length * 100 )}}%;color:black;">
+                    {{user_study_progress.imgsets_finished}}/{{study_length}} items finished
+                {% else %}
+                  style="width:0%;color:black;">
+                {% endif %}
                 </div>
               </div>
             </div>

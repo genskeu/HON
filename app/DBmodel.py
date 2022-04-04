@@ -427,8 +427,7 @@ class User_study_progress(db.Model):
     user_id = db.Column(db.Integer(), db.ForeignKey("user.id"), nullable=False)
     user = db.relationship("User", backref="user_study_progress", lazy=True, uselist=False)
     study_id = db.Column(db.Integer(), db.ForeignKey("study.id"), nullable=False)
-    imgset_id = db.Column(db.Integer(),db.ForeignKey("imgset.id"),nullable=False)
-    imgset = db.relationship("Imgset", backref="user_study_progress", lazy=True, uselist=False)
+    imgsets_finished = db.Column(db.Integer(),nullable=False)
     updated = db.Column(db.DateTime(), server_default=db.func.now(),
                         server_onupdate=db.func.now())
 
@@ -516,7 +515,7 @@ class Image_stack(db.Model):
         image_stack_dict = {}
         image_stack_dict["div_id"] = self.div_id
         image_stack_dict["name"] = self.name
-        imageIds = ['wadouri:' + image.base_url + image.name if ".dcm" in  image.name else image.base_url + "/" + image.name for image in self.images]
+        imageIds = ['wadouri:' + image.base_url + image.name if ".dcm" in  image.name else image.base_url + image.name for image in self.images]
         image_stack_dict["cs_stack"] = {"imageIds":imageIds,
                             "currentImageIdIndex":0}
         if self.viewport:
