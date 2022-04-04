@@ -1,5 +1,5 @@
 FROM hon_dev
-LABEL maintainer "Ulrich Genske <uli.genske@gmail.com>"
+LABEL maintainer "Ulrich Genske <paul.jahnke.hon@gmail.com>"
 WORKDIR /home/HON
 
 # copy flask app
