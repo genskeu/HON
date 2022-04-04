@@ -13,7 +13,7 @@ def not_logged_in(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
         if g.user is not None:
-            error = ("You are already logged in as {g.user.username}."
+            error = (f"You are already logged in as {g.user.username}."
                      "You can't be logged in with multiple accounts using the same computer and browser or register a new user while logged in."
                      "Please logout before logging in with another account or registering a new account.")
             flash(error)
