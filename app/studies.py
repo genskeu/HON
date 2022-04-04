@@ -10,6 +10,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from .auth import login_required, access_level_required
 from .DBmodel import Study, Design, Imgset, db, Result, Scale, Tool, Image_stack, User_study_progress, Imgset_config, Image
 from sqlalchemy.orm import joinedload
+from flask import send_from_directory
 
 bp = Blueprint("studies", __name__)
 
@@ -567,11 +568,17 @@ def study_run(study_id):
         imgset = study.imgsets[0]
     elif user_study_progress is None and not study.imgsets:
         error = "Study is empty."
-    elif user_study_progress.imgset.position+1 >= len(study.imgsets):
+    elif user_study_progress.imgsets_finished == len(study.imgsets):
         error = "Error. You already participated and finished this study."
     elif user_study_progress and study.imgsets:
-        imgset = Imgset.query.filter_by(study_id=study_id,
-                                        position=user_study_progress.imgset.position+1).first()
+        # check for imgsets without result for this user
+        results_user = Result.query.filter_by(study_id=study_id,user_id=user_id).all()
+        results_user_imgset_ids = set([result.imgset.position for result in results_user])
+        study_imgset_ids = set([imgset.position for imgset in study.imgsets])
+        imgsets_left_ids = study_imgset_ids.difference(results_user_imgset_ids)
+        imgsets_left_ids = list(imgsets_left_ids)
+        imgsets_left_ids.sort()
+        imgset = Imgset.query.filter_by(study_id=study_id,position=imgsets_left_ids[0]).first()
 
     if error is not None:
         flash(error)
@@ -580,7 +587,9 @@ def study_run(study_id):
     study.view="participant"
     return render_template('studies/design.html',
                            imgset=imgset,
-                           study=study)
+                           study=study,
+                           user_study_progress=user_study_progress,
+                           study_length=len(study.imgsets))
 
 
 # select stack, save selection and load next set
@@ -588,68 +597,81 @@ def study_run(study_id):
 @login_required
 @access_level_required([1,2])
 def vote(study_id, imgset_position):
-    if request.method == "POST":
-        study = Study.query.filter_by(id=study_id).first()
-        imgset = Imgset.query.filter_by(study_id=study_id,
-                                        position=imgset_position).first()
-        user_id = g.user.id
-        result = Result.query.filter_by(imgset_id=imgset.id,
-                                        user_id=user_id).first()
+    error = None
+    study = Study.query.filter_by(id=study_id).first()
+    imgset = Imgset.query.filter_by(study_id=study_id,
+                                    position=imgset_position).first()
+    user_id = g.user.id
+    result = Result.query.filter_by(imgset_id=imgset.id,
+                                    user_id=user_id).first()
 
-        if result is None:
-            result_dict = request.get_json()
-            result = Result(user_id=user_id,
-                            study_id=study_id,
-                            imgset_id=imgset.id)
-            if result_dict["scale_input"]:
-                result.scale_input= json.dumps(result_dict["scale_input"])
-            db.session.add(result)
-            db.session.flush()
-            picked_stack = Image_stack(result_id=result.id,
-                                       div_id = result_dict["picked_stack"]["div_id"],
-                                       name=result_dict["picked_stack"]["name"],
-                                       viewport = json.dumps(result_dict["picked_stack"]["viewport"]))
-            if any(result_dict["picked_stack"]["tool_state"]):
-                picked_stack.tool_state = json.dumps(result_dict["picked_stack"]["tool_state"])
-            if result_dict["picked_stack"]["segmentation_data"]:
-                picked_stack.seg_data = result_dict["picked_stack"]["segmentation_data"]
-            db.session.add(picked_stack)
-            for image_name in result_dict["picked_stack"]["image_names"]:
-                image = Image.query.filter_by(name=image_name,base_url=result_dict["picked_stack"]["base_url"]).first()
-                if image is None:
-                    error = image_name + " not found part of study."
-                else:
-                    picked_stack.images.append(image)
-
-            study_progress = User_study_progress.query.filter_by(study_id=study_id,
-                                                                 user_id=user_id).first()
-
-            if study_progress is None:
-                study_progress=User_study_progress(study_id=study_id,user_id=user_id,imgset_id=imgset.id)
-                db.session.add(study_progress)
+    if result is None:
+        result_dict = request.get_json()
+        result = Result(user_id=user_id,
+                        study_id=study_id,
+                        imgset_id=imgset.id)
+        if result_dict["scale_input"]:
+            result.scale_input= json.dumps(result_dict["scale_input"])
+        db.session.add(result)
+        db.session.flush()
+        picked_stack = Image_stack(result_id=result.id,
+                                   div_id = result_dict["picked_stack"]["div_id"],
+                                   name=result_dict["picked_stack"]["name"],
+                                   viewport = json.dumps(result_dict["picked_stack"]["viewport"]))
+        if any(result_dict["picked_stack"]["tool_state"]):
+            picked_stack.tool_state = json.dumps(result_dict["picked_stack"]["tool_state"])
+        if result_dict["picked_stack"]["segmentation_data"]:
+            picked_stack.seg_data = result_dict["picked_stack"]["segmentation_data"]
+        db.session.add(picked_stack)
+        for image_name in result_dict["picked_stack"]["image_names"]:
+            image = Image.query.filter_by(name=image_name,base_url=result_dict["picked_stack"]["base_url"]).first()
+            if image is None:
+                error = f"Error saving results. Is {image_name} part of the study?"
             else:
-                study_progress.imgset_id=imgset.id
+                picked_stack.images.append(image)
 
-            db.session.commit()
+        study_progress = User_study_progress.query.filter_by(study_id=study_id,
+                                                             user_id=user_id).first()
 
-        # response
-        response = {}
-        next_imgset = Imgset.query.filter_by(
-            study_id=study_id, position=imgset_position+1).first()
-        if next_imgset is not None:
-            response['imgset'] = next_imgset.to_dict()
-            response['status'] = "ok"
-            response['study_id'] = study_id
-            response['user'] = user_id
-            response['study_length'] = len(study.imgsets)
-            response['transition_time'] = study.design.transition_time
+        results_user = Result.query.filter_by(study_id=study_id,user_id=user_id).all()
+        imgsets_finished = len(results_user)
+        if study_progress is None:
+            study_progress=User_study_progress(study_id=study_id,user_id=user_id,imgsets_finished=imgsets_finished)
+            db.session.add(study_progress)
         else:
-            response['status'] = "done"
-            response['study_length'] = len(study.imgsets)
-        return jsonify(response)
+            study_progress.imgsets_finished=imgsets_finished
 
+        db.session.commit()
+    else:
+        error = "Result was not saved. There is already a result for this user and image-set present. Please reload the page."
 
-from flask import send_from_directory
+    # response
+    response = {}
+    response["error"] = error
+
+    # check for imgsets without result for this user
+    results_user = Result.query.filter_by(study_id=study_id,user_id=user_id).all()
+    imgsets_finished = len(results_user)
+    results_user_imgset_ids = set([result.imgset.position for result in results_user])
+    study_imgset_ids = set([imgset.position for imgset in study.imgsets])
+    imgsets_left_ids = study_imgset_ids.difference(results_user_imgset_ids)
+    imgsets_left_ids = list(imgsets_left_ids)
+    imgsets_left_ids.sort()
+    if len(imgsets_left_ids):
+        next_imgset = Imgset.query.filter_by(study_id=study_id,position=imgsets_left_ids[0]).first()
+        response['imgset'] = next_imgset.to_dict()
+        response['status'] = "ok"
+        response['study_id'] = study_id
+        response['user'] = user_id
+        response['study_length'] = len(study.imgsets)
+        response['transition_time'] = study.design.transition_time
+        response['imgsets_finished'] = imgsets_finished
+    else:
+        response['status'] = "done"
+        response['imgsets_finished'] = imgsets_finished
+        response['study_length'] = len(study.imgsets)
+    return jsonify(response)
+
 
 @bp.route('/favicon.ico')
 def favicon():

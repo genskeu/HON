@@ -56,7 +56,6 @@ $(document).ready(function () {
             })
             $("#loader_text").fadeOut()
             $("#loader_anim").removeClass("loader")
-            updateProgressbar(Number(response.imgset.position), response["study_length"])
           })
           //error handling
         }).fail(function () {
@@ -118,6 +117,11 @@ $(document).ready(function () {
       contentType: 'application/json; charresponse=utf-8',
       // load next imgset
       success: function (response) {
+        if (response["error"]){
+          $("#loader_text").text(response["error"])
+          return
+        }
+
         if (response["status"] == "done") {
           $("#imgset").replaceWith("<h1>You are done. Thanks!</h1>")
           $("#design_settings").fadeOut()
@@ -167,7 +171,7 @@ $(document).ready(function () {
             }, response["transition_time"] * 1000)
           })
           current_imgset = response
-          updateProgressbar(Number(response.imgset["position"]), response["study_length"])
+          updateProgressbar(Number(response["imgsets_finished"]), response["study_length"])
         }
       },
       error: function (response) {
