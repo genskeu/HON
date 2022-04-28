@@ -37,7 +37,7 @@ $(document).ready(function(){
 
 // upload files
 $(document).ready(function(){
-  $("#upload_files").click(function(){
+  $("#upload_files").click(function(){  
     //get request data
     var study_id = location.pathname.match(/\d+/)[0]
     var url = "/upload_files/" + study_id    
@@ -53,51 +53,88 @@ $(document).ready(function(){
     $(button).prop('disabled', true);
     })
 
+
+    // reset progressbar, etc
+    $("#progress").width('0%');    
+    $("#progress").html('0%');
+    $('#uploadStatus').html('Uploading ' + files.length + ' file(s)...');
+    $('#files_uploaded_saved').html("")
+    $('#files_uploaded_not_saved').html("")
+    $('#files_not_uploaded').html("")
     //upload files and display progress
-    var fd = new FormData();
-    $(files).each(function(index){
-      fd.append('file',files[index]);
-    }) 
-    // code inspired by https://www.codexworld.com/file-upload-with-progress-bar-using-jquery-ajax-php/
-    $.ajax({
-      xhr: function() {
-        var xhr = new window.XMLHttpRequest();
-        xhr.upload.addEventListener("progress", function(evt) {
-          if (evt.lengthComputable) {
-            var percentComplete = Number.parseFloat((evt.loaded / evt.total) * 100).toFixed(2);
-            $("#progress").width(percentComplete + '%');
-            $("#progress").html(percentComplete+'%');
+    var files_finished = 0
+    $(files).each(function(index,file){
+      var fd = new FormData();
+      fd.append('file',file);
+      // code inspired by https://www.codexworld.com/file-upload-with-progress-bar-using-jquery-ajax-php/
+      $.ajax({
+        // xhr: function() {
+        //   var xhr = new window.XMLHttpRequest();
+        //   xhr.upload.addEventListener("progress", function(evt) {
+        //     if (evt.lengthComputable) {
+        //       var percentComplete = Number.parseFloat((evt.loaded / evt.total) * 100).toFixed(2);
+        //       if(percentComplete == 100.00){
+        //         $("#progress").width(percentComplete + '%');
+        //         $("#progress").html(percentComplete+'%');
+        //       }
+        //     }
+        //   }, false );
+        //   return xhr;
+        // },
+        url: url,
+        type: 'post',
+        data: fd,
+        contentType: false,
+        processData: false
+      }).done(function(response){
+          if(response["filenames_saved"].length){
+            if($('#files_uploaded_saved').html()==""){
+              $('#files_uploaded_saved').append('<p style="color:#28A74B;"> The following files have have been uploaded and saved:</p>')      
+            }
+            $('#files_uploaded_saved').append('<p>' + response["filenames_saved"] + '</p>');
+          }  
+          if(response["filenames_not_saved"].length){
+            if($('#files_uploaded_not_saved').html()==""){
+              $('#files_uploaded_not_saved').append('<p style="color:#EA4335;"> The following files have have been uploaded but not saved:\
+              (Either a file with a similar name was already present or the file has an incorrect file format, check the ending)</p>')      
+            }
+            $('#files_uploaded_not_saved').append('<p>' + response["filenames_not_saved"] + '</p>');
           }
-        }, false );
-        return xhr;
-      },
-      url: url,
-      type: 'post',
-      data: fd,
-      contentType: false,
-      processData: false,
-      beforeSend: function(){
-        $("#progress").width('0%');
-        $('#uploadStatus').html('Uploading ' + files.length + ' file(s)...');
-        $('#files_uploaded').html("")
-        $('#files_not_uploaded').html("")
-      }
-    }).done(function(response){
-        update_study_files(response)
-        $('#files')[0].reset();
-        $("#file").siblings(".custom-file-label").removeClass("selected").html("Choose files");
-        $('#uploadStatus').html("Upload finished.")
-        $('#files_uploaded').html('<p style="color:#28A74B;">  The following files have been uploaded successfully:'  + response["filenames_saved"] + '</p>');
-        if(response["filenames_not_saved"].length){
-          $('#files_not_uploaded').html('<p style="color:#EA4335;"> The following files have have not been uploaded: (Either a file with a similar name was already present or the file has an incorrect file format, check the ending) ' + response["filenames_not_saved"] + '</p>');
+      }).fail(function(){
+          if($('#files_not_uploaded').html()==""){
+            $('#files_not_uploaded').append('<p style="color:#EA4335;"> File upload failed for the following files.\
+                                                                        Please reload this page and try again.</p>')      
+          }
+          $('#files_not_uploaded').append('<p>' + file.name + '</p>');
+  
+        $('#uploadStatus').html('<p style="color:#EA4335;">File upload failed. Please reload this page and try again.</p>');
+      }).always(function(){
+        files_finished = files_finished + 1
+        percentComplete = Number.parseFloat((files_finished / files.length) * 100).toFixed(2);
+        $("#progress").width(percentComplete + '%');
+        $("#progress").html(percentComplete + '%');
+
+        if(files.length == files_finished){
+          $('#files')[0].reset();
+          $("#file").siblings(".custom-file-label").removeClass("selected").html("Choose files");
+          $('#uploadStatus').html("Upload finished.")
+          url = "/get_filenames/" + study_id
+          $.ajax({
+            url: url,
+            type: 'GET'
+          }).done(function(response){
+              update_study_files(response)
+          }).fail(function(){
+              alert("An unknown server error occurred")
+          }).always(function(){
+          })          
+          buttons.each(function(index,button){
+            $(button).prop('disabled', false);
+          })
         }
-    }).fail(function(){
-      $('#uploadStatus').html('<p style="color:#EA4335;">File upload failed, please try again.</p>');
-    }).always(function(response){
-      buttons.each(function(index,button){
-        $(button).prop('disabled', false);
-        })
-    })
+      })
+
+    }) 
   })
 })
 
