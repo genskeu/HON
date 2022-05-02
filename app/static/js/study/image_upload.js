@@ -40,10 +40,12 @@ $(document).ready(function(){
   $("#upload_files").click(function(){  
     //get request data
     var study_id = location.pathname.match(/\d+/)[0]
-    var url = "/upload_files/" + study_id    
     var files = $('#file')[0].files;
     if(files.length == 0){
       $('#uploadStatus').html('No files selected.');
+      return false
+    }else if(files.length > 5000){
+      $('#uploadStatus').html("More than 5000 files selected. Please don't upload more than 5000 files at once.");
       return false
     }
 
@@ -61,84 +63,84 @@ $(document).ready(function(){
     $('#files_uploaded_saved').html("")
     $('#files_uploaded_not_saved').html("")
     $('#files_not_uploaded').html("")
+    files_finished = 0
+    chunk_size = 50
     //upload files and display progress
-    var files_finished = 0
-    $(files).each(function(index,file){
-      var fd = new FormData();
-      fd.append('file',file);
-      // code inspired by https://www.codexworld.com/file-upload-with-progress-bar-using-jquery-ajax-php/
-      $.ajax({
-        // xhr: function() {
-        //   var xhr = new window.XMLHttpRequest();
-        //   xhr.upload.addEventListener("progress", function(evt) {
-        //     if (evt.lengthComputable) {
-        //       var percentComplete = Number.parseFloat((evt.loaded / evt.total) * 100).toFixed(2);
-        //       if(percentComplete == 100.00){
-        //         $("#progress").width(percentComplete + '%');
-        //         $("#progress").html(percentComplete+'%');
-        //       }
-        //     }
-        //   }, false );
-        //   return xhr;
-        // },
-        url: url,
-        type: 'post',
-        data: fd,
-        contentType: false,
-        processData: false
-      }).done(function(response){
-          if(response["filenames_saved"].length){
-            if($('#files_uploaded_saved').html()==""){
-              $('#files_uploaded_saved').append('<p style="color:#28A74B;"> The following files have have been uploaded and saved:</p>')      
-            }
-            $('#files_uploaded_saved').append('<p>' + response["filenames_saved"] + '</p>');
-          }  
-          if(response["filenames_not_saved"].length){
-            if($('#files_uploaded_not_saved').html()==""){
-              $('#files_uploaded_not_saved').append('<p style="color:#EA4335;"> The following files have have been uploaded but not saved:\
-              (Either a file with a similar name was already present or the file has an incorrect file format, check the ending)</p>')      
-            }
-            $('#files_uploaded_not_saved').append('<p>' + response["filenames_not_saved"] + '</p>');
-          }
-      }).fail(function(){
-          if($('#files_not_uploaded').html()==""){
-            $('#files_not_uploaded').append('<p style="color:#EA4335;"> File upload failed for the following files.\
-                                                                        Please reload this page and try again.</p>')      
-          }
-          $('#files_not_uploaded').append('<p>' + file.name + '</p>');
-  
-        $('#uploadStatus').html('<p style="color:#EA4335;">File upload failed. Please reload this page and try again.</p>');
-      }).always(function(){
-        files_finished = files_finished + 1
-        percentComplete = Number.parseFloat((files_finished / files.length) * 100).toFixed(2);
-        $("#progress").width(percentComplete + '%');
-        $("#progress").html(percentComplete + '%');
-
-        if(files.length == files_finished){
-          $('#files')[0].reset();
-          $("#file").siblings(".custom-file-label").removeClass("selected").html("Choose files");
-          $('#uploadStatus').html("Upload finished.")
-          url = "/get_filenames/" + study_id
-          $.ajax({
-            url: url,
-            type: 'GET'
-          }).done(function(response){
-              update_study_files(response)
-          }).fail(function(){
-              alert("An unknown server error occurred")
-          }).always(function(){
-          })          
-          buttons.each(function(index,button){
-            $(button).prop('disabled', false);
-          })
+    file_chunks = []
+    for(let i = 0;i < files.length;i=i+chunk_size){
+      file_chunk = []
+      for(let j = i; j<i+chunk_size; j++){
+        if(j < files.length){
+          file_chunk.push(files[j])
         }
-      })
-
-    }) 
+      }
+      file_chunks.push(file_chunk)
+    }
+    file_chunks.forEach((file_chunk) => upload_files(file_chunk,files.length,study_id))
   })
 })
 
 
+function upload_files(file_chunk,files_length,study_id){
+  var url = "/upload_files/" + study_id    
+  var fd = new FormData();
+  file_chunk.forEach((file) => fd.append('file',file))
+  $.ajax({
+    url: url,
+    type: 'post',
+    data: fd,
+    contentType: false,
+    processData: false
+    }).done(function(response){
+      if(response["filenames_saved"].length){
+        if($('#files_uploaded_saved').html()==""){
+          $('#files_uploaded_saved').append('<p style="color:#28A74B;"> The following files have have been uploaded and saved:</p>')      
+        }
+        response["filenames_saved"].forEach((file) => $('#files_uploaded_saved').append('<p>' + file + '</p>'))
+      }  
+      if(response["filenames_not_saved"].length){
+        if($('#files_uploaded_not_saved').html()==""){
+          $('#files_uploaded_not_saved').append('<p style="color:#EA4335;"> The following files have have been uploaded but not saved:\
+          (Either a file with a similar name was already present or the file has an incorrect file format, check the ending)</p>')      
+        }
+        response["filenames_not_saved"].forEach((file) => $('#files_uploaded_not_saved').append('<p>' + file + '</p>'))
+
+      }
+  }).fail(function(){
+      if($('#files_not_uploaded').html()==""){
+        $('#files_not_uploaded').append('<p style="color:#EA4335;"> File upload failed for the following files.\
+                                                                    Please reload this page and try again.</p>')      
+      }
+      file_chunk.forEach((file) => $('#files_not_uploaded').append('<p>' + file.name + '</p>'))
+      
+
+  }).always(function(){
+    files_finished = files_finished + file_chunk.length
+    percentComplete = Number.parseFloat((files_finished / files_length) * 100).toFixed(2);
+    $("#progress").width(percentComplete + '%');
+    $("#progress").html(percentComplete + '%');
+
+    if(files_length == files_finished){
+      $('#files')[0].reset();
+      $("#file").siblings(".custom-file-label").removeClass("selected").html("Choose files");
+      $('#uploadStatus').html("Upload finished.")
+      url = "/get_filenames/" + study_id
+      $.ajax({
+        url: url,
+        type: 'GET'
+      }).done(function(response){
+          update_study_files(response)
+      }).fail(function(){
+          alert("An unknown server error occurred")
+      }).always(function(){
+      })
+      var buttons = $(".btn,.btn-lg");          
+      buttons.each(function(index,button){
+        $(button).prop('disabled', false);
+      })
+    }
+  })
+}
 
 // delete selected files
 $(document).ready(function(){
