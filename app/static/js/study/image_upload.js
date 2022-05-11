@@ -64,7 +64,7 @@ $(document).ready(function(){
     $('#files_uploaded_not_saved').html("")
     $('#files_not_uploaded').html("")
     files_finished = 0
-    chunk_size = 50
+    chunk_size = 25
     //upload files and display progress
     file_chunks = []
     for(let i = 0;i < files.length;i=i+chunk_size){

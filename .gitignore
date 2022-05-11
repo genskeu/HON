@@ -6,3 +6,6 @@
 *.log
 /images
 */static/dependencies*
+# vue branch folders
+/backend*
+/frontend*
