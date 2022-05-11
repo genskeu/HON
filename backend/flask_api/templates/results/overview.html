@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<script src="{{url_for('static', filename = 'js/get_results.js')}}">  </script>
+<script src="{{url_for('static', filename = 'js/delete_result.js')}}">  </script>
+
+<div class="container">
+  <div class="row mx-auto mb-2">
+    <button type="button" class="btn btn-dark btn-block" data-toggle="collapse" data-target="#results_ov"
+      aria-expanded="true" aria-controls="results_ov">
+      <h4 class="col-12 mt-1">Results &#9776</h4>
+    </button>
+  </div>
+
+  <div id="results_ov" class="collapse show">
+    {% if g.user['access_level'] == 2%}
+    {% for study in studies %}
+    <div class="row mx-auto">
+      <button type="button" class="btn btn-secondary btn-block" data-toggle="collapse" data-target="#study_{{study.id}}"
+        aria-expanded="true" aria-controls="{{study.id}}">
+        <h5 class="col-12 mt-1">Study {{study.id}}: {{study.title}}</h5>
+      </button>
+    </div>
+    {% set study_length = study.imgsets|length %}
+    <div class="mx-auto collapse show" id="study_{{study.id}}">
+      <table class="table table-hover">
+        <thead class="thead-light">
+          <tr>
+            <!-- col-3 for width of cloumns does not work in chrome for tables use style="width: 25%" -->
+            <th style="width: 25%">Username</th>
+            <th style="width: 25%">Created</th>
+            <th style="width: 25%">Status</th>
+            <th style="width: 25%"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user_study_progress in study.user_study_progress  %}
+          <tr>
+            <td class="align-middle">{{user_study_progress.user.username}}</td>
+            <td class="align-middle">{{user_study_progress.updated}}</td>
+            <td class="align-middle">{{((user_study_progress.imgsets_finished) /
+                   study_length * 100 )|round}} %</td>
+            <td class="align-middle">
+              <button class="btn-danger btn-sm"
+                onclick="delete_result('{{study.id}}','{{user_study_progress.user_id}}')">delete
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <div class="row mb-3">
+          <div class="col-4">
+            <button id="results_study_{{study.id}}" class="btn btn-success btn-block get_results_btn">
+              <h6 class="mt-1">download results (xlsx)</h6>
+            </button>
+          </div>
+          <div class="col-4">
+            <input type="checkbox" id="include_explanations_{{study.id}}" name="include_explanations"
+              title="Adds a row to the output that explains each column (recomended for new users).">
+            include column explanations
+            </input>
+            <br>
+            <input type="checkbox" id="include_raw_data_{{study.id}}" name="include_raw_data"
+              title="Include raw annotation data, all filenames if stacks were used ..."> include raw data
+            </input>
+          </div>
+          <div class="col-4">
+            <button id="segmentation_study_{{study.id}}" class="btn btn-success btn-block get_seg_btn">
+              <h6 class="mt-1">download segmentations</h6>
+            </button>
+          </div>
+      </div>
+      <div class="row mb-3">
+        <div class="col-4">
+          <div class="row justify-content-center">
+            <div id="loader_anim_{{study.id}}" class=""></div>
+            <div id="loader_text_{{study.id}}" class="ml-1 mt-3" style="display: none;">Please wait</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+#Base image
+FROM node:lts-alpine
+LABEL maintainer "Ulrich Genske"
+
+# Set the working directory
+WORKDIR /home/frontend
+
+# Copy the package.json and package-lock.json
+COPY package*.json ./
+#COPY postcss.config.js ./
+#COPY tailwind.config.js ./
+#COPY .eslintrc.js ./
+
+# install project dependencies
+RUN npm install
+
+# Expose a port
+EXPOSE 8080
+
+# Executables
+CMD [ "npm", "run", "serve" ]

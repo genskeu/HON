@@ -1,23 +1,56 @@
 version: '3.9'
+
 services:
-  app:
-    container_name: HON_dev
-    image: hon_dev
+  backend:
+    container_name: HON_flask_api_dev
+    image: hon_flask_api_dev
     build:
-      context: .
+      context: ./backend
       dockerfile: ./docker/Dockerfile_dev
     environment:
-      - FLASK_APP=app
+      - FLASK_APP=flask_api
       - FLASK_ENV=development
+      - FLASK_DEBUG=1
       - PYTHONDONTWRITEBYTECODE=1
       - PYTHONUNBUFFERED=1
     # only needed for external mysql db
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     ports:
-      - '80:80'
+      - 5000:5000
+      # debug port vscode
+      - 5678:5678
     volumes:
-      - './app:/home/HON/app'
-      - './instance:/home/HON/instance'
+      - './backend/:/home/backend/'
     stdin_open: true
     tty: true
+    # setup to develop and debug with vs code
+    entrypoint:
+      [
+        "python3",
+        "-m",
+        "debugpy",
+        "--listen",
+        "0.0.0.0:5678",
+        "-m",
+        "wsgi",
+        "--wait-for-client",
+        "--multiprocess",
+        "-m",
+        "flask",
+        "run",
+        "-h",
+        "0.0.0.0",
+        "-p",
+        "5000"
+      ]
+  frontend:
+    container_name: hon_vue_dev
+    build:
+      context: ./frontend
+      dockerfile: ./docker/Dockerfile_dev
+    ports:
+      - 8080:8080
+    volumes:
+      - './frontend/src:/home/frontend/src'
+      - './frontend/public:/home/frontend/public'

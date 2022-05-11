@@ -1,0 +1,87 @@
+{
+ "user":"Each row contains the result of a user for one specific image-set.",
+ "imageset-id":"This column contains the image-set id, which is also the position of the image-set during the study.\n\
+An image-set can contain multiple images and reference images.\n\
+Each of them is displayed in a separate image viewer (iv).\n\
+The following columns contain further details of the images presented simultaneously.",
+ "stack-name-ref-iv1":"Reference images can be grouped to stacks (see study creation tutorial).\n\
+ This column contains the stack-name used for grouping.\n\
+ If single images were used during the study, the stack-name will be identical to the filename.\n\
+ This column is present for each stack displayed simultaneously.\n\
+ The number at the end references the image viewer (iv) used (see study design).",
+ "filename(s)-ref-iv1":"Images can be grouped to stacks (see study creation tutorial).\n\
+Here the filenames of all images belonging to the reference stack are shown.\n\
+This column is present for each reference stack displayed simultaneously.\n\
+The number at the end references the image viewer (iv) used (see study design).",
+ "filename(s)-ref-iv*":"See explanation filenames-ref-iv1.",
+ "stack-name-ref-iv*":"See explanation stack-name-iv1.",
+ "stack-name-iv1":"Images can be grouped to stacks (see study creation tutorial).\n\
+ This column contains the stack-name used for grouping.\n\
+ If single images were used during the study, the stack-name will be identical to the filename.\n\
+ This column is present for each stack displayed simultaneously.\n\
+ The number at the end references the image viewer (iv) used (see study design).",
+ "filename(s)-iv1":"Images can be grouped to stacks (see study creation tutorial).\n\
+Here the filenames of all images belonging to one stack are shown.\n\
+This column is present for each stack displayed simultaneously.\n\
+The number at the end references the image viewer (iv) used (see study design).",
+ "stack-name-iv*":"See explanation stack-name-iv1.",
+ "filename(s)-iv*":"See explanation filenames-iv1.",
+ "stack-name-sp":"This column will only be shown if multiple images are presented simultaneously (e.g. in AFC studies)\n\
+and shows the stack-name of the stack chosen by the study participant (sp) (click on the button beneath the image).\n\
+For more information see stack-name-iv1.",
+ "filename(s)-sp":"This column will only be shown if multiple images are presented simultaneously (e.g. in AFC studies)\n\
+and shows the filenames of the stack chosen by the study participant (sp) (click on the button beneath the image).\n\
+For more information see explanation filenames-iv1.",
+ "date":"The date column shows the date and time the data was saved in the database.\n\
+This information can be used to calculate the average completion time per image-set.",
+ "scale1":"The next columns contain the recorded scale ratings.\n\
+This column shows the ratings for the first scale.\n\
+The header is identical to the text assigned to it during study creation.\n\
+If its an ROI type scale (see LROC tutorial) this column is repeated for each measurement.",
+ "scale*":"See explanation first scale.",
+ "ann1-stackpos1":"The next columns are dedicated to image annotations (length measurements or regions of interest).\n\
+For each annotation a separate column will be shown.\n\
+Annotations are divided into study participant (sp) and study admin (ground-truth=gt) annotations.\n\
+The stack-position containing the annotation is referenced at the end.",
+ "gt-ann1-start-stackpos1":"This columns shows the x and y coordinates of the start point of the first ground-truth (gt) annotation.",
+ "gt-ann1-end-stackpos1":"This columns shows the x and y coordinates of the end point of the first ground-truth (gt) annotation.",
+ "gt-ann1-area-stackpos1":"This columns shows the size of the area enclosed by the first ground-truth (gt) region of interest (ROI).",
+ "gt-ann*-start-stackpos*":"See explanation gt-ann1-start-stackpos1",
+ "gt-ann*-end-stackpos*":"See explanation gt-ann1-end-stackpos1",
+ "gt-ann*-area-stackpos*":"See explanation gt-roi1-start-stackpos1",
+ "sp-ann1-start-stackpos1":"This columns shows the x and y coordinates of the start point of the first study-participant annotation.",
+ "sp-ann1-end-stackpos1":"This columns shows the x and y coordinates of the end point of the first study-participant annotation.",
+ "sp-ann1-area-stackpos1":"This columns shows the size of the area enclosed by the first study-participant region of interest (ROI).",
+ "sp-ann*-start-stackpos*":"See explanation sp-ann1-start-stackpos1",
+ "sp-ann*-end-stackpos*":"See explanation sp-ann1-end-stackpos1",
+ "sp-ann*-area-stackpos*":"See explanation sp-roi1-area-stackpos1", 
+ "ann1-iou-stackpos1":"The next columns contain segmentation metrics.\n\
+During study creation region of interest (ROI) tools can be used to mark the ground-truth (gt) (see LROC tutorial).\n\
+Between each ground-truth ROI and all study-participant (sp) ROIs the intersection over union (IOU) will be calculated.\n\
+Subsequently the maximum of these values will be picked and displayed in this column.\n\
+The stack-position containing the annotation is referenced at the end.",
+ "ann1-dice-stackpos1":"The next columns contain segmentation metrics.\n\
+During study creation region of interest (ROI) tools can be used to mark the ground-truth (gt) (see LROC tutorial).\n\
+Between each ground-truth ROI and all study-participant (sp) ROIs the dice index will be calculated.\n\
+Subsequently the maximum of these values will be picked and displayed in this column.\n\
+The stack-position containing the annotation is referenced at the end.",
+ "ann1-perc-stackpos1":"The next columns contain segmentation metrics.\n\
+During study creation region of interest (ROI) tools can be used to mark the ground-truth (gt) (see LROC tutorial).\n\
+Between each ground-truth ROI and all study-participant (sp) ROIs the percentage of correctly classified pixels of the sp ROI will be calculated.\n\
+Subsequently the maximum of these values will be picked and displayed in this column.\n\
+The stack-position containing the annotation is referenced at the end.",
+ "ann*-iou-stackpos*":"See explanation iou1-stackpos1",
+ "ann*-dice-stackpos*":"See explanation dice1-stackpos1",
+ "ann*-perc-stackpos*":"See explanation perc1-stackpos1",
+ "sp-ann1-rawdata-stackpos1":"To draw and record annotations the javascript library cornerstone-tools is used.\n\
+This column contains the json object used by cornerstone-tools to display the annotation.\n\
+Amongst other things it contains the coordinates of the annotation.",
+ "sp-ann*-rawdata-stackpos*":"See explanation sp-ann1-rawdata-stackpos1",
+ "gt-ann1-rawdata-stackpos1":"To draw and record annotations the javascript library cornerstone-tools is used.\n\
+This column contains the json object used by cornerstone-tools to display the annotation.\n\
+Amongst other things it contains the coordinates of the annotation.",
+ "gt-ann*-rawdata-stackpos*":"See explanation gt-ann1-rawdata-stackpos1",
+ "rawdata-imageviewer-study-participant-selection":"To display images the javascript library cornerstone is used.\n\
+This column contains the json object used by cornerstone to display the image(s).\n\
+Amongst other things it contains information about the window-width, window-center and zoom-level of the image viewer shown to the user (study-participant modifications will be recorded).", 
+ }

@@ -1,0 +1,1103 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<!-- include the cornerstone library -->
+<script src="{{ url_for('static', filename='dependencies/cornerstone.js') }}"></script>
+<script src="{{ url_for('static', filename='dependencies/cornerstoneMath.js') }}"></script>
+<script src="{{ url_for('static', filename='dependencies/hammer.min.js') }}"></script>
+
+<!-- include the dicomParser library as the WADO image loader depends on it -->
+<script src="{{ url_for('static', filename='dependencies/dicomParser.js') }}"></script>
+
+<!-- include the cornerstoneWADOImageLoader library -->
+<script src="{{ url_for('static', filename='dependencies/cornerstoneWADOImageLoader.min.js') }}"></script>
+
+<!-- include the cornerstoneWADOImageLoader library -->
+<script src="{{ url_for('static', filename='dependencies/cornerstoneWebImageLoader.min.js') }}"></script>
+
+<!-- cornerstone tools  -->
+{% if study.view == "participant" %}
+  <script src= "{{ url_for('static', filename='dependencies/cornerstoneTools_mod.js') }}"></script>
+{% else %}
+  <script src="{{ url_for('static', filename='dependencies/cornerstoneTools.min.js') }}"></script>
+{% endif %}
+
+<!--  JavaScript own -->
+<!--  JavaScript general -->
+<script src="{{url_for('static', filename = 'js/study/cornerstone/cornerstone_init.js')}}"></script>
+<script src="{{url_for('static', filename = 'js/study/cornerstone/cornerstone_tools.js')}}"></script>
+<script src="{{url_for('static', filename = 'js/study/cornerstone/cornerstone_load_save_img.js')}}"></script>
+<script src="{{url_for('static', filename = 'js/study/cornerstone/cornerstone_viewport.js')}}"></script>
+<script src="{{url_for('static', filename = 'js/study/cornerstone/cornerstone_rois.js')}}"></script>
+<script src="{{url_for('static', filename = 'js/study/cornerstone/cornerstone_segmentation.js')}}"></script>
+<script src="{{url_for('static', filename = 'js/study/design/design_options.js')}}"></script>
+<script src="{{url_for('static', filename = 'js/study/design/design_scales.js')}}"></script>
+
+
+<!--  JavaScript design -->
+{% if study.view == "study_admin" %}
+  <script src="{{url_for('static', filename = 'js/study/design/design_create_man.js')}}"></script>
+  <script src="{{url_for('static', filename = 'js/study/design/design_create_auto.js')}}"></script>
+  <script src="{{url_for('static', filename = 'js/study/design/design_sidebar.js')}}"></script>
+  <script src="{{url_for('static', filename = 'js/study/design/design_misc.js')}}"></script>
+<!--  JavaScript run study -->
+{% elif study.view == "participant" %}
+  <script src= "{{url_for('static', filename = 'js/study/study_participation.js')}}"></script>
+{% endif %}
+
+{% endblock %}
+
+
+<!-- tool select menus -->
+{%
+  set tools_all = {
+                   "Wwwc":"Windowing",
+                   "WwwcRegion": "Windowing (region auto)",
+                   "Pan": "Move",
+                   "Magnify":"Magnify",
+                   "Rotate":"Rotate",
+                   "ZoomMouseWheel":"Zoom (mouse wheel)",
+                   "Zoom":"Zoom",
+                   "StackScrollMouseWheel":"Stack scroll (mouse wheel)",
+                   "StackScroll":"Stack scroll",
+                   "EllipticalRoi":"Elliptical-roi",
+                   "RectangleRoi":"Rectangle-roi",
+                   "FreehandRoi":"Freehand-roi",
+                   "Length":"Length Measurment",
+                   "Eraser":"Remove ROI/Length",
+                   "Brush":"Brush-Segmentation",
+                   "FreehandScissors":"Freehand-Segmentation",
+                   "CorrectionScissors":"Freehand with correction",
+                   "RectangleScissors":"Rectangle-Segmentation",
+                  }
+%}
+
+{%
+  set tools_user = {}
+%}
+<!-- get dict of active tools and keybindings  -->
+{% for tool in study.design.tools %}
+  {% if tool.status == "active" %}
+    {% set dummy = tools_user.update({tool.cs_name : tool.key_binding}) %}
+  {% endif %}
+{% endfor %}
+
+
+{% block navbar_add %}
+<!-- Tool navbar (the overlay is a fix, there should be a better solution here)-->
+<div class="container-fluid">
+  <div class="navbar_overlay" id="navbar_tools">
+    <div class="row mt-2 mx-auto">
+      {% if study.view == "study_admin" %}
+      <div class="col-4">
+        <input id="stack_mode" class="btn btn-danger btn-block" type="button" value="Stackmode On" data-toggle="tooltip" data-placement="left"
+        title="Stackmode On: Images are combined to stacks according to naming scheme
+(see tutorial video on study creation or file naming section on file upload page)
+Stackmode Off: Each image/file can be displayed separately">
+      </div>
+      {% endif %}
+      <!-- tool select menus -->
+      {% if study.view == "study_admin" or tools_user|length %}
+        <div class="input-group col-8 {% if study.view == "participant" %} offset-4 {% endif %}" data-toggle="tooltip" data-placement="left"
+        title="Use the select menus to activate image handling tools for the left, middle and right mouse key.">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Active Tools</span>
+        </div>
+        {% set select_settings = {"Left Click" : 1,"Wheel":4, "Right Click":2}  %}
+        {% for mouseKey, mouseButtonMask in select_settings.items() %}
+          <select class='custom-select tool_select' data-mouseButtonMask={{mouseButtonMask}}>
+            <option value="" disabled selected>{{mouseKey}}</option>
+            {% for tool_name, tool_value in tools_all.items() %}
+              {% if study.view == "study_admin" or tool_name in tools_user.keys() %}
+                {% if "ZoomMouseWheel" not in tool_name and "StackScrollMouseWheel" not in tool_name and mouseButtonMask in [1,2] or ("ZoomMouseWheel" in tool_name or "StackScrollMouseWheel" in tool_name) and mouseButtonMask == 4 %}
+                  <option value='{{tool_name}}' key='{{tools_user[tool_name]}}'>{{tool_value}}</option>
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+          </select>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+
+
+
+
+{% block content %}
+{% if study.view == "participant" %}
+  <!-- Study intro text -->
+  <div class="container my-auto h-100" id="study_description" style="{% if study.view == "study_admin" %} display:none {% endif %}">
+    <div id ="intro_user_view" class="justify-content-center align-items-center h-100">
+      <div class="row justify-content-center align-items-center h-25">
+        <h1>Study Description</h1>
+      </div>
+      <div class="row justify-content-center align-items-center h-50">
+          <pre style="color:{{study.design.text_color}}; white-space: pre-wrap;">{{study.description}}</pre>
+      </div>
+      <div class="row justify-content-center align-items-center">
+        {% if study.view == "participant" %}
+        <button id="start_study" type="btn" name="button" class=" btn-lg btn-dark"
+        formaction="{{url_for('studies.get_imgset', study_id=study.id,position=imgset.position)}}">
+          {% if imgset.position|int > 0 %} Continue {% else %} Start {% endif %} {% else %}
+        </button>
+        {% endif %}
+      </div>
+      <div class="row justify-content-center align-items-center">
+        <div id="load_prog"></div>
+      </div>
+    </div>
+  </div>
+{% endif %}
+
+<div class="container-fluid h-100" id="content"  {% if study.view == "participant" %} style="display:none;" {% endif %} study_id="{{study.id}}">
+  <div class="row mx-auto my-auto {% if study.view == "participant" %} h-100 {% endif %}">
+  {% if study.view == "study_admin" %}
+    <!-- Sidebar for ImgSets (left) -->
+    <div class="col-lg-2">
+        <div class="row mx-auto sticky-top" style="top:4em;">
+          <button class="btn btn-dark col-12 mb-2 sticky-top" data-toggle="collapse" data-target="#sidebar" aria-expanded="true"
+            aria-controls="sidebar" data-toggle="tooltip" data-placement="left"
+            title="Image-Sets that will be shown to users during the study.
+The currently selected image-set will be highlited green.">
+            <h4 class="w-100 mt-1" id="imgset_btn">Image-Sets &#9776</h4>
+          </button>
+        </div>
+        <div class="sidebar_own sticky-top bg-secondary collapse show" id="sidebar">
+          {% for imgset in study.imgsets %}
+          <div class="row">
+            <button class='imgset btn btn-light col-lg-12' id="imgset_{{imgset.position}}"
+              action="{{url_for('studies.get_imgset', study_id=study.id,position=imgset.position)}}">
+              Image Set {{imgset.position + 1}}
+            </button>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+  {% endif %}
+    <!-- Imgsets -->
+    <div class="col-lg-8 h-100 mb-2 {% if study.view == 'participant' %} offset-2 {% endif %} ">
+      {% if study.view == "study_admin" %}
+      <div class="row w-100 mx-auto">
+        <button class="btn btn-dark col-6 mb-2" data-toggle="collapse" data-target="#imgset_creation" aria-expanded="true"
+          aria-controls="imgset_creation">
+          <h4 class="mt-1">Create Image Sets &#9776</h4>
+        </button>
+        <button id="imgset_creation_mode" class="btn btn-info col-6 mb-2" data-toggle="tooltip" data-placement="left"
+        title="Click to change mode.
+
+Mode manual:
+each imgset can be created manually by choosing images
+from the dropdown menu and then pressing the append/insert imageset button
+
+Mode auto:
+imgsets are created automatically either by adding images in sorted or random order
+(ROC,LROC,FROC,VGA studies)
+or by combining 1 signal positive image with m-1 signal negative images
+(see file naming section and 4-AFC tutorial video)">
+          <h4 id="imgset_creation_mode_text" class="w-100 mt-1">Mode:manual</h4>
+        </button>
+      </div>
+
+      {% if study.user_study_progress %}
+      <h3 style="color: red; text-align: justify; hyphens:auto">
+        There are results present for this study!
+        You can still modify the design.
+        However, it is highly advised to backup and then delete study results before adjusting the design.
+        Otherwise the application might fail.
+      </h3>
+      {% endif %}
+      {% endif %}
+      <!-- Create Image Sets -->
+      <div id="imgset_creation" class=" collapse show row mx-auto my-auto {% if study.view == 'participant' %} h-100 justify-content-center align-items-center {% endif %}">
+        <!-- Display warning if the study already started (results are present)
+             User can still modify design but should be aware that this can cause bugs
+            -->
+        {% set image_names = image_names|sort %}
+        {% set image_paths = image_paths|sort %}
+        <div id="imgset" class="w-100">
+          <!--Images -->
+          {% for i in range(10) %}
+          {% if i == 0%}
+          <div id="ref_images">
+            {% if study.view == "study_admin" %}
+            <span class="badge badge-secondary w-100 mb-2">
+              <h4 class="mt-1">Reference Image Stack(s)</h4>
+            </span>
+            {%endif%}
+            {% endif %}
+            {% if i == 2 %}
+            <div id="comp_images">
+              {% if study.view == "study_admin" %}
+              <span class="badge badge-secondary w-100 mb-2">
+                <h4 class="mt-1 ">Image Stack(s)</h4>
+              </span>
+              {%endif%}
+              {% endif %}
+              {% if i in [0,2,4,6,8] %}
+              <div class="row justify-content-center mx-auto" id="dicom_row_{{i}}">
+                {% endif %}
+                <div
+                  class="col dicom_container {% if i in [0,1] %} dicom_container_refimg {%else%} dicom_container_img  {% endif %}"
+                  id="dicom_container_{{i}}">
+                  <div class="card card-block d-flex" style="border:none">
+                    <div id="overlay_{{i}}" class="overlay row ww_wc_info"  {% if not study.design.show_viewport_info %} style="display: none;" {% endif %}  ">
+                      <div class="col-4" id="ww_wc_info_{{i}}">
+                        WW/WC:
+                      </div>
+                      <div class="col" id="zoom_info_{{i}}">
+                        Zoom:
+                      </div>
+                      <div class="col" id="position_info_{{i}}">
+                        Pos:
+                      </div>
+                      <div class="col" id="stack_info_{{i}}">
+                        Stack:
+                      </div>
+                    </div>
+                      <div id="dicom_img_{{i}}"
+                        class="dicom_img {% if i in [0,1] %} dicom_img_ref {%else%} dicom_img_comp {% endif %}  mx-auto"
+                        {% if study.design.img_width and study.design.img_height %}
+                        style="width:{{study.design.img_width}}px; height:{{study.design.img_height}}px;"
+                        {% endif %}
+                        oncontextmenu="return false">
+                      </div>
+                    <div class="card-body mx-auto">
+                      <!-- select menu to load image-->
+                      {% if study.view == "study_admin" %}
+                      <div class="row mx-auto" title="Select an image to display it.">
+                        <div class="input-group">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text" for="tools">{% if i in [0,1] %}Ref-Image {{i+1}} {% else %}
+                              Image {{i-1}} {% endif %} </span>
+                          </div>
+                          <select id="sel_{{i}}" class="sel_image custom-select">
+                            <option value="" selected></option>
+                          </select>
+                        </div>
+                      </div>
+                      {% endif %}
+                      {% if i > 1 %}
+                      <div class="row mx-auto">
+                        <h4 class="mx-auto" style="text-align:center;{% if study.view == "study_admin" %} display:none; {% endif %}">
+                          <button style="color:{{study.design.text_color}}" class="btn btn-success vote_button mx-auto" {% if study.view == "participant" %} {% for image_stack in imgset.image_stacks %} {% if image_stack.div_id == "dicom_img_" + i|string %} name={{image_stack.name}} {% endif %}{% endfor %}  value="/vote/{{study.id}}/{{imgset.position}}" {% endif %} id="vote_{{i}}">{{study.design.button_labels}}</button>
+                        </h4>
+                      </div>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+                {% if i in [1,3,5,7,9] %}
+              </div>
+              {% endif %}
+              {% if i in [1,9] %}
+            </div>
+            {%endif%}
+            {% endfor %}
+            <!-- modify buttons -->
+            {% if study.view == "study_admin" %}
+            <div id="imgset_buttons">
+              <div class="row mt-3 mb-2">
+                <div class="col-lg-12 text-center">
+                  <input type="button" value="append imgset" class="imgset_btn btn-success btn col-lg-2" id="add_imgset" title="add image-set to the end of the study">
+                  <input type="button" value="insert imgset" class="imgset_btn btn-success btn col-lg-2" id="insert_imgset" title="inserts image-set at the currently selected position">
+                  <input type="button" value="update imgset" class="imgset_btn btn-light btn col-lg-2" id="upd_imgset" title="update currently selected image-set">
+                  <input type="button" value="delete imgset" class="imgset_btn btn-danger btn col-lg-2" id="del_imgset" title="delete currently selected image-set">
+                  <input type="button" value="delete all imgsets" class="imgset_btn btn-danger btn col-lg-2"
+                    id="del_all_imgsets">
+                </div>
+              </div>
+            </div>
+
+            {% endif %}
+            <!-- progressbar -->
+            <div class="mx-auto fixed-bottom" {% if study.view == "study_admin" %} style="display:none;" {% endif %}>
+              <div class="progress w-100">
+                <div id="progressbar" class="progress-bar" role="progressbar"
+                aria-valuenow="70" aria-valuemin="0" aria-valuemax="100"
+                {% if user_study_progress and study_length %}
+                  style="width:{{((user_study_progress.imgsets_finished) /
+                    study_length * 100 )}}%;color:black;">
+                    {{user_study_progress.imgsets_finished}}/{{study_length}} items finished
+                {% else %}
+                  style="width:0%;color:black;">
+                {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        <!-- Create Image Sets (auto) -->
+        {% if study.view == "study_admin" %}
+          <div id="imgset_auto" class="w-100" style="display:none;">
+            <!-- <p>
+              Instructions:
+            <ul>
+              <li>select study type</li>
+              <li>specify a positive and a negative pattern for AFC studies</li>
+              <li>select a reference image (optional)</li>
+              <li>define ww,wc,pos... by loading an image using the
+                dropdown menu Image 1 (Section Create Image Sets (manual)),
+                the same needs to be done for the reference image (if present) using Ref-Img 1</li>
+              <li>press the generate imgsets button</li>
+            </ul>
+
+
+            </p> -->
+
+         <div class="row">
+          <div class="col-6">
+            <span class="badge badge-secondary col-12 mb-2">
+              <h5 class="mt-1">Define Image Set Settings</h5>
+            </span>
+            <!-- study type -->
+            <div class="row mb-2 mx-auto justify-content-center align-items-center ">
+              <div class="input-group col-12 ">
+                <div class="input-group-prepend col-4 px-0 mx-0">
+                  <span class="input-group-text col-12">Imgset Type:</span>
+                </div>
+                <select class="custom-select" id="imgset_type">
+                  <option value=""></option>
+                  <option value="standard">standard</option>
+                  <option value="afc">alternative forced choice</option>
+                </select>
+              </div>
+            </div>
+            <div class="row mb-2 mx-auto justify-content-center align-items-center ">
+              <div class="input-group col-12">
+                <div class="input-group-prepend col-4 px-0 mx-0">
+                  <span class="input-group-text col-12">Imgset Order:</span>
+                </div>
+                <select class="custom-select" id="imgset_order">
+                  <option value="ordered">ordered</option>
+                  <option value="random">random</option>
+                </select>
+              </div>
+            </div>
+            <!-- signal info -->
+            <div class="row mb-2 mx-auto justify-content-center align-items-center" id="row_pos_pattern" style="display:none;">
+              <div class="input-group col-12">
+                <div class="input-group-prepend col-4 px-0 mx-0">
+                  <span class="input-group-text col-12">Signal Present Pattern:</span>
+                </div>
+                <select class="custom-select pattern_imgset_auto" id="pos_pattern" placeholder="pattern pos class">
+                  <option></option>
+                </select>
+              </div>
+            </div>
+            <div class="row mb-2 mx-auto justify-content-center align-items-center" id="row_neg_pattern" style="display:none;">
+              <div class="input-group col-12">
+                <div class="input-group-prepend col-4 px-0 mx-0">
+                  <span class="input-group-text col-12">Signal Absent Pattern:</span>
+                </div>
+                <select class="custom-select pattern_imgset_auto" id="neg_pattern" placeholder="pattern neg class">
+                  <option></option>
+                </select>
+              </div>
+            </div>
+        </div>
+        <div class="col-6">
+            <!-- define viewport settings -->
+            <div id="viewport_settings_auto" style="display:none;">
+              <div class="row mb-2 mx-auto" >
+                <span class="badge badge-secondary col-12">
+                  <h5 class="mt-1">Define Image Viewer Settings</h5>
+                </span>
+              </div>
+              <div class="row mb-2 mx-auto">
+                <div class="col dicom_container dicom_container_auto" id="dicom_container_10">
+                  <div class="card card-block d-flex" style="border:none">
+                    <div id="overlay_10" class="overlay row ww_wc_info" {% if not study.design.show_viewport_info %}
+                      style="display: none;" {% endif %} ">
+                    <div class=" col-4" id="ww_wc_info_10">
+                      WW/WC:
+                    </div>
+                    <div class="col" id="zoom_info_10">
+                      Zoom:
+                    </div>
+                    <div class="col" id="position_info_10">
+                      Pos:
+                    </div>
+                    <div class="col" id="stack_info_10">
+                      Stack:
+                    </div>
+                  </div>
+                  <div id="dicom_img_10" class="dicom_img dicom_img_comp mx-auto"
+                    {% if study.design.img_width and study.design.img_height %}
+                    style="height:520px; width:520px" {% endif %}
+                    oncontextmenu="return false">
+                  </div>
+                  <div class="card-body mx-auto">
+                    <!-- select menu to load image-->
+                    <div class="row mx-auto">
+                      <div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text" for="tools">
+                            Image</span>
+                        </div>
+                        <select id="sel_10" class="sel_image custom-select">
+                          <option value="" selected></option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-6">
+          <!-- define ref image settings -->
+            <div id="refstack_settings_auto" style="display:none;" >
+              <div class="row mb-2 mx-auto">
+                <span class="badge badge-secondary col-12">
+                  <h5 class="mt-1">Define Reference Image Stack</h5>
+                </span>
+              </div>
+
+
+              <div class="row mb-2 mx-auto">
+                <div class="col dicom_container dicom_container_auto" id="dicom_container_11">
+                  <div class="card card-block d-flex" style="border:none">
+                    <div id="overlay_11" class="overlay row ww_wc_info" {% if not study.design.show_viewport_info %}
+                      style="display: none;" {% endif %} ">
+                                  <div class=" col-4" id="ww_wc_info_11">
+                      WW/WC:
+                    </div>
+                    <div class="col" id="zoom_info_11">
+                      Zoom:
+                    </div>
+                    <div class="col" id="position_info_11">
+                      Pos:
+                    </div>
+                    <div class="col" id="stack_info_11">
+                      Stack:
+                    </div>
+                  </div>
+                  <div id="dicom_img_11" class="dicom_img dicom_img_comp mx-auto"
+                    {% if study.design.img_width and study.design.img_height %}
+                    style="width:{{study.design.img_width}}px; height:{{study.design.img_height}}px; display:none;"
+                    {% else %}
+                    style="display:none;"
+                    {% endif %}
+                    oncontextmenu="return false">
+                  </div>
+                  <div class="card-body mx-auto">
+                    <!-- select menu to load image-->
+                    <div class="row mx-auto">
+                      <div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text">
+                            Select Reference Image-Stack:</span>
+                        </div>
+                        <select id="sel_11" class="sel_image custom-select">
+                          <option value="" selected></option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="row mt-2 mx-auto">
+                      <div class="input-group-prepend px-0 mx-0">
+                        <span class="input-group-text">Image Viewer Settings for Reference Image Stack differs from other Stacks
+                          <input type="checkbox" class="ml-3" id="ref_viewport_auto"
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+            <div class="row mb-2 mx-auto">
+                <button class="btn btn-secondary btn-block imgset_btn" value="generate imgsets" style="display:none;" id="btn_auto_imgset">
+                  <h5>Create Imgsets</h5>
+                </button>
+            </div>
+          </div>
+        {% endif %}
+        </div>
+        {% if study.view == "study_admin" %}
+        <div class="row mx-auto no-gutters">
+          <div class="col-4">
+            <div class="mr-1">
+              <button class="btn  btn-secondary btn-block">
+                <a style="color:white" href="{{ url_for('studies.overview')}}" class="nav-link" >
+                  Return to Study Overview
+                </a>
+             </button>
+            </div>
+          </div>
+
+          <div class="col-4">
+            <div class="mr-1">
+              <button class="btn  btn-secondary btn-block">
+                  <a style="color:white" href="{{ url_for('studies.get_study', id=study["id"]) }}" class="nav-link"  >
+                    Back to Basic Study Settings
+                  </a>
+              </button>
+            </div>
+          </div>
+
+          <div class="col-4">
+            <div class="">
+              <button class="btn btn-secondary w-100">
+                  <a style="color:white" href="{{ url_for('studies.image_upload',study_id=study["id"]) }}" class="nav-link" >
+                    Back to File Upload
+                  </a>
+              </button>
+            </div>
+          </div>
+
+        </div>
+       {% endif %}
+
+      </div>
+
+      <!-- sidebar for design, viewport settings, scales etc (rigth) -->
+      <div class="col-lg-2" >
+        <!-- Design Settings -->
+        <div class="row mx-auto" {% if study.view == "participant" %} style="display:none;" {% endif %}>
+          <button class="btn btn-dark col-12 mb-1" data-toggle="collapse" data-target="#design_settings"
+          title="Click on the sections to expand the sub-menus.
+Study design options were divided into general settings, tools, instructions and scales.
+After changing any design options dont forget to press the Save Design button.
+          "
+            aria-expanded="true" aria-controls="design_settings">
+            <h4 class="w-100 mt-1">Design Options &#9776</h4>
+          </button>
+        </div>
+        <div id="design_settings" class="collapse show">
+          <!-- General Settings -->
+          <div class="row mx-auto mt-1" {% if study.view == "participant" %} style="display:none;" {% endif %} >
+            <button class="btn-secondary btn col-12" data-toggle="collapse" data-target="#general_settigs"
+              aria-expanded="true" aria-controls="general_settigs"
+              title="General settings include options to control the study layout and to customize the number and size of images displayed simultaneously.
+               ">
+              <h5 class="mt-1">General Settings</h5>
+            </button>
+          </div>
+          <div id="general_settigs" class="collapse" {% if study.view == "participant" %} style="display:none;" {% endif %}>
+            <div class="mx-auto">
+              <div class="input-group row mx-auto" title="Controls max number of reference images">
+                <div class="input-group-prepend col-6 px-0 mx-0">
+                  <span class="input-group-text col-12"># Ref-Images</span>
+                </div>
+                <select class="custom-select"  id="numb_refimg">
+                  {% for i in range(3) %}
+                  <option value="{{i}}" {% if study.design.numb_refimg == i %}selected{% endif %}>{{i}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="input-group row mx-auto" title="Controls the number of images (m-AFC tests)">
+                <div class="input-group-prepend col-6 px-0 mx-0">
+                  <span class="input-group-text col-12"># Images</span>
+                </div>
+                <select class="custom-select"  id="numb_img">
+                  {% for i in [1,2,4,6,8] %}
+                  <option value="{{i}}" {% if study.design.numb_img == i %}selected{% endif %}>{{i}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="input-group row mx-auto" title="Controls the number of annotations (e.g. rois)
+that need to be drawn by participants
+before evaluating the next picture.
+Set to 0 to allow any number.">
+                <div class="input-group-prepend col-6 px-0 mx-0">
+                  <span class="input-group-text col-12"># Annotations</span>
+                </div>
+                <input class="form-control" type="Number" step="any"  id="numb_rois" min="0"
+                {% if study.design.numb_rois %}value="{{study.design.numb_rois}}"{% else %} value="0" {% endif %}>
+                </input>
+              </div>
+
+
+              <!-- window size -->
+              <div class="row mx-auto">
+                <div class="input-group" title="Controls the size (width, height) of the screen section used for displaying images.">
+                  <div class="input-group-prepend col-6 px-0 mx-0">
+                    <span class="input-group-text col-12">Viewport-Size</span>
+                  </div>
+                  <input id="img_width" type="Number" step="any" class="image_size form-control" placeholder="width"
+                    {% if study.design.img_width is not none %} value="{{study.design['img_width']}}" {% endif %}>
+                  </input>
+                  <input id="img_height" type="Number" step="any" class="image_size form-control" placeholder="height"
+                    {% if study.design.img_height is not none %} value="{{study.design['img_height']}}" {% endif %}>
+                  </input>
+                </div>
+              </div>
+
+              <div class="input-group row mx-auto">
+                <div class="input-group-prepend col-6 px-0 mx-0">
+                  <span class="input-group-text col-12">Text Color</span>
+                </div>
+                <input class="form-control" type="text" id="text_color" placeholder="Text-Color (Hex or Name)"
+                  value="{{study.design['text_color']}}">
+              </div>
+
+              <div class="input-group row mx-auto">
+                <div class="input-group-prepend col-6 px-0 mx-0">
+                  <span class="input-group-text col-12">BG Color</span>
+                </div>
+                <input class="form-control" type="text" id="background_color"
+                  placeholder="Background-Color (Hex or Name)" value="{{study.design['background_color']}}">
+              </div>
+
+              <div class="input-group row mx-auto" title="Time (sec) the screen will be blank between two image-sets.">
+                <div class="input-group-prepend col-6 px-0 mx-0">
+                  <span class="input-group-text col-12">Transition Time</span>
+                </div>
+                <input class="form-control" type="number" min="0" name="instructions" id="transition_time"
+                  placeholder="sec" {% if study.design.transition_time is not none %}
+                  value="{{study.design['transition_time']}}" {% endif %}>
+              </div>
+
+              <div class="row input-group mx-auto" title="Controls the text of the buttons displayed beneath each image to continue to the next image-set.">
+                <div class="input-group-prepend col-6 px-0 mx-0">
+                  <span class="input-group-text col-12">Button Label</span>
+                </div>
+                <input class="form-control" type="text" name="buttonLabels" id="button_labels" placeholder="Btn Label"
+                  {% if study.design.button_labels is not none %} value="{{study.design['button_labels']}}" {% endif %}>
+              </div>
+
+              <div class="input-group row mx-auto" title="Controls if image settings such as windowing or zoom level are displayed.">
+                <div class="input-group-prepend col-6 px-0 mx-0">
+                  <span class="input-group-text col-12">Img Viewer Info</span>
+                </div>
+                <input type="button" name="show_display" id="show_viewport_info"
+                  {% if study.design.show_viewport_info %} value="Enabled" class="btn btn-success form-control"
+                  {% else %} value="Disabled" class="btn btn-danger form-control" {% endif %}>
+              </div>
+            </div>
+          </div>
+          <!-- tool settings -->
+          {% if study.view == "study_admin" %}
+          <div class="row mx-auto mt-1">
+            <button class="btn-secondary btn col-12" data-toggle="collapse" data-target="#tools" aria-expanded="true"
+              aria-controls="tools"
+              title="Tools define DICOM viewer and annotation tools that are made available to participants
+(e.g., scrolling, windowing, rectangular, elliptical or free-hand ROIs).">
+              <h5 class="mt-1 col-12">Tools</h5>
+            </button>
+          </div>
+          <div id="tools" class="collapse ">
+            {% for tool_name, tool_value in tools_all.items() %}
+            <div class="row input-group text-center mx-auto">
+              <div class="input-group-prepend text-dark w-100">
+                <div class="input-group-text w-100">
+                  <input type="checkbox" class="mr-3" id="{{tool_name}}" name="toolsCheck" value="{{tool_name}}"
+                    {% if tool_name in tools_user.keys() %}checked{% endif %}>
+                    {{tool_value}}
+                </div>
+              </div>
+            </div>
+
+            {% endfor %}
+          </div>
+          {% endif %}
+          <div class="row mx-auto {% if study.view == "study_admin" %} mt-1 {% endif %}"
+          title="Instructions can be customized and are displayed to participants throughout studies.">
+            <!-- instructions -->
+            {% if study.view == "study_admin" or study.design.instructions|length > 0 %}
+            <button class="btn-secondary btn col-12" data-toggle="collapse" data-target="#instructions_container"
+              aria-expanded="true" aria-controls="instructions_container">
+              <h5 class="mt-1 col-12">Instructions</h5>
+            </button>
+            {% endif %}
+            <div id="instructions_container" class="w-100 collapse {% if study.view == "participant" %} show {% endif %}">
+              <div class="input-group" id="instructions_input_field">
+                {% if study.view == "study_admin" %}
+                <textarea rows="3" class="form-control " type="text" name="instructions" id="instructions"
+                  placeholder="Instructions">{% if study.design.instructions is not none %}{{study.design['instructions']}}{% endif %}</textarea>
+                {% endif %}
+              </div>
+              {% if study.view == "participant" %}
+                <div id="instructions_user_view" style="white-space: pre-wrap;">{% if study.design.instructions is not none %}{{study.design['instructions']}}{% endif %}</div>
+              {% endif %}
+            </div>
+
+          </div>
+          <!-- scales -->
+          {% if study.view == "study_admin" or study.design.scales|length > 0 %}
+          <div class="row mx-auto mt-1"
+          title="Scales can be customized and are displayed to participants throughout studies.">
+            <button class="btn btn-secondary col-12" data-toggle="collapse" data-target="#scales_container"
+              aria-expanded="true" aria-controls="scales_container">
+              <h5 class="mt-1">Scale(s)</h5>
+            </button>
+          </div>
+          {% endif %}
+          <div id="scales_container" class="collapse {% if study.view == "participant" %} show {% endif %}">
+            {% if study.view == "study_admin" %}
+            <div class="row mx-auto">
+              <button class="btn btn-success btn-block col" id="add_scale">add scale</button>
+            </div>
+            {% endif %}
+
+            <div id="scales" class="mt-1">
+              {% for i in range(study.design.scales|length + 1) %}
+                 {% if i < study.design.scales|length %}
+                   {% set scale = study.design.scales[i] %}
+                 {% else %}
+                 <!-- templetate to create new scales using js -->
+                   {% set scale = {
+                                   'max':7,
+                                   'min':1,
+                                   'text':""
+                                 }
+                   %}
+                   {% set i = "" %}
+                 {% endif %}
+              <div id="scale_{{i}}" {% if i == "" %} class="mt-1 scale_template" style="display:none" {% else %}
+                class="mt-1 scale" {% endif %}>
+                <span class="badge badge-light w-100 mt-1"><h6 id="scale_heading_{{i}}" class="mt-1 scale_heading">Scale {% if i != "" %} {{(i+1)}} {% endif %}</h6></span>
+                <!-- admin view to define scale -->
+                <div class="mx-auto scale_view_admin {% if study.view == 'participant' %} d-none {% endif %}" id="scale_view_admin_{{i}}">
+                  <div class="row mx-auto scale_text_admin" id="scale_text_admin_{{i}}">
+                    <div class="input-group">
+                      <div class="input-group-prepend col-4 px-0 mx-0">
+                        <span class="input-group-text col-12">Text</span>
+                      </div>
+                      <textarea id="scale_text_input_{{i}}" class="form-control scale_text_input">{{scale.text}}</textarea>
+                    </div>
+                  </div>
+                  <div class="row mx-auto scale_min_admin" id="scale_min_admin_{{i}}">
+                    <div class="input-group">
+                      <div class="input-group-prepend col-4 px-0 mx-0">
+                        <span class="input-group-text col-12">Start</span>
+                      </div>
+                      <input class="form-control scale_min_input" min="-100" max="100" type="number"
+                        id="scale_min_input_{{i}}" + placeholder="min" value="{{scale.min}}">
+                    </div>
+                  </div>
+                  <div class="row mx-auto scale_max_admin" id="scale_max_admin_{{i}}">
+                    <div class="input-group">
+                      <div class="input-group-prepend col-4 px-0 mx-0">
+                        <span class="input-group-text col-12">End</span>
+                      </div>
+                      <input class="form-control scale_max_input" min="-100" max="100" type="number"
+                        id="scale_max_input_{{i}}" + placeholder="max" value="{{scale.max}}">
+                    </div>
+                  </div>
+                  <div class="row mx-auto scale_type_admin" id="scale_type_admin_{{i}}"
+                  title="Can be left blank for most studies except for FROC designs,
+where a scale needs to be repeated each time a new roi is drawn.">
+                    <div class="input-group">
+                      <div class="input-group-prepend col-4 px-0 mx-0">
+                        <span class="input-group-text col-12">Type</span>
+                      </div>
+
+
+                      <select id="scale_type_input_{{i}}" class="custom-select scale_type_input">
+                        <option value=""></option>
+                        {% for tool in tools_all.keys() %}
+                          {% if "Roi" in tool %}
+                          <option value='{{tool}}' {% if scale.type == tool %} selected {% endif %}>{{tools_all[tool]}}</option>
+                          {% endif %}
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                  <button class="btn btn-danger btn-block scale_rm" id="scale_rm_{{i}}">rm scale</button>
+                </div>
+                <!-- participant view of scale -->
+                <div class="mx-auto mb-3 scale_view_user {% if study.view == "participant" %} {{scale.type}} {% endif %}" id="scale_view_user_{{i}}">
+                  <div class="row mx-auto justify-content-center">
+                    <div id="scale_text_{{i}}" class="col scale_text"
+                      style="white-space: pre-wrap; text-align: center;">
+                    </div>
+                  </div>
+                  <div class="row mx-auto justify-content-center mt-1 {% if study.view == 'participant' %} {{scale.type}} {% endif %} scale_values"
+                    id="scale_values_{{i}}" class="col-lg-12" {% if scale.type in ["EllipticalRoi","RectangleRoi","FreehandRoi"] %} style="display:none;"
+                    {% endif %}>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          <!-- Save Design Settings -->
+          {% if study.view == "study_admin" %}
+          <form method="post">
+            <div class="form-group">
+              <input class="btn btn-light btn-lg btn-block mt-1" type=button id="submit_design" value="Save Design">
+            </div>
+          </form>
+          {% endif %}
+        </div>
+
+        <!-- default viewport settings -->
+        {% if study.view == "study_admin" or study.design.show_viewport_info %}
+        {% if study.view == "study_admin" %}
+        <div id="viewport_settings_container" class="w-100"
+        title= "Image Viewer settings control display options (zoom, position, window) for the uploaded study images.
+Each viewport can be controlled individually.
+To globally control viewport settings use the defaults submenu.">
+          <div class="row mt-1 mx-auto">
+            <button class="btn btn-dark col-12 mb-2" data-toggle="collapse" data-target="#viewport_settings"
+              aria-expanded="true" aria-controls="viewport_settings">
+              <h4 class="w-100 mt-1" id="imgset_btn">Image Viewer &#9776</h4>
+            </button>
+          </div>
+          {% endif %}
+
+          <div id="viewport_settings" class="mb-3 collapse show">
+            {% if study.view == "study_admin" %}
+              <button class="btn btn-secondary btn-block" data-toggle="collapse" data-target="#viewport_def"
+                aria-expanded="true" aria-controls="viewport_def">
+                <h5 class="mt-1 col-12">Defaults</h5>
+              </button>
+            <div id="viewport_def" class="collapse ">
+              <!-- ww/wc -->
+              <div class="row mx-auto">
+                <div class="input-group">
+                  <div class="input-group-prepend col-4 px-0 mx-0">
+                    <span class="input-group-text col-12">WW/WC</span>
+                  </div>
+                  <input id="def_ww" type="Number" step="any" min="0" class="form-control def_ww viewport_prop_def" placeholder="WW">
+                  </input>
+                  <input id="def_wc" type="Number" step="any" min="0" class="form-control def_wc viewport_prop_def" placeholder="WC">
+                  </input>
+                </div>
+              </div>
+              <!-- zoom -->
+              <div class="row mx-auto">
+                <div class="input-group">
+                  <div class="input-group-prepend col-4 px-0 mx-0">
+                    <span class="input-group-text col-12">Zoom</span>
+                  </div>
+                  <input id="def_zoom" type="Number" step="any" min="0.0" class="form-control def_zoom viewport_prop_def"
+                    placeholder="Zoom">
+                  </input>
+                </div>
+              </div>
+              <!-- position -->
+              <div class="row mx-auto">
+                <div class="input-group">
+                  <div class="input-group-prepend col-4 px-0 mx-0">
+                    <span class="input-group-text col-12">Pos</span>
+                  </div>
+                  <input id="def_pos_x" type="Number" step="any" class="form-control def_pos_x viewport_prop_def" placeholder="x"> </input>
+                  <input id="def_pos_y" type="Number" step="any" class="form-control def_pos_y viewport_prop_def" placeholder="y"> </input>
+                </div>
+              </div>
+              <div class="row mx-auto">
+               <!-- position -->
+                <button id=update_viewports class="btn btn-light col-12">update existing image-sets</button>
+              </div>
+            </div>
+            {% endif %}
+
+            <div class="mx-auto" id="viewports">
+              {% for i in range(12) %}
+              <!-- viewport info -->
+              {% if i == 0 %}
+                <div id="viewports_man_container">
+              {% elif i == 10 %}
+                <div id="viewports_auto_container">
+              {% endif %}
+              <div id="viewport_info_{{i}}"
+                  {% if i in range(2) %}
+                    class="mt-1 ref_viewport viewport_man"
+                   {% elif i in range(2,10) %}
+                    class="mt-1 comp_viewport viewport_man"
+                  {% elif i in range(10,12) %}
+                    class="mt-1 viewport_auto"
+                    style="display: none;"
+                  {%endif%}>
+                  <div class="row mx-auto mt-1">
+                    <button class="btn btn-secondary col-12" data-toggle="collapse" data-target="#viewport_{{i}}"
+                      aria-expanded="true" aria-controls="viewport_{{i}}">
+                      <h5 class="mt-1">{% if i in [0,1]%}Ref-Image {{i+1}} {%elif i in range(2,10)%} Image {{i-1}} {% elif i in range(10,11) %} Image(s) {% elif i in range(11,12) %} Ref-Image(s) {%endif%} Viewer</h5>
+                    </button>
+                  </div>
+                  
+                  <div id="viewport_{{i}}"
+                  class="collapse {% if study.view == "participant" %} show {%endif%}">
+                    <!-- windowing -->
+                    <div class="row mx-auto">
+                      <div class="input-group">
+                        <div class="input-group-prepend col-4 px-0 mx-0">
+                          <span class="input-group-text col-12">WW/WC</span>
+                        </div>
+                        <input id="ww_{{i}}" type="Number" step="any" min="0" class="form-control ww viewport_prop"
+                          placeholder="WW">
+                        </input>
+                        <input id="wc_{{i}}" type="Number" step="any" class="form-control wc viewport_prop" placeholder="WC">
+                        </input>
+                      </div>
+                    </div>
+                    <!-- window zoom -->
+                    <div class="row mx-auto">
+                      <div class="input-group">
+                        <div class="input-group-prepend col-4 px-0 mx-0">
+                          <span class="input-group-text col-12">Zoom</span>
+                        </div>
+                        <input id="zoom_{{i}}" type="Number" step="any" min="0.0" class="form-control zoom viewport_prop"
+                          placeholder="Zoom"> </input>
+                      </div>
+                    </div>
+                    <!-- window position -->
+                    <div class="row mx-auto">
+                      <div class="input-group">
+                        <div class="input-group-prepend col-4 px-0 mx-0">
+                          <span class="input-group-text col-12">Pos</span>
+                        </div>
+                        <input id="pos_x_{{i}}" type="Number" step="any" class="form-control pos_x viewport_prop"
+                          placeholder="x">
+                        </input>
+                        <input id="pos_y_{{i}}" type="Number" step="any" class="form-control pos_y viewport_prop"
+                          placeholder="y">
+                        </input>
+                      </div>
+                    </div>
+                    <!--reset buttons -->
+                    <button id=reset_{{i}} class="btn btn-block btn-light reset">reset</button>
+                  </div>
+              </div>
+              {% if i in [9,11] %}
+                </div>
+              {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+
+        <!--ROIs-->
+        <div id="roi_settings_container" class="w-100 mb-1" style="display: none;"
+        title="The ROIs section shows the annotation coordinates drawn on each image.
+ROIs can be drawn on images to define the ground truth in LROC and FROC studies.">
+          <div class="row mx-auto roi_input">
+            <button class="btn btn-dark col-12 mb-1" data-toggle="collapse" data-target="#roi_settings"
+              aria-expanded="true" aria-controls="roi_settings">
+              <h4 class="w-100 mt-1">ROIs &#9776</h4>
+            </button>
+          </div>
+          <div id="roi_settings" class="collapse mb-3 show roi_input">
+            {% for i in range(10) %}
+            <!-- roi info -->
+            <div id="roi_info_img_{{i}}" {% if i in [0,1]%} class="mt-1 ref_rois" {%else%}
+              class="mt-1 comp_rois" {%endif%}>
+              <span class="badge-secondary badge col-12">
+                <button class="btn btn-secondary btn-block" data-toggle="collapse" data-target="#rois_img_{{i}}"
+                  aria-expanded="true" aria-controls="rois_img_{{i}}">
+                  <h5 class="col-12 mt-1">ROIs {% if i in [0,1]%}Ref-Image {{i+1}} {%else%} Image {{i-1}} {%endif%}</h5>
+                </button>
+                <div id="rois_img_{{i}}" class="collapse {% if study.view == "participant" %} show {%endif%}">
+                  {% if study.view == "study_admin" %}
+                  <div class="row text-center mx-auto">
+                    <button id=import_ann_{{i}} class="btn btn-block btn-success import_ann col">Import Rois From</button>
+                  </div>
+                  <div class="row text-center mx-auto">
+                    <div class="input-group">
+                      <div class="input-group-prepend col-6 px-0 mx-0">
+                        <span class="input-group-text col-12">Image-Set</span>
+                      </div>
+                      <input id="import_ann_is_{{i}}" type="Number" min="1" class="form-control  col" placeholder="">
+                    </input>
+                    </div>
+                  </div>
+                  <div class="row text-center mx-auto">
+                    <div class="input-group">
+                      <div class="input-group-prepend col-6 px-0 mx-0">
+                        <span class="input-group-text col-12">Image-Position</span>
+                      </div>
+                      <input id="import_ann_ip_{{i}}" type="Number" min="1" class="form-control  col" placeholder="">
+                    </input>
+                    </div>
+                  </div>
+                  <div class="row text-center mx-auto">
+                    <div class="input-group">
+                      <div class="input-group-prepend col-6 px-0 mx-0">
+                        <span class="input-group-text col-12">Stack-Position</span>
+                      </div>
+                      <input id="import_ann_sp_{{i}}" type="Number" min="1" class="form-control  col" placeholder="">
+                    </input>
+                    </div>
+                  </div>
+                  <div class="row text-center mx-auto">
+                    <!-- <button id=overlap{{i}} class="btn btn-primary overlap">overlap</button> -->
+                  </div>
+                  {%endif%}
+                </div>
+              </span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!--Segmentations-->
+        <div id="seg_settings_container" class="w-100 mb-1" style="display: none;"
+        title="">
+          <div class="row mx-auto roi_input">
+            <button class="btn btn-dark col-12 mb-1" data-toggle="collapse" data-target="#seg_settings"
+              aria-expanded="true" aria-controls="seg_settings">
+              <h4 class="w-100 mt-1">Segmentation &#9776</h4>
+            </button>
+          </div>
+          <div id="seg_settings" class="collapse mb-3 show">
+            <!-- roi info -->
+            <div class="mt-1">
+              <div class="row text-center mx-auto">
+                <div class="input-group">
+                  <div class="input-group-prepend col-6 px-0 mx-0">
+                    <span class="input-group-text col-12">Brush-Size</span>
+                  </div>
+                  <input type="Number" min="1" class="form-control col" value="10" id="brush_size">
+                  </input>
+                </div>
+              </div>
+              <div class="row text-center mx-auto">
+                <div class="input-group">
+                  <div class="input-group-prepend col-6 px-0 mx-0">
+                    <span class="input-group-text col-12">Label</span>
+                  </div>
+                  <input type="Number" min="1" class="form-control col" value="1" id="seg_label">
+                  </input>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+
+
+        {% if study.view == "study_admin" %}
+        <div id="results_container" class="w-100 mb-1" style="display: none;" title="Load results from a study where annotation data was collected e.g. ROIs.">
+          <div class="row mx-auto roi_input">
+            <button class="btn btn-dark col-12 mb-1" data-toggle="collapse" data-target="#results"
+              aria-expanded="true" aria-controls="results">
+              <h4 class="w-100 mt-1" >Results &#9776</h4>
+            </button>
+          </div>
+          <div id="results" class="badge-light collapse show">
+          </div>
+        </div>
+        {% endif %}
+
+
+
+        {% if study.view == "study_admin" %}
+        <div class="row mt-2 mx-auto" style="display: none;">
+          <button class="btn btn-danger col-12 mb-2">
+            <h4 class="w-100 mt-1" id="participant_view">Participant View</h4>
+          </button>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {% endblock %}
+

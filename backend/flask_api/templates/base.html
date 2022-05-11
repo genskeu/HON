@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+<head>
+
+<title>{% block title %}{% endblock %}</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<!-- Jquery core -->
+<script src="{{ url_for('static', filename='dependencies/jquery-3.4.0.min.js') }}"></script>
+<!-- Bootstrap core CSS -->
+<link rel="stylesheet" href="{{ url_for('static', filename='dependencies/bootstrap.min.css') }}">
+<!-- Bootstrap core JS -->
+<script src="{{ url_for('static', filename='dependencies/bootstrap.min.js') }}"></script>
+<!-- Custom styles for this template -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+
+</head>
+
+<body>
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top text-right" id="navbar">
+  <div class="container-fluid">
+    <button class="navbar-toggler ml-auto hidden-sm-up float-xs-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse text-right bg-dark" id="navbarResponsive">
+      <ul class="navbar-nav ml-auto" id="navlinks">
+        {% if g.user %}
+        {% if g.user.access_level == 1 %}
+        <li class="nav-item" id="studies">
+          <a class="nav-link" href="{{ url_for('studies.study_login') }}">Access Studies</a>
+        </li>
+        {% endif %}
+					{% if g.user.access_level == 2 %}
+          <li class="nav-item" id="studies">
+            <a class="nav-link" href= "{{ url_for('studies.overview') }}" >Studies</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href= "{{ url_for('results.overview') }}" >Results</a>
+          </li>
+					{% endif %}
+					{% if g.user.access_level == 3 %}
+						<li class="nav-item">
+							<a class="nav-link" href= "{{ url_for('users.overview') }}" >Users</a>
+						</li>
+          {% endif %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{url_for('users.profile')}}">User Profile</a>
+          </li>
+          {% if g.user.access_level in [2,3] %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{url_for('misc.tutorials')}}">Tutorials</a>
+          </li>
+          {% endif %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('auth.logout') }}">Log Out</a>
+          </li>
+        {% else %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('auth.register') }}">Register</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('auth.login') }}">Log In</a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+
+{% block navbar_add %}
+{% endblock %}
+
+<!-- Content (modified base from flask tutorial) -->
+<main>
+  <header>
+    {% block header %}{% endblock %}
+  </header>
+  <!--Error messages from flask -->
+  {% for message in get_flashed_messages() %}
+    <div class="container flash text-center">{{ message }}</div>
+  {% endfor %}
+  <!--Error messages for ajax calls-->
+    <div class="container mb-3 sticky-top" style="top:4em;">
+        <div class="row justify-content-center">
+          <div id="loader_anim" class=""></div>
+          <div id="loader_text" class="ml-1 mt-3" style="display: none;">Please wait</div>
+        </div>
+        <div class="row justify-content-center">
+          <div id="error_msg" style="display: none; max-height:200px;" class="overflow-auto"></div>
+        </div>
+    </div>
+  {% block content %}
+
+  {% endblock %}
+</main>
+
+</body>
+</html
