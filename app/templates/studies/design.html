@@ -220,7 +220,7 @@ or by combining 1 signal positive image with m-1 signal negative images
         {% set image_paths = image_paths|sort %}
         <div id="imgset" class="w-100">
           <!--Images -->
-          {% for i in range(10) %}
+          {% for i in range(16) %}
           {% if i == 0%}
           <div id="ref_images">
             {% if study.view == "study_admin" %}
@@ -237,7 +237,7 @@ or by combining 1 signal positive image with m-1 signal negative images
               </span>
               {%endif%}
               {% endif %}
-              {% if i in [0,2,4,6,8] %}
+              {% if i in [0,2,4,6,8,10,12,14] %}
               <div class="row justify-content-center mx-auto" id="dicom_row_{{i}}">
                 {% endif %}
                 <div
@@ -290,10 +290,10 @@ or by combining 1 signal positive image with m-1 signal negative images
                     </div>
                   </div>
                 </div>
-                {% if i in [1,3,5,7,9] %}
+                {% if i in [1,3,5,7,9,11,13,15] %}
               </div>
               {% endif %}
-              {% if i in [1,9] %}
+              {% if i in [1,15] %}
             </div>
             {%endif%}
             {% endfor %}
@@ -407,24 +407,24 @@ or by combining 1 signal positive image with m-1 signal negative images
                 </span>
               </div>
               <div class="row mb-2 mx-auto">
-                <div class="col dicom_container dicom_container_auto" id="dicom_container_10">
+                <div class="col dicom_container dicom_container_auto" id="dicom_container_16">
                   <div class="card card-block d-flex" style="border:none">
-                    <div id="overlay_10" class="overlay row ww_wc_info" {% if not study.design.show_viewport_info %}
+                    <div id="overlay_16" class="overlay row ww_wc_info" {% if not study.design.show_viewport_info %}
                       style="display: none;" {% endif %} ">
-                    <div class=" col-4" id="ww_wc_info_10">
+                    <div class=" col-4" id="ww_wc_info_16">
                       WW/WC:
                     </div>
-                    <div class="col" id="zoom_info_10">
+                    <div class="col" id="zoom_info_16">
                       Zoom:
                     </div>
-                    <div class="col" id="position_info_10">
+                    <div class="col" id="position_info_16">
                       Pos:
                     </div>
-                    <div class="col" id="stack_info_10">
+                    <div class="col" id="stack_info_16">
                       Stack:
                     </div>
                   </div>
-                  <div id="dicom_img_10" class="dicom_img dicom_img_comp mx-auto"
+                  <div id="dicom_img_16" class="dicom_img dicom_img_comp mx-auto"
                     {% if study.design.img_width and study.design.img_height %}
                     style="height:520px; width:520px" {% endif %}
                     oncontextmenu="return false">
@@ -437,7 +437,7 @@ or by combining 1 signal positive image with m-1 signal negative images
                           <span class="input-group-text" for="tools">
                             Image</span>
                         </div>
-                        <select id="sel_10" class="sel_image custom-select">
+                        <select id="sel_16" class="sel_image custom-select">
                           <option value="" selected></option>
                         </select>
                       </div>
@@ -461,24 +461,24 @@ or by combining 1 signal positive image with m-1 signal negative images
 
 
               <div class="row mb-2 mx-auto">
-                <div class="col dicom_container dicom_container_auto" id="dicom_container_11">
+                <div class="col dicom_container dicom_container_auto" id="dicom_container_17">
                   <div class="card card-block d-flex" style="border:none">
-                    <div id="overlay_11" class="overlay row ww_wc_info" {% if not study.design.show_viewport_info %}
+                    <div id="overlay_17" class="overlay row ww_wc_info" {% if not study.design.show_viewport_info %}
                       style="display: none;" {% endif %} ">
-                                  <div class=" col-4" id="ww_wc_info_11">
+                                  <div class=" col-4" id="ww_wc_info_17">
                       WW/WC:
                     </div>
-                    <div class="col" id="zoom_info_11">
+                    <div class="col" id="zoom_info_17">
                       Zoom:
                     </div>
-                    <div class="col" id="position_info_11">
+                    <div class="col" id="position_info_17">
                       Pos:
                     </div>
-                    <div class="col" id="stack_info_11">
+                    <div class="col" id="stack_info_17">
                       Stack:
                     </div>
                   </div>
-                  <div id="dicom_img_11" class="dicom_img dicom_img_comp mx-auto"
+                  <div id="dicom_img_17" class="dicom_img dicom_img_comp mx-auto"
                     {% if study.design.img_width and study.design.img_height %}
                     style="width:{{study.design.img_width}}px; height:{{study.design.img_height}}px; display:none;"
                     {% else %}
@@ -494,7 +494,7 @@ or by combining 1 signal positive image with m-1 signal negative images
                           <span class="input-group-text">
                             Select Reference Image-Stack:</span>
                         </div>
-                        <select id="sel_11" class="sel_image custom-select">
+                        <select id="sel_17" class="sel_image custom-select">
                           <option value="" selected></option>
                         </select>
                       </div>
@@ -601,7 +601,7 @@ After changing any design options dont forget to press the Save Design button.
                   <span class="input-group-text col-12"># Images</span>
                 </div>
                 <select class="custom-select"  id="numb_img">
-                  {% for i in [1,2,4,6,8] %}
+                  {% for i in [1,2,4,6,8,10,12,14] %}
                   <option value="{{i}}" {% if study.design.numb_img == i %}selected{% endif %}>{{i}}</option>
                   {% endfor %}
                 </select>
@@ -897,26 +897,26 @@ To globally control viewport settings use the defaults submenu.">
             {% endif %}
 
             <div class="mx-auto" id="viewports">
-              {% for i in range(12) %}
+              {% for i in range(18) %}
               <!-- viewport info -->
               {% if i == 0 %}
                 <div id="viewports_man_container">
-              {% elif i == 10 %}
+              {% elif i == 16 %}
                 <div id="viewports_auto_container">
               {% endif %}
               <div id="viewport_info_{{i}}"
                   {% if i in range(2) %}
                     class="mt-1 ref_viewport viewport_man"
-                   {% elif i in range(2,10) %}
+                   {% elif i in range(2,16) %}
                     class="mt-1 comp_viewport viewport_man"
-                  {% elif i in range(10,12) %}
+                  {% elif i in range(16,18) %}
                     class="mt-1 viewport_auto"
                     style="display: none;"
                   {%endif%}>
                   <div class="row mx-auto mt-1">
                     <button class="btn btn-secondary col-12" data-toggle="collapse" data-target="#viewport_{{i}}"
                       aria-expanded="true" aria-controls="viewport_{{i}}">
-                      <h5 class="mt-1">{% if i in [0,1]%}Ref-Image {{i+1}} {%elif i in range(2,10)%} Image {{i-1}} {% elif i in range(10,11) %} Image(s) {% elif i in range(11,12) %} Ref-Image(s) {%endif%} Viewer</h5>
+                      <h5 class="mt-1">{% if i in [0,1]%}Ref-Image {{i+1}} {%elif i in range(2,16)%} Image {{i-1}} {% elif i in range(16,17) %} Image(s) {% elif i in range(17,18) %} Ref-Image(s) {%endif%} Viewer</h5>
                     </button>
                   </div>
                   
@@ -963,7 +963,7 @@ To globally control viewport settings use the defaults submenu.">
                     <button id=reset_{{i}} class="btn btn-block btn-light reset">reset</button>
                   </div>
               </div>
-              {% if i in [9,11] %}
+              {% if i in [15,17] %}
                 </div>
               {% endif %}
               {% endfor %}
@@ -984,7 +984,7 @@ ROIs can be drawn on images to define the ground truth in LROC and FROC studies.
             </button>
           </div>
           <div id="roi_settings" class="collapse mb-3 show roi_input">
-            {% for i in range(10) %}
+            {% for i in range(16) %}
             <!-- roi info -->
             <div id="roi_info_img_{{i}}" {% if i in [0,1]%} class="mt-1 ref_rois" {%else%}
               class="mt-1 comp_rois" {%endif%}>

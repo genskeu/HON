@@ -92,7 +92,8 @@ $(document).ready(function () {
     }
 
     // get infos on picked stack
-    result["picked_stack"] = get_stack_data("dicom_img_" + this.id[this.id.length - 1])
+    const img_id = this.id.match(/\d*$/)[0]
+    result["picked_stack"] = get_stack_data("dicom_img_" + img_id)
 
     //validate roi number
     if (!check_ann_number(result["picked_stack"].tool_state)) {

@@ -25,10 +25,10 @@ $(document).ready(function() {
       data["div_ids_ref"].push("dicom_img_" + i);
     }
 
-    let viewport = cornerstone.getViewport(document.getElementById("dicom_img_10"))
+    let viewport = cornerstone.getViewport(document.getElementById("dicom_img_16"))
     let viewport_ref = viewport
     if($("#ref_viewport_auto").is(":checked")){
-      viewport_ref = cornerstone.getViewport(document.getElementById("dicom_img_11"))
+      viewport_ref = cornerstone.getViewport(document.getElementById("dicom_img_17"))
     }
 
     if(!viewport | ($("#ref_viewport_auto").is(":checked") & !viewport_ref) ){
@@ -121,13 +121,13 @@ $(document).ready(function(){
 
 
 $(document).ready(function(){
-  $("#dicom_img_10").on("ImageDisplayComplete",function(){
+  $("#dicom_img_16").on("ImageDisplayComplete",function(){
     if($("#numb_refimg").val() > 0){
       $("#refstack_settings_auto").fadeIn()
     }
     $("#btn_auto_imgset").fadeIn()
   })
-  $("#dicom_img_10").on("ImageDisplayFailed",function(){
+  $("#dicom_img_16").on("ImageDisplayFailed",function(){
     $("#refstack_settings_auto").fadeOut()
     $("#btn_auto_imgset").fadeOut()
   })
@@ -135,8 +135,8 @@ $(document).ready(function(){
 
 $(document).ready(function(){
   $("#ref_viewport_auto").change(function(){
-    $("#dicom_img_11").toggle()
-    $("#viewport_info_11").toggle()
+    $("#dicom_img_17").toggle()
+    $("#viewport_info_17").toggle()
   })
 })
 
@@ -149,10 +149,10 @@ $(document).ready(function(){
     pos_pattern = $("#pos_pattern").val()
     if(neg_pattern != "" && pos_pattern != ""){
       $("#viewport_settings_auto").fadeIn()
-      $("#viewport_info_10").fadeIn()
+      $("#viewport_info_16").fadeIn()
     } else {
       $("#viewport_settings_auto").fadeOut()
-      $("#viewport_info_10").fadeOut()
+      $("#viewport_info_16").fadeOut()
       $("#refstack_settings_auto").fadeOut()
       $("#btn_auto_imgset").fadeOut()
     }
