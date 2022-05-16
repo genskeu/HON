@@ -95,21 +95,21 @@ $(document).ready(function(){
       $("#row_pos_pattern").fadeOut()
       $("#row_neg_pattern").fadeOut()
       $("#viewport_settings_auto").fadeIn()
-      $("#viewport_info_10").fadeIn()
+      $("#viewport_info_16").fadeIn()
       $("#pos_pattern").val("").change()
       $("#neg_pattern").val("").change()
     } else if ($(this).val() == "afc") {
       $("#row_pos_pattern").fadeIn()
       $("#row_neg_pattern").fadeIn()
       $("#viewport_settings_auto").fadeOut()
-      $("#viewport_info_10").fadeOut()
+      $("#viewport_info_16").fadeOut()
       $("#refstack_settings_auto").fadeOut()
       $("#sel_auto").val("").change()
     } else {
       $("#row_pos_pattern").fadeOut()
       $("#row_neg_pattern").fadeOut()
       $("#viewport_settings_auto").fadeOut()
-      $("#viewport_info_10").fadeOut()
+      $("#viewport_info_16").fadeOut()
       $("#refstack_settings_auto").fadeOut()
       $("#sel_auto").val("").change()
       $("#btn_auto_imgset").fadeOut()
@@ -188,7 +188,9 @@ $(document).ready(() => {
         $("#neg_pattern").append(new Option(pattern, pattern));
       })
     }
-    $("#roi_settings_container").toggle("slow")
+    if($(".tool_select option:selected")[0].value.includes("Roi") | $(".tool_select option:selected")[2].value.includes("Roi")){
+      $("#roi_settings_container").toggle("slow")
+    }
     $.when($("#imgset").toggle("slow")).done(function(){
       $("#imgset_auto").toggle("medium")
     })

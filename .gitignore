@@ -9,3 +9,4 @@
 # vue branch folders
 /backend*
 /frontend*
+.vscode*

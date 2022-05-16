@@ -39,6 +39,7 @@ def register():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
+        access_level = request.form["access_level"]
         error = None
 
         if not username:
@@ -51,7 +52,7 @@ def register():
         if error is None:
             user = User(username=username,
                         password=generate_password_hash(password),
-                        access_level=1)
+                        access_level=access_level)
             db.session.add(user)
             db.session.commit()
             return redirect(url_for("auth.login"))

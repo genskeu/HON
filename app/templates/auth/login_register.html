@@ -14,10 +14,9 @@
         <li>study-participants</li> 
       </ul> 
       <p>  
-        Newly registered users will be study-participants. 
         Their type can be changed by an user-admin. 
         User name and password can be changed at any point by 
-        user-admins or study-participants.  
+        user-admins, study-admins or study-participants.  
       </p>
     </div>
     {% endif %}
@@ -29,6 +28,14 @@
       <div class="form-group">
         <input class="form-control form-control-lg" type="password" name="password" id="password"  placeholder="Password"  required>
       </div>
+      {% if value=="Register" %}
+      <select class="form-group custom-select custom-select-lg" name="access_level" id="access_level">
+        {% set roles = { 1 : "study participant", 2 : "study admin" } %}
+        {% for key in roles.keys() %}
+        <option value="{{key}}">{{roles[key]}}</option>
+        {% endfor %}
+      </select>
+      {% endif %}
       <div class="form-group">
         <input type="submit" value="{{value}}" class="btn-dark btn-lg btn-block">
       </div>
