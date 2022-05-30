@@ -46,7 +46,7 @@ $(document).ready(function () {
     if($(".scale").length == 0){
       index = 0
     } else {
-      index = $(".scale").last().attr("id").match(/\d$/)[0]
+      index = $(".scale").last().attr("id").match(/\d*$/)[0]
       index = Number(index) + 1
     }
     id_names.forEach(function(id){
