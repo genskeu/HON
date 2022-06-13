@@ -1,5 +1,6 @@
 import os
 from flask import Flask
+from flask_cors import CORS
 
 # setup as application factory (recommended in flask tutorial)
 def create_app(config=None):
@@ -13,6 +14,8 @@ def create_app(config=None):
             flask app object
     """
     app = Flask(__name__,instance_relative_config=True)
+    # enable cors requests
+    CORS(app, resources={r"/*": {"origins": "*"}})
     
     # ensure the instance folder exists
     try:

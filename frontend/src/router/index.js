@@ -1,6 +1,11 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import Home from '../views/Home.vue'
 import StudyManagement from '../views/StudyManagement.vue'
+import StudyOverview from '@/components/studyManagement/StudyOverview.vue'
+import StudyMetainfo from '@/components/studyManagement/StudyMetainfo'
+import FileManagement from '@/components/studyManagement/FileManagement'
+import StudyDesign from '@/components/studyManagement/StudyDesign'
+import ResultsOverview from '@/components/resultsManagement/ResultsOverview'
 
 const routes = [
   {
@@ -19,7 +24,39 @@ const routes = [
   {
     path: '/study-management',
     name: 'StudyManagement',
-    component: StudyManagement
+    component: StudyManagement,
+    children: [
+      {
+        path: 'overview',
+        components: {
+          helper: StudyOverview
+        }
+      },
+      {
+        path: 'metainfos',
+        components: {
+          helper: StudyMetainfo
+        }
+      },
+      {
+        path: 'files',
+        components: {
+          helper: FileManagement
+        }
+      },
+      {
+        path: 'design',
+        components: {
+          helper: StudyDesign
+        }
+      },
+      {
+        path: 'results',
+        components: {
+          helper: ResultsOverview
+        }
+      }
+    ]
   }
 ]
 

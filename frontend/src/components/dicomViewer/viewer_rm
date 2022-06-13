@@ -1,0 +1,43 @@
+                                    <div class="col dicom_container"
+                                        id="dicom_container_">
+                                        <div class="card card-block d-flex" style="border:none">
+                                            <div id="overlay_" class="overlay row ww_wc_info" style="display: none;">
+                                                <div class="col-4" id="ww_wc_info_">
+                                                    WW/WC:
+                                                </div>
+                                                <div class="col" id="zoom_info_">
+                                                    Zoom:
+                                                </div>
+                                                <div class="col" id="position_info_">
+                                                    Pos:
+                                                </div>
+                                                <div class="col" id="stack_info_">
+                                                    Stack:
+                                                </div>
+                                            </div>
+                                            <div id="dicom_img_"
+                                                class="dicom_img mx-auto"
+                                                style="width:512px; height:512px;" oncontextmenu="return false">
+                                            </div>
+                                            <div class="card-body mx-auto">
+                                                <!-- select menu to load image-->
+                                                <div class="row mx-auto" title="Select an image to display it.">
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text" for="tools"></span>
+                                                        </div>
+                                                        <select id="sel_" class="sel_image custom-select">
+                                                            <option value="" selected></option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row mx-auto">
+                                                    <h4 class="mx-auto" style="text-align:center;">
+                                                        <button style="white"
+                                                            class="btn btn-success vote_button mx-auto"></button>
+                                                    </h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>

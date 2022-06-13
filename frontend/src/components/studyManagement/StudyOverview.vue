@@ -1,26 +1,10 @@
 <template>
   <div class="container">
-        <div class="row mx-auto">
-            <form action="" method="get">
-                <input type="submit" class="btn btn-secondary mr-2" value="Access Study" data-toggle="tooltip"
-                    data-placement="left"
-                    title="Access any study for which you have the login. This functionality was included for study-admins for testing purposes.">
-            </form>
-            <form action="" method="get">
-                <input type="submit" class="btn btn-success" value="Create New Study" data-toggle="tooltip"
-                    data-placement="left" title="Study creation is a 3 step process:
-      1) Study name, access password, and description are selected.
-      2) Study images are uploaded.
-      3) Study design is finalized by customizing layout, image display and annotation options.">
-            </form>
+        <div class="row mx-auto mt-4">
+          <router-link to="/study-management/metaInfos" @click="createStudy">Create New Study
+          </router-link>
         </div>
-        <div class="row mx-auto mt-2">
-            <button type="button" class="btn btn-dark btn-block" data-toggle="collapse" data-target="#studies_ov"
-                aria-expanded="true" aria-controls="studies_ov">
-                <h4 class="col-12 mt-1">Studies &#9776;</h4>
-            </button>
-        </div>
-        <div class="row mx-auto collapse show" id="studies_ov">
+        <div class="row mx-auto collapse show mt-4" id="studies_ov">
             <table class="table table-hover">
                 <thead class="thead-light">
                     <tr>
@@ -33,14 +17,19 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td class="align-middle"></td>
-                        <td class="align-middle"></td>
-                        <td class="align-middle"></td>
-                        <td class="align-middle"></td>
+                    <tr v-for="study in get_studies" :key="study.id">
+                        <td class="align-middle">{{study.title}}</td>
+                        <td class="align-middle">{{study.id}}</td>
+                        <td class="align-middle">{{study.created}}</td>
+                        <td class="align-middle">{{study.updated}}</td>
+                        <td>
+                            <router-link to="/study-management/metaInfos">
+                                <button class="btn-success btn-sm" @click="openStudy(study.id)">edit</button>
+                            </router-link>
+                        </td>
                         <td>
                             <form class="" action="" method="get">
-                                <button class="btn-secondary btn-sm">modify</button>
+                                <button class="btn-primary btn-sm">results</button>
                             </form>
                         </td>
                         <td>
@@ -56,7 +45,24 @@
 
 <script>
 export default {
-  name: 'StudyOverview'
+  name: 'StudyOverview',
+  data () {
+    return {
+    }
+  },
+  methods: {
+    createStudy () {
+      this.$store.commit('addStudy')
+    },
+    openStudy (id) {
+      this.$store.commit('openStudy', id)
+    }
+  },
+  computed: {
+    get_studies () {
+      return this.$store.state.studies
+    }
+  }
 }
 </script>
 

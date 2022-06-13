@@ -1,7 +1,9 @@
+from crypt import methods
 import os
 import shutil
 import json
 from datetime import datetime
+from urllib import response
 from flask import (
     Blueprint, flash, redirect, render_template, request, url_for,
     jsonify, current_app, g, session
@@ -17,10 +19,10 @@ bp = Blueprint("studies", __name__)
 
 # study overview
 @bp.route('/')
-@bp.route('/studies/overview')
-@login_required
-@access_level_required([2])
-def overview():
+@bp.route('/studies', methods =['GET'])
+#@login_required
+#@access_level_required([2])
+def get_studies(user_id=6):
     """
         display all studies created by a user
         Args:
@@ -28,8 +30,11 @@ def overview():
         Returns:
             study overview html
     """
-    studies = Study.query.filter_by(user_id=g.user.id).all()
-    return render_template("studies/overview.html", studies=studies)
+    studies = Study.query.filter_by(user_id=user_id).all()
+    studies = [study.to_dict() for study in studies]
+    response = {}
+    response["studies"] = studies
+    return response
 
 
 # create and modify studies

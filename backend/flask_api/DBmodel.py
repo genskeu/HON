@@ -87,6 +87,21 @@ class Study(db.Model):
     user_study_progress = db.relationship("User_study_progress", backref="study",
                                            lazy=True, cascade="all, delete-orphan")
 
+    def to_dict(self):
+            study_dict = {}
+            study_dict["id"] = self.id
+            study_dict["user_id"] = self.user_id
+            study_dict["created"] = self.created
+            study_dict["updated"] = self.updated
+            study_dict["title"] = self.title
+            study_dict["description"] = self.description
+            study_dict["design"] = self.design.to_dict()
+            study_dict["images"] = [image.to_dict() for image in self.images]
+            study_dict["imgsets"] = [imgset.to_dict() for imgset in self.imgsets]
+
+            return study_dict
+
+
     def get_cs_stack_by_imageIds(self, image_ids):
         cs_stack = {"imageIds":[],
                     "currentImageIdIndex":0}
@@ -264,7 +279,6 @@ class Study(db.Model):
 
         return imgsets,error
         
-
 class Imgset_config:
     def __init__(self,config_dict):
         self.pos_pattern = config_dict["pos_pattern"] 
@@ -315,6 +329,28 @@ class Design(db.Model):
     scales = db.relationship("Scale", lazy=True, cascade="all, delete-orphan")
     tools = db.relationship("Tool", lazy=True, cascade="all, delete-orphan")
 
+    def to_dict(self):
+            design_dict = {}
+            design_dict["id"] = self.id
+            design_dict["study_id"] = self.study_id
+            design_dict["instructions"] = self.instructions
+            design_dict["button_labels"] = self.button_labels
+            design_dict["background_color"] = self.background_color
+            design_dict["text_color"] = self.text_color
+            design_dict["numb_img"] = self.numb_img
+            design_dict["numb_refimg"] = self.numb_refimg
+            design_dict["img_width"] = self.img_width
+            design_dict["img_height"] = self.img_height
+            design_dict["numb_rois"] = self.numb_rois
+            design_dict["show_viewport_info"] = self.show_viewport_info
+            design_dict["transition_time"] = self.transition_time
+            design_dict["randomize_order"] = self.randomize_order
+            design_dict["scales"] = [scale.to_dict() for scale in self.scales]
+            design_dict["tools"] = [tool.to_dict() for tool in self.tools]
+
+
+            return design_dict
+
 
     def get_defaults(self):
         """
@@ -355,6 +391,16 @@ class Scale(db.Model):
     text = db.Column(db.String(1000))
     type = db.Column(db.String(20))
 
+    def to_dict(self):
+            scale_dict = {}
+            scale_dict["id"] = self.id
+            scale_dict["design_id"] = self.design_id
+            scale_dict["min"] = self.min
+            scale_dict["max"] = self.max
+            scale_dict["text"] = self.text
+            scale_dict["type"] = self.type
+
+            return scale_dict
 
 class Tool(db.Model):
     """
@@ -375,6 +421,18 @@ class Tool(db.Model):
     key_binding = db.Column(db.String(120))
     status = db.Column(db.String(120))
     settings = db.Column(db.String(120))
+
+    def to_dict(self):
+            tool_dict = {}
+            tool_dict["id"] = self.id
+            tool_dict["design_id"] = self.design_id
+            tool_dict["cs_name"] = self.cs_name
+            tool_dict["label"] = self.label
+            tool_dict["key_binding"] = self.key_binding
+            tool_dict["status"] = self.status
+            tool_dict["settings"] = self.settings
+
+            return tool_dict
 
 
 class Result(db.Model):
@@ -480,11 +538,21 @@ class Image(db.Model):
     base_url = db.Column(db.String(1000))
     name = db.Column(db.String(120))
 
+    def to_dict(self):
+        dict = {}
+        dict["id"] = self.id
+        dict["base_url"] = self.base_url
+        dict["name"] = self.name
+    
+        return dict
+
+
 #table for m to n relationships (image_stacks - images)
 stack_images = db.Table("stack_images",
     db.Column("image_stack_id",db.Integer, db.ForeignKey("image_stack.id"), primary_key=True),
     db.Column("image_id",db.Integer, db.ForeignKey("image.id"), primary_key=True)
 )
+    
 
 
 class Image_stack(db.Model):
