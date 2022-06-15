@@ -9,7 +9,7 @@
         <router-link v-if="study_open" to="/study-management/results" class="nav-link">Results</router-link>
       </div>
     </div>
-    <router-view name="helper" class="">
+    <router-view name="helper" id="router_helper_view">
     </router-view>
   </div>
 </template>
@@ -49,6 +49,10 @@ export default {
 
 <style scoped>
 #study_management {
-    height:calc(100% - 110px); /*both html and body*/
+    height:calc(100% - 60px); /*both html and body*/
+}
+
+#router_helper_view {
+  height: calc(100% - 110px);
 }
 </style>

@@ -18,6 +18,9 @@ export default createStore({
     updateStudyDesc (state, studyDesc) {
       state.open_study.description = studyDesc
     },
+    updateNumbViewer (state, numbViewer) {
+      state.open_study.design.numb_img = numbViewer
+    },
     closeStudy () {
       this.state.open_study = undefined
     }

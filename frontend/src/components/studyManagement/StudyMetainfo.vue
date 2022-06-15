@@ -1,5 +1,5 @@
 <template>
-  <div class="container h-100">
+  <div class="container">
     <div class="row h-100">
       <div class="col-12 my-auto">
         <div class="form-horizontal" id="study_data">

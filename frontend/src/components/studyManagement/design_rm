@@ -1,4 +1,25 @@
-                    <button id="imgset_creation_mode" class="btn btn-info col-6 mb-2" data-bs-toggle="tooltip"
+                       <!-- Sidebar for ImgSets (left)
+                                <div class="col-lg-2">
+                                    <div class="row mx-auto sticky-top" style="top:4em;">
+                                        <button class="btn btn-dark col-12 mb-2 sticky-top" data-bs-toggle="collapse"
+                                            data-bs-target="#sidebar" aria-expanded="true" aria-controls="sidebar" data-placement="left"
+                                            title="Image-Sets that will be shown to users during the study.
+                    The currently selected image-set will be highlited green.">
+                                            <h4 class="w-100 mt-1" id="imgset_btn">Image-Sets &#9776;</h4>
+                                        </button>
+                                    </div>
+                                    <div class="sidebar_own sticky-top bg-secondary collapse show" id="sidebar">
+                                        <div class="row">
+                                            <button class='imgset btn btn-light col-lg-12' id="imgset_"
+                                                action="">
+                                                Image Set
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div> --> 
+                  
+                  
+                  <button id="imgset_creation_mode" class="btn btn-info col-6 mb-2" data-bs-toggle="tooltip"
                         data-placement="left" title="Click to change mode.
 
 Mode manual:

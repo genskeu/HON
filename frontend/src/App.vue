@@ -1,5 +1,5 @@
 <template >
-  <div class="h-100">
+  <div class="h-full">
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark ms-auto mb-2 mb-lg-0" id="navbar">
       <div class="container-fluid">
