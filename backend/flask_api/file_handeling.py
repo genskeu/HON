@@ -9,8 +9,8 @@ from .auth import login_required, access_level_required
 # return files on request
 bp = Blueprint("file_handeling", __name__)
 @bp.route("/get_file/<int:user_id>/<int:study_id>/<image_name>",methods=['GET'])
-@login_required
-@access_level_required([1,2])
+#@login_required
+#@access_level_required([1,2])
 def get_file(user_id,study_id,image_name):
     file_path = os.path.join(current_app.config['IMAGE_PATH'],str(user_id),str(study_id),image_name)
     if os.path.isfile(file_path):

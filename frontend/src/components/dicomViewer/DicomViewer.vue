@@ -42,7 +42,7 @@
           class='bg-gray-50 border border-gray-300 text-gray-900 grow text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
           @change='loadStackOnSelect'>
           <option></option>
-          <option v-for='stack in stackNames.sort()' :key='stack'>
+          <option v-for='stack in getStacknames.sort()' :key='stack'>
             {{ stack }}
           </option>
         </select>
@@ -110,6 +110,18 @@ export default {
   computed: {
     getMasknames () {
       return this.gt_masks.concat(this.pred_masks)
+    },
+    getStacknames () {
+      if (this.$store.state.open_study) {
+        const imageNames = this.$store.state.open_study.images.map(
+          obj => {
+            return obj.name
+          }
+        )
+        return imageNames
+      } else {
+        return []
+      }
     }
   },
   watch: {},
@@ -177,9 +189,11 @@ export default {
     },
     loadStackOnSelect (event) {
       const stackName = event.target.value
+      const baseUrl = this.$store.state.open_study.images.find(image => image.name === stackName).base_url.replace('127.0.0.1', 'localhost:5000')
       if (stackName !== '') {
-        const data = this.$store.getters['input/getStackData'](stackName)
-        const stacks = this.parseImagesCornerstone(data.data)
+        const data = { name: stackName, size: 0, data: [stackName] }
+        const stacks = this.parseImagesCornerstone(data.data, baseUrl)
+        console.log(stacks)
         this.loadDisplayCornerstone(stacks[0], stacks[1], 'input').then(() => {
           this.setMetaData('input')
           this.filterMasks(stackName)
@@ -202,20 +216,11 @@ export default {
         }
       }
     },
-    parseImagesCornerstone (images) {
+    parseImagesCornerstone (images, baseUrl) {
       const scheme = 'wadouri'
-      const baseUrl = 'http://localhost:5000'
-      var dataType = ''
-      var folder = ''
-      dataType = 'input'
-      folder = images[0].split('/')[0]
-      const series = []
-      for (var image of images.sort()) {
-        series.push(image.split('/').pop())
-      }
-      const imageIds = series.map(
-        (seriesImage) =>
-         `${scheme}:${baseUrl}/uploads/${dataType}/${folder}/${seriesImage}`
+      const imageIds = images.map(
+        (image) =>
+         `${scheme}:${baseUrl}${image}`
       )
       const stack = {
         currentImageIdIndex: 0,

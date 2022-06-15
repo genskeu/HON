@@ -21,7 +21,8 @@ services:
       # debug port vscode
       - 5678:5678
     volumes:
-      - './backend/:/home/backend/'
+      - './backend/:/home/backend/'      
+      - './instance:/home/backend/instance'
     stdin_open: true
     tty: true
     # setup to develop and debug with vs code

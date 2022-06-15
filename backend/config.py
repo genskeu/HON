@@ -9,19 +9,19 @@ class DevelopmentConfig(Config):
     SECRET_KEY = "dev-key"
     #IMAGE_PATH = "/home/HON/instance/images_dev"
     #SQLALCHEMY_DATABASE_URI = "sqlite://////home/HON/instance/dev.db"
-    IMAGE_PATH = "/home/HON/instance/images_prod"
+    IMAGE_PATH = "/home/backend/instance/images_prod"
     SQLALCHEMY_DATABASE_URI = "mysql://genskeu:zxmdv21@host.docker.internal/phantomx"
     DEBUG = True
 
 class ProductionConfig(Config):
     SECRET_KEY = "prod-key"
-    IMAGE_PATH = "/home/HON/instance/images_prod"
+    IMAGE_PATH = "/home/backend/instance/images_prod"
     SQLALCHEMY_DATABASE_URI = "mysql://genskeu:zxmdv21@host.docker.internal/phantomx"
     DEBUG = False
 
 class TestingConfig(Config):
     SECRET_KEY = "test-key"
-    IMAGE_PATH = "/home/HON/instance/images_test"
+    IMAGE_PATH = "/home/backend/instance/images_test"
     SQLALCHEMY_DATABASE_URI = "sqlite://////home/HON/instance/test.db"
     TESTING = True
 
