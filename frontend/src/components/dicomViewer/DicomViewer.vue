@@ -1,5 +1,5 @@
 <template>
-  <div class='relative grid grid-rows-6 grid-cols-1' @cornerstoneimagerendered.capture='displayStackIndex'>
+  <div class='relative grid grid-rows-6 grid-cols-1' @cornerstoneimagerendered.capture='displayStackIndex' style="min-height: 520px;">
     <!-- image viewer -->
     <div ref='viewer' class='dicom_viewer row-span-5 col-span-1 relative'>
       <!-- metadata viewer -->

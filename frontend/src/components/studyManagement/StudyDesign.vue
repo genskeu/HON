@@ -2,38 +2,42 @@
   <div class="container-fluid mt-4" id="content">
     <div class="row mx-auto h-100">
       <!-- Imgsets -->
-      <div class="col-lg-10 mb-2 h-100">
-        <div class="row w-100 mx-auto">
+      <div class="col-lg-10 mb-2 h-100" id="imgset_creation">
+        <div class="row w-100 mx-auto mb-2" id = "imgset_creation_title">
           <button
             class="btn btn-dark mb-2"
             data-bs-toggle="collapse"
-            data-bs-target="#imgset_creation"
+            data-bs-target="#imgset_creation_content"
             aria-expanded="true"
-            aria-controls="imgset_creation"
-          >
+            aria-controls="imgset_creation_content">
             <h4 class="mt-1">Image Sets &#9776;</h4>
           </button>
         </div>
         <!-- Create Image Sets -->
-        <div id="imgset_creation" class="collapse show row mx-auto">
+        <div class="show collapse row w-100 mx-auto" id = "imgset_creation_content">
           <!-- Display warning if the study already started (results are present)
                                  User can still modify design but should be aware that this can cause bugs
                                 -->
-          <div id="imgset" class="w-100">
+          <div id="imgset" class="min-h-100">
             <!--Images -->
             <!-- <div id="ref_images">
               <span class="badge bg-secondary w-100 mb-2">
                 <h4 class="mt-1">Reference Image Stack(s)</h4>
               </span>
             </div> -->
-              <span class="badge bg-secondary w-100 mb-2">
-                <h4 class="mt-1">Image Stack(s)</h4>
+              <span class="badge bg-secondary mx-auto w-100 mb-2">
+                <h4 class="mt-1">Reference-Stack(s)</h4>
               </span>
-                <div id="comp_images" class="relative grid flex grid-cols-1 grid-rows-1">
-                    <dicom-viewer v-for="index in viewerNumb" :key="index"></dicom-viewer>
-                </div>
+              <div id="ref-stacks" class="relative grid grid-cols-2 grid-rows-1">
+              </div>
+              <span class="badge bg-secondary w-100 mb-2">
+                <h4 class="mt-1">Stack(s)</h4>
+              </span>
+              <div id="stacks" class="relative grid flex grid-cols-2 grid-rows-1">
+                <dicom-viewer v-for="index in viewerNumb" :key="index"></dicom-viewer>
+              </div>
             <!-- modify buttons -->
-            <div id="imgset_buttons">
+            <div id="imgset_creation_buttons">
               <div class="row mt-3 mb-2">
                 <div class="col-lg-12 text-center">
                   <button
@@ -74,33 +78,23 @@
       <!-- sidebar for design, viewport settings, scales etc (rigth) -->
       <div class="col-lg-2">
         <!-- Design Settings -->
-        <div class="row mx-auto">
+        <div class="row mx-auto" id="design_settings_title">
           <button
             class="btn btn-dark col-12 mb-1"
             data-bs-toggle="collapse"
-            data-bs-target="#design_settings"
+            data-bs-target="#design_settings_content"
             title="Click on the sections to expand the sub-menus.
                     Study design options were divided into general settings, tools, instructions and scales.
                     After changing any design options dont forget to press the Save Design button.
                               "
             aria-expanded="true"
-            aria-controls="design_settings"
+            aria-controls="design_settings_content"
           >
             <h4 class="w-100 mt-1">Design Options &#9776;</h4>
           </button>
         </div>
-        <div id="design_settings" class="collapse show">
-          <!-- Save Design Settings -->
-          <form method="post">
-            <div class="form-group">
-              <input
-                class="btn btn-light btn-lg btn-block mt-1 w-100"
-                type="button"
-                id="submit_design"
-                value="Save Design"
-              />
-            </div>
-          </form>
+        <div id="design_settings_content" class="collapse show">
+          <GeneralSettings></GeneralSettings>
         </div>
       </div>
     </div>
@@ -109,19 +103,18 @@
 
 <script>
 import DicomViewer from '@/components/dicomViewer/DicomViewer.vue'
+import GeneralSettings from '@/components/studyManagement/studyDesignTools/GeneralSettings.vue'
 
 export default {
   name: 'Design',
   components: {
-    DicomViewer
+    DicomViewer,
+    GeneralSettings
   },
   computed: {
     viewerNumb: {
       get () {
         return this.$store.state.open_study ? Number(this.$store.state.open_study.design.numb_img) : undefined
-      },
-      set (value) {
-        this.$store.commit('updateNumbViewer', value)
       }
     }
   }
@@ -129,4 +122,10 @@ export default {
 </script>
 
 <style>
+#imgset_creation_title {
+  height: 5%;
+}
+#imgset_creation_content {
+  height: 95%;
+}
 </style>

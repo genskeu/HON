@@ -347,6 +347,8 @@ class Design(db.Model):
             design_dict["randomize_order"] = self.randomize_order
             design_dict["scales"] = [scale.to_dict() for scale in self.scales]
             design_dict["tools"] = [tool.to_dict() for tool in self.tools]
+            design_dict["layout_img_col"] = 1
+            design_dict["layout_img_rows"] = 1
 
 
             return design_dict
