@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid mt-4" id="content">
+  <div class="container-fluid pt-4 h-100" id="content" :style="cssStyle">
     <div class="row mx-auto h-100">
       <!-- Imgsets -->
       <div class="col-lg-10 mb-2 h-100" id="imgset_creation">
@@ -18,7 +18,7 @@
           <!-- Display warning if the study already started (results are present)
                                  User can still modify design but should be aware that this can cause bugs
                                 -->
-          <div id="imgset" class="min-h-100">
+          <div id="imgset" class="min-h-100 mx-auto px-0 w-100">
             <!--Images -->
             <!-- <div id="ref_images">
               <span class="badge bg-secondary w-100 mb-2">
@@ -28,12 +28,13 @@
               <span class="badge bg-secondary mx-auto w-100 mb-2">
                 <h4 class="mt-1">Reference-Stack(s)</h4>
               </span>
-              <div id="ref-stacks" class="relative grid grid-cols-2 grid-rows-1">
+              <div id="ref-stacks" :class="refviewerLayout">
+                <dicom-viewer v-for="index in refviewerNumb" :key="index"></dicom-viewer>
               </div>
               <span class="badge bg-secondary w-100 mb-2">
                 <h4 class="mt-1">Stack(s)</h4>
               </span>
-              <div id="stacks" class="relative grid flex grid-cols-2 grid-rows-1">
+              <div id="stacks" :class="viewerLayout">
                 <dicom-viewer v-for="index in viewerNumb" :key="index"></dicom-viewer>
               </div>
             <!-- modify buttons -->
@@ -96,6 +97,9 @@
         <div id="design_settings_content" class="collapse show">
           <GeneralSettings></GeneralSettings>
         </div>
+        <div>
+          <DicomViewportControl v-for="index in viewerNumb" :key="index"></DicomViewportControl>
+        </div>
       </div>
     </div>
   </div>
@@ -103,19 +107,64 @@
 
 <script>
 import DicomViewer from '@/components/dicomViewer/DicomViewer.vue'
-import GeneralSettings from '@/components/studyManagement/studyDesignTools/GeneralSettings.vue'
+import GeneralSettings from '@/components/studyDesign/GeneralSettings.vue'
+import DicomViewportControl from '@/components/dicomViewer/DicomViewportControl.vue'
 
 export default {
   name: 'Design',
   components: {
     DicomViewer,
-    GeneralSettings
+    GeneralSettings,
+    DicomViewportControl
   },
   computed: {
-    viewerNumb: {
-      get () {
-        return this.$store.state.open_study ? Number(this.$store.state.open_study.design.numb_img) : undefined
+    viewerNumb () {
+      return this.$store.getters.viewerNumb
+    },
+    viewerLayout () {
+      var gridClass = {
+        flex: true,
+        relative: true,
+        grid: true,
+        'grid-cols-5': this.$store.getters.viewerLayoutCols === 5,
+        'grid-cols-4': this.$store.getters.viewerLayoutCols === 4,
+        'grid-cols-3': this.$store.getters.viewerLayoutCols === 3,
+        'grid-cols-2': this.$store.getters.viewerLayoutCols === 2,
+        'grid-cols-1': this.$store.getters.viewerLayoutCols === 1,
+        'grid-rows-5': this.$store.getters.viewerLayoutRows === 5,
+        'grid-rows-4': this.$store.getters.viewerLayoutRows === 4,
+        'grid-rows-3': this.$store.getters.viewerLayoutRows === 3,
+        'grid-rows-2': this.$store.getters.viewerLayoutRows === 2,
+        'grid-rows-1': this.$store.getters.viewerLayoutRows === 1
       }
+      return gridClass
+    },
+    refviewerNumb () {
+      return this.$store.getters.refviewerNumb
+    },
+    refviewerLayout () {
+      var gridClass = {
+        flex: true,
+        relative: true,
+        grid: true,
+        'gap-2': true,
+        'grid-cols-1': this.$store.getters.refviewerNumb === 1,
+        'grid-cols-2': this.$store.getters.refviewerNumb === 2,
+        'grid-rows-1': true
+      }
+      return gridClass
+    },
+    cssStyle () {
+      return {
+        'background-color': this.$store.getters.backgroundColor,
+        color: this.$store.getters.textColor
+      }
+    }
+  },
+  watch: {
+    backgroundColor (oldColor, newColor) {
+      console.log(oldColor)
+      console.log(newColor)
     }
   }
 }

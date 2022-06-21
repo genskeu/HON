@@ -36,7 +36,7 @@
     <!-- image and mask selector -->
     <div class='flex items-center row-span-1 col-span-1 animate-fade-in-up'>
       <div class='flex grow items-center mr-2'>
-        <label class='block text-sm font-medium text-gray-900 dark:text-gray-400'>Select your Image:
+        <label class='block text-sm font-medium'>Select your Image:
         </label>
         <select ref='image_select_id'
           class='bg-gray-50 border border-gray-300 text-gray-900 grow text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
@@ -47,7 +47,7 @@
           </option>
         </select>
       </div>
-      <div class='flex grow items-center'>
+      <!-- <div class='flex grow items-center'>
         <label class='block text-sm font-medium text-gray-900 dark:text-gray-400'>Select your Mask:
         </label>
 
@@ -64,7 +64,7 @@
             {{ mask }}
           </option>
         </select>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>

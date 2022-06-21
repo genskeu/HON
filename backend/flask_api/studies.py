@@ -4,6 +4,7 @@ import shutil
 import json
 from datetime import datetime
 from urllib import response
+from xml.etree.ElementInclude import include
 from flask import (
     Blueprint, flash, redirect, render_template, request, url_for,
     jsonify, current_app, g, session
@@ -39,13 +40,13 @@ def get_studies(user_id=6):
 
 # create and modify studies
 # should be seperated into html render and json api
-@bp.route('/study/create', methods=['GET'], defaults={'id': None})
-@bp.route('/study/update/<int:id>', methods=['GET'])
-@login_required
-@access_level_required([2])
-def get_study(id):
-    study = Study.query.filter_by(id=id).first()
-    return render_template("studies/create.html", study=study)
+# @bp.route('/study/create', methods=['GET'], defaults={'id': None})
+# @bp.route('/study/update/<int:id>', methods=['GET'])
+# @login_required
+# @access_level_required([2])
+# def get_study(id):
+#     study = Study.query.filter_by(id=id).first()
+#     return render_template("studies/create.html", study=study)
 
 
 
@@ -92,6 +93,15 @@ def create_study():
         status_code = 400
 
     return jsonify(response), status_code
+
+@bp.route('/study/<int:id>', methods=['GET'])
+#@login_required
+#@access_level_required([2])
+def get_study(id):
+    study = Study.query.filter_by(id=id).first()
+    response = {}
+    response["study"] = study.to_dict(include_images=True,include_imagesets=True)
+    return response        
 
 
 @bp.route('/study/<int:id>', methods=['PUT'])

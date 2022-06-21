@@ -1,11 +1,11 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import Home from '../views/Home.vue'
-import StudyManagement from '../views/StudyManagement.vue'
-import StudyOverview from '@/components/studyManagement/StudyOverview.vue'
-import StudyMetainfo from '@/components/studyManagement/StudyMetainfo'
-import FileManagement from '@/components/studyManagement/FileManagement'
-import StudyDesign from '@/components/studyManagement/StudyDesign'
-import ResultsOverview from '@/components/resultsManagement/ResultsOverview'
+import StudyManagement from '@/views/studyAdmin/StudyManagement.vue'
+import StudyOverview from '@/views/studyAdmin/StudyOverview.vue'
+import StudyMetainfo from '@/views/studyAdmin/studyManagement/StudyMetainfo'
+import FileManagement from '@/views/studyAdmin/studyManagement/FileManagement'
+import StudyDesign from '@/views/studyAdmin/studyManagement/StudyDesign'
+import ResultsOverview from '@/views/studyAdmin/studyManagement/ResultsOverview'
 
 const routes = [
   {
@@ -22,36 +22,39 @@ const routes = [
     component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
   },
   {
-    path: '/study-management',
+    path: '/study-overview',
+    name: 'StudyOverview',
+    component: StudyOverview
+  },
+  {
+    path: '/study-management/:id',
     name: 'StudyManagement',
     component: StudyManagement,
     children: [
       {
-        path: 'overview',
-        components: {
-          helper: StudyOverview
-        }
-      },
-      {
         path: 'metainfos',
+        name: 'StudyMetainfos',
         components: {
           helper: StudyMetainfo
         }
       },
       {
         path: 'files',
+        name: 'StudyFiles',
         components: {
           helper: FileManagement
         }
       },
       {
         path: 'design',
+        name: 'StudyDesign',
         components: {
           helper: StudyDesign
         }
       },
       {
         path: 'results',
+        name: 'StudyResults',
         components: {
           helper: ResultsOverview
         }

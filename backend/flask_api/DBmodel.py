@@ -87,7 +87,7 @@ class Study(db.Model):
     user_study_progress = db.relationship("User_study_progress", backref="study",
                                            lazy=True, cascade="all, delete-orphan")
 
-    def to_dict(self):
+    def to_dict(self,include_images=False, include_imagesets=False):
             study_dict = {}
             study_dict["id"] = self.id
             study_dict["user_id"] = self.user_id
@@ -96,8 +96,10 @@ class Study(db.Model):
             study_dict["title"] = self.title
             study_dict["description"] = self.description
             study_dict["design"] = self.design.to_dict()
-            study_dict["images"] = [image.to_dict() for image in self.images]
-            study_dict["imgsets"] = [imgset.to_dict() for imgset in self.imgsets]
+            if include_images:
+                study_dict["images"] = [image.to_dict() for image in self.images]
+            if include_imagesets:
+                study_dict["imgsets"] = [imgset.to_dict() for imgset in self.imgsets]
 
             return study_dict
 
@@ -347,7 +349,7 @@ class Design(db.Model):
             design_dict["randomize_order"] = self.randomize_order
             design_dict["scales"] = [scale.to_dict() for scale in self.scales]
             design_dict["tools"] = [tool.to_dict() for tool in self.tools]
-            design_dict["layout_img_col"] = 1
+            design_dict["layout_img_cols"] = 1
             design_dict["layout_img_rows"] = 1
 
 

@@ -11,7 +11,7 @@
         <div class="collapse navbar-collapse text-right ms-auto bg-dark" id="navbarResponsive">
           <ul class="navbar-nav ms-auto" id="navlinks">
             <li class="nav-item">
-              <router-link to="/study-management/overview" class="nav-link">Studies Overview</router-link>
+              <router-link to="/study-overview" class="nav-link">Studies Overview</router-link>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="">User Profile</a>

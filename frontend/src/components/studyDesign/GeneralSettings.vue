@@ -11,34 +11,30 @@
     <div id="general_settings_content" class="collapse show">
       <div class="mx-auto">
         <div class="input-group mx-auto" title="Controls max number of reference images">
-          <label for="numb_refimg" class="input-group-text w-50">Ref-Image #</label>
-          <select class="form-select" id="numb_refimg">
-            <option value=""></option>
+          <label for="numb_refimg" class="input-group-text w-50">RefImg Viewer #</label>
+          <select class="form-select" id="numb_refimg" v-model="refviewerNumb">
+            <option v-for="n in 3" :key="n-1">{{n-1}}</option>
           </select>
         </div>
 
         <div class="input-group mx-auto" title="Controls max number of images">
-          <label for="numb_img" class="input-group-text w-50">Image #</label>
+          <label for="numb_img" class="input-group-text w-50">Img Viewer #</label>
           <select class="form-select" id="numb_img" v-model="viewerNumb">
-            <option v-for="n in 20" :key="n">{{n}}</option>
+            <option v-for="n in 25" :key="n">{{n}}</option>
           </select>
         </div>
 
         <div class="input-group mx-auto my-auto" title="Controls max number of images">
-          <label for="numb_img" class="input-group-text w-50">Image Layout</label>
-          <select class="form-select" id="numb_img">
-            <option v-for="n in 5" :key="n">{{n}}</option>
-          </select>
-          x
-          <select class="form-select" id="numb_img">
-            <option v-for="n in 5" :key="n">{{n}}</option>
-          </select>
+          <label for="numb_img" class="input-group-text w-50">Viewer Layout</label>
+          <input type="number" min="1" max="5" class="form-control" id="numb_img_cols" v-model="viewerLayoutCols"/>
+          <label for="numb_img" class="input-group-text">x</label>
+          <input type="number" min="1" max="5" class="form-control" id="numb_img_rows" v-model="viewerLayoutRows"/>
         </div>
 
         <!-- window size -->
         <div class="input-group mx-auto"
           title="Controls the size (width, height) of the screen section used for displaying images.">
-          <label class="input-group-text w-50">Viewport-Size</label>
+          <label class="input-group-text w-50">Viewer Size</label>
           <input id="img_width" type="Number" step="any" class="image_size form-control" placeholder="width" />
           <input id="img_height" type="Number" step="any" class="image_size form-control" placeholder="height" />
         </div>
@@ -48,30 +44,30 @@
                     before evaluating the next picture.
                     Set to 0 to allow any number.">
           <label for="numb_rois" class="input-group-text w-50">Annotation #</label>
-          <input class="form-control" type="Number" step="any" id="numb_rois" min="0" />
+          <input class="form-control" type="Number" step="any" id="numb_rois" min="0" v-model="roiNumb" />
         </div>
 
         <div class="input-group mx-auto">
           <label class="input-group-text w-50">Text Color</label>
-          <input class="form-control" type="text" id="text_color" placeholder="Text-Color (Hex or Name)" value="" />
+          <input class="form-control" type="text" id="text_color" placeholder="Text-Color (Hex or Name)" v-model="textColor" />
         </div>
 
         <div class="input-group mx-auto">
           <label class="input-group-text w-50">BG Color</label>
           <input class="form-control" type="text" id="background_color" placeholder="Background-Color (Hex or Name)"
-            value="" />
+            v-model="backgroundColor" />
         </div>
 
         <div class="input-group mx-auto" title="Time (sec) the screen will be blank between two image-sets.">
           <label class="input-group-text w-50">Transition Time</label>
           <input class="form-control" type="number" min="0" name="instructions" id="transition_time" placeholder="sec"
-            value="" />
+            v-model="transitionTime" />
         </div>
 
         <div class="row input-group mx-auto"
           title="Controls the text of the buttons displayed beneath each image to continue to the next image-set.">
           <label class="input-group-text w-50">Button Label</label>
-          <input class="form-control" type="text" name="buttonLabels" id="button_labels" placeholder="Btn Label" />
+          <input class="form-control" type="text" name="buttonLabels" id="button_labels" placeholder="Btn Label" v-model="buttonLabels" />
         </div>
 
         <div class="input-group row mx-auto"
@@ -93,20 +89,76 @@
 <script>
 export default {
   computed: {
-    viewerNumb: {
+    refviewerNumb: {
       get () {
-        return this.$store.state.open_study ? Number(this.$store.state.open_study.design.numb_img) : undefined
+        return this.$store.getters.refviewerNumb
       },
       set (value) {
-        this.$store.commit('updateNumbViewer', value)
+        this.$store.commit('refviewerNumber', value)
       }
     },
-    viewerLayoutColNumb: {
+    viewerNumb: {
       get () {
-        return this.$store.state.open_study ? Number(this.$store.state.open_study.design.layout_img_col) : undefined
+        return this.$store.getters.viewerNumb
       },
       set (value) {
-        this.$store.commit('updateViewerLayoutColNumb', value)
+        this.$store.commit('viewerNumber', value)
+      }
+    },
+    viewerLayoutCols: {
+      get () {
+        return this.$store.getters.viewerLayoutCols
+      },
+      set (value) {
+        this.$store.commit('viewerLayoutCols', value)
+      }
+    },
+    viewerLayoutRows: {
+      get () {
+        return this.$store.getters.viewerLayoutRows
+      },
+      set (value) {
+        this.$store.commit('viewerLayoutRows', value)
+      }
+    },
+    roiNumb: {
+      get () {
+        return this.$store.getters.roiNumb
+      },
+      set (value) {
+        this.$store.commit('roiNumb', value)
+      }
+    },
+    backgroundColor: {
+      get () {
+        return this.$store.getters.backgroundColor
+      },
+      set (value) {
+        this.$store.commit('backgroundColor', value)
+      }
+    },
+    textColor: {
+      get () {
+        return this.$store.getters.textColor
+      },
+      set (value) {
+        this.$store.commit('textColor', value)
+      }
+    },
+    transitionTime: {
+      get () {
+        return this.$store.getters.transitionTime
+      },
+      set (value) {
+        this.$store.commit('transitionTime', value)
+      }
+    },
+    buttonLabels: {
+      get () {
+        return this.$store.getters.buttonLabels
+      },
+      set (value) {
+        this.$store.commit('buttonLabels', value)
       }
     }
   }
