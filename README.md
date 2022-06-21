@@ -153,14 +153,22 @@ flask run
 | uadmin  | uadmin | user-admin |
 
 ## How to deploy the application using an VPS (e.g. contabo) and docker (not finished yet)
-1. Create and Account at contabo or any other VPS server provider
-2. connect to your VPS via ssh
-3. install docker on the VPS
-4. Continue with Dockstation (see )
-5. Continue with Docker CLI (see )
+1. Create an account at <a target="_blank" rel="noopener noreferrer" href="https://www.contabo.com/"> contabo </a> or another VPS server provider
+- if you use contabo use the Ubuntu 22.04 image
+- the smallest server with 4 vCPU, 8 GB RAM, 32 TB Traffic and 50 GB NVM should be enough
+2. After the account has been set up connect to it via ssh
+- in case of contabo the command will look like this
+```
+ssh root@<ip-adress>
+```
+- install docker engine on the server following the instructions in the "Install using the repository" section of the <a href="https://docs.docker.com/engine/install/ubuntu/" target="_blank" rel="noopener noreferrer"> docker documentation </a>
+3. Git Clone the repository
+4. Follow the steps described under docker setup option 2: Build and start the application using the docker CLI 
+
 
 ## How to deploy using pythonanywhere (not finished yet)
 1. Register at <a target="_blank" rel="noopener noreferrer" href="https://www.pythonanywhere.com/"> pythonanywhere </a>
+- the username you choose here will later be part of the url user to access the application
 - a free account does not offer enough space and cpu time to run HON conveniently
 - in the past we have been using a custom account before switching to self-hosting 
 - for the custom account we used CPU time per day: 3000 seconds, Number of web apps: 1, Number of web workers: 3, Number of always-on tasks: 2 and Disk space: 10 GB
@@ -188,8 +196,8 @@ chmod +x get_js_dep.sh
 - don't close the console yet, we will come back to it later
 3. adjust the config file (ProductionConfig)
 - use the Files section to navigate to the config file within the HON folder (the code you git cloned und 2)
-- set IMAGE_PATH to "/PATH TO REPO/instance/images" 
-- set SQLALCHEMY_DATABASE_URI "/PATH TO REPO/instance/sqlite.db"
+- set IMAGE_PATH to "/home/<username>/HON/instance/images_prod"
+- set SQLALCHEMY_DATABASE_URI "sqlite://////home/<username>/HON/instance/prod.db"
 - afterwards switch back to the tab with the open bash console and run
 ```
 export FLASK_APP=app
@@ -199,17 +207,17 @@ flask init-app
 - this concludes the bash part of the setup
 6. Pythonanywhere configuration
 - in the Web section of you pythonanywhere account press "add a new web app" and select manual config
-- on the same side under "Code" adjust the "Source Code" path
-- addjust the path to your Virtual environment
+- on the same side under "Code" adjust the "Source Code" path to /home/<username>/HON
+- addjust the path to your Virtual environment, it should be /home/<username>/.virtualenvs/myvirtualenv/
 - force HTTPS
-- optional enable password protection for extra layer of security
+- (optionally) enable password protection for extra layer of security
 
 6. adjust WSGI configuration file
 - open by pressing link /var/www/<username>_pythonanywhere_com_wsgi.py
 - add the end of the file in the FLASK section add
 ```
 import sys
-path = '/home/HON/HON'
+path = '/home/<username>/HON'
 if path not in sys.path:
     sys.path.append(path)
 
@@ -218,7 +226,7 @@ application = create_app()
 ```
 
 7. reload web app
-- application should be available under ....
+- application should be available under <username>.pythonanywhere.com
 
 ## How to deploy the application using Heroku
 to do
