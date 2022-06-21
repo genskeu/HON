@@ -4,9 +4,11 @@ HON is a web application to implement human reading experiments in medical imagi
 The software was designed as a web application to avoid the need for installation on diagnostic workstations and enable platform-independence as well as multi-center studies. The code is open-source (MIT licence). The application backend was built using mainly Flask (v2.0.2) and Flask-SQLAlchemy (v2.5.1). To simplify access HON can be installed using docker (for development flasks development server is used, while gunicorn and nginx are used during production). For a full list of dependencies see the requirments.txt. The frontend of the application was developed using bootstrap (v4.1) and jQuery (v3.4.1) in addition to plain HTML, CSS, and JavaScript. The JavaScript library cornerstone (v2.2.7) and cornerstone-tools (v5.1) were used to implement dicom-viewer capabilities, such as the display of files (DICOM ,JPEG, PNG) as single images or scrollable stacks, options for modifying display settings and features to collect annotation data. 
 
 ## Upcoming changes
-- update frontend using vuejs
+- update frontend using vuejs (about 40% finished, update will be available in August)
+  - new features will include more freedom regarding images displayed simultaneously and their layout
+  - simplified working with stacks 
 - update backend (flask) tests
-
+- simplify deployment
 
 ## Setup using docker
 > Docker is an open platform for developing, shipping, and running applications. Docker enables you to separate your applications from your infrastructure so you can deliver software quickly. With Docker, you can manage your infrastructure in the same ways you manage your applications (https://docs.docker.com/get-started/overview/).
@@ -150,8 +152,73 @@ flask run
 | sadmin  | sadmin | study-admin |
 | uadmin  | uadmin | user-admin |
 
-## How to deploy the application on Pythonanywhere
-to do
+## How to deploy the application using an VPS (e.g. contabo) and docker (not finished yet)
+1. Create and Account at contabo or any other VPS server provider
+2. connect to your VPS via ssh
+3. install docker on the VPS
+4. Continue with Dockstation (see )
+5. Continue with Docker CLI (see )
 
-## How to deploy the application on Heroku
+## How to deploy using pythonanywhere (not finished yet)
+1. Register at <a target="_blank" rel="noopener noreferrer" href="https://www.pythonanywhere.com/"> pythonanywhere </a>
+- a free account does not offer enough space and cpu time to run HON conveniently
+- in the past we have been using a custom account before switching to self-hosting 
+- for the custom account we used CPU time per day: 3000 seconds, Number of web apps: 1, Number of web workers: 3, Number of always-on tasks: 2 and Disk space: 10 GB
+- however these requirements may differ for you
+2. Log into pythonanywhere and open a bash console in a new tab
+- create the console using the Consoles section
+- using the console clone the repository by running
+```
+git clone https://github.com/genskeu/HON
+```
+- next create an virtual environment using the following command 
+```
+mkvirtualenv myvirtualenv --python=/usr/bin/python3.8
+```
+- move into the path with the application code and install the python dependencies
+```
+cd /"path_to_app_code"
+pip install -r requirements.txt
+```
+- download javascript dependencies by executing the get_js_dep.sh script
+```
+chmod +x get_js_dep.sh
+./get_js_dep.sh
+```
+- don't close the console yet, we will come back to it later
+3. adjust the config file (ProductionConfig)
+- use the Files section to navigate to the config file within the HON folder (the code you git cloned und 2)
+- set IMAGE_PATH to "/PATH TO REPO/instance/images" 
+- set SQLALCHEMY_DATABASE_URI "/PATH TO REPO/instance/sqlite.db"
+- afterwards switch back to the tab with the open bash console and run
+```
+export FLASK_APP=app
+export FLASK_ENV=production
+flask init-app 
+```  
+- this concludes the bash part of the setup
+6. Pythonanywhere configuration
+- in the Web section of you pythonanywhere account press "add a new web app" and select manual config
+- on the same side under "Code" adjust the "Source Code" path
+- addjust the path to your Virtual environment
+- force HTTPS
+- optional enable password protection for extra layer of security
+
+6. adjust WSGI configuration file
+- open by pressing link /var/www/<username>_pythonanywhere_com_wsgi.py
+- add the end of the file in the FLASK section add
+```
+import sys
+path = '/home/HON/HON'
+if path not in sys.path:
+    sys.path.append(path)
+
+from app import create_app
+application = create_app()
+```
+
+7. reload web app
+- application should be available under ....
+
+## How to deploy the application using Heroku
 to do
