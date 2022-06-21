@@ -205,14 +205,14 @@ export FLASK_ENV=production
 flask init-app 
 ```  
 - this concludes the bash part of the setup
-6. Pythonanywhere configuration
+4. Pythonanywhere configuration
 - in the Web section of you pythonanywhere account press "add a new web app" and select manual config
 - on the same side under "Code" adjust the "Source Code" path to /home/<username>/HON
 - addjust the path to your Virtual environment, it should be /home/<username>/.virtualenvs/myvirtualenv/
 - force HTTPS
 - (optionally) enable password protection for extra layer of security
 
-6. adjust WSGI configuration file
+5. adjust WSGI configuration file
 - open by pressing link /var/www/<username>_pythonanywhere_com_wsgi.py
 - add the end of the file in the FLASK section add
 ```
@@ -225,7 +225,7 @@ from app import create_app
 application = create_app()
 ```
 
-7. reload web app
+6. reload web app
 - application should be available under <username>.pythonanywhere.com
 
 ## How to deploy the application using Heroku
