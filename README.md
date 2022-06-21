@@ -168,7 +168,7 @@ ssh root@<ip-adress>
 
 ## How to deploy using pythonanywhere (not finished yet)
 1. Register at <a target="_blank" rel="noopener noreferrer" href="https://www.pythonanywhere.com/"> pythonanywhere </a>
-- the username you choose here will later be part of the url user to access the application
+- the username you choose will later be part of the url used to access the application
 - a free account does not offer enough space and cpu time to run HON conveniently
 - in the past we have been using a custom account before switching to self-hosting 
 - for the custom account we used CPU time per day: 3000 seconds, Number of web apps: 1, Number of web workers: 3, Number of always-on tasks: 2 and Disk space: 10 GB
