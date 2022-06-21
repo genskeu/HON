@@ -163,6 +163,9 @@ ssh root@<ip-adress>
 ```
 - install docker engine on the server following the instructions in the "Install using the repository" section of the <a href="https://docs.docker.com/engine/install/ubuntu/" target="_blank" rel="noopener noreferrer"> docker documentation </a>
 3. Git Clone the repository
+```
+git clone https://github.com/genskeu/HON
+```
 4. Follow the steps described under docker setup option 2: Build and start the application using the docker CLI 
 
 
