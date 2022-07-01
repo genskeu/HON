@@ -1,126 +1,170 @@
 <template>
+  <!-- viewport info -->
   <div>
-    <!-- default viewport settings -->
-    <div id="viewport_settings_container" class="w-100" title="Image Viewer settings control display options (zoom, position, window) for the uploaded study images.
-                    Each viewport can be controlled individually.
-                    To globally control viewport settings use the defaults submenu.">
-      <div class="row mt-1 mx-auto">
-        <button class="btn btn-dark col-12 mb-2" data-bs-toggle="collapse" data-bs-target="#viewport_settings"
-          aria-expanded="true" aria-controls="viewport_settings">
-          <h4 class="w-100 mt-1" id="imgset_btn">Image Viewer &#9776;</h4>
-        </button>
-      </div>
-    </div>
-    <div id="viewport_settings" class="mb-3 collapse show">
-      <button class="btn btn-secondary btn-block" data-bs-toggle="collapse" data-bs-target="#viewport_def"
-        aria-expanded="true" aria-controls="viewport_def">
-        <h5 class="mt-1 col-12">Defaults</h5>
+    <div class="row mx-auto mt-1">
+      <button class="btn btn-secondary col-12" data-bs-toggle="collapse" :data-bs-target= "'#' + id"
+        aria-expanded="true" :aria-controls="id">
+        <h5 class="mt-1">Viewer</h5>
       </button>
-      <div id="viewport_def" class="collapse">
-        <!-- ww/wc -->
-        <div class="row mx-auto">
-          <div class="input-group">
-            <div class="input-group-prepend col-4 px-0 mx-0">
-              <span class="input-group-text col-12">WW/WC</span>
-            </div>
-            <input id="def_ww" type="Number" step="any" min="0" class="form-control def_ww viewport_prop_def"
-              placeholder="WW" />
-            <input id="def_wc" type="Number" step="any" min="0" class="form-control def_wc viewport_prop_def"
-              placeholder="WC" />
-          </div>
-        </div>
-        <!-- zoom -->
-        <div class="row mx-auto">
-          <div class="input-group">
-            <div class="input-group-prepend col-4 px-0 mx-0">
-              <span class="input-group-text col-12">Zoom</span>
-            </div>
-            <input id="def_zoom" type="Number" step="any" min="0.0" class="form-control def_zoom viewport_prop_def"
-              placeholder="Zoom" />
-          </div>
-        </div>
-        <!-- position -->
-        <div class="row mx-auto">
-          <div class="input-group">
-            <div class="input-group-prepend col-4 px-0 mx-0">
-              <span class="input-group-text col-12">Pos</span>
-            </div>
-            <input id="def_pos_x" type="Number" step="any" class="form-control def_pos_x viewport_prop_def"
-              placeholder="x" />
-            <input id="def_pos_y" type="Number" step="any" class="form-control def_pos_y viewport_prop_def"
-              placeholder="y" />
-          </div>
-        </div>
-        <div class="row mx-auto">
-          <!-- position -->
-          <button id="update_viewports" class="btn btn-light col-12">
-            update existing image-sets
-          </button>
+    </div>
+
+    <div :id="id" class="collapse">
+      <!-- windowing -->
+      <div class="mx-auto">
+        <div class="input-group mx-auto">
+          <label class="input-group-text w-20">WW/WC</label>
+          <input id="ww_" type="Number" step="any" min="0" class="form-control ww viewport_prop" placeholder="WW"
+            v-model="windowWidth" />
+          <input id="wc_" type="Number" step="any" class="form-control wc viewport_prop" placeholder="WC" v-model="windowCenter"/>
         </div>
       </div>
 
-      <div class="mx-auto" id="viewports">
-        <!-- viewport info -->
-        <div id="viewports_man_container">
-          <div id="viewports_auto_container">
-            <div id="viewport_info_">
-              <div class="row mx-auto mt-1">
-                <button class="btn btn-secondary col-12" data-bs-toggle="collapse" data-bs-target="#viewport_"
-                  aria-expanded="true" aria-controls="viewport_">
-                  <h5 class="mt-1">Viewer</h5>
-                </button>
-              </div>
-
-              <div id="viewport_" class="collapse">
-                <!-- windowing -->
-                <div class="row mx-auto">
-                  <div class="input-group">
-                    <div class="input-group-prepend col-4 px-0 mx-0">
-                      <span class="input-group-text col-12">WW/WC</span>
-                    </div>
-                    <input id="ww_" type="Number" step="any" min="0" class="form-control ww viewport_prop"
-                      placeholder="WW" />
-                    <input id="wc_" type="Number" step="any" class="form-control wc viewport_prop" placeholder="WC" />
-                  </div>
-                </div>
-                <!-- window zoom -->
-                <div class="row mx-auto">
-                  <div class="input-group">
-                    <div class="input-group-prepend col-4 px-0 mx-0">
-                      <span class="input-group-text col-12">Zoom</span>
-                    </div>
-                    <input id="zoom_" type="Number" step="any" min="0.0" class="form-control zoom viewport_prop"
-                      placeholder="Zoom" />
-                  </div>
-                </div>
-                <!-- window position -->
-                <div class="row mx-auto">
-                  <div class="input-group">
-                    <div class="input-group-prepend col-4 px-0 mx-0">
-                      <span class="input-group-text col-12">Pos</span>
-                    </div>
-                    <input id="pos_x_" type="Number" step="any" class="form-control pos_x viewport_prop"
-                      placeholder="x" />
-                    <input id="pos_y_" type="Number" step="any" class="form-control pos_y viewport_prop"
-                      placeholder="y" />
-                  </div>
-                </div>
-                <!--reset buttons -->
-                <button id="reset_" class="btn btn-block btn-light reset">
-                  reset
-                </button>
-              </div>
-            </div>
-          </div>
+      <!-- window zoom -->
+      <div class="mx-auto">
+        <div class="input-group">
+          <label class="input-group-text w-20">Zoom</label>
+          <input id="zoom_" type="Number" step="0.1" min="0.1" class="form-control zoom viewport_prop"
+            placeholder="Zoom" v-model="zoom"/>
         </div>
       </div>
+
+      <!-- window position -->
+      <div class="mx-auto">
+        <div class="input-group">
+          <label class="input-group-text w-20">Pos</label>
+          <input id="pos_x_" type="Number" step="any" class="form-control pos_x viewport_prop" placeholder="x" v-model="posX"/>
+          <input id="pos_y_" type="Number" step="any" class="form-control pos_y viewport_prop" placeholder="y" v-model="posY"/>
+        </div>
+      </div>
+
+      <!--reset buttons -->
+      <button class="btn btn-block btn-light w-100" @click="resetViewport">
+        reset
+      </button>
     </div>
   </div>
 </template>
 
 <script>
-export default {
+import cornerstone from 'cornerstone-core'
 
+export default {
+  props: {
+    targetViewer: Number
+  },
+  data () {
+    return {
+    }
+  },
+  // functions to control viewport settings, can properly be optimizied
+  computed: {
+    id () {
+      return 'viewportControl_' + this.targetViewer
+    },
+    windowWidth: {
+      get () {
+        var viewport = this.$store.getters.cornerstoneViewport(this.targetViewer)
+        if (viewport !== undefined && viewport.voi !== undefined) {
+          return viewport.voi.windowWidth
+        } else {
+          return NaN
+        }
+      },
+      set (value) {
+        var viewport = this.$store.getters.cornerstoneViewport(this.targetViewer)
+        var element = this.$store.getters.cornerstoneViewer(this.targetViewer)
+        if (viewport !== undefined && viewport.voi !== undefined) {
+          viewport.voi.windowWidth = value
+          cornerstone.setViewport(element, viewport)
+        }
+      }
+    },
+    windowCenter: {
+      get () {
+        var viewport = this.$store.getters.cornerstoneViewport(this.targetViewer)
+        if (viewport !== undefined && viewport.voi !== undefined) {
+          return viewport.voi.windowCenter
+        } else {
+          return NaN
+        }
+      },
+      set (value) {
+        var viewport = this.$store.getters.cornerstoneViewport(this.targetViewer)
+        var element = this.$store.getters.cornerstoneViewer(this.targetViewer)
+        if (viewport !== undefined && viewport.voi !== undefined) {
+          viewport.voi.windowCenter = value
+          this.$store.commit('cornerstoneViewportUpdate', { viewport: viewport, index: this.targetViewer })
+          cornerstone.setViewport(element, viewport)
+        }
+      }
+    },
+    zoom: {
+      get () {
+        var viewport = this.$store.getters.cornerstoneViewport(this.targetViewer)
+        if (viewport !== undefined) {
+          return viewport.scale
+        } else {
+          return NaN
+        }
+      },
+      set (value) {
+        var viewport = this.$store.getters.cornerstoneViewport(this.targetViewer)
+        var element = this.$store.getters.cornerstoneViewer(this.targetViewer)
+        if (viewport !== undefined) {
+          viewport.scale = value
+          this.$store.commit('cornerstoneViewportUpdate', { viewport: viewport, index: this.targetViewer })
+          cornerstone.setViewport(element, viewport)
+        }
+      }
+    },
+    posX: {
+      get () {
+        var viewport = this.$store.getters.cornerstoneViewport(this.targetViewer)
+        if (viewport !== undefined && viewport.translation !== undefined) {
+          return viewport.translation.x
+        } else {
+          return NaN
+        }
+      },
+      set (value) {
+        var viewport = this.$store.getters.cornerstoneViewport(this.targetViewer)
+        var element = this.$store.getters.cornerstoneViewer(this.targetViewer)
+        if (viewport !== undefined && viewport.translation !== undefined) {
+          viewport.translation.x = value
+          this.$store.commit('cornerstoneViewportUpdate', { viewport: viewport, index: this.targetViewer })
+          cornerstone.setViewport(element, viewport)
+        }
+      }
+    },
+    posY: {
+      get () {
+        var viewport = this.$store.getters.cornerstoneViewport(this.targetViewer)
+        if (viewport !== undefined && viewport.translation !== undefined) {
+          return viewport.translation.y
+        } else {
+          return NaN
+        }
+      },
+      set (value) {
+        var viewport = this.$store.getters.cornerstoneViewport(this.targetViewer)
+        var element = this.$store.getters.cornerstoneViewer(this.targetViewer)
+        if (viewport !== undefined && viewport.translation !== undefined) {
+          viewport.translation.y = value
+          this.$store.commit('cornerstoneViewportUpdate', { viewport: viewport, index: this.targetViewer })
+          cornerstone.setViewport(element, viewport)
+        }
+      }
+    }
+  },
+  methods: {
+    resetViewport () {
+      const element = this.$store.getters.cornerstoneViewer(this.targetViewer)
+      const enabledElement = cornerstone.getEnabledElement(element)
+      var defViewport = cornerstone.getDefaultViewportForImage(element, enabledElement.image)
+      this.$store.commit('cornerstoneViewportUpdate', { viewport: defViewport, index: this.targetViewer })
+      cornerstone.setViewport(element, defViewport)
+    }
+  }
 }
 </script>
 

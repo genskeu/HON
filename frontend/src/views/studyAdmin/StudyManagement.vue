@@ -12,6 +12,11 @@
     <router-view name="helper" id="router_helper_view">
     </router-view>
   </div>
+  <div v-else id="study_management" class="">
+    <div id="nav" class="navbar bg-dark p-0" style="height: 50px;">
+    </div>
+  </div>
+
 </template>
 
 <script>
@@ -42,19 +47,18 @@ export default {
       .get('http://localhost:5000/study/' + id)
       .then((response) => {
         const data = response.data
-        console.log(data.study)
         this.$store.commit('openStudy', data.study)
       })
   }
 }
 </script>
 
-<style scoped>
+<style>
 #study_management {
-  min-height:calc(100% - 60px); /*both html and body*/
+  height: calc(100% - 60px);
 }
 
 #router_helper_view {
-  min-height: calc(100% - 110px);
+  min-height: calc(100% - 50px);
 }
 </style>

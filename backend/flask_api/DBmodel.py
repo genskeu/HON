@@ -342,7 +342,9 @@ class Design(db.Model):
             design_dict["numb_img"] = self.numb_img
             design_dict["numb_refimg"] = self.numb_refimg
             design_dict["img_width"] = self.img_width
+            design_dict["img_width_auto"] = True
             design_dict["img_height"] = self.img_height
+            design_dict["img_height_auto"] = True
             design_dict["numb_rois"] = self.numb_rois
             design_dict["show_viewport_info"] = self.show_viewport_info
             design_dict["transition_time"] = self.transition_time

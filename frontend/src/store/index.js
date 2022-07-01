@@ -2,9 +2,20 @@ import { createStore } from 'vuex'
 
 export default createStore({
   state: {
-    open_study: undefined
+    open_study: undefined,
+    viewers: [],
+    viewports: [],
+    toolstates: [],
+    segmentations: []
   },
   getters: {
+    // viewer
+    cornerstoneViewer: (state) => (index) => {
+      return state.viewers[index]
+    },
+    cornerstoneViewport: (state) => (index) => {
+      return state.viewports[index]
+    },
     // meta data
     studyTitle (state) {
       return state.open_study.title
@@ -43,8 +54,14 @@ export default createStore({
     viewerWidth (state) {
       return Number(state.open_study.design.img_width)
     },
+    viewerWidthAuto (state) {
+      return state.open_study.design.img_width_auto
+    },
     viewerHeight (state) {
       return Number(state.open_study.design.img_height)
+    },
+    viewerHeightAuto (state) {
+      return state.open_study.design.img_height_auto
     },
     roiNumb (state) {
       return Number(state.open_study.design.numb_rois)
@@ -98,8 +115,14 @@ export default createStore({
     viewerWidth (state, viewerWidth) {
       state.open_study.design.img_width = viewerWidth
     },
+    viewerWidthAuto (state, bool) {
+      state.open_study.design.img_width_auto = bool
+    },
     viewerHeight (state, viewerHeight) {
       state.open_study.design.img_height = viewerHeight
+    },
+    viewerHeightAuto (state, bool) {
+      state.open_study.design.img_height_auto = bool
     },
     roiNumb (state, roiNumb) {
       state.open_study.design.numb_rois = roiNumb
@@ -130,6 +153,22 @@ export default createStore({
     },
     viewerLayoutCols (state, colNumb) {
       state.open_study.design.layout_img_cols = colNumb
+    },
+    // viewer
+    cornerstoneViewer (state, viewer) {
+      state.viewers.push(viewer)
+    },
+    removeCornerstoneViewer (state, viewer) {
+      state.viewers = state.viewers.filter((v) => {
+        return v !== viewer
+      })
+    },
+    // viewport
+    cornerstoneViewportAdd (state, viewport) {
+      state.viewports.push(viewport)
+    },
+    cornerstoneViewportUpdate (state, payload) {
+      state.viewports[payload.index] = payload.viewport
     }
   },
   actions: {

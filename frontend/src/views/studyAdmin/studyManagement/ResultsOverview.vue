@@ -1,7 +1,6 @@
 <template>
-    <div class="container mt-4">
+    <div class="container pt-2">
         <div id="results_ov" class="">
-            <div class="mx-auto" id="study_">
                 <table class="table table-hover">
                     <thead class="thead-light">
                         <tr>
@@ -55,7 +54,6 @@
                 </div>
 
             </div>
-        </div>
 
     </div>
 </template>

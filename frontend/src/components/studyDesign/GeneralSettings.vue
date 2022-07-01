@@ -12,33 +12,46 @@
       <div class="mx-auto">
         <div class="input-group mx-auto" title="Controls max number of reference images">
           <label for="numb_refimg" class="input-group-text w-50">RefImg Viewer #</label>
-          <select class="form-select" id="numb_refimg" v-model="refviewerNumb">
-            <option v-for="n in 3" :key="n-1">{{n-1}}</option>
-          </select>
+          <input class="form-control" type="Number" min="0" max="2" id="numb_refimg" v-model="refviewerNumb"/>
         </div>
 
         <div class="input-group mx-auto" title="Controls max number of images">
           <label for="numb_img" class="input-group-text w-50">Img Viewer #</label>
-          <select class="form-select" id="numb_img" v-model="viewerNumb">
-            <option v-for="n in 25" :key="n">{{n}}</option>
-          </select>
+          <input class="form-control" type="Number" min="1" max="50" id="numb_img" v-model="viewerNumb"/>
         </div>
 
         <div class="input-group mx-auto my-auto" title="Controls max number of images">
           <label for="numb_img" class="input-group-text w-50">Viewer Layout</label>
           <input type="number" min="1" max="5" class="form-control" id="numb_img_cols" v-model="viewerLayoutCols"/>
-          <label for="numb_img" class="input-group-text">x</label>
-          <input type="number" min="1" max="5" class="form-control" id="numb_img_rows" v-model="viewerLayoutRows"/>
         </div>
 
         <!-- window size -->
         <div class="input-group mx-auto"
           title="Controls the size (width, height) of the screen section used for displaying images.">
-          <label class="input-group-text w-50">Viewer Size</label>
-          <input id="img_width" type="Number" step="any" class="image_size form-control" placeholder="width" />
-          <input id="img_height" type="Number" step="any" class="image_size form-control" placeholder="height" />
+          <label class="input-group-text w-50">Set Viewer Size</label>
+          <div class="form-check form-switch form-control mb-0">
+            <input class="form-check-input" type="checkbox" id="viewerHeightAuto" v-model="viewerHeightAuto">
+            <label class="form-check-label" for="viewerHeightAuto">{{viewerHeightAutoText}}</label>
+          </div>
         </div>
 
+        <div v-if="!viewerHeightAuto" class="input-group mx-auto"
+          title="Controls the size (width, height) of the screen section used for displaying images.">
+          <label class="input-group-text w-50">Size in px</label>
+          <!-- <button :class='viewerHeightAutoBtnDesign' @click='setViewerHeightAuto'>{{viewerHeightAuto}}</button> -->
+          <input id="img_height" type="Number" step="any" min="1" class="image_size form-control" placeholder="height" v-model="viewerHeight"/>
+        </div>
+
+        <div class="input-group row mx-auto"
+          title="Controls if image settings such as windowing or zoom level are displayed.">
+          <label class="input-group-text w-50">Viewer Metadata</label>
+          <div class="form-check form-switch form-control mb-0">
+            <input class="form-check-input" type="checkbox" id="viewerHeightAuto" v-model="viewerMetainfo">
+            <label class="form-check-label" for="viewerHeightAuto">{{viewerMetainfoText}}</label>
+          </div>
+        </div>
+
+        <!--- Roi number-->
         <div class="input-group mx-auto" title="Controls the number of annotations (e.g. rois)
                     that need to be drawn by participants
                     before evaluating the next picture.
@@ -70,16 +83,10 @@
           <input class="form-control" type="text" name="buttonLabels" id="button_labels" placeholder="Btn Label" v-model="buttonLabels" />
         </div>
 
-        <div class="input-group row mx-auto"
-          title="Controls if image settings such as windowing or zoom level are displayed.">
-          <label class="input-group-text w-50">Img Metadata</label>
-          <input type="button btn" name="show_display" id="show_viewport_info" class="form-control" />
-        </div>
-
         <!-- Save Design Settings -->
-          <div class="form-group">
-            <button class="input-group-text btn btn-success btn-lg btn-block mt-1 w-100" id="submit_design">Save Design</button>
-          </div>
+        <div class="form-group">
+          <button class="input-group-text btn btn-success btn-lg btn-block mt-1 w-100" id="submit_design">Save Design</button>
+        </div>
 
       </div>
     </div>
@@ -113,12 +120,54 @@ export default {
         this.$store.commit('viewerLayoutCols', value)
       }
     },
-    viewerLayoutRows: {
+    viewerHeight: {
       get () {
-        return this.$store.getters.viewerLayoutRows
+        return this.$store.getters.viewerHeight
       },
       set (value) {
-        this.$store.commit('viewerLayoutRows', value)
+        this.$store.commit('viewerHeight', value)
+      }
+    },
+    viewerHeightAuto: {
+      get () {
+        return this.$store.getters.viewerHeightAuto
+      },
+      set (value) {
+        this.$store.commit('viewerHeightAuto', value)
+      }
+    },
+    viewerHeightAutoText: {
+      get () {
+        if (this.$store.getters.viewerHeightAuto) {
+          return 'automatically'
+        } else {
+          return 'manual'
+        }
+      }
+    },
+    viewerWidth: {
+      get () {
+        return this.$store.getters.viewerWidth
+      },
+      set (value) {
+        this.$store.commit('viewerWidth', value)
+      }
+    },
+    viewerMetainfo: {
+      get () {
+        return this.$store.getters.viewerMetainfo
+      },
+      set (value) {
+        this.$store.commit('viewerMetainfo', value)
+      }
+    },
+    viewerMetainfoText: {
+      get () {
+        if (this.$store.getters.viewerMetainfo) {
+          return 'show'
+        } else {
+          return 'hidden'
+        }
       }
     },
     roiNumb: {
@@ -161,6 +210,8 @@ export default {
         this.$store.commit('buttonLabels', value)
       }
     }
+  },
+  methods: {
   }
 }
 </script>

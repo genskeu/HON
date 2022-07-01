@@ -1,11 +1,11 @@
 <template>
-  <div class="container-fluid pt-4 h-100" id="content" :style="cssStyle">
-    <div class="row mx-auto h-100">
+  <div class="container-fluid" id="content" :style="cssStyle">
+    <div class="row mx-auto">
       <!-- Imgsets -->
-      <div class="col-lg-10 mb-2 h-100" id="imgset_creation">
-        <div class="row w-100 mx-auto mb-2" id = "imgset_creation_title">
+      <div class="col-lg-10 pt-1" id="imgset_creation">
+        <div class="row w-100 mx-auto pb-2" id = "imgset_creation_title">
           <button
-            class="btn btn-dark mb-2"
+            class="btn btn-dark"
             data-bs-toggle="collapse"
             data-bs-target="#imgset_creation_content"
             aria-expanded="true"
@@ -18,15 +18,15 @@
           <!-- Display warning if the study already started (results are present)
                                  User can still modify design but should be aware that this can cause bugs
                                 -->
-          <div id="imgset" class="min-h-100 mx-auto px-0 w-100">
+          <div id="imgset" class="mx-auto px-0 w-100">
             <!--Images -->
             <!-- <div id="ref_images">
               <span class="badge bg-secondary w-100 mb-2">
                 <h4 class="mt-1">Reference Image Stack(s)</h4>
               </span>
             </div> -->
-              <span class="badge bg-secondary mx-auto w-100 mb-2">
-                <h4 class="mt-1">Reference-Stack(s)</h4>
+              <span class="badge bg-secondary mx-auto w-100">
+                <h4 class="">Reference-Stack(s)</h4>
               </span>
               <div id="ref-stacks" :class="refviewerLayout">
                 <dicom-viewer v-for="index in refviewerNumb" :key="index"></dicom-viewer>
@@ -35,7 +35,7 @@
                 <h4 class="mt-1">Stack(s)</h4>
               </span>
               <div id="stacks" :class="viewerLayout">
-                <dicom-viewer v-for="index in viewerNumb" :key="index"></dicom-viewer>
+                <dicom-viewer v-for="index in viewerNumb" :key="index" :viewer-index="index-1"></dicom-viewer>
               </div>
             <!-- modify buttons -->
             <div id="imgset_creation_buttons">
@@ -77,7 +77,7 @@
         </div>
       </div>
       <!-- sidebar for design, viewport settings, scales etc (rigth) -->
-      <div class="col-lg-2">
+      <div class="col-lg-2 pt-1">
         <!-- Design Settings -->
         <div class="row mx-auto" id="design_settings_title">
           <button
@@ -97,8 +97,21 @@
         <div id="design_settings_content" class="collapse show">
           <GeneralSettings></GeneralSettings>
         </div>
-        <div>
-          <DicomViewportControl v-for="index in viewerNumb" :key="index"></DicomViewportControl>
+        <!-- default viewport settings -->
+        <div id="viewport_settings_container" class="w-100" title="Image Viewer settings control display options (zoom, position, window) for the uploaded study images.
+                        Each viewport can be controlled individually.
+                        To globally control viewport settings use the defaults submenu.">
+          <div class="row mt-1 mx-auto">
+            <button class="btn btn-dark col-12 mb-2" data-bs-toggle="collapse" data-bs-target="#viewport_settings"
+              aria-expanded="true" aria-controls="viewport_settings">
+              <h4 class="w-100 mt-1" id="imgset_btn">Image Viewer &#9776;</h4>
+            </button>
+          </div>
+        </div>
+        <div id="viewport_settings">
+          <div id="viewports_man_container" v-for="index in viewerNumb" :key="index">
+            <DicomViewportControl :target-viewer="index-1"></DicomViewportControl>
+          </div>
         </div>
       </div>
     </div>
@@ -109,6 +122,7 @@
 import DicomViewer from '@/components/dicomViewer/DicomViewer.vue'
 import GeneralSettings from '@/components/studyDesign/GeneralSettings.vue'
 import DicomViewportControl from '@/components/dicomViewer/DicomViewportControl.vue'
+import cornerstone from 'cornerstone-core'
 
 export default {
   name: 'Design',
@@ -122,6 +136,8 @@ export default {
       return this.$store.getters.viewerNumb
     },
     viewerLayout () {
+      // var colClass = 'grid-cols-' + this.$store.getters.viewerLayoutCols
+      // var rowClass = 'grid-rows-' + this.$store.getters.viewerLayoutRows
       var gridClass = {
         flex: true,
         relative: true,
@@ -130,12 +146,7 @@ export default {
         'grid-cols-4': this.$store.getters.viewerLayoutCols === 4,
         'grid-cols-3': this.$store.getters.viewerLayoutCols === 3,
         'grid-cols-2': this.$store.getters.viewerLayoutCols === 2,
-        'grid-cols-1': this.$store.getters.viewerLayoutCols === 1,
-        'grid-rows-5': this.$store.getters.viewerLayoutRows === 5,
-        'grid-rows-4': this.$store.getters.viewerLayoutRows === 4,
-        'grid-rows-3': this.$store.getters.viewerLayoutRows === 3,
-        'grid-rows-2': this.$store.getters.viewerLayoutRows === 2,
-        'grid-rows-1': this.$store.getters.viewerLayoutRows === 1
+        'grid-cols-1': this.$store.getters.viewerLayoutCols === 1
       }
       return gridClass
     },
@@ -159,22 +170,55 @@ export default {
         'background-color': this.$store.getters.backgroundColor,
         color: this.$store.getters.textColor
       }
+    },
+    viewerHeight () {
+      return this.$store.getters.viewerHeight
     }
   },
   watch: {
-    backgroundColor (oldColor, newColor) {
-      console.log(oldColor)
-      console.log(newColor)
+    viewerLayout: {
+      handler (oldLayout, newLayout) {
+        this.setViewerHeight()
+      },
+      flush: 'post'
+    },
+    viewerHeight: {
+      handler (oldHeight, newHeigth) {
+        this.setViewerHeight()
+      },
+      flush: 'post'
+    },
+    viewerNumb: {
+      handler () {
+        this.setViewerHeight()
+      },
+      flush: 'post'
+    }
+  },
+  mounted () {
+    // watcher with flag immdiate runs to early => set height on mount
+    this.setViewerHeight()
+  },
+  methods: {
+    setViewerHeight () {
+      var elements = cornerstone.getEnabledElements()
+      var heigth
+      elements.forEach((e) => {
+        if (this.$store.getters.viewerHeightAuto) {
+          heigth = Math.min(Number(e.element.clientWidth), Number(window.innerHeight - 350))
+        } else {
+          heigth = this.$store.getters.viewerHeight
+        }
+        e.element.style.height = heigth + 'px'
+        cornerstone.resize(e.element)
+        cornerstone.updateImage(e.element)
+      })
+      this.$store.commit('viewerHeight', heigth)
     }
   }
 }
 </script>
 
 <style>
-#imgset_creation_title {
-  height: 5%;
-}
-#imgset_creation_content {
-  height: 95%;
-}
+
 </style>
