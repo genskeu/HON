@@ -1,5 +1,5 @@
 <template>
-  <div v-if="study_opened" id="study_management" class="">
+  <div v-if="studyOpened" id="study_management" class="">
     <div id="nav" class="navbar bg-dark p-0" style="height: 50px;">
       <div class="container mx-auto">
         <router-link to="/study-overview" @click="finishEditing" class="nav-link">&times; Close {{studyTitle}}</router-link>
@@ -30,15 +30,15 @@ export default {
   },
   methods: {
     finishEditing () {
-      this.$store.commit('closeStudy')
+      this.$store.commit('openStudy/closeStudy')
     }
   },
   computed: {
-    study_opened () {
-      return this.$store.state.open_study !== undefined
+    studyOpened () {
+      return this.$store.getters['openStudy/studyTitle'] !== String
     },
     studyTitle () {
-      return this.$store.getters.studyTitle
+      return this.$store.getters['openStudy/studyTitle']
     }
   },
   created () {
@@ -47,7 +47,7 @@ export default {
       .get('http://localhost:5000/study/' + id)
       .then((response) => {
         const data = response.data
-        this.$store.commit('openStudy', data.study)
+        this.$store.commit('openStudy/openStudy', data.study)
       })
   }
 }

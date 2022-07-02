@@ -109,8 +109,8 @@
           </div>
         </div>
         <div id="viewport_settings">
-          <div id="viewports_man_container" v-for="index in viewerNumb" :key="index">
-            <DicomViewportControl :target-viewer="index-1"></DicomViewportControl>
+          <div id="viewports_man_container" v-for="(viewer, index) in cornerstoneViewers" :key="index">
+            <DicomViewportControl :target-viewer="index"></DicomViewportControl>
           </div>
         </div>
       </div>
@@ -133,7 +133,10 @@ export default {
   },
   computed: {
     viewerNumb () {
-      return this.$store.getters.viewerNumb
+      return this.$store.getters['openStudy/viewerNumb']
+    },
+    cornerstoneViewers () {
+      return this.$store.getters['cornerstoneViewers/cornerstoneViewers']
     },
     viewerLayout () {
       // var colClass = 'grid-cols-' + this.$store.getters.viewerLayoutCols
@@ -142,16 +145,16 @@ export default {
         flex: true,
         relative: true,
         grid: true,
-        'grid-cols-5': this.$store.getters.viewerLayoutCols === 5,
-        'grid-cols-4': this.$store.getters.viewerLayoutCols === 4,
-        'grid-cols-3': this.$store.getters.viewerLayoutCols === 3,
-        'grid-cols-2': this.$store.getters.viewerLayoutCols === 2,
-        'grid-cols-1': this.$store.getters.viewerLayoutCols === 1
+        'grid-cols-5': this.$store.getters['openStudy/viewerLayoutCols'] === 5,
+        'grid-cols-4': this.$store.getters['openStudy/viewerLayoutCols'] === 4,
+        'grid-cols-3': this.$store.getters['openStudy/viewerLayoutCols'] === 3,
+        'grid-cols-2': this.$store.getters['openStudy/viewerLayoutCols'] === 2,
+        'grid-cols-1': this.$store.getters['openStudy/viewerLayoutCols'] === 1
       }
       return gridClass
     },
     refviewerNumb () {
-      return this.$store.getters.refviewerNumb
+      return this.$store.getters['openStudy/refviewerNumb']
     },
     refviewerLayout () {
       var gridClass = {
@@ -159,20 +162,20 @@ export default {
         relative: true,
         grid: true,
         'gap-2': true,
-        'grid-cols-1': this.$store.getters.refviewerNumb === 1,
-        'grid-cols-2': this.$store.getters.refviewerNumb === 2,
+        'grid-cols-1': this.$store.getters['openStudy/refviewerNumb'] === 1,
+        'grid-cols-2': this.$store.getters['openStudy/refviewerNumb'] === 2,
         'grid-rows-1': true
       }
       return gridClass
     },
     cssStyle () {
       return {
-        'background-color': this.$store.getters.backgroundColor,
-        color: this.$store.getters.textColor
+        'background-color': this.$store.getters['openStudy/backgroundColor'],
+        color: this.$store.getters['openStudy/textColor']
       }
     },
     viewerHeight () {
-      return this.$store.getters.viewerHeight
+      return this.$store.getters['openStudy/viewerHeight']
     }
   },
   watch: {
@@ -204,16 +207,16 @@ export default {
       var elements = cornerstone.getEnabledElements()
       var heigth
       elements.forEach((e) => {
-        if (this.$store.getters.viewerHeightAuto) {
+        if (this.$store.getters['openStudy/viewerHeightAuto']) {
           heigth = Math.min(Number(e.element.clientWidth), Number(window.innerHeight - 350))
         } else {
-          heigth = this.$store.getters.viewerHeight
+          heigth = this.$store.getters['openStudy/viewerHeight']
         }
         e.element.style.height = heigth + 'px'
         cornerstone.resize(e.element)
         cornerstone.updateImage(e.element)
       })
-      this.$store.commit('viewerHeight', heigth)
+      this.$store.commit('openStudy/viewerHeight', heigth)
     }
   }
 }

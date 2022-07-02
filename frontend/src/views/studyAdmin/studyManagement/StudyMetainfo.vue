@@ -45,18 +45,18 @@ export default {
   computed: {
     study_name: {
       get () {
-        return this.$store.state.open_study ? this.$store.state.open_study.title : undefined
+        return this.$store.getters['openStudy/studyTitle']
       },
       set (value) {
-        this.$store.commit('updateStudyTitle', value)
+        this.$store.commit('openStudy/updateStudyTitle', value)
       }
     },
     study_desc: {
       get () {
-        return this.$store.state.open_study ? this.$store.state.open_study.description : undefined
+        return this.$store.getters['openStudy/studyDescription']
       },
       set (value) {
-        this.$store.commit('updateStudyDesc', value)
+        this.$store.commit('openStudy/updateStudyDesc', value)
       }
     }
   }

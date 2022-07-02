@@ -113,8 +113,8 @@ export default {
       }
     },
     getStacknames () {
-      if (this.$store.state.open_study) {
-        const imageNames = this.$store.state.open_study.images.map(
+      if (this.$store.state.openStudy) {
+        const imageNames = this.$store.state.openStudy.images.map(
           obj => {
             return obj.name
           }
@@ -167,11 +167,14 @@ export default {
   },
   mounted () {
     this.initViewer()
-    this.$store.commit('cornerstoneViewer', this.$refs.viewer)
-    this.$store.commit('cornerstoneViewportAdd', {})
+    this.$store.commit('cornerstoneViewers/cornerstoneViewer', {
+      element: this.$refs.viewer,
+      viewport: {},
+      toolState: {}
+    })
   },
-  unmounted () {
-    this.$store.commit('removeCornerstoneViewer', this.$refs.viewer)
+  beforeUnmount () {
+    this.$store.commit('cornerstoneViewers/removeCornerstoneViewer', this.$refs.viewer)
   },
   methods: {
     initViewer () {
@@ -189,7 +192,7 @@ export default {
     },
     loadStackOnSelect (event) {
       const stackName = event.target.value
-      const baseUrl = this.$store.state.open_study.images.find(image => image.name === stackName).base_url.replace('127.0.0.1', 'localhost:5000')
+      const baseUrl = this.$store.state.openStudy.images.find(image => image.name === stackName).base_url.replace('127.0.0.1', 'localhost:5000')
       if (stackName !== '') {
         const data = { name: stackName, size: 0, data: [stackName] }
         const stacks = this.parseImagesCornerstone(data.data, baseUrl)
@@ -218,7 +221,7 @@ export default {
         cornerstoneTools.addStackStateManager(this.$refs.viewer, ['stack'])
         cornerstoneTools.addToolState(this.$refs.viewer, 'stack', stack)
         var viewport = cornerstone.getViewport(this.$refs.viewer)
-        this.$store.commit('cornerstoneViewportUpdate', { viewport: viewport, index: this.viewerIndex })
+        this.$store.commit('cornerstoneViewers/cornerstoneViewportUpdate', { viewport: viewport, index: this.viewerIndex })
       })
       return promise
     },
