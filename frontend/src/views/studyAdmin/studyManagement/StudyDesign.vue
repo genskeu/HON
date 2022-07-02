@@ -1,5 +1,8 @@
 <template>
   <div class="container-fluid" id="content" :style="cssStyle">
+    <div class="row mx auto">
+      <DicomViewerTools></DicomViewerTools>
+    </div>
     <div class="row mx-auto">
       <!-- Imgsets -->
       <div class="col-lg-10 pt-1" id="imgset_creation">
@@ -122,6 +125,8 @@
 import DicomViewer from '@/components/dicomViewer/DicomViewer.vue'
 import GeneralSettings from '@/components/studyDesign/GeneralSettings.vue'
 import DicomViewportControl from '@/components/dicomViewer/DicomViewportControl.vue'
+import DicomViewerTools from '@/components/dicomViewer/DicomViewerTools.vue'
+
 import cornerstone from 'cornerstone-core'
 
 export default {
@@ -129,7 +134,8 @@ export default {
   components: {
     DicomViewer,
     GeneralSettings,
-    DicomViewportControl
+    DicomViewportControl,
+    DicomViewerTools
   },
   computed: {
     viewerNumb () {

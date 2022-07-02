@@ -59,14 +59,14 @@ const mutations = {
   cornerstoneViewerWW: (state, payload) => {
     var viewer = state.viewers[payload.viewer]
     if (voiCheck(viewer)) {
-      viewer.viewport.voi.windowWidth = payload.windowWidth
+      viewer.viewport.voi.windowWidth = Number(payload.windowWidth)
       cornerstone.updateImage(viewer.element)
     }
   },
   cornerstoneViewerWC: (state, payload) => {
     var viewer = state.viewers[payload.viewer]
     if (voiCheck(viewer)) {
-      viewer.viewport.voi.windowCenter = payload.windowCenter
+      viewer.viewport.voi.windowCenter = Number(payload.windowCenter)
       cornerstone.updateImage(viewer.element)
     }
   },
