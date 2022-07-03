@@ -64,21 +64,25 @@ export default {
     },
     windowWidth: {
       get () {
-        return this.$store.getters['cornerstoneViewers/cornerstoneViewerVoi'](this.targetViewer).windowWidth
+        return this.$store.getters['cornerstoneViewers/cornerstoneViewerWindowWidth'](this.targetViewer)
       },
       set (value) {
-        this.$store.commit('cornerstoneViewers/cornerstoneViewerWW', {
+        this.$store.commit('cornerstoneViewers/cornerstoneViewerWindowWidth', {
           viewer: this.targetViewer,
           windowWidth: value
         })
+        const element = this.$store.getters['cornerstoneViewers/cornerstoneViewer'](this.targetViewer)
+        var viewport = cornerstone.getViewport(element)
+        viewport.voi.windowWidth = value
+        cornerstone.updateImage(element)
       }
     },
     windowCenter: {
       get () {
-        return this.$store.getters['cornerstoneViewers/cornerstoneViewerVoi'](this.targetViewer).windowCenter
+        return this.$store.getters['cornerstoneViewers/cornerstoneViewerWindowCenter'](this.targetViewer)
       },
       set (value) {
-        this.$store.commit('cornerstoneViewers/cornerstoneViewerWC', {
+        this.$store.commit('cornerstoneViewers/cornerstoneViewerWindowCenter', {
           viewer: this.targetViewer,
           windowCenter: value
         })

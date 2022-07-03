@@ -1,8 +1,5 @@
 <template>
   <div class="container-fluid" id="content" :style="cssStyle">
-    <div class="row mx auto">
-      <DicomViewerTools></DicomViewerTools>
-    </div>
     <div class="row mx-auto">
       <!-- Imgsets -->
       <div class="col-lg-10 pt-1" id="imgset_creation">
@@ -23,12 +20,8 @@
                                 -->
           <div id="imgset" class="mx-auto px-0 w-100">
             <!--Images -->
-            <!-- <div id="ref_images">
-              <span class="badge bg-secondary w-100 mb-2">
-                <h4 class="mt-1">Reference Image Stack(s)</h4>
-              </span>
-            </div> -->
-              <span class="badge bg-secondary mx-auto w-100">
+              <DicomViewerTools ></DicomViewerTools>
+              <span v-if="refviewerNumb" class="badge bg-secondary mx-auto w-100">
                 <h4 class="">Reference-Stack(s)</h4>
               </span>
               <div id="ref-stacks" :class="refviewerLayout">
@@ -40,10 +33,15 @@
               <div id="stacks" :class="viewerLayout">
                 <dicom-viewer v-for="index in viewerNumb" :key="index" :viewer-index="index-1"></dicom-viewer>
               </div>
+            <div>
+
+          </div>
             <!-- modify buttons -->
             <div id="imgset_creation_buttons">
               <div class="row mt-3 mb-2">
-                <div class="col-lg-12 text-center">
+                  <div class="col-lg-2">
+                    <ImgsetNav class="w-100"></ImgsetNav>
+                  </div>
                   <button
                     value="append imgset"
                     class="imgset_btn btn-success btn col-lg-2"
@@ -73,9 +71,9 @@
                     class="imgset_btn btn-danger btn col-lg-2"
                     id="del_all_imgsets"
                   />
-                </div>
               </div>
             </div>
+
           </div>
         </div>
       </div>
@@ -126,6 +124,7 @@ import DicomViewer from '@/components/dicomViewer/DicomViewer.vue'
 import GeneralSettings from '@/components/studyDesign/GeneralSettings.vue'
 import DicomViewportControl from '@/components/dicomViewer/DicomViewportControl.vue'
 import DicomViewerTools from '@/components/dicomViewer/DicomViewerTools.vue'
+import ImgsetNav from '@/components/studyDesign/ImgsetNav.vue'
 
 import cornerstone from 'cornerstone-core'
 
@@ -135,7 +134,8 @@ export default {
     DicomViewer,
     GeneralSettings,
     DicomViewportControl,
-    DicomViewerTools
+    DicomViewerTools,
+    ImgsetNav
   },
   computed: {
     viewerNumb () {
@@ -214,7 +214,7 @@ export default {
       var heigth
       elements.forEach((e) => {
         if (this.$store.getters['openStudy/viewerHeightAuto']) {
-          heigth = Math.min(Number(e.element.clientWidth), Number(window.innerHeight - 350))
+          heigth = Math.min(Number(e.element.clientWidth), Number(window.innerHeight - 420))
         } else {
           heigth = this.$store.getters['openStudy/viewerHeight']
         }

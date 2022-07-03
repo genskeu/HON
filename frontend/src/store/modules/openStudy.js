@@ -74,6 +74,9 @@ const getters = {
   },
   tools (state) {
     return state.design.tools
+  },
+  imgsets (state) {
+    return state.imageSets
   }
 }
 
@@ -87,7 +90,7 @@ const mutations = {
     state.description = study.description
     state.design = study.design
     state.images = study.images
-    state.imageSets = study.image_sets
+    state.imageSets = study.imgsets
     state.scales = study.scales
     state.instructions = study.instructions
   },

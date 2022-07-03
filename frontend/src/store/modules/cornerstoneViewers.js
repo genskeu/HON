@@ -1,4 +1,4 @@
-import cornerstone from 'cornerstone-core'
+// import cornerstone from 'cornerstone-core'
 
 const state = {
   viewers: []
@@ -6,9 +6,9 @@ const state = {
 
 // function to check if viewport and vieport props exist
 // could be removed if viewport control shown only if viewport exists
-function voiCheck (viewer) {
-  return viewer.viewport !== undefined && viewer.viewport.voi !== undefined
-}
+// function voiCheck (viewer) {
+//   return viewer.viewport !== undefined && viewer.viewport.voi !== undefined
+// }
 
 function scaleCheck (viewer) {
   return viewer.viewport !== undefined && viewer.viewport.scale !== undefined
@@ -23,14 +23,21 @@ const getters = {
     return state.viewers
   },
   cornerstoneViewer: (state) => (index) => {
-    return state.viewers[index]
+    return state.viewers[index].element
   },
-  cornerstoneViewerVoi: (state) => (index) => {
-    if (voiCheck(state.viewers[index])) {
-      return state.viewers[index].viewport.voi
+  imageDisplayed: (state) => (index) => {
+    const viewer = state.viewers[index]
+    if (viewer) {
+      return viewer.imageDisplayed
     } else {
-      return NaN
+      return undefined
     }
+  },
+  cornerstoneViewerWindowWidth: (state) => (index) => {
+    return state.viewers[index].viewportSettings.windowWidth
+  },
+  cornerstoneViewerWindowCenter: (state) => (index) => {
+    return state.viewers[index].viewportSettings.windowCenter
   },
   cornerstoneViewerScale: (state) => (index) => {
     if (scaleCheck(state.viewers[index])) {
@@ -56,26 +63,29 @@ const mutations = {
   removeCornerstoneViewer (state, viewer) {
     state.viewers = state.viewers.filter(v => v.element !== viewer)
   },
-  cornerstoneViewerWW: (state, payload) => {
-    var viewer = state.viewers[payload.viewer]
-    if (voiCheck(viewer)) {
-      viewer.viewport.voi.windowWidth = Number(payload.windowWidth)
-      cornerstone.updateImage(viewer.element)
-    }
+  imageDisplayed (state, payload) {
+    var viewer = state.viewers[payload.index]
+    viewer.imageDisplayed = payload.imageDisplayed
   },
-  cornerstoneViewerWC: (state, payload) => {
+  cornerstoneViewerWindowWidth: (state, payload) => {
     var viewer = state.viewers[payload.viewer]
-    if (voiCheck(viewer)) {
-      viewer.viewport.voi.windowCenter = Number(payload.windowCenter)
-      cornerstone.updateImage(viewer.element)
-    }
+    viewer.viewportSettings.windowWidth = Number(payload.windowWidth)
+  },
+  cornerstoneViewerWindowCenter: (state, payload) => {
+    var viewer = state.viewers[payload.viewer]
+    viewer.viewportSettings.windowCenter = Number(payload.windowCenter)
   },
   // viewport
   cornerstoneViewportAdd (state, viewport) {
     state.viewports.push(viewport)
   },
   cornerstoneViewportUpdate (state, payload) {
-    state.viewers[payload.index].viewport = payload.viewport
+    var viewportSettings = state.viewers[payload.index].viewportSettings
+    viewportSettings.windowWidth = payload.viewport.voi.windowWidth
+    viewportSettings.windowCenter = payload.viewport.voi.windowCenter
+    viewportSettings.Scale = payload.viewport.scale
+    viewportSettings.PosX = payload.viewport.translation.x
+    viewportSettings.PosY = payload.viewport.translation.y
   }
 }
 

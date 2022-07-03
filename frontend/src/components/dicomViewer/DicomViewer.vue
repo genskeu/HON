@@ -107,10 +107,8 @@ export default {
     // getMasknames () {
     //   return this.gtMasks.concat(this.predMasks)
     // },
-    viewerMetainfo: {
-      get () {
-        return this.$store.getters.viewerMetainfo
-      }
+    viewerMetainfo () {
+      return this.$store.getters.viewerMetainfo
     },
     getStacknames () {
       if (this.$store.state.openStudy) {
@@ -159,9 +157,22 @@ export default {
         })
       }
       return metadata
+    },
+    imageDisplayed: {
+      get () {
+        return this.$store.getters['cornerstoneViewers/imageDisplayed'](this.viewerIndex)
+      },
+      set () {
+      }
     }
   },
   watch: {
+    imageDisplayed: {
+      handler (newImage, oldImage) {
+        this.loadDisplayCornerstone(newImage[0], newImage[1], 'input').then(() => {
+        })
+      }
+    }
   },
   created () {
   },
@@ -169,7 +180,15 @@ export default {
     this.initViewer()
     this.$store.commit('cornerstoneViewers/cornerstoneViewer', {
       element: this.$refs.viewer,
-      viewport: {},
+      imageDisplayed: undefined,
+      viewportSettings: {
+        windowWidth: Number,
+        windowCenter: Number,
+        Scale: Number,
+        PosX: Number,
+        PosY: Number,
+        Angle: Number
+      },
       toolState: {}
     })
   },
@@ -195,9 +214,10 @@ export default {
       const baseUrl = this.$store.state.openStudy.images.find(image => image.name === stackName).base_url.replace('127.0.0.1', 'localhost:5000')
       if (stackName !== '') {
         const data = { name: stackName, size: 0, data: [stackName] }
-        const stacks = this.parseImagesCornerstone(data.data, baseUrl)
-        this.loadDisplayCornerstone(stacks[0], stacks[1], 'input').then(() => {
-        })
+        const stack = this.parseImagesCornerstone(data.data, baseUrl)
+        this.$store.commit('cornerstoneViewers/imageDisplayed', { imageDisplayed: stack, index: this.viewerIndex })
+        // this.loadDisplayCornerstone(stacks[0], stacks[1], 'input').then(() => {
+        // })
       }
     },
     parseImagesCornerstone (images, baseUrl) {
