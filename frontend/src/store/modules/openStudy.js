@@ -20,6 +20,10 @@ const getters = {
   studyDescription (state) {
     return state.description
   },
+  // imgsets
+  imgsets (state) {
+    return state.imageSets
+  },
   // design data
   viewerNumb (state) {
     return Number(state.design.numb_img)
@@ -33,9 +37,6 @@ const getters = {
   refviewerNumb (state) {
     return Number(state.design.numb_refimg)
   },
-  instructions (state) {
-    return state.design.instructions
-  },
   buttonLabels (state) {
     return state.design.button_labels
   },
@@ -44,12 +45,6 @@ const getters = {
   },
   textColor (state) {
     return state.design.text_color
-  },
-  viewerWidth (state) {
-    return Number(state.design.img_width)
-  },
-  viewerWidthAuto (state) {
-    return state.design.img_width_auto
   },
   viewerHeight (state) {
     return Number(state.design.img_height)
@@ -69,21 +64,27 @@ const getters = {
   order (state) {
     return state.design.randomize_order
   },
+  instructions (state) {
+    return state.design.instructions
+  },
   scales (state) {
     return state.design.scales
   },
   tools (state) {
     return state.design.tools
   },
-  imgsets (state) {
-    return state.imageSets
+  // stacks
+  stackNames (state) {
+    const stackNames = state.images.map(
+      obj => {
+        return obj.name
+      }
+    )
+    return stackNames
   }
 }
 
 const mutations = {
-  addStudy (state, study) {
-    state.studies.push(study)
-  },
   openStudy (state, study) {
     state.title = study.title
     state.password = study.title
@@ -166,6 +167,7 @@ const mutations = {
   viewerLayoutCols (state, colNumb) {
     state.design.layout_img_cols = colNumb
   }
+  // imgsets
 }
 
 const actions = {

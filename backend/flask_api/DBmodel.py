@@ -322,7 +322,6 @@ class Design(db.Model):
     text_color = db.Column(db.String(120))
     numb_img = db.Column(db.Integer())
     numb_refimg = db.Column(db.Integer())
-    img_width = db.Column(db.Integer())
     img_height = db.Column(db.Integer())
     numb_rois = db.Column(db.Integer())
     show_viewport_info = db.Column(db.Boolean)
@@ -341,8 +340,6 @@ class Design(db.Model):
             design_dict["text_color"] = self.text_color
             design_dict["numb_img"] = self.numb_img
             design_dict["numb_refimg"] = self.numb_refimg
-            design_dict["img_width"] = self.img_width
-            design_dict["img_width_auto"] = True
             design_dict["img_height"] = self.img_height
             design_dict["img_height_auto"] = True
             design_dict["numb_rois"] = self.numb_rois
@@ -351,9 +348,7 @@ class Design(db.Model):
             design_dict["randomize_order"] = self.randomize_order
             design_dict["scales"] = [scale.to_dict() for scale in self.scales]
             design_dict["tools"] = [tool.to_dict() for tool in self.tools]
-            design_dict["layout_img_cols"] = 1
-            design_dict["layout_img_rows"] = 1
-
+            design_dict["layout_img_cols"] = 2
 
             return design_dict
 

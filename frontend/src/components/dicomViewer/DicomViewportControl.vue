@@ -4,7 +4,7 @@
     <div class="row mx-auto mt-1">
       <button class="btn btn-secondary col-12" data-bs-toggle="collapse" :data-bs-target= "'#' + id"
         aria-expanded="true" :aria-controls="id">
-        <h5 class="mt-1">Viewer</h5>
+        <h5 class="mt-1">{{heading}}</h5>
       </button>
     </div>
 
@@ -25,7 +25,7 @@
         <div class="input-group">
           <label class="input-group-text w-20">Zoom</label>
           <input id="zoom_" type="Number" step="0.1" min="0.1" class="form-control zoom viewport_prop"
-            placeholder="Zoom"/>
+            placeholder="Zoom" v-model="scale"/>
         </div>
       </div>
 
@@ -33,8 +33,16 @@
       <div class="mx-auto">
         <div class="input-group">
           <label class="input-group-text w-20">Pos</label>
-          <input id="pos_x_" type="Number" step="any" class="form-control pos_x viewport_prop" placeholder="x" />
-          <input id="pos_y_" type="Number" step="any" class="form-control pos_y viewport_prop" placeholder="y" />
+          <input id="pos_x_" type="Number" step="any" class="form-control pos_x viewport_prop" placeholder="x" v-model="posX"/>
+          <input id="pos_y_" type="Number" step="any" class="form-control pos_y viewport_prop" placeholder="y" v-model="posY"/>
+        </div>
+      </div>
+
+      <!-- rotation -->
+      <div class="mx-auto">
+        <div class="input-group">
+          <label class="input-group-text w-20">Rotation</label>
+          <input id="pos_y_" type="Number" step="1" class="form-control pos_y viewport_prop" placeholder="rotation" v-model="rotation"/>
         </div>
       </div>
 
@@ -62,16 +70,19 @@ export default {
     id () {
       return 'viewportControl_' + this.targetViewer
     },
+    heading () {
+      return 'Viewer ' + this.targetViewer
+    },
     windowWidth: {
       get () {
-        return this.$store.getters['cornerstoneViewers/cornerstoneViewerWindowWidth'](this.targetViewer)
+        return this.$store.getters['imageViewers/cornerstoneViewerWindowWidth'](this.targetViewer)
       },
       set (value) {
-        this.$store.commit('cornerstoneViewers/cornerstoneViewerWindowWidth', {
+        this.$store.commit('imageViewers/cornerstoneViewerWindowWidth', {
           viewer: this.targetViewer,
           windowWidth: value
         })
-        const element = this.$store.getters['cornerstoneViewers/cornerstoneViewer'](this.targetViewer)
+        const element = this.$store.getters['imageViewers/cornerstoneViewer'](this.targetViewer)
         var viewport = cornerstone.getViewport(element)
         viewport.voi.windowWidth = value
         cornerstone.updateImage(element)
@@ -79,76 +90,84 @@ export default {
     },
     windowCenter: {
       get () {
-        return this.$store.getters['cornerstoneViewers/cornerstoneViewerWindowCenter'](this.targetViewer)
+        return this.$store.getters['imageViewers/cornerstoneViewerWindowCenter'](this.targetViewer)
       },
       set (value) {
-        this.$store.commit('cornerstoneViewers/cornerstoneViewerWindowCenter', {
+        this.$store.commit('imageViewers/cornerstoneViewerWindowCenter', {
           viewer: this.targetViewer,
           windowCenter: value
         })
+        const element = this.$store.getters['imageViewers/cornerstoneViewer'](this.targetViewer)
+        var viewport = cornerstone.getViewport(element)
+        viewport.voi.windowCenter = value
+        cornerstone.updateImage(element)
+      }
+    },
+    scale: {
+      get () {
+        return this.$store.getters['imageViewers/cornerstoneViewerScale'](this.targetViewer)
+      },
+      set (value) {
+        this.$store.commit('imageViewers/cornerstoneViewerScale', {
+          viewer: this.targetViewer,
+          scale: value
+        })
+        const element = this.$store.getters['imageViewers/cornerstoneViewer'](this.targetViewer)
+        var viewport = cornerstone.getViewport(element)
+        viewport.scale = value
+        // not sure why update not working here
+        cornerstone.setViewport(element, viewport)
+      }
+    },
+    posX: {
+      get () {
+        return this.$store.getters['imageViewers/cornerstoneViewerPosX'](this.targetViewer)
+      },
+      set (value) {
+        this.$store.commit('imageViewers/cornerstoneViewerPosX', {
+          viewer: this.targetViewer,
+          posX: value
+        })
+        const element = this.$store.getters['imageViewers/cornerstoneViewer'](this.targetViewer)
+        var viewport = cornerstone.getViewport(element)
+        viewport.translation.x = value
+        cornerstone.updateImage(element)
+      }
+    },
+    posY: {
+      get () {
+        return this.$store.getters['imageViewers/cornerstoneViewerPosY'](this.targetViewer)
+      },
+      set (value) {
+        this.$store.commit('imageViewers/cornerstoneViewerPosY', {
+          viewer: this.targetViewer,
+          posY: value
+        })
+        const element = this.$store.getters['imageViewers/cornerstoneViewer'](this.targetViewer)
+        var viewport = cornerstone.getViewport(element)
+        viewport.translation.y = value
+        cornerstone.updateImage(element)
+      }
+    },
+    rotation: {
+      get () {
+        return this.$store.getters['imageViewers/cornerstoneViewerRotation'](this.targetViewer)
+      },
+      set (value) {
+        this.$store.commit('imageViewers/cornerstoneViewerRotation', {
+          viewer: this.targetViewer,
+          rotation: value
+        })
+        const element = this.$store.getters['imageViewers/cornerstoneViewer'](this.targetViewer)
+        var viewport = cornerstone.getViewport(element)
+        viewport.rotation = value
+        cornerstone.setViewport(element, viewport)
       }
     }
-    // zoom: {
-    //   get () {
-    //     var viewport = this.$store.getters.cornerstoneViewport(this.targetViewer)
-    //     if (viewport !== undefined) {
-    //       return viewport.scale
-    //     } else {
-    //       return NaN
-    //     }
-    //   },
-    //   set (value) {
-    //     var viewport = this.$store.getters.cornerstoneViewport(this.targetViewer)
-    //     var element = this.$store.getters.cornerstoneViewer(this.targetViewer)
-    //     if (viewport !== undefined) {
-    //       viewport.scale = value
-    //       this.$store.commit('cornerstoneViewportUpdate', { viewport: viewport, index: this.targetViewer })
-    //       cornerstone.setViewport(element, viewport)
-    //     }
-    //   }
-    // },
-    // posX: {
-    //   get () {
-    //     var viewport = this.$store.getters.cornerstoneViewport(this.targetViewer)
-    //     if (viewport !== undefined && viewport.translation !== undefined) {
-    //       return viewport.translation.x
-    //     } else {
-    //       return NaN
-    //     }
-    //   },
-    //   set (value) {
-    //     var viewport = this.$store.getters.cornerstoneViewport(this.targetViewer)
-    //     var element = this.$store.getters.cornerstoneViewer(this.targetViewer)
-    //     if (viewport !== undefined && viewport.translation !== undefined) {
-    //       viewport.translation.x = value
-    //       this.$store.commit('cornerstoneViewportUpdate', { viewport: viewport, index: this.targetViewer })
-    //       cornerstone.setViewport(element, viewport)
-    //     }
-    //   }
-    // },
-    // posY: {
-    //   get () {
-    //     var viewport = this.$store.getters.cornerstoneViewport(this.targetViewer)
-    //     if (viewport !== undefined && viewport.translation !== undefined) {
-    //       return viewport.translation.y
-    //     } else {
-    //       return NaN
-    //     }
-    //   },
-    //   set (value) {
-    //     var viewport = this.$store.getters.cornerstoneViewport(this.targetViewer)
-    //     var element = this.$store.getters.cornerstoneViewer(this.targetViewer)
-    //     if (viewport !== undefined && viewport.translation !== undefined) {
-    //       viewport.translation.y = value
-    //       this.$store.commit('cornerstoneViewportUpdate', { viewport: viewport, index: this.targetViewer })
-    //       cornerstone.setViewport(element, viewport)
-    //     }
-    //   }
-    // }
   },
   methods: {
     resetViewport () {
-      const element = this.$store.getters.cornerstoneViewer(this.targetViewer)
+      const element = this.$store.getters['imageViewers/cornerstoneViewer'](this.targetViewer)
       const enabledElement = cornerstone.getEnabledElement(element)
       var defViewport = cornerstone.getDefaultViewportForImage(element, enabledElement.image)
       this.$store.commit('cornerstoneViewportUpdate', { viewport: defViewport, index: this.targetViewer })

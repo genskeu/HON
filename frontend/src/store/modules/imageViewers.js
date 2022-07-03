@@ -4,19 +4,6 @@ const state = {
   viewers: []
 }
 
-// function to check if viewport and vieport props exist
-// could be removed if viewport control shown only if viewport exists
-// function voiCheck (viewer) {
-//   return viewer.viewport !== undefined && viewer.viewport.voi !== undefined
-// }
-
-function scaleCheck (viewer) {
-  return viewer.viewport !== undefined && viewer.viewport.scale !== undefined
-}
-
-function translationCheck (viewer) {
-  return viewer.viewport !== undefined && viewer.viewport.translation !== undefined
-}
 const getters = {
   // viewer
   cornerstoneViewers (state) {
@@ -25,10 +12,10 @@ const getters = {
   cornerstoneViewer: (state) => (index) => {
     return state.viewers[index].element
   },
-  imageDisplayed: (state) => (index) => {
+  stackDisplayed: (state) => (index) => {
     const viewer = state.viewers[index]
     if (viewer) {
-      return viewer.imageDisplayed
+      return viewer.stackDisplayed
     } else {
       return undefined
     }
@@ -40,18 +27,16 @@ const getters = {
     return state.viewers[index].viewportSettings.windowCenter
   },
   cornerstoneViewerScale: (state) => (index) => {
-    if (scaleCheck(state.viewers[index])) {
-      return state.viewers[index].viewport.scale
-    } else {
-      return NaN
-    }
+    return state.viewers[index].viewportSettings.scale
   },
-  cornerstoneViewerTranslation: (state) => (index) => {
-    if (translationCheck(state.viewers[index])) {
-      return state.viewers[index].viewport.translation
-    } else {
-      return NaN
-    }
+  cornerstoneViewerPosX: (state) => (index) => {
+    return state.viewers[index].viewportSettings.posX
+  },
+  cornerstoneViewerPosY: (state) => (index) => {
+    return state.viewers[index].viewportSettings.posY
+  },
+  cornerstoneViewerRotation: (state) => (index) => {
+    return state.viewers[index].viewportSettings.rotation
   }
 }
 
@@ -63,9 +48,9 @@ const mutations = {
   removeCornerstoneViewer (state, viewer) {
     state.viewers = state.viewers.filter(v => v.element !== viewer)
   },
-  imageDisplayed (state, payload) {
+  stackDisplayed (state, payload) {
     var viewer = state.viewers[payload.index]
-    viewer.imageDisplayed = payload.imageDisplayed
+    viewer.stackDisplayed = payload.stackDisplayed
   },
   cornerstoneViewerWindowWidth: (state, payload) => {
     var viewer = state.viewers[payload.viewer]
@@ -75,6 +60,22 @@ const mutations = {
     var viewer = state.viewers[payload.viewer]
     viewer.viewportSettings.windowCenter = Number(payload.windowCenter)
   },
+  cornerstoneViewerScale: (state, payload) => {
+    var viewer = state.viewers[payload.viewer]
+    viewer.viewportSettings.scale = Number(payload.scale)
+  },
+  cornerstoneViewerPosX: (state, payload) => {
+    var viewer = state.viewers[payload.viewer]
+    viewer.viewportSettings.posX = Number(payload.posX)
+  },
+  cornerstoneViewerPosY: (state, payload) => {
+    var viewer = state.viewers[payload.viewer]
+    viewer.viewportSettings.PosY = Number(payload.PosY)
+  },
+  cornerstoneViewerRotation: (state, payload) => {
+    var viewer = state.viewers[payload.viewer]
+    viewer.viewportSettings.rotation = Number(payload.rotation)
+  },
   // viewport
   cornerstoneViewportAdd (state, viewport) {
     state.viewports.push(viewport)
@@ -83,9 +84,10 @@ const mutations = {
     var viewportSettings = state.viewers[payload.index].viewportSettings
     viewportSettings.windowWidth = payload.viewport.voi.windowWidth
     viewportSettings.windowCenter = payload.viewport.voi.windowCenter
-    viewportSettings.Scale = payload.viewport.scale
-    viewportSettings.PosX = payload.viewport.translation.x
-    viewportSettings.PosY = payload.viewport.translation.y
+    viewportSettings.scale = payload.viewport.scale
+    viewportSettings.posX = payload.viewport.translation.x
+    viewportSettings.posY = payload.viewport.translation.y
+    viewportSettings.rotation = payload.viewport.rotation
   }
 }
 

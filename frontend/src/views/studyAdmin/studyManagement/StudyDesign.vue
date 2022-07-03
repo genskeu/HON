@@ -39,9 +39,6 @@
             <!-- modify buttons -->
             <div id="imgset_creation_buttons">
               <div class="row mt-3 mb-2">
-                  <div class="col-lg-2">
-                    <ImgsetNav class="w-100"></ImgsetNav>
-                  </div>
                   <button
                     value="append imgset"
                     class="imgset_btn btn-success btn col-lg-2"
@@ -54,6 +51,9 @@
                     id="insert_imgset"
                     title="inserts image-set at the currently selected position"
                   />
+                  <div class="col-lg-2 px-0">
+                    <ImgsetNav class="w-100"></ImgsetNav>
+                  </div>
                   <input
                     value="update imgset"
                     class="imgset_btn btn-light btn col-lg-2"
@@ -109,8 +109,8 @@
             </button>
           </div>
         </div>
-        <div id="viewport_settings">
-          <div id="viewports_man_container" v-for="(viewer, index) in cornerstoneViewers" :key="index">
+        <div id="viewport_settings" class="collapse show">
+          <div id="viewports_man_container" v-for="(viewer, index) in imageViewers" :key="index">
             <DicomViewportControl :target-viewer="index"></DicomViewportControl>
           </div>
         </div>
@@ -141,8 +141,8 @@ export default {
     viewerNumb () {
       return this.$store.getters['openStudy/viewerNumb']
     },
-    cornerstoneViewers () {
-      return this.$store.getters['cornerstoneViewers/cornerstoneViewers']
+    imageViewers () {
+      return this.$store.getters['imageViewers/cornerstoneViewers']
     },
     viewerLayout () {
       // var colClass = 'grid-cols-' + this.$store.getters.viewerLayoutCols

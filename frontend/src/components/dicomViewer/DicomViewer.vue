@@ -1,7 +1,7 @@
 <template>
   <div class='relative grid grid-rows-6 grid-cols-1' @cornerstoneimagerendered.capture='displayStackIndex'>
     <!-- image viewer :style='viewerSizeCSS' -->
-    <div ref='viewer' class='dicom_viewer row-span-5 col-span-1 relative' >
+    <div ref='viewer' class='dicom_viewer row-span-5 col-span-1 relative' @cornerstoneimagerendered="updateViewportSettings">
       <!-- metadata viewer -->
       <div class='absolute top-0 left-0 p-4 text-white'>
         <ul class='list-none text-left'>
@@ -40,32 +40,13 @@
         </label>
         <select ref='image_select_id'
           class='border grow text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5'
-          @change='loadStackOnSelect'>
+          @change='changeStack'>
           <option></option>
           <option v-for='stack in getStacknames.sort()' :key='stack'>
             {{ stack }}
           </option>
         </select>
       </div>
-      <!-- select menu for masks -->
-      <!-- <div class='flex grow items-center'>
-        <label class='block text-sm font-medium text-gray-900 dark:text-gray-400'>Select your Mask:
-        </label>
-
-        <select ref='maskSelect_id'
-          class='bg-gray-50 border border-gray-300 text-gray-900 grow text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
-          @change='loadMaskOnSelect'>
-          <option></option>
-          <option disabled>Grundtruth Masks</option>
-          <option v-for='mask in gtMasks' :key='mask' mask-type='gt'>
-            {{ mask }}
-          </option>
-          <option disabled>Pred Masks (output)</option>
-          <option v-for='mask in predMasks' :key='mask' mask-type='pred'>
-            {{ mask }}
-          </option>
-        </select>
-      </div> -->
     </div>
   </div>
 </template>
@@ -93,8 +74,7 @@ export default {
   data () {
     return {
       // replace all by computed properties?
-      stack_displayed: undefined,
-      current_stack: undefined,
+      activeImage: undefined,
       metaDataTL: ['x00100010', 'x00100020', 'x00081030', 'x0008103e'],
       metaDataTR: ['x00080080', 'x00081090', 'x00080090'],
       metaDataBL: ['x00200011', 'x00180050', 'x00201041'],
@@ -103,73 +83,60 @@ export default {
     }
   },
   computed: {
-    // used for mask display
-    // getMasknames () {
-    //   return this.gtMasks.concat(this.predMasks)
-    // },
     viewerMetainfo () {
-      return this.$store.getters.viewerMetainfo
-    },
-    getStacknames () {
-      if (this.$store.state.openStudy) {
-        const imageNames = this.$store.state.openStudy.images.map(
-          obj => {
-            return obj.name
-          }
-        )
-        return imageNames
-      } else {
-        return []
-      }
+      return this.$store.getters['openStudy/viewerMetainfo']
     },
     stackMetadataTL () {
       var metadata = []
-      if (this.stack_displayed && this.viewerMetainfo) {
+      if (this.activeImage && this.viewerMetainfo) {
         this.metaDataTL.forEach(string => {
-          metadata.push({ tag: '', value: this.stack_displayed.data.string(string) })
+          metadata.push({ tag: '', value: this.activeImage.data.string(string) })
         })
       }
       return metadata
     },
     stackMetadataTR () {
       var metadata = []
-      if (this.stack_displayed && this.viewerMetainfo) {
+      if (this.activeImage && this.viewerMetainfo) {
         this.metaDataTR.forEach(string => {
-          metadata.push({ tag: '', value: this.stack_displayed.data.string(string) })
+          metadata.push({ tag: '', value: this.activeImage.data.string(string) })
         })
       }
       return metadata
     },
     stackMetadataBL () {
       var metadata = []
-      if (this.stack_displayed && this.viewerMetainfo) {
+      if (this.activeImage && this.viewerMetainfo) {
         this.metaDataBL.forEach(string => {
-          metadata.push({ tag: '', value: this.stack_displayed.data.string(string) })
+          metadata.push({ tag: '', value: this.activeImage.data.string(string) })
         })
       }
       return metadata
     },
     stackMetadataBR () {
       var metadata = []
-      if (this.stack_displayed && this.viewerMetainfo) {
+      if (this.activeImage && this.viewerMetainfo) {
         this.metaDataBR.forEach(string => {
-          metadata.push({ tag: '', value: this.stack_displayed.data.string(string) })
+          metadata.push({ tag: '', value: this.activeImage.data.string(string) })
         })
       }
       return metadata
     },
-    imageDisplayed: {
+    getStacknames () {
+      return this.$store.getters['openStudy/stackNames']
+    },
+    stackDisplayed: {
       get () {
-        return this.$store.getters['cornerstoneViewers/imageDisplayed'](this.viewerIndex)
+        return this.$store.getters['imageViewers/stackDisplayed'](this.viewerIndex)
       },
       set () {
       }
     }
   },
   watch: {
-    imageDisplayed: {
-      handler (newImage, oldImage) {
-        this.loadDisplayCornerstone(newImage[0], newImage[1], 'input').then(() => {
+    stackDisplayed: {
+      handler (newStack) {
+        this.loadDisplayCornerstone(newStack).then(() => {
         })
       }
     }
@@ -178,22 +145,22 @@ export default {
   },
   mounted () {
     this.initViewer()
-    this.$store.commit('cornerstoneViewers/cornerstoneViewer', {
+    this.$store.commit('imageViewers/cornerstoneViewer', {
       element: this.$refs.viewer,
-      imageDisplayed: undefined,
+      stackDisplayed: undefined,
       viewportSettings: {
         windowWidth: Number,
         windowCenter: Number,
-        Scale: Number,
-        PosX: Number,
-        PosY: Number,
-        Angle: Number
+        scale: Number,
+        posX: Number,
+        posY: Number,
+        rotation: Number
       },
       toolState: {}
     })
   },
   beforeUnmount () {
-    this.$store.commit('cornerstoneViewers/removeCornerstoneViewer', this.$refs.viewer)
+    this.$store.commit('imageViewers/removeCornerstoneViewer', this.$refs.viewer)
   },
   methods: {
     initViewer () {
@@ -209,101 +176,53 @@ export default {
         false
       )
     },
-    loadStackOnSelect (event) {
+    // merge this function into setter of stackDisplayed somehow
+    changeStack (event) {
       const stackName = event.target.value
+      // can be deleted after db change
       const baseUrl = this.$store.state.openStudy.images.find(image => image.name === stackName).base_url.replace('127.0.0.1', 'localhost:5000')
       if (stackName !== '') {
         const data = { name: stackName, size: 0, data: [stackName] }
         const stack = this.parseImagesCornerstone(data.data, baseUrl)
-        this.$store.commit('cornerstoneViewers/imageDisplayed', { imageDisplayed: stack, index: this.viewerIndex })
-        // this.loadDisplayCornerstone(stacks[0], stacks[1], 'input').then(() => {
-        // })
+        this.$store.commit('imageViewers/stackDisplayed', { stackDisplayed: stack, index: this.viewerIndex })
       }
     },
     parseImagesCornerstone (images, baseUrl) {
       const scheme = 'wadouri'
       const imageIds = images.map(
-        (image) =>
-         `${scheme}:${baseUrl}${image}`
+        (image) => `${scheme}:${baseUrl}${image}`
       )
       const stack = {
         currentImageIdIndex: 0,
         imageIds
       }
-      return [imageIds, stack]
+      return stack
     },
-    loadDisplayCornerstone (imageIds, stack) {
+    loadDisplayCornerstone (stack) {
       // load images and set the stack
-      const promise = cornerstone.loadImage(imageIds[0]).then((image) => {
-        this.stack_displayed = image
-        this.current_stack = stack
+      const promise = cornerstone.loadImage(stack.imageIds[0]).then((image) => {
+        this.activeImage = image
         cornerstone.displayImage(this.$refs.viewer, image)
         cornerstoneTools.addStackStateManager(this.$refs.viewer, ['stack'])
         cornerstoneTools.addToolState(this.$refs.viewer, 'stack', stack)
         var viewport = cornerstone.getViewport(this.$refs.viewer)
-        this.$store.commit('cornerstoneViewers/cornerstoneViewportUpdate', { viewport: viewport, index: this.viewerIndex })
+        this.$store.commit('imageViewers/cornerstoneViewportUpdate', { viewport: viewport, index: this.viewerIndex })
       })
       return promise
     },
     displayStackIndex () {
-      const stack = this.current_stack
-      if (stack) {
+      if (this.stackDisplayed) {
         var slice = this.$refs.slice_index
         slice.innerHTML =
           'Image:' +
-          (stack.currentImageIdIndex + 1) +
+          (this.stackDisplayed.currentImageIdIndex + 1) +
          '/' +
-          stack.imageIds.length
-      }
-    }
-    /*     loadMaskOnSelect (event) {
-      const segMaskName = event.target.value
-      var segmentation = cornerstoneTools.getModule('segmentation')
-      const element = this.$refs.viewer
-      segmentation.setters.activeLabelmapIndex(this.$refs.viewer, 0)
-      var labelmap3D = segmentation.getters.labelmap3D(element, 0)
-      const masktype =
-        event.target.selectedOptions[0].getAttribute('mask-type')
-      var url = 'http://localhost:5000/maskdata/' + masktype + '/' + segMaskName
-      if (segMaskName) {
-        axios.get(url).then((response) => {
-          var segData = response.data.maskData
-          labelmap3D.labelmaps2D = Array(segData.length)
-          segData.forEach(function (seg, index) {
-            if (seg) {
-              var l2dforImageIdIndex = {
-                pixelData: Uint16Array.from(JSON.parse(seg)),
-                segmentsOnLabelmap: [0, 1, 2]
-              }
-              labelmap3D.labelmaps2D.splice(index, 0, l2dforImageIdIndex)
-            }
-          })
-          cornerstone.updateImage(element)
-        }).catch(error => {
-          alert('Mask not found!')
-          console.log(error)
-        })
-      } else {
-        labelmap3D.labelmaps2D = []
-        cornerstone.updateImage(element)
+          this.stackDisplayed.imageIds.length
       }
     },
-    filterMasks (volName) {
-      var maskSelect = this.$refs.maskSelect_id
-      maskSelect.value = ''
-      for (var option of maskSelect) {
-        if (
-          option.value.includes(volName) |
-          option.value.includes('gt') |
-          (option.value === '') |
-          (option.disabled === true)
-        ) {
-          option.removeAttribute('hidden')
-        } else {
-          option.setAttribute('hidden', 'hidden')
-        }
-      }
-    } */
+    updateViewportSettings () {
+      debugger // eslint-disable-line
+    }
   }
 }
 </script>

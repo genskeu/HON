@@ -27,7 +27,7 @@ export default {
         newImgset.image_stacks.forEach((stack, index) => {
           stack.cs_stack.imageIds[0] = stack.cs_stack.imageIds[0].replace('127.0.0.1', 'localhost:5000')
           // debugger // eslint-disable-line no-debugger
-          this.$store.commit('cornerstoneViewers/imageDisplayed', { imageDisplayed: [stack.cs_stack.imageIds, stack.cs_stack], index: index })
+          this.$store.commit('imageViewers/stackDisplayed', { stackDisplayed: stack.cs_stack, index: index })
         })
       }
     }

@@ -1,10 +1,10 @@
 import { createStore } from 'vuex'
 import openStudy from './modules/openStudy'
-import cornerstoneViewers from './modules/cornerstoneViewers'
+import imageViewers from './modules/imageViewers'
 
 export default createStore({
   modules: {
     openStudy: openStudy,
-    cornerstoneViewers: cornerstoneViewers
+    imageViewers: imageViewers
   }
 })
