@@ -39,11 +39,10 @@
         <label class='block text-sm font-medium'>Select your Image:
         </label>
         <select ref='image_select_id'
-          class='border grow text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5'
-          @change='changeStack'>
+          class='border grow text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5' v-model="stackDisplayed">
           <option></option>
-          <option v-for='stack in getStacknames.sort()' :key='stack'>
-            {{ stack }}
+          <option v-for='stack in stacks' :key='stack.name' :value="stack">
+            {{ stack.name }}
           </option>
         </select>
       </div>
@@ -122,21 +121,28 @@ export default {
       }
       return metadata
     },
-    getStacknames () {
-      return this.$store.getters['openStudy/stackNames']
+    stacks () {
+      return this.$store.getters['openStudy/stacks']
     },
     stackDisplayed: {
       get () {
         return this.$store.getters['imageViewers/stackDisplayed'](this.viewerIndex)
       },
-      set () {
+      set (stack) {
+        // can be deleted after db change
+        this.$store.commit('imageViewers/stackDisplayed', { stackDisplayed: stack, index: this.viewerIndex })
       }
     }
   },
   watch: {
     stackDisplayed: {
       handler (newStack) {
-        this.loadDisplayCornerstone(newStack).then(() => {
+        var stack = {
+          currentImageIdIndex: newStack.currentImageIdIndex,
+          imageIds: [newStack.imageIds[0]]
+        }
+        stack.imageIds[0] = stack.imageIds[0].replace('127.0.0.1', 'localhost:5000')
+        this.loadDisplayCornerstone(stack).then(() => {
         })
       }
     }
@@ -176,28 +182,6 @@ export default {
         false
       )
     },
-    // merge this function into setter of stackDisplayed somehow
-    changeStack (event) {
-      const stackName = event.target.value
-      // can be deleted after db change
-      const baseUrl = this.$store.state.openStudy.images.find(image => image.name === stackName).base_url.replace('127.0.0.1', 'localhost:5000')
-      if (stackName !== '') {
-        const data = { name: stackName, size: 0, data: [stackName] }
-        const stack = this.parseImagesCornerstone(data.data, baseUrl)
-        this.$store.commit('imageViewers/stackDisplayed', { stackDisplayed: stack, index: this.viewerIndex })
-      }
-    },
-    parseImagesCornerstone (images, baseUrl) {
-      const scheme = 'wadouri'
-      const imageIds = images.map(
-        (image) => `${scheme}:${baseUrl}${image}`
-      )
-      const stack = {
-        currentImageIdIndex: 0,
-        imageIds
-      }
-      return stack
-    },
     loadDisplayCornerstone (stack) {
       // load images and set the stack
       const promise = cornerstone.loadImage(stack.imageIds[0]).then((image) => {
@@ -221,7 +205,8 @@ export default {
       }
     },
     updateViewportSettings () {
-      debugger // eslint-disable-line
+      var viewport = cornerstone.getViewport(this.$refs.viewer)
+      this.$store.commit('imageViewers/cornerstoneViewportUpdate', { viewport: viewport, index: this.viewerIndex })
     }
   }
 }

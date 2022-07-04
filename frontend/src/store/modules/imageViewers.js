@@ -54,27 +54,27 @@ const mutations = {
   },
   cornerstoneViewerWindowWidth: (state, payload) => {
     var viewer = state.viewers[payload.viewer]
-    viewer.viewportSettings.windowWidth = Number(payload.windowWidth)
+    viewer.viewportSettings.windowWidth = Number(payload.windowWidth).toFixed(2)
   },
   cornerstoneViewerWindowCenter: (state, payload) => {
     var viewer = state.viewers[payload.viewer]
-    viewer.viewportSettings.windowCenter = Number(payload.windowCenter)
+    viewer.viewportSettings.windowCenter = Number(payload.windowCenter).toFixed(2)
   },
   cornerstoneViewerScale: (state, payload) => {
     var viewer = state.viewers[payload.viewer]
-    viewer.viewportSettings.scale = Number(payload.scale)
+    viewer.viewportSettings.scale = Number(payload.scale).toFixed(2)
   },
   cornerstoneViewerPosX: (state, payload) => {
     var viewer = state.viewers[payload.viewer]
-    viewer.viewportSettings.posX = Number(payload.posX)
+    viewer.viewportSettings.posX = Number(payload.posX).toFixed(2)
   },
   cornerstoneViewerPosY: (state, payload) => {
     var viewer = state.viewers[payload.viewer]
-    viewer.viewportSettings.PosY = Number(payload.PosY)
+    viewer.viewportSettings.PosY = Number(payload.PosY).toFixed(2)
   },
   cornerstoneViewerRotation: (state, payload) => {
     var viewer = state.viewers[payload.viewer]
-    viewer.viewportSettings.rotation = Number(payload.rotation)
+    viewer.viewportSettings.rotation = Number(payload.rotation).toFixed(2)
   },
   // viewport
   cornerstoneViewportAdd (state, viewport) {

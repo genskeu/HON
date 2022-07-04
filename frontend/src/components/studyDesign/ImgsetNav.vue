@@ -25,8 +25,8 @@ export default {
     imgsetActive: {
       handler (newImgset) {
         newImgset.image_stacks.forEach((stack, index) => {
-          stack.cs_stack.imageIds[0] = stack.cs_stack.imageIds[0].replace('127.0.0.1', 'localhost:5000')
-          // debugger // eslint-disable-line no-debugger
+          // ensure same structure as select menu values
+          stack.cs_stack.name = stack.name
           this.$store.commit('imageViewers/stackDisplayed', { stackDisplayed: stack.cs_stack, index: index })
         })
       }

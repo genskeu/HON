@@ -170,7 +170,7 @@ export default {
       const element = this.$store.getters['imageViewers/cornerstoneViewer'](this.targetViewer)
       const enabledElement = cornerstone.getEnabledElement(element)
       var defViewport = cornerstone.getDefaultViewportForImage(element, enabledElement.image)
-      this.$store.commit('cornerstoneViewportUpdate', { viewport: defViewport, index: this.targetViewer })
+      this.$store.commit('imageViewers/cornerstoneViewportUpdate', { viewport: defViewport, index: this.targetViewer })
       cornerstone.reset(element)
     }
   }

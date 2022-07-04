@@ -74,13 +74,8 @@ const getters = {
     return state.design.tools
   },
   // stacks
-  stackNames (state) {
-    const stackNames = state.images.map(
-      obj => {
-        return obj.name
-      }
-    )
-    return stackNames
+  stacks (state) {
+    return state.stacks
   }
 }
 
@@ -91,6 +86,7 @@ const mutations = {
     state.description = study.description
     state.design = study.design
     state.images = study.images
+    state.stacks = study.cs_stacks
     state.imageSets = study.imgsets
     state.scales = study.scales
     state.instructions = study.instructions

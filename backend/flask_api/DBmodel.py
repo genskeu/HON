@@ -98,6 +98,7 @@ class Study(db.Model):
             study_dict["design"] = self.design.to_dict()
             if include_images:
                 study_dict["images"] = [image.to_dict() for image in self.images]
+                study_dict["cs_stacks"] = self.images_to_cs_stacks()
             if include_imagesets:
                 study_dict["imgsets"] = [imgset.to_dict() for imgset in self.imgsets]
 
@@ -116,7 +117,7 @@ class Study(db.Model):
             cs_stack["imageIds"].append(url)
         return cs_stack
 
-    def images_to_cs_stacks(self,group_info):
+    def images_to_cs_stacks(self,group_info="group"):
         cs_stacks = {}
         self.images.sort(key=lambda image: image.name)
         for image in self.images:
@@ -130,12 +131,11 @@ class Study(db.Model):
                 stack_name = image.name
 
             if stack_name in cs_stacks:
-                cs_stacks[stack_name]["image_ids"] += "-"+str(image.id)
                 cs_stacks[stack_name]["imageIds"].append(url)
             else:
                 cs_stacks[stack_name] = {"name":stack_name,
-                                         "image_ids":str(image.id),
-                                         "imageIds":[url]}
+                                         "imageIds":[url],
+                                         "currentImageIdIndex":0}
 
         cs_stacks = [cs_stacks[cs_stack] for cs_stack in cs_stacks]
         return cs_stacks
