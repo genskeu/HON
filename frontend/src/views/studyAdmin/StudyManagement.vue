@@ -6,6 +6,7 @@
         <router-link :to="{ name: 'StudyMetainfos', params: { id: this.$route.params.id }}" class="nav-link">Metainfos</router-link>
         <router-link :to="{ name: 'StudyFiles', params: { id: this.$route.params.id }}" class="nav-link">Files</router-link>
         <router-link :to="{ name: 'StudyDesign', params: { id: this.$route.params.id }}" class="nav-link">Design</router-link>
+        <router-link :to="{ name: 'StudyParticipation', params: { id: this.$route.params.id }}" class="nav-link">Participant Preview</router-link>
         <router-link :to="{ name: 'StudyResults', params: { id: this.$route.params.id }}" class="nav-link">Results</router-link>
       </div>
     </div>

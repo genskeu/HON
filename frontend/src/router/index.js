@@ -5,6 +5,7 @@ import StudyMetainfo from '@/views/studyAdmin/studyManagement/StudyMetainfo'
 import FileManagement from '@/views/studyAdmin/studyManagement/FileManagement'
 import StudyDesign from '@/views/studyAdmin/studyManagement/StudyDesign'
 import ResultsOverview from '@/views/studyAdmin/studyManagement/ResultsOverview'
+import StudyParticipation from '@/views/studyParticipant/participation.vue'
 
 const routes = [
   {
@@ -40,6 +41,13 @@ const routes = [
         name: 'StudyDesign',
         components: {
           helper: StudyDesign
+        }
+      },
+      {
+        path: 'participation',
+        name: 'StudyParticipation',
+        components: {
+          helper: StudyParticipation
         }
       },
       {

@@ -31,7 +31,10 @@
                 <h4 class="mt-1">Stack(s)</h4>
               </span>
               <div id="stacks" :class="viewerLayout">
-                <dicom-viewer v-for="index in viewerNumb" :key="index" :viewer-index="index-1"></dicom-viewer>
+                <div v-for="index in viewerNumb" :key="index">
+                  <dicom-viewer :viewer-index="index-1"></dicom-viewer>
+                  <DicomViewerImageSelect :viewer-index="index-1"></DicomViewerImageSelect>
+                </div>
               </div>
             <div>
 
@@ -125,6 +128,7 @@ import GeneralSettings from '@/components/studyDesign/GeneralSettings.vue'
 import DicomViewportControl from '@/components/dicomViewer/DicomViewportControl.vue'
 import DicomViewerTools from '@/components/dicomViewer/DicomViewerTools.vue'
 import ImgsetNav from '@/components/studyDesign/ImgsetNav.vue'
+import DicomViewerImageSelect from '@/components/dicomViewer/DicomViewerImageSelect.vue'
 
 import cornerstone from 'cornerstone-core'
 
@@ -135,14 +139,12 @@ export default {
     GeneralSettings,
     DicomViewportControl,
     DicomViewerTools,
-    ImgsetNav
+    ImgsetNav,
+    DicomViewerImageSelect
   },
   computed: {
     viewerNumb () {
       return this.$store.getters['openStudy/viewerNumb']
-    },
-    imageViewers () {
-      return this.$store.getters['imageViewers/cornerstoneViewers']
     },
     viewerLayout () {
       // var colClass = 'grid-cols-' + this.$store.getters.viewerLayoutCols
@@ -174,6 +176,9 @@ export default {
       }
       return gridClass
     },
+    imageViewers () {
+      return this.$store.getters['imageViewers/cornerstoneViewers']
+    },
     cssStyle () {
       return {
         'background-color': this.$store.getters['openStudy/backgroundColor'],
@@ -186,13 +191,13 @@ export default {
   },
   watch: {
     viewerLayout: {
-      handler (oldLayout, newLayout) {
+      handler () {
         this.setViewerHeight()
       },
       flush: 'post'
     },
     viewerHeight: {
-      handler (oldHeight, newHeigth) {
+      handler () {
         this.setViewerHeight()
       },
       flush: 'post'
