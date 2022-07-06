@@ -1,5 +1,5 @@
 ## Description
-HON is a web application to implement human reading experiments in medical imaging enabling common methodologies such as VGA, m-AFC (m=2,4,6,8), ROC, LROC and FROC experiments. You can find a demo version of the application on <a href="https://hondemo.pythonanywhere.com/" target="_blank" rel="noopener noreferrer"> Pythonanywhere </a> or <a href="http://hon-demo.herokuapp.com/studies/overview" target="_blank" rel="noopener noreferrer"> Heroku </a>.
+HON is a web application to implement human reading experiments in medical imaging enabling common methodologies such as VGA, m-AFC (m=2,4,6,8), ROC, LROC and FROC experiments. You can find a demo version of the application on <a href="https://hondemo.pythonanywhere.com/" target="_blank" rel="noopener noreferrer"> Pythonanywhere </a> or <a href="http://hon-demo.herokuapp.com/studies/overview" target="_blank" rel="noopener noreferrer"> Heroku </a>. For more information please read the original <a href="https://pubs.rsna.org/doi/abs/10.1148/radiol.211832"> publication </a>. If you have any questions regarding the software please contact us via email at paul.jahnke.hon@gmail.com.
 
 The software was designed as a web application to avoid the need for installation on diagnostic workstations and enable platform-independence as well as multi-center studies. The code is open-source (MIT licence). The application backend was built using mainly Flask (v2.0.2) and Flask-SQLAlchemy (v2.5.1). To simplify access HON can be installed using docker (for development flasks development server is used, while gunicorn and nginx are used during production). For a full list of dependencies see the requirments.txt. The frontend of the application was developed using bootstrap (v4.1) and jQuery (v3.4.1) in addition to plain HTML, CSS, and JavaScript. The JavaScript library cornerstone (v2.2.7) and cornerstone-tools (v5.1) were used to implement dicom-viewer capabilities, such as the display of files (DICOM ,JPEG, PNG) as single images or scrollable stacks, options for modifying display settings and features to collect annotation data. 
 
@@ -11,6 +11,23 @@ The software was designed as a web application to avoid the need for installatio
 - update backend (flask) tests
 - simplify deployment
   - add traefik to enable HTTPS 
+
+If you are using HON in your research please cite us as followed: 
+```
+@article{doi:10.1148/radiol.211832,
+  author = {Genske, Ulrich and Jahnke, Paul},
+  title = {Human Observer Net: A Platform Tool for Human Observer Studies of Image Data},
+  journal = {Radiology},
+  volume = {303},
+  number = {3},
+  pages = {524-530},
+  year = {2022},
+  doi = {10.1148/radiol.211832},
+  note ={PMID: 35258375},
+  url = {https://doi.org/10.1148/radiol.211832},
+  eprint = {https://doi.org/10.1148/radiol.211832},
+}
+```
 
 ## Setup using docker
 > Docker is an open platform for developing, shipping, and running applications. Docker enables you to separate your applications from your infrastructure so you can deliver software quickly. With Docker, you can manage your infrastructure in the same ways you manage your applications (https://docs.docker.com/get-started/overview/).
