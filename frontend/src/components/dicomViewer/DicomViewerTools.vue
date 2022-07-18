@@ -60,7 +60,10 @@ export default {
     }
   },
   mounted () {
-    this.initCornerstoneTools()
+    var toolsInitialized = this.$store.getters['imageViewers/toolsInitialized']
+    if (!toolsInitialized) {
+      this.initCornerstoneTools()
+    }
   },
   computed: {
     activeToolLeft () {
@@ -104,6 +107,7 @@ export default {
       Object.keys(this.toolsWheel).forEach(tool => {
         cornerstoneTools.addTool(cornerstoneTools[tool + 'Tool'])
       })
+      this.$store.commit('imageViewers/toolsInitialized', true)
     }
   }
 }

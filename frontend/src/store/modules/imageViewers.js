@@ -1,7 +1,8 @@
 // import cornerstone from 'cornerstone-core'
-
 const state = {
-  viewers: []
+  viewers: [],
+  // workaround to get rid of warnings
+  toolsInitialized: false
 }
 
 const getters = {
@@ -37,6 +38,9 @@ const getters = {
   },
   cornerstoneViewerRotation: (state) => (index) => {
     return state.viewers[index].viewportSettings.rotation
+  },
+  toolsInitialized (state) {
+    return state.toolsInitialized
   }
 }
 
@@ -52,6 +56,7 @@ const mutations = {
     var viewer = state.viewers[payload.index]
     viewer.stackDisplayed = payload.stackDisplayed
   },
+  // viewport settings
   cornerstoneViewerWindowWidth: (state, payload) => {
     var viewer = state.viewers[payload.viewer]
     viewer.viewportSettings.windowWidth = Number(payload.windowWidth).toFixed(2)
@@ -76,7 +81,6 @@ const mutations = {
     var viewer = state.viewers[payload.viewer]
     viewer.viewportSettings.rotation = Number(payload.rotation).toFixed(2)
   },
-  // viewport
   cornerstoneViewportAdd (state, viewport) {
     state.viewports.push(viewport)
   },
@@ -88,6 +92,10 @@ const mutations = {
     viewportSettings.posX = payload.viewport.translation.x
     viewportSettings.posY = payload.viewport.translation.y
     viewportSettings.rotation = payload.viewport.rotation
+  },
+  // tools
+  toolsInitialized (state, value) {
+    state.toolsInitialized = value
   }
 }
 
