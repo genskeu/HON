@@ -1,5 +1,6 @@
 // import cornerstone from 'cornerstone-core'
 const state = {
+  refViewers: [],
   viewers: [],
   // workaround to get rid of warnings
   toolsInitialized: false
@@ -11,7 +12,7 @@ const getters = {
     return state.viewers
   },
   cornerstoneViewer: (state) => (index) => {
-    return state.viewers[index].element
+    return state.viewers[index]
   },
   stackDisplayed: (state) => (index) => {
     const viewer = state.viewers[index]

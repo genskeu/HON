@@ -3,7 +3,7 @@
     <div class="row mx-auto">
       <!-- Imgsets -->
       <div class="col-lg-10 pt-1" id="imgset_creation">
-        <div class="row w-100 mx-auto pb-2" id = "imgset_creation_title">
+        <!-- <div class="row w-100 mx-auto pb-2" id = "imgset_creation_title">
           <button
             class="btn btn-dark"
             data-bs-toggle="collapse"
@@ -12,7 +12,7 @@
             aria-controls="imgset_creation_content">
             <h4 class="mt-1">Image Sets &#9776;</h4>
           </button>
-        </div>
+        </div> -->
         <!-- Create Image Sets -->
         <div class="show collapse row w-100 mx-auto" id = "imgset_creation_content">
           <!-- Display warning if the study already started (results are present)
@@ -20,7 +20,7 @@
                                 -->
           <div id="imgset" class="mx-auto px-0 w-100">
             <!--Images -->
-              <DicomViewerTools ></DicomViewerTools>
+              <DicomViewerTools class="mb-2"></DicomViewerTools>
               <span v-if="refviewerNumb" class="badge bg-secondary mx-auto w-100">
                 <h4 class="">Reference-Stack(s)</h4>
               </span>
@@ -37,46 +37,7 @@
                 </div>
               </div>
             <div>
-
           </div>
-            <!-- modify buttons -->
-            <div id="imgset_creation_buttons">
-              <div class="row mt-3 mb-2">
-                  <button
-                    value="append imgset"
-                    class="imgset_btn btn-success btn col-lg-2"
-                    id="add_imgset"
-                    title="add image-set to the end of the study"
-                  >append imgset</button>
-                  <input
-                    value="insert imgset"
-                    class="imgset_btn btn-success btn col-lg-2"
-                    id="insert_imgset"
-                    title="inserts image-set at the currently selected position"
-                  />
-                  <div class="col-lg-2 px-0">
-                    <ImgsetNav class="w-100"></ImgsetNav>
-                  </div>
-                  <input
-                    value="update imgset"
-                    class="imgset_btn btn-light btn col-lg-2"
-                    id="upd_imgset"
-                    title="update currently selected image-set"
-                  />
-                  <input
-                    value="delete imgset"
-                    class="imgset_btn btn-danger btn col-lg-2"
-                    id="del_imgset"
-                    title="delete currently selected image-set"
-                  />
-                  <input
-                    value="delete all imgsets"
-                    class="imgset_btn btn-danger btn col-lg-2"
-                    id="del_all_imgsets"
-                  />
-              </div>
-            </div>
-
           </div>
         </div>
       </div>
@@ -101,8 +62,20 @@
         <div id="design_settings_content" class="collapse show">
           <GeneralSettings></GeneralSettings>
         </div>
+        <div class="row mx-auto mt-2" id="imgset_settings_title">
+          <button
+            class="btn btn-dark col-12 mb-1"
+            data-bs-toggle="collapse"
+            data-bs-target="#imgset_settings"
+            aria-expanded="true">
+            <h4 class="w-100 mt-1">Imgset Options &#9776;</h4>
+          </button>
+        </div>
+        <div id="imgset_settings" class="collapse show">
+            <ImgsetNav class="w-100"></ImgsetNav>
+        </div>
         <!-- default viewport settings -->
-        <div id="viewport_settings_container" class="w-100" title="Image Viewer settings control display options (zoom, position, window) for the uploaded study images.
+        <div id="viewport_settings_container" class="w-100 mt-2" title="Image Viewer settings control display options (zoom, position, window) for the uploaded study images.
                         Each viewport can be controlled individually.
                         To globally control viewport settings use the defaults submenu.">
           <div class="row mt-1 mx-auto">

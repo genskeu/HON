@@ -9,10 +9,6 @@ import StudyParticipation from '@/views/studyParticipant/participation.vue'
 
 const routes = [
   {
-    path: '/',
-    name: 'Home'
-  },
-  {
     path: '/study-overview',
     name: 'StudyOverview',
     component: StudyOverview

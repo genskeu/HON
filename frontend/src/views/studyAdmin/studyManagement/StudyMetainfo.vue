@@ -1,6 +1,6 @@
 <template>
   <div class="container d-flex align-items-center">
-    <div class="form-horizontal w-100" id="study_metadata">
+    <form class="form-horizontal w-100" id="study_metadata">
 
       <div class="row mx-auto mt-4">
         <div class="input-group">
@@ -34,7 +34,7 @@ e.g. how many images have to be evaluated.">
         </div>
       </div>
 
-    </div>
+    </form>
   </div>
 </template>
 

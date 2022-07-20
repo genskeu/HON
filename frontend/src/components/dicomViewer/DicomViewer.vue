@@ -134,28 +134,19 @@ export default {
   },
   mounted () {
     this.initViewer()
-    this.$store.commit('imageViewers/cornerstoneViewer', {
-      element: this.$refs.viewer,
-      stackDisplayed: undefined,
-      viewportSettings: {
-        windowWidth: Number,
-        windowCenter: Number,
-        scale: Number,
-        posX: Number,
-        posY: Number,
-        rotation: Number
-      },
-      toolState: {}
-    })
   },
   beforeUnmount () {
     this.$store.commit('imageViewers/removeCornerstoneViewer', this.$refs.viewer)
   },
   methods: {
     initViewer () {
-      cornerstone.enable(this.$refs.viewer, {
-        renderer: 'webgl'
-      })
+      console.log('Init Viewer  ' + this.viewerIndex)
+
+      // enable element for cornerstone
+      cornerstone.enable(this.$refs.viewer // ,{
+        // renderer: 'webgl'
+      // }
+      )
       // disable right click on image viewer
       this.$refs.viewer.addEventListener(
         'contextmenu',
@@ -164,6 +155,21 @@ export default {
         },
         false
       )
+
+      // add to vuex store
+      this.$store.commit('imageViewers/cornerstoneViewer', {
+        element: this.$refs.viewer,
+        stackDisplayed: undefined,
+        viewportSettings: {
+          windowWidth: Number,
+          windowCenter: Number,
+          scale: Number,
+          posX: Number,
+          posY: Number,
+          rotation: Number
+        },
+        toolState: {}
+      })
     },
     loadDisplayCornerstone (stack) {
       // load images and set the stack
@@ -188,8 +194,13 @@ export default {
       }
     },
     updateViewportSettings () {
-      var viewport = cornerstone.getViewport(this.$refs.viewer)
-      this.$store.commit('imageViewers/cornerstoneViewportUpdate', { viewport: viewport, index: this.viewerIndex })
+      // bug fix where update Viewport settings is triggered and $refs.viewer returns null
+      // open questions, why is event triggered? why is ref.viewer == null?
+      // debugger // eslint-disable-line
+      if (this.$refs.viewer !== null) {
+        var viewport = cornerstone.getViewport(this.$refs.viewer)
+        this.$store.commit('imageViewers/cornerstoneViewportUpdate', { viewport: viewport, index: this.viewerIndex })
+      }
     }
   }
 }
