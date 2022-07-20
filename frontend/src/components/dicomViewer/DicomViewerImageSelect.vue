@@ -1,11 +1,11 @@
 <template>
     <!-- image and mask selector -->
     <div class='flex items-center row-span-1 col-span-1 animate-fade-in-up'>
-        <div class='flex grow items-center mr-2'>
-            <label class='block text-sm font-medium'>Select your Image:
-            </label>
+        <div class="input-group mx-auto" data-toggle="tooltip" data-placement="left"
+          title="Use the select menus to activate image handling tools for the left, middle and right mouse key.">
+            <label class="input-group-text w-35">Viewer {{this.viewerIndex + 1}}</label>
             <select ref='image_select_id'
-                class='border grow text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5'
+                class='form-select'
                 v-model="stackDisplayed">
                 <option></option>
                 <option v-for='stack in stacks' :key='stack.name' :value="stack">

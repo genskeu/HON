@@ -32,8 +32,8 @@
               </span>
               <div id="stacks" :class="viewerLayout">
                 <div v-for="index in viewerNumb" :key="index">
+                  <h4>Image Viewer {{index}}</h4>
                   <dicom-viewer :viewer-index="index-1"></dicom-viewer>
-                  <DicomViewerImageSelect :viewer-index="index-1"></DicomViewerImageSelect>
                 </div>
               </div>
             <div>
@@ -42,7 +42,7 @@
         </div>
       </div>
       <!-- sidebar for design, viewport settings, scales etc (rigth) -->
-      <div class="col-lg-2 pt-1">
+      <div class="col-lg-2 pt-1 overflow-auto vh-100">
         <!-- Design Settings -->
         <div class="row mx-auto" id="design_settings_title">
           <button
@@ -62,18 +62,7 @@
         <div id="design_settings_content" class="collapse show">
           <GeneralSettings></GeneralSettings>
         </div>
-        <div class="row mx-auto mt-2" id="imgset_settings_title">
-          <button
-            class="btn btn-dark col-12 mb-1"
-            data-bs-toggle="collapse"
-            data-bs-target="#imgset_settings"
-            aria-expanded="true">
-            <h4 class="w-100 mt-1">Imgset Options &#9776;</h4>
-          </button>
-        </div>
-        <div id="imgset_settings" class="collapse show">
-            <ImgsetNav class="w-100"></ImgsetNav>
-        </div>
+        <ImgsetNav class="w-100"></ImgsetNav>
         <!-- default viewport settings -->
         <div id="viewport_settings_container" class="w-100 mt-2" title="Image Viewer settings control display options (zoom, position, window) for the uploaded study images.
                         Each viewport can be controlled individually.
@@ -101,7 +90,6 @@ import GeneralSettings from '@/components/studyDesign/GeneralSettings.vue'
 import DicomViewportControl from '@/components/dicomViewer/DicomViewportControl.vue'
 import DicomViewerTools from '@/components/dicomViewer/DicomViewerTools.vue'
 import ImgsetNav from '@/components/studyDesign/ImgsetNav.vue'
-import DicomViewerImageSelect from '@/components/dicomViewer/DicomViewerImageSelect.vue'
 
 import cornerstone from 'cornerstone-core'
 
@@ -112,8 +100,7 @@ export default {
     GeneralSettings,
     DicomViewportControl,
     DicomViewerTools,
-    ImgsetNav,
-    DicomViewerImageSelect
+    ImgsetNav
   },
   computed: {
     viewerNumb () {
@@ -187,12 +174,13 @@ export default {
     this.setViewerHeight()
   },
   methods: {
+    // fct should be moved to dicomviewer.vue
     setViewerHeight () {
       var elements = cornerstone.getEnabledElements()
       var heigth
       elements.forEach((e) => {
         if (this.$store.getters['openStudy/viewerHeightAuto']) {
-          heigth = Math.min(Number(e.element.clientWidth), Number(window.innerHeight - 420))
+          heigth = Math.min(Number(e.element.clientWidth), Number(window.innerHeight - 200))
         } else {
           heigth = this.$store.getters['openStudy/viewerHeight']
         }

@@ -187,7 +187,7 @@ export default {
       if (this.stackDisplayed) {
         var slice = this.$refs.slice_index
         slice.innerHTML =
-          'Image:' +
+          'Stack Position:' +
           (this.stackDisplayed.currentImageIdIndex + 1) +
          '/' +
           this.stackDisplayed.imageIds.length
