@@ -8,7 +8,7 @@
         <h5 class="mt-1">General Settings</h5>
       </button>
     </div>
-    <div id="general_settings_content" class="collapse show">
+    <div id="general_settings_content" class="collapse">
       <div class="mx-auto">
         <div class="input-group mx-auto" title="Controls max number of reference images">
           <label for="numb_refimg" class="input-group-text w-50">RefImg Viewer #</label>
@@ -82,12 +82,6 @@
           <label class="input-group-text w-50">Button Label</label>
           <input class="form-control" type="text" name="buttonLabels" id="button_labels" placeholder="Btn Label" v-model="buttonLabels" />
         </div>
-
-        <!-- Save Design Settings -->
-        <div class="form-group">
-          <button class="input-group-text btn btn-success btn-lg btn-block mt-1 w-100" id="submit_design">Save Design</button>
-        </div>
-
       </div>
     </div>
   </div>

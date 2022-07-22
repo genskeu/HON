@@ -67,8 +67,18 @@ const getters = {
   instructions (state) {
     return state.design.instructions
   },
+  // scales
   scales (state) {
     return state.design.scales
+  },
+  scaleText: (state) => (index) => {
+    return state.design.scales[index].text
+  },
+  scaleMin: (state) => (index) => {
+    return state.design.scales[index].min
+  },
+  scaleMax: (state) => (index) => {
+    return state.design.scales[index].max
   },
   tools (state) {
     return state.design.tools
@@ -145,8 +155,18 @@ const mutations = {
   order (state, order) {
     state.design.randomize_order = order
   },
+  // scales
   scales (state, scales) {
     state.design.scales = scales
+  },
+  scaleText (state, payload) {
+    state.design.scales[payload.index].text = payload.text
+  },
+  scaleMin (state, payload) {
+    state.design.scales[payload.index].min = payload.min
+  },
+  scaleMax (state, payload) {
+    state.design.scales[payload.index].max = payload.max
   },
   tools (state, tools) {
     state.design.tools = tools

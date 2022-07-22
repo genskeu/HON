@@ -44,24 +44,7 @@
       <!-- sidebar for design, viewport settings, scales etc (rigth) -->
       <div class="col-lg-2 pt-1 overflow-auto vh-100">
         <!-- Design Settings -->
-        <div class="row mx-auto" id="design_settings_title">
-          <button
-            class="btn btn-dark col-12 mb-1"
-            data-bs-toggle="collapse"
-            data-bs-target="#design_settings_content"
-            title="Click on the sections to expand the sub-menus.
-                    Study design options were divided into general settings, tools, instructions and scales.
-                    After changing any design options dont forget to press the Save Design button.
-                              "
-            aria-expanded="true"
-            aria-controls="design_settings_content"
-          >
-            <h4 class="w-100 mt-1">Design Options &#9776;</h4>
-          </button>
-        </div>
-        <div id="design_settings_content" class="collapse show">
-          <GeneralSettings></GeneralSettings>
-        </div>
+        <DesignOptions></DesignOptions>
         <ImgsetNav class="w-100"></ImgsetNav>
         <!-- default viewport settings -->
         <div id="viewport_settings_container" class="w-100 mt-2" title="Image Viewer settings control display options (zoom, position, window) for the uploaded study images.
@@ -86,9 +69,9 @@
 
 <script>
 import DicomViewer from '@/components/dicomViewer/DicomViewer.vue'
-import GeneralSettings from '@/components/studyDesign/GeneralSettings.vue'
 import DicomViewportControl from '@/components/dicomViewer/DicomViewportControl.vue'
 import DicomViewerTools from '@/components/dicomViewer/DicomViewerTools.vue'
+import DesignOptions from '@/components/studyDesign/DesignOptions.vue'
 import ImgsetNav from '@/components/studyDesign/ImgsetNav.vue'
 
 import cornerstone from 'cornerstone-core'
@@ -97,10 +80,10 @@ export default {
   name: 'Design',
   components: {
     DicomViewer,
-    GeneralSettings,
     DicomViewportControl,
     DicomViewerTools,
-    ImgsetNav
+    ImgsetNav,
+    DesignOptions
   },
   computed: {
     viewerNumb () {
