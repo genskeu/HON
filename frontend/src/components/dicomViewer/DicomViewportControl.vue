@@ -1,10 +1,10 @@
 <template>
   <!-- viewport info -->
   <div>
-    <div class="row mx-auto mt-1">
-      <button class="btn btn-secondary col-12" data-bs-toggle="collapse" :data-bs-target= "'#' + id"
+    <div class="row mx-auto">
+      <button class="input-group-text " data-bs-toggle="collapse" :data-bs-target= "'#' + id"
         aria-expanded="true" :aria-controls="id">
-        <h5 class="mt-1">{{heading}}</h5>
+        <h5 class="mx-auto">{{heading}}</h5>
       </button>
     </div>
 
@@ -71,7 +71,7 @@ export default {
       return 'viewportControl_' + this.targetViewer
     },
     heading () {
-      return 'Viewer ' + this.targetViewer
+      return 'Viewer ' + (this.targetViewer + 1)
     },
     windowWidth: {
       get () {

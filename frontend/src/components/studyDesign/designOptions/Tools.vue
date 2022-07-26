@@ -9,10 +9,26 @@
       </button>
     </div>
     <div id="tools" class="collapse">
-      <div class="row input-group text-center mx-auto">
+      <span class="badge bg-secondary w-100">
+        <h4 class="">Mousekeys</h4>
+      </span>
+      <div v-for="tool in Object.keys(toolsMousekeys)" :key="tool" class="input-group text-center mx-auto">
         <div class="input-group-prepend text-dark w-100">
           <div class="input-group-text w-100">
-            <input type="checkbox" class="mr-3" id="" name="toolsCheck" value="" />
+            <input type="checkbox" class="mr-3" id="" name="toolsCheck" value=""/>
+            {{toolsMousekeys[tool]}}
+          </div>
+        </div>
+      </div>
+
+      <span class="badge bg-secondary w-100">
+        <h4 class="">Mousewheel</h4>
+      </span>
+      <div v-for="tool in Object.keys(toolsMousewheel)" :key="tool" class="input-group text-center mx-auto">
+        <div class="input-group-prepend text-dark w-100">
+          <div class="input-group-text w-100">
+            <input type="checkbox" class="mr-3" id="" name="toolsCheck" value=""/>
+            {{toolsMousewheel[tool]}}
           </div>
         </div>
       </div>
@@ -22,7 +38,14 @@
 
 <script>
 export default {
-
+  computed: {
+    toolsMousekeys () {
+      return this.$store.getters['imageViewers/toolsMousekeys']
+    },
+    toolsMousewheel () {
+      return this.$store.getters['imageViewers/toolsMousewheel']
+    }
+  }
 }
 </script>
 

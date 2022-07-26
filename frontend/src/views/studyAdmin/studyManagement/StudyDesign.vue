@@ -42,26 +42,10 @@
         </div>
       </div>
       <!-- sidebar for design, viewport settings, scales etc (rigth) -->
-      <div class="col-lg-2 pt-1 overflow-auto vh-100">
+      <div class="col-lg-2 pt-1 overflow-auto" id="sidebar">
         <!-- Design Settings -->
         <DesignOptions></DesignOptions>
         <ImgsetNav class="w-100"></ImgsetNav>
-        <!-- default viewport settings -->
-        <div id="viewport_settings_container" class="w-100 mt-2" title="Image Viewer settings control display options (zoom, position, window) for the uploaded study images.
-                        Each viewport can be controlled individually.
-                        To globally control viewport settings use the defaults submenu.">
-          <div class="row mt-1 mx-auto">
-            <button class="btn btn-dark col-12 mb-2" data-bs-toggle="collapse" data-bs-target="#viewport_settings"
-              aria-expanded="true" aria-controls="viewport_settings">
-              <h4 class="w-100 mt-1" id="imgset_btn">Image Viewer &#9776;</h4>
-            </button>
-          </div>
-        </div>
-        <div id="viewport_settings" class="collapse show">
-          <div id="viewports_man_container" v-for="(viewer, index) in imageViewers" :key="index">
-            <DicomViewportControl :target-viewer="index"></DicomViewportControl>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -69,7 +53,6 @@
 
 <script>
 import DicomViewer from '@/components/dicomViewer/DicomViewer.vue'
-import DicomViewportControl from '@/components/dicomViewer/DicomViewportControl.vue'
 import DicomViewerTools from '@/components/dicomViewer/DicomViewerTools.vue'
 import DesignOptions from '@/components/studyDesign/DesignOptions.vue'
 import ImgsetNav from '@/components/studyDesign/ImgsetNav.vue'
@@ -80,7 +63,6 @@ export default {
   name: 'Design',
   components: {
     DicomViewer,
-    DicomViewportControl,
     DicomViewerTools,
     ImgsetNav,
     DesignOptions
@@ -118,9 +100,6 @@ export default {
         'grid-rows-1': true
       }
       return gridClass
-    },
-    imageViewers () {
-      return this.$store.getters['imageViewers/cornerstoneViewers']
     },
     cssStyle () {
       return {
@@ -178,5 +157,7 @@ export default {
 </script>
 
 <style>
-
+#sidebar {
+  height: 90vh;
+}
 </style>
