@@ -2,21 +2,21 @@
     <!-- tool select menus -->
     <div class="input-group mx-auto" data-toggle="tooltip" data-placement="left"
         title="Use the select menus to activate image handling tools for the left, middle and right mouse key.">
-        <label class="input-group-text">Tool Active</label>
+        <label class="input-group-text bg-secondary">Active Tool for</label>
         <label class="input-group-text">Left Mouse Key</label>
         <select class='form-select' v-model="toolActiveLeft">
             <option></option>
-            <option v-for="tool in Object.keys(toolsMousekeys)" :key="tool" :value="tool">{{toolsMousekeys[tool]}}</option>
+            <option v-for="tool in Object.keys(toolsMousekeysp)" :key="tool" :value="tool">{{toolsMousekeysp[tool]}}</option>
         </select>
         <label class="input-group-text">Right Mouse Key</label>
         <select class='form-select' v-model="toolActiveRight">
             <option></option>
-            <option v-for="tool in Object.keys(toolsMousekeys)" :key="tool" :value="tool">{{toolsMousekeys[tool]}}</option>
+            <option v-for="tool in Object.keys(toolsMousekeysp)" :key="tool" :value="tool">{{toolsMousekeysp[tool]}}</option>
         </select>
         <label class="input-group-text">Mouse Wheel</label>
         <select class='form-select' v-model="toolActiveWheel">
             <option></option>
-            <option v-for="tool in Object.keys(toolsMousewheel)" :key="tool" :value="tool">{{toolsMousewheel[tool]}}</option>
+            <option v-for="tool in Object.keys(toolsMousewheelp)" :key="tool" :value="tool">{{toolsMousewheelp[tool]}}</option>
         </select>
     </div>
 </template>
@@ -33,6 +33,10 @@ cornerstoneTools.external.Hammer = Hammer
 
 export default {
   name: 'cornerstoneTools',
+  props: {
+    toolsMousekeysp: {},
+    toolsMousewheelp: {}
+  },
   data () {
     return {
       toolActiveLeft: undefined,
@@ -55,12 +59,6 @@ export default {
     },
     activeToolWheel () {
       return this.toolActiveWheel
-    },
-    toolsMousekeys () {
-      return this.$store.getters['imageViewers/toolsMousekeys']
-    },
-    toolsMousewheel () {
-      return this.$store.getters['imageViewers/toolsMousewheel']
     }
   },
   watch: {
@@ -88,10 +86,10 @@ export default {
       cornerstoneTools.init({
         globalToolSyncEnabled: true
       })
-      Object.keys(this.toolsMousekeys).forEach(tool => {
+      Object.keys(this.toolsMousekeysp).forEach(tool => {
         cornerstoneTools.addTool(cornerstoneTools[tool + 'Tool'])
       })
-      Object.keys(this.toolsMousewheel).forEach(tool => {
+      Object.keys(this.toolsMousewheelp).forEach(tool => {
         cornerstoneTools.addTool(cornerstoneTools[tool + 'Tool'])
       })
       this.$store.commit('imageViewers/toolsInitialized', true)

@@ -20,20 +20,23 @@
                                 -->
           <div id="imgset" class="mx-auto px-0 w-100">
             <!--Images -->
-              <DicomViewerTools class="mb-2"></DicomViewerTools>
-              <span v-if="refviewerNumb" class="badge bg-secondary mx-auto w-100">
-                <h4 class="">Reference-Stack(s)</h4>
-              </span>
-              <div id="ref-stacks" :class="refviewerLayout">
-                <dicom-viewer v-for="index in refviewerNumb" :key="index"></dicom-viewer>
+              <DicomViewerTools :toolsMousekeysp="toolsMousekeys" :toolsMousewheelp="toolsMousewheel" class="mb-2"></DicomViewerTools>
+              <div v-if="refviewerNumb" class="badge bg-secondary mx-auto w-100">
+                <h4 class="">Reference-Image-Stack(s)</h4>
               </div>
-              <span class="badge bg-secondary w-100 mb-2">
-                <h4 class="mt-1">Stack(s)</h4>
-              </span>
+              <div id="ref-stacks" :class="refviewerLayout">
+                <div v-for="index in refviewerNumb" :key="index">
+                  <h4>Reference Image Viewer {{index}}</h4>
+                <dicom-viewer viewer-type="reference" :viewer-index="index-1"></dicom-viewer>
+                </div>
+              </div>
+              <div v-if="refviewerNumb"  class="badge bg-secondary w-100 mb-2">
+                <h4 class="">Image-Stack(s)</h4>
+              </div>
               <div id="stacks" :class="viewerLayout">
                 <div v-for="index in viewerNumb" :key="index">
                   <h4>Image Viewer {{index}}</h4>
-                  <dicom-viewer :viewer-index="index-1"></dicom-viewer>
+                  <dicom-viewer viewer-type="regular" :viewer-index="refviewerNumb+index-1"></dicom-viewer>
                 </div>
               </div>
             <div>
@@ -42,10 +45,10 @@
         </div>
       </div>
       <!-- sidebar for design, viewport settings, scales etc (rigth) -->
-      <div class="col-lg-2 pt-1 overflow-auto" id="sidebar">
+      <div class="col-lg-2 pt-1 overflow-auto sticky-top" id="sidebar">
         <!-- Design Settings -->
         <DesignOptions></DesignOptions>
-        <ImgsetNav class="w-100"></ImgsetNav>
+        <ImgsetNav class="w-100 mb-2"></ImgsetNav>
       </div>
     </div>
   </div>
@@ -56,8 +59,6 @@ import DicomViewer from '@/components/dicomViewer/DicomViewer.vue'
 import DicomViewerTools from '@/components/dicomViewer/DicomViewerTools.vue'
 import DesignOptions from '@/components/studyDesign/DesignOptions.vue'
 import ImgsetNav from '@/components/studyDesign/ImgsetNav.vue'
-
-import cornerstone from 'cornerstone-core'
 
 export default {
   name: 'Design',
@@ -107,57 +108,26 @@ export default {
         color: this.$store.getters['openStudy/textColor']
       }
     },
-    viewerHeight () {
-      return this.$store.getters['openStudy/viewerHeight']
+    toolsMousekeys () {
+      return this.$store.getters['imageViewers/toolsMousekeys']
+    },
+    toolsMousewheel () {
+      return this.$store.getters['imageViewers/toolsMousewheel']
     }
   },
   watch: {
-    viewerLayout: {
-      handler () {
-        this.setViewerHeight()
-      },
-      flush: 'post'
-    },
-    viewerHeight: {
-      handler () {
-        this.setViewerHeight()
-      },
-      flush: 'post'
-    },
-    viewerNumb: {
-      handler () {
-        this.setViewerHeight()
-      },
-      flush: 'post'
-    }
   },
   mounted () {
     // watcher with flag immdiate runs to early => set height on mount
-    this.setViewerHeight()
   },
   methods: {
-    // fct should be moved to dicomviewer.vue
-    setViewerHeight () {
-      var elements = cornerstone.getEnabledElements()
-      var heigth
-      elements.forEach((e) => {
-        if (this.$store.getters['openStudy/viewerHeightAuto']) {
-          heigth = Math.min(Number(e.element.clientWidth), Number(window.innerHeight - 200))
-        } else {
-          heigth = this.$store.getters['openStudy/viewerHeight']
-        }
-        e.element.style.height = heigth + 'px'
-        cornerstone.resize(e.element)
-        cornerstone.updateImage(e.element)
-      })
-      this.$store.commit('openStudy/viewerHeight', heigth)
-    }
   }
 }
 </script>
 
 <style>
 #sidebar {
-  height: 90vh;
+  height: 85vh;
 }
+
 </style>

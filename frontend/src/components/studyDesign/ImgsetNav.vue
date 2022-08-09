@@ -22,12 +22,20 @@
         </button>
       </div>
 
-      <div id="images_displayed" class="collapse">
-        <div v-for="index in viewerNumb" :key="index">
+      <div id="images_displayed" class="collapse show">
+        <div v-if="refviewerNumb" class="input-group-text">
+          <h5 class="mx-auto">Reference-Images</h5>
+        </div>
+        <div v-for="index in refviewerNumb" :key="index">
           <DicomViewerImageSelect :viewer-index="index-1"></DicomViewerImageSelect>
         </div>
+        <div v-if="refviewerNumb" class="input-group-text">
+          <h5 class="mx-auto">Images</h5>
+        </div>
+        <div v-for="index in viewerNumb" :key="index">
+          <DicomViewerImageSelect :viewer-index="refviewerNumb+index-1"></DicomViewerImageSelect>
+        </div>
       </div>
-
         <!-- default viewport settings -->
         <div id="viewport_settings_container" class="w-100 mt-1" title="Image Viewer settings control display options (zoom, position, window) for the uploaded study images.
                         Each viewport can be controlled individually.
@@ -46,27 +54,27 @@
         </div>
 
       <div class="row mx-auto mt-1" id="general_settings_title">
-        <button class="btn-secondary btn col-12" data-bs-toggle="collapse" data-bs-target="#images_create_man"
+        <!-- <button class="btn-secondary btn col-12" data-bs-toggle="collapse" data-bs-target="#images_create_man"
           aria-expanded="true" aria-controls="images_create_man"
           title="General settings include options to control the study layout and to customize the number and size of images displayed simultaneously.">
           <h5 class="mt-1">Creation (manual)</h5>
-        </button>
+        </button> -->
       </div>
-      <div id="images_create_man" class="collapse">
+      <div id="images_create_man" class="collapse show">
         <div class="row mx-auto">
-          <button value="append imgset" class="imgset_btn btn-success btn" id="add_imgset"
+          <button value="append imgset" class="imgset_btn btn-success btn mb-1" id="add_imgset"
             title="add image-set to the end of the study">add new imgset</button>
         </div>
-        <div class="row mx-auto">
-          <input value="update loaded imgset" class="imgset_btn btn-light btn" id="upd_imgset"
+        <div v-if="imgsetActive" class="row mx-auto">
+          <input value="update loaded imgset" class="imgset_btn btn-light btn mb-1" id="upd_imgset"
             title="update currently selected image-set" />
         </div>
-        <div class="row mx-auto">
-          <input value="delete loaded imgset" class="imgset_btn btn-danger btn" id="del_imgset"
+        <div v-if="imgsetActive" class="row mx-auto">
+          <input value="delete loaded imgset" class="imgset_btn btn-danger btn mb-1" id="del_imgset"
             title="delete currently selected image-set" />
         </div>
-        <div class="row mx-auto">
-          <input value="delete all imgsets" class="imgset_btn btn-danger btn" id="del_all_imgsets" />
+        <div v-if="imgsets.length" class="row mx-auto">
+          <input value="delete all imgsets" class="imgset_btn btn-danger btn mb-1" id="del_all_imgsets" />
         </div>
       </div>
 
@@ -105,6 +113,9 @@ export default {
     },
     viewerNumb () {
       return this.$store.getters['openStudy/viewerNumb']
+    },
+    refviewerNumb () {
+      return this.$store.getters['openStudy/refviewerNumb']
     },
     imageViewers () {
       return this.$store.getters['imageViewers/cornerstoneViewers']

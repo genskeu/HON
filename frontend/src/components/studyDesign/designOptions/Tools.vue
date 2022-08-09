@@ -15,8 +15,8 @@
       <div v-for="tool in Object.keys(toolsMousekeys)" :key="tool" class="input-group text-center mx-auto">
         <div class="input-group-prepend text-dark w-100">
           <div class="input-group-text w-100">
-            <input type="checkbox" class="mr-3" id="" name="toolsCheck" value=""/>
-            {{toolsMousekeys[tool]}}
+            <input type="checkbox" class="mr-3" id="" name="toolsCheck" :value="toolsMousekeys[tool]" v-model="toolsParticipant"/>
+              {{tool}}
           </div>
         </div>
       </div>
@@ -27,8 +27,8 @@
       <div v-for="tool in Object.keys(toolsMousewheel)" :key="tool" class="input-group text-center mx-auto">
         <div class="input-group-prepend text-dark w-100">
           <div class="input-group-text w-100">
-            <input type="checkbox" class="mr-3" id="" name="toolsCheck" value=""/>
-            {{toolsMousewheel[tool]}}
+            <input type="checkbox" class="mr-3" id="" name="toolsCheck" :value="toolsMousewheel[tool]" v-model="toolsParticipant"/>
+            {{tool}}
           </div>
         </div>
       </div>
@@ -39,11 +39,32 @@
 <script>
 export default {
   computed: {
-    toolsMousekeys () {
-      return this.$store.getters['imageViewers/toolsMousekeys']
+    toolsMousekeys: {
+      get () {
+        const tools = this.$store.getters['imageViewers/toolsMousekeys']
+        var toolsParticipant = {}
+        Object.keys(tools).forEach(tool => {
+          toolsParticipant[tools[tool]] = { cs_name: tool, key_binding: null, settings: null }
+        })
+        return toolsParticipant
+      }
+    },
+    toolsParticipant: {
+      get () {
+        const tools = this.$store.getters['openStudy/tools']
+        return tools
+      },
+      set (tools) {
+        this.$store.commit('openStudy/tools', tools)
+      }
     },
     toolsMousewheel () {
-      return this.$store.getters['imageViewers/toolsMousewheel']
+      const tools = this.$store.getters['imageViewers/toolsMousewheel']
+      var toolsParticipant = {}
+      Object.keys(tools).forEach(tool => {
+        toolsParticipant[tools[tool]] = { cs_name: tool, key_binding: null, settings: null }
+      })
+      return toolsParticipant
     }
   }
 }

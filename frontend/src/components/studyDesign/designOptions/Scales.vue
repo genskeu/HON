@@ -10,14 +10,12 @@
     </div>
     <div id="scales_container" class="collapse">
       <div class="row mx-auto">
-        <button class="btn btn-success btn-block col" id="add_scale">
+        <button class="btn btn-success btn-block col" id="add_scale" @click="addScale">
           add scale
         </button>
       </div>
-
       <div id="scales" class="mt-1">
           <ScaleAdminView v-for="(scale, index) in scales" :key="index" :scale-index="index"></ScaleAdminView>
-        <!-- templetate to create new scales using js -->
       </div>
     </div>
   </div>
@@ -33,6 +31,18 @@ export default {
   computed: {
     scales () {
       return this.$store.getters['openStudy/scales']
+    }
+  },
+  methods: {
+    addScale () {
+      const defScale = {
+        min: 1,
+        max: 7,
+        text: '',
+        type: '',
+        labels: ''
+      }
+      this.$store.commit('openStudy/addScale', defScale)
     }
   }
 }

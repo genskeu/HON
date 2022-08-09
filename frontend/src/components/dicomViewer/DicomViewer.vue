@@ -54,7 +54,8 @@ cornerstoneTools.external.Hammer = Hammer
 
 export default {
   props: {
-    viewerIndex: Number
+    viewerIndex: Number,
+    viewerType: String
   },
   data () {
     return {
@@ -115,6 +116,12 @@ export default {
         // can be deleted after db change
         this.$store.commit('imageViewers/stackDisplayed', { stackDisplayed: stack, index: this.viewerIndex })
       }
+    },
+    viewerHeight () {
+      return this.$store.getters['openStudy/viewerHeight']
+    },
+    viewerLayout () {
+      return this.$store.getters['openStudy/viewerLayoutCols']
     }
   },
   watch: {
@@ -128,12 +135,25 @@ export default {
         this.loadDisplayCornerstone(stack).then(() => {
         })
       }
+    },
+    viewerHeight: {
+      handler () {
+        this.updateViewerHeight()
+      },
+      flush: 'post'
+    },
+    viewerLayout: {
+      handler () {
+        this.updateViewerHeight()
+      },
+      flush: 'post'
     }
   },
   created () {
   },
   mounted () {
     this.initViewer()
+    this.updateViewerHeight()
   },
   beforeUnmount () {
     this.$store.commit('imageViewers/removeCornerstoneViewer', this.$refs.viewer)
@@ -156,8 +176,9 @@ export default {
         false
       )
 
-      // add to vuex store
+      // add to vuex store sdsdyc
       this.$store.commit('imageViewers/cornerstoneViewer', {
+        type: this.viewerType,
         element: this.$refs.viewer,
         stackDisplayed: undefined,
         viewportSettings: {
@@ -184,7 +205,7 @@ export default {
       return promise
     },
     displayStackIndex () {
-      if (this.stackDisplayed) {
+      if (this.stackDisplayed & this.stackDisplayed.imageIds.length > 1) {
         var slice = this.$refs.slice_index
         slice.innerHTML =
           'Stack Position:' +
@@ -201,6 +222,17 @@ export default {
         var viewport = cornerstone.getViewport(this.$refs.viewer)
         this.$store.commit('imageViewers/cornerstoneViewportUpdate', { viewport: viewport, index: this.viewerIndex })
       }
+    },
+    updateViewerHeight () {
+      const element = this.$refs.viewer
+      var heigth = this.viewerHeight
+      if (this.$store.getters['openStudy/viewerHeightAuto']) {
+        heigth = Math.min(Number(element.clientWidth), Number(window.innerHeight - 250))
+      }
+      element.style.height = heigth + 'px'
+      cornerstone.resize(element)
+      cornerstone.updateImage(element)
+      this.$store.commit('openStudy/viewerHeight', heigth)
     }
   }
 }

@@ -35,7 +35,7 @@ const getters = {
     return state.viewers
   },
   cornerstoneViewer: (state) => (index) => {
-    return state.viewers[index]
+    return state.viewers[index].element
   },
   stackDisplayed: (state) => (index) => {
     const viewer = state.viewers[index]

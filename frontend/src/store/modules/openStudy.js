@@ -168,6 +168,12 @@ const mutations = {
   scaleMax (state, payload) {
     state.design.scales[payload.index].max = payload.max
   },
+  addScale (state, payload) {
+    state.design.scales.push(payload)
+  },
+  delScale (state, payload) {
+    state.design.scales.splice(payload.index)
+  },
   tools (state, tools) {
     state.design.tools = tools
   },

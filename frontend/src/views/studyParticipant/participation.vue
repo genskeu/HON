@@ -9,33 +9,46 @@
                                 -->
                 <div id="imgset" class="mx-auto px-0 w-100">
                     <!--Images -->
-                    <DicomViewerTools></DicomViewerTools>
+                    <DicomViewerTools :toolsMousekeysp="toolsMousekeysAvailable" :toolsMousewheelp="toolsMousewheelAvailable"></DicomViewerTools>
                     <div id="ref-stacks" :class="refviewerLayout">
                         <dicom-viewer v-for="index in refviewerNumb" :key="index"></dicom-viewer>
                     </div>
                     <div id="stacks" :class="viewerLayout">
-                        <dicom-viewer v-for="index in viewerNumb" :key="index" :viewer-index="index - 1" :style="viewerHeight"></dicom-viewer>
+                        <div v-for="index in viewerNumb" :key="index">
+                          <dicom-viewer :viewer-index="index - 1" :style="viewerHeight"></dicom-viewer>
+                          <Votebtn class="my-4"></Votebtn>
+                        </div>
                     </div>
                     <div>
                     </div>
                 </div>
             </div>
             <!-- sidebar for design, viewport settings, scales etc (rigth) -->
-            <div class="col-lg-2 pt-1">
+            <div class="col-lg-2 pt-1 overflow-auto sticky-top" id="sidebar">
+              <Instructions></Instructions>
+              <Scales></Scales>
             </div>
         </div>
+      <Progressbar></Progressbar>
     </div>
 </template>
 
 <script>
 import DicomViewer from '@/components/dicomViewer/DicomViewer.vue'
 import DicomViewerTools from '@/components/dicomViewer/DicomViewerTools.vue'
-import cornerstone from 'cornerstone-core'
+import Instructions from '@/components/studyParticipation/Instructions.vue'
+import Scales from '@/components/studyParticipation/Scales.vue'
+import Progressbar from '@/components/studyParticipation/progressBar.vue'
+import Votebtn from '@/components/studyParticipation/Votebtn.vue'
 
 export default {
   components: {
     DicomViewer,
-    DicomViewerTools
+    DicomViewerTools,
+    Instructions,
+    Scales,
+    Progressbar,
+    Votebtn
   },
   data () {
     return {
@@ -92,6 +105,32 @@ export default {
     },
     imgsets () {
       return this.$store.getters['openStudy/imgsets']
+    },
+    toolsMousekeys () {
+      return this.$store.getters['imageViewers/toolsMousekeys']
+    },
+    toolsMousewheel () {
+      return this.$store.getters['imageViewers/toolsMousewheel']
+    },
+    toolsMousekeysAvailable () {
+      var toolsAvailable = this.$store.getters['openStudy/tools']
+      var tools = {}
+      toolsAvailable.forEach(tool => {
+        if (Object.keys(this.toolsMousekeys).includes(tool.cs_name)) {
+          tools[tool.cs_name] = this.toolsMousekeys[tool.cs_name]
+        }
+      })
+      return tools
+    },
+    toolsMousewheelAvailable () {
+      var toolsAvailable = this.$store.getters['openStudy/tools']
+      var tools = {}
+      toolsAvailable.forEach(tool => {
+        if (Object.keys(this.toolsMousewheel).includes(tool.cs_name)) {
+          tools[tool.cs_name] = this.toolsMousewheel[tool.cs_name]
+        }
+      })
+      return tools
     }
   },
   watch: {
@@ -106,24 +145,12 @@ export default {
     }
   },
   methods: {
-    setViewerHeight () {
-      var elements = cornerstone.getEnabledElements()
-      var heigth
-      elements.forEach((e) => {
-        if (this.$store.getters['openStudy/viewerHeightAuto']) {
-          heigth = Math.min(Number(e.element.clientWidth), Number(window.innerHeight - 420))
-        } else {
-          heigth = this.$store.getters['openStudy/viewerHeight']
-        }
-        e.element.style.height = heigth + 'px'
-        cornerstone.resize(e.element)
-        cornerstone.updateImage(e.element)
-      })
-    }
   }
 }
 </script>
 
 <style>
-
+  #sidebar {
+    height: 85vh;
+  }
 </style>

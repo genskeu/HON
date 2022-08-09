@@ -425,12 +425,8 @@ class Tool(db.Model):
 
     def to_dict(self):
             tool_dict = {}
-            tool_dict["id"] = self.id
-            tool_dict["design_id"] = self.design_id
             tool_dict["cs_name"] = self.cs_name
-            tool_dict["label"] = self.label
             tool_dict["key_binding"] = self.key_binding
-            tool_dict["status"] = self.status
             tool_dict["settings"] = self.settings
 
             return tool_dict

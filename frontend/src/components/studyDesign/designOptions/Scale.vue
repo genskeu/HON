@@ -1,7 +1,7 @@
 <template>
     <div id="sclae_temp" class="mt-1 scale_template">
         <span class="badge badge-light w-100 mt-1">
-            <h6 id="scale_heading_" class="mt-1 scale_heading">Scale</h6>
+            <h6 id="scale_heading_" class="mt-1 scale_heading">Scale {{this.scaleIndex + 1}}</h6>
         </span>
         <!-- admin view to define scale -->
         <div class="mx-auto scale_view_admin" id="scale_view_admin_">
@@ -27,7 +27,7 @@
                         <option value=""></option>
                     </select>
                 </div>
-            <button class="btn btn-danger btn-block scale_rm w-100" id="scale_rm_">
+            <button class="btn btn-danger btn-block scale_rm w-100" id="scale_rm_" @click="deleteScale">
                 delete scale
             </button>
         </div>
@@ -70,6 +70,11 @@ export default {
       },
       set () {
       }
+    }
+  },
+  methods: {
+    deleteScale () {
+      this.$store.commit('openStudy/delScale', { index: this.scaleIndex })
     }
   }
 }
