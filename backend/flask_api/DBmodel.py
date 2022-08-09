@@ -101,6 +101,7 @@ class Study(db.Model):
                 study_dict["cs_stacks"] = self.images_to_cs_stacks()
             if include_imagesets:
                 study_dict["imgsets"] = [imgset.to_dict() for imgset in self.imgsets]
+            study_dict["user_study_progress"] = [usp.to_dict() for usp in self.user_study_progress]
 
             return study_dict
 
@@ -485,6 +486,14 @@ class User_study_progress(db.Model):
     imgsets_finished = db.Column(db.Integer(),nullable=False)
     updated = db.Column(db.DateTime(), server_default=db.func.now(),
                         server_onupdate=db.func.now())
+
+    def to_dict(self):
+        dict = {}
+        dict["username"] = self.user.username
+        dict["imgsets_finished"] = self.imgsets_finished
+        dict["updated"] = self.updated
+
+        return dict   
 
 
 class Imgset(db.Model):

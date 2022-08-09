@@ -6,7 +6,8 @@ const state = {
   images: Array,
   imageSets: Array,
   scales: Array,
-  instructions: String
+  instructions: String,
+  user_study_progress: Array
 }
 
 const getters = {
@@ -86,6 +87,10 @@ const getters = {
   // stacks
   stacks (state) {
     return state.stacks
+  },
+  // results
+  userStudyProgress (state) {
+    return state.user_study_progress
   }
 }
 
@@ -100,6 +105,7 @@ const mutations = {
     state.imageSets = study.imgsets
     state.scales = study.scales
     state.instructions = study.instructions
+    state.user_study_progress = study.user_study_progress
   },
   closeStudy () {
     state.title = String

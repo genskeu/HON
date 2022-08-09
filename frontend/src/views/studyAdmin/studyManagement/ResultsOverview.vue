@@ -12,10 +12,10 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td class="align-middle"></td>
-                            <td class="align-middle"></td>
-                            <td class="align-middle"></td>
+                        <tr v-for="usp in userStudyProgress" :key="usp">
+                            <td class="align-middle">{{usp.username}}</td>
+                            <td class="align-middle">{{usp.updated}}</td>
+                            <td class="align-middle">{{usp.imgsets_finished/studyLength * 100 + '%'}}</td>
                             <td class="align-middle">
                                 <button class="btn-danger btn-sm" onclick="">delete
                                 </button>
@@ -60,7 +60,23 @@
 
 <script>
 export default {
-
+  name: 'StudyResults',
+  data () {
+    return {
+    }
+  },
+  methods: {
+  },
+  computed: {
+    userStudyProgress () {
+      return this.$store.getters['openStudy/userStudyProgress']
+    },
+    studyLength () {
+      return this.$store.getters['openStudy/imgsets'].length
+    }
+  },
+  created () {
+  }
 }
 </script>
 
