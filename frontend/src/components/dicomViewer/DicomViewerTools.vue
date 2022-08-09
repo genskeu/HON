@@ -2,8 +2,7 @@
     <!-- tool select menus -->
     <div class="input-group mx-auto" data-toggle="tooltip" data-placement="left"
         title="Use the select menus to activate image handling tools for the left, middle and right mouse key.">
-        <label class="input-group-text bg-secondary">Active Tool for</label>
-        <label class="input-group-text">Left Mouse Key</label>
+        <label class="input-group-text">Active Tool Left Mouse Key</label>
         <select class='form-select' v-model="toolActiveLeft">
             <option></option>
             <option v-for="tool in Object.keys(toolsMousekeysp)" :key="tool" :value="tool">{{toolsMousekeysp[tool]}}</option>

@@ -6,8 +6,26 @@ import FileManagement from '@/views/studyAdmin/studyManagement/FileManagement'
 import StudyDesign from '@/views/studyAdmin/studyManagement/StudyDesign'
 import ResultsOverview from '@/views/studyAdmin/studyManagement/ResultsOverview'
 import StudyParticipation from '@/views/studyParticipant/participation.vue'
+import UserOverview from '@/views/userAdmin/userOverview.vue'
+import UserProfile from '@/views/userAdmin/userProfile.vue'
+import Tutorials from '@/views/tutorials.vue'
 
 const routes = [
+  {
+    path: '/user-overview',
+    name: 'UserOverview',
+    component: UserOverview
+  },
+  {
+    path: '/user-profile/:id',
+    name: 'UserProfile',
+    component: UserProfile
+  },
+  {
+    path: '/tutorials',
+    name: 'Tutorials',
+    component: Tutorials
+  },
   {
     path: '/study-overview',
     name: 'StudyOverview',

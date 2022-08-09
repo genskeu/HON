@@ -11,13 +11,16 @@
         <div class="collapse navbar-collapse text-right ms-auto bg-dark" id="navbarResponsive">
           <ul class="navbar-nav ms-auto" id="navlinks">
             <li class="nav-item">
+              <router-link to="/user-overview" class="nav-link">Users Overview</router-link>
+            </li>
+            <li class="nav-item">
               <router-link to="/study-overview" class="nav-link">Studies Overview</router-link>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="">User Profile</a>
+              <router-link to="/user-profile/1" class="nav-link">User Profile</router-link>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="">Tutorials</a>
+              <router-link to="/tutorials" class="nav-link">Tutorials</router-link>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="">Log Out</a>
