@@ -9,7 +9,7 @@
                                 -->
                 <div id="imgset" class="mx-auto px-0 w-100">
                     <!--Images -->
-                    <DicomViewerTools :toolsMousekeysp="toolsMousekeysAvailable" :toolsMousewheelp="toolsMousewheelAvailable"></DicomViewerTools>
+                    <DicomViewerTools :toolsMousekeysp="toolsMousekeysAvailable" :toolsMousewheelp="toolsMousewheelAvailable" class="sticky-top"></DicomViewerTools>
                     <div id="ref-stacks" :class="refviewerLayout">
                         <dicom-viewer v-for="index in refviewerNumb" :key="index"></dicom-viewer>
                     </div>

@@ -51,46 +51,34 @@ def get_studies(user_id=6):
 
 
 @bp.route('/study', methods=['POST'])
-@login_required
-@access_level_required([2])
+#@login_required
+#@access_level_required([2])
 def create_study():
     response = {}
     error = None
-    data = request.get_json()
-    title = data["title"]
-    password = data["password"]
-    study_description = data["description"]
+    status_code = 200
 
-    # input validation
-    if Study.query.filter_by(title=title,user_id=g.user.id).first() is not None:
-        error = "Titel already used for a different study. Please choose a different study title."
-    elif not title:
-        error = "Title is required."
-    elif not password:
-        error = "Password is required."
+    study = Study()
+    # save in db
+    study.user_id = 6
+    default_password = ""
+    study.password = generate_password_hash(default_password)
+    # default design
+    study.design = Design(study_id=study.id)
+    study.design.get_defaults()
+    db.session.add(study)
+    db.session.commit()
 
-    if error is None:
-        study = Study()
-        # save in db
-        study.user_id = g.user.id
-        study.title = title
-        study.description = study_description
-        study.password = generate_password_hash(password)
-        db.session.add(study)
-        db.session.commit()
-
-        image_dir = study.get_image_dir()
-        try:
-            os.makedirs(image_dir)
-        except:
-            print("Error creating:" + image_dir)
-        
-        response["image_upload"] = url_for("studies.image_upload", study_id=study.id)
-        response["study_design"] = url_for("studies.design", study_id=study.id)
-        status_code = 200
-    else:
-        response["error"] = error
+    image_dir = study.get_image_dir()
+    try:
+        os.makedirs(image_dir)
+        response["study"] = study.to_dict()
+    except:
+        error = f"Error creating: {image_dir}"        
         status_code = 400
+        response["error"] = error
+        db.session.delete(study)
+        db.session.commit()
 
     return jsonify(response), status_code
 
@@ -145,8 +133,8 @@ def update_study(id):
 
 
 @bp.route('/study/<int:id>', methods=['DELETE'])
-@login_required
-@access_level_required([2])
+#@login_required
+#@access_level_required([2])
 def delete_study(id):
     """
         retrieve or delte study
@@ -156,6 +144,9 @@ def delete_study(id):
             json object
     """
     study = Study.query.filter_by(id=id).first()
+    response = {}
+    error = None
+    status_code = 200
 
     if request.method == "DELETE":
         for image in study.images:
@@ -168,10 +159,10 @@ def delete_study(id):
         try:
             shutil.rmtree(dir)
         except:
-            print("Error removing folder: " + dir)
-        response = {}
-        response["redirect"] = url_for("studies.overview")
-        return jsonify(response)
+            error = f"Error removing folder: {dir}"
+            response["error"] = error
+            status_code = 400
+        return jsonify(response), status_code
 
 
 

@@ -25,15 +25,6 @@ e.g. how many images have to be evaluated.">
           <textarea v-model="study_desc" class="form-control" name="description" id="description" rows="20"></textarea>
         </div>
       </div>
-
-      <div class="row mx-auto" id="study_setup_navbar">
-        <div class="col-12">
-          <button class="btn btn-light btn-lg btn-block w-100">
-            Save Metainfos
-          </button>
-        </div>
-      </div>
-
     </form>
   </div>
 </template>

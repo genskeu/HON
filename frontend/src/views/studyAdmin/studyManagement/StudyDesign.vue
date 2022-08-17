@@ -20,7 +20,7 @@
                                 -->
           <div id="imgset" class="mx-auto px-0 w-100">
             <!--Images -->
-              <DicomViewerTools :toolsMousekeysp="toolsMousekeys" :toolsMousewheelp="toolsMousewheel" class="mb-2"></DicomViewerTools>
+              <DicomViewerTools :toolsMousekeysp="toolsMousekeys" :toolsMousewheelp="toolsMousewheel" class="sticky-top mb-2"></DicomViewerTools>
               <div v-if="refviewerNumb" class="badge bg-secondary mx-auto w-100">
                 <h4 class="">Reference-Image-Stack(s)</h4>
               </div>

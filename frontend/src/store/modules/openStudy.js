@@ -1,3 +1,6 @@
+import axios from 'axios'
+import router from '@/router'
+
 const state = {
   title: String,
   password: String,
@@ -199,6 +202,20 @@ const mutations = {
 }
 
 const actions = {
+  createStudy ({ commit }) {
+    axios
+      .post('http://localhost:5000/study')
+      .then(response => {
+        const study = response.data.study
+        commit('openStudy', study)
+        const route = '/study-management/' + study.id + '/metainfos'
+        router.push(route)
+      })
+      .catch(error => {
+        console.log(error)
+      })
+      .then(() => {})
+  }
 }
 
 export default {
