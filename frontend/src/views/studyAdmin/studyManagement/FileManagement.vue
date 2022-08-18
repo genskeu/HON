@@ -1,11 +1,48 @@
 <template>
     <div class="container">
+        <uploadModal id="uploadModal"></uploadModal>
+        <div class="row pt-1">
+            <button class="btn btn-secondary btn-block" data-bs-toggle="collapse" data-bs-target="#uploaded_files"
+                aria-expanded="false" aria-controls="uploaded_files">
+                <h5 class="col-12 mt-1">Already uploaded &#9776;</h5>
+            </button>
+            <div class="collapse show mx-auto bg-light" id="uploaded_files">
+                <div class="row mx-auto mt-1">
+                    <div id="loader_anim_del" class=""></div>
+                    <div id="loader_text_del" class="mt-3" style="display: none;">Please wait</div>
+                </div>
+                <div class='row mx-auto overflow-auto' id='files_del'
+                    style="color:#28A74B; height:150px;display: none;"></div>
+                <div class='row mx-auto overflow-auto' id='files_not_del'
+                    style="color:#EA4335; height:150px;display: none;"></div>
+                <div class="w-100 mt-2">
+                    <div style="height:300px;" class="overflow-auto">
+                        <table class="table table-hover text-left">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th style="width: 8%"></th>
+                                    <th style="width: 42%">Name</th>
+                                    <th style="width: 42%">Stackname</th>
+                                    <th style="width: 8%"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="file_list">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            <button id="select_files" class="btn">Select All</button>
+            <button id="delete_files" class="btn-danger btn">Delete Selected Files</button>
+            <button id="upload_files" class="btn-success btn btn-block" data-bs-toggle="modal" data-bs-target="#uploadModal">Upload Files</button>
+            </div>
+        </div>
+
         <div class="row pt-1">
             <button class="btn btn-secondary btn-block" data-bs-toggle="collapse" data-bs-target="#naming"
                 aria-expanded="false" aria-controls="naming">
                 <h5 class="mt-1">Rules and Naming conventions &#9776;</h5>
             </button>
-            <div id="naming" class="collapse show bg-light">
+            <div id="naming" class="collapse bg-light">
                 <div class="row mx-auto bg-light show" id="file_upload_rules">
                     <ul class="mt-3">
                         <li>images can be uploaded as .zip files</li>
@@ -38,46 +75,7 @@
                 </p>
             </div>
         </div>
-
-        <div class="row pt-1">
-            <button class="btn btn-secondary btn-block" data-bs-toggle="collapse" data-bs-target="#uploaded_files"
-                aria-expanded="false" aria-controls="uploaded_files">
-                <h5 class="col-12 mt-1">Already uploaded &#9776;</h5>
-            </button>
-            <div class="collapse mx-auto bg-light" id="uploaded_files">
-                <div class="row mx-auto mt-1">
-                    <div id="loader_anim_del" class=""></div>
-                    <div id="loader_text_del" class="mt-3" style="display: none;">Please wait</div>
-                </div>
-                <div class='row mx-auto overflow-auto' id='files_del'
-                    style="color:#28A74B; height:150px;display: none;"></div>
-                <div class='row mx-auto overflow-auto' id='files_not_del'
-                    style="color:#EA4335; height:150px;display: none;"></div>
-                <div class="w-100 mt-2">
-                    <input id="select_files" class="btn" value="Select All">
-                    <input id="delete_files" class="btn-danger btn" value="Delete Selected Files">
-                    <br>
-                    <br>
-                    <div style="height:300px;" class="overflow-auto">
-                        <table class="table table-hover text-left">
-                            <thead class="thead-light">
-                                <tr>
-                                    <th style="width: 8%"></th>
-                                    <th style="width: 42%">Name</th>
-                                    <th style="width: 42%">Stackname</th>
-                                    <th style="width: 8%"></th>
-                                </tr>
-                            </thead>
-                            <tbody id="file_list">
-                            </tbody>
-                        </table>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
-        <div class="row pt-1 pb-1">
+        <!-- <div class="row pt-1 pb-1">
             <button class="btn btn-secondary btn-block" data-bs-toggle="collapse" data-bs-target="#files_upload"
                 aria-expanded="false" aria-controls="files_upload">
                 <h5 class="col-12 mt-1">Upload &#9776;</h5>
@@ -103,16 +101,19 @@
                         <input type="file" name="file" class="custom-file-input form-control w-100" id="file"
                             multiple />
                     </div>
-                    <input id="upload_files" class="btn-success btn btn-block col-6" value="Upload Files">
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
 </template>
 
 <script>
-export default {
+import uploadModal from '@/components/misc/uploadModal'
 
+export default {
+  components: {
+    uploadModal
+  }
 }
 </script>
 

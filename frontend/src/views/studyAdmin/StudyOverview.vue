@@ -11,7 +11,7 @@
   <div class="container">
         <div class="row mx-auto mt-4" id="studies_ov">
             <delte-modal :title="deleteTitle" :text="deleteText" id="deleteStudy" @deleteComfirmed="deleteStudy(this.deleteIdDb)"></delte-modal>
-            <loadingModal id="loadingModal"></loadingModal>
+            <loadingModal :title="errorTitle" :text="loadingText" :loading="loading" :error="error" :errorMsg="errorMsg" id="loadingModal"></loadingModal>
             <table class="table table-hover">
                 <thead class="thead-light">
                     <tr>
@@ -43,10 +43,6 @@
                             <button class="btn-danger btn" data-bs-toggle="modal" data-bs-target="#deleteStudy" @click="setStudyDelete(study)">delete
                             </button>
                         </td>
-                        <td>
-                        <button class="btn-danger btn" @click="showLoadingModal">load
-                            </button>
-                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -73,7 +69,12 @@ export default {
       studies: [],
       deleteText: String,
       deleteTitle: String,
-      deleteIdDb: Number
+      deleteIdDb: Number,
+      loadingText: String,
+      loading: Boolean,
+      error: false,
+      errorTitle: String,
+      errorMsg: String
     }
   },
   methods: {
@@ -86,18 +87,28 @@ export default {
       this.deleteIdDb = study.id
     },
     deleteStudy (studyId) {
+      this.loadingText = 'Deleting Study. Please wait...'
+      this.loading = true
+      const loadingModal = new Modal(document.getElementById('loadingModal'), { fade: true })
+      loadingModal.show()
       axios
         .delete('http://localhost:5000/study/' + studyId)
         .then(response => {
           const index = this.studies.findIndex(study => study.id === studyId)
           this.studies.splice(index, 1)
+          this.loading = false
+          this.loadingText = 'Deletion successful.'
+          setTimeout(function () {
+            loadingModal.hide()
+          }, 1000)
         })
-        .catch(error => console.log(error))
-        .then()
-    },
-    showLoadingModal () {
-      var myModal = new Modal(document.getElementById('loadingModal'))
-      myModal.toggle()
+        .catch(error => {
+          this.errorTitle = 'Deleting Study...'
+          this.error = true
+          this.errorMsg = error
+        })
+        .then(() => {
+        })
     }
   },
   computed: {

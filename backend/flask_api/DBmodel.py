@@ -94,6 +94,7 @@ class Study(db.Model):
             study_dict["created"] = self.created
             study_dict["updated"] = self.updated
             study_dict["title"] = self.title
+            study_dict["password"] = ''
             study_dict["description"] = self.description
             study_dict["design"] = self.design.to_dict()
             if include_images:

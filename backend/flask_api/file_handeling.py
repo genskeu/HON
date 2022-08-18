@@ -30,8 +30,8 @@ def allowed_file(filename):
 
 # upload files to study
 @bp.route('/upload_files/<int:study_id>', methods=['POST'])
-@login_required
-@access_level_required([2])
+#@login_required
+#@access_level_required([2])
 def upload_files(study_id):
     study = Study.query.filter_by(id=study_id).first()
     image_dir = study.get_image_dir()
@@ -60,7 +60,8 @@ def upload_files(study_id):
 
     # save image infos to db
     for filename in filenames_saved:
-        image = Image(name=filename,base_url=request.url_root + "get_file/{}/{}/".format(g.user.id,study.id))
+        user_id = 6
+        image = Image(name=filename,base_url=request.url_root + "get_file/{}/{}/".format(user_id,study.id))
         try:
             study.images.append(image)
         except:

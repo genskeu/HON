@@ -100,7 +100,7 @@ const getters = {
 const mutations = {
   openStudy (state, study) {
     state.title = study.title
-    state.password = study.title
+    state.password = ''
     state.description = study.description
     state.design = study.design
     state.images = study.images
@@ -123,6 +123,9 @@ const mutations = {
   // meta data
   updateStudyTitle (state, studyTitle) {
     state.title = studyTitle
+  },
+  updateStudyPassword (state, studyPassword) {
+    state.password = studyPassword
   },
   updateStudyDesc (state, studyDesc) {
     state.description = studyDesc

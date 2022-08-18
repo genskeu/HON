@@ -1,17 +1,27 @@
 <template>
     <div class="modal fade" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">{{this.title}}</h5>
-                    <button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mx-auto spinner-border text-primary" role="status" style="width: 5rem; height: 5rem;">
+            <!-- loading status -->
+            <div class="mx-auto">
+                <div v-if="loading" class="row mx-auto">
+                    <div  class="mx-auto spinner-border text-primary" role="status" style="width: 10rem; height: 10rem;">
                         <span class="visually-hidden">Loading...</span>
                     </div>
                 </div>
+                <div class="row mx-auto text-white">
+                    <p class="h4">{{this.text}}</p>
+                </div>
+            </div>
+            <!-- error text -->
+            <div v-if="error" class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{this.title}}</h5>
+                </div>
+                <div class="modal-body bg-opacity-10 bg-transparent">
+                    {{this.errorMsg}}
+                </div>
                 <div class="modal-footer">
+                    <button class="btn mx-auto btn-success" data-bs-dismiss="modal">Dismiss</button>
                 </div>
             </div>
         </div>
@@ -21,10 +31,11 @@
 <script>
 export default {
   props: {
-    title: String,
-    text: String,
     loading: Boolean,
-    showCloseBtn: Boolean
+    text: String,
+    error: Boolean,
+    title: String,
+    errorMsg: String
   },
   data () {
     return {

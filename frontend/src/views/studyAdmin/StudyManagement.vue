@@ -1,8 +1,7 @@
 <template>
   <div v-if="studyOpened" id="study_management" class="">
     <div id="nav" class="navbar bg-dark p-0" style="height: 50px;">
-      <div class="container-fluid mx-auto">
-        <input class="btn btn-light" @click="saveStudy" value="save">
+      <div class="container mx-auto">
         <router-link to="/study-overview" @click="finishEditing" class="nav-link">&times; Close {{studyTitle}}</router-link>
         <router-link :to="{ name: 'StudyMetainfos', params: { id: this.$route.params.id }}" class="nav-link">Metainfos</router-link>
         <router-link :to="{ name: 'StudyFiles', params: { id: this.$route.params.id }}" class="nav-link">Files</router-link>
