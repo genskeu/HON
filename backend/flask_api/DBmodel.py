@@ -98,8 +98,8 @@ class Study(db.Model):
             study_dict["description"] = self.description
             study_dict["design"] = self.design.to_dict()
             if include_images:
-                study_dict["images"] = [image.to_dict() for image in self.images]
-                study_dict["cs_stacks"] = self.images_to_cs_stacks()
+                # study_dict["images"] = [image.to_dict() for image in self.images]
+                study_dict["stacks"] = self.get_stacks()
             if include_imagesets:
                 study_dict["imgsets"] = [imgset.to_dict() for imgset in self.imgsets]
             study_dict["user_study_progress"] = [usp.to_dict() for usp in self.user_study_progress]
@@ -107,40 +107,64 @@ class Study(db.Model):
             return study_dict
 
 
-    def get_cs_stack_by_imageIds(self, image_ids):
-        cs_stack = {"imageIds":[],
-                    "currentImageIdIndex":0}
-        images = [image for image in self.images if image.id in image_ids]
-        images.sort(key=lambda image: image.name)
-        for image in images:
-            url = os.path.join(image.base_url,image.name)
-            if ".dcm" in image.name:
-                url = "wadouri:" + url
-            cs_stack["imageIds"].append(url)
-        return cs_stack
+    # def get_cs_stack_by_imageIds(self, image_ids):
+    #     cs_stack = {"imageIds":[],
+    #                 "currentImageIdIndex":0}
+    #     images = [image for image in self.images if image.id in image_ids]
+    #     images.sort(key=lambda image: image.name)
+    #     for image in images:
+    #         url = os.path.join(image.base_url,image.name)
+    #         if ".dcm" in image.name:
+    #             url = "wadouri:" + url
+    #         cs_stack["imageIds"].append(url)
+    #     return cs_stack
 
-    def images_to_cs_stacks(self,group_info="group"):
-        cs_stacks = {}
-        self.images.sort(key=lambda image: image.name)
-        for image in self.images:
-            url = os.path.join(image.base_url,image.name)
-            if ".dcm" in image.name:
-                url = "wadouri:" + url
+    # def images_to_cs_stacks(self,group_info="group"):
+    #     cs_stacks = {}
+    #     self.images.sort(key=lambda image: image.name)
+    #     for image in self.images:
+    #         url = os.path.join(image.base_url,image.name)
+    #         if ".dcm" in image.name:
+    #             url = "wadouri:" + url
 
-            if group_info != "single_images":
-                stack_name = "_".join(image.name.split("_")[0:3])
-            else:
-                stack_name = image.name
+    #         if group_info != "single_images":
+    #             stack_name = "_".join(image.name.split("_")[0:3])
+    #         else:
+    #             stack_name = image.name
 
-            if stack_name in cs_stacks:
-                cs_stacks[stack_name]["imageIds"].append(url)
-            else:
-                cs_stacks[stack_name] = {"name":stack_name,
-                                         "imageIds":[url],
-                                         "currentImageIdIndex":0}
+    #         if stack_name in cs_stacks:
+    #             cs_stacks[stack_name]["imageIds"].append(url)
+    #         else:
+    #             cs_stacks[stack_name] = {"name":stack_name,
+    #                                      "imageIds":[url],
+    #                                      "currentImageIdIndex":0}
 
-        cs_stacks = [cs_stacks[cs_stack] for cs_stack in cs_stacks]
-        return cs_stacks
+    #     cs_stacks = [cs_stacks[cs_stack] for cs_stack in cs_stacks]
+    #     return cs_stacks
+
+    def get_stacks(self):
+        stacks = {}
+        image_dir = self.get_image_dir()
+        stack_folders = os.listdir(image_dir)
+        for stack_folder in stack_folders:
+            stack_path = os.path.join(image_dir,stack_folder)
+            stack_files = os.listdir(stack_path)
+            stacks[stack_folder] = {}
+            stacks[stack_folder]["size"] = sum( [os.path.getsize(os.path.join(stack_path, stack_file)) for stack_file in stack_files] ) 
+            stacks[stack_folder]["slices"] = len(stack_files)
+            stacks[stack_folder]["files"] = stack_files
+            stacks[stack_folder]["cs_stack"] = {"imageIds":[],
+                                                "currentImageIdIndex":0}
+            images = [image for image in self.images if stack_folder in image.base_url]
+            for image in images:
+                url = os.path.join(image.base_url,image.name)
+                if ".dcm" in image.name:
+                    url = "wadouri:" + url
+                stacks[stack_folder]["cs_stack"]["imageIds"].append(url)
+
+
+        return stacks
+
 
     def insert_imgset(self,imgset,position):
         self.imgsets.insert(position,imgset)

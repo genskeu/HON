@@ -8,8 +8,8 @@
                 class='form-select'
                 v-model="stackDisplayed">
                 <option></option>
-                <option v-for='stack in stacks' :key='stack.name' :value="stack">
-                    {{ stack.name }}
+                <option v-for='(stack, name) in stacks' :key='stack.name' :value="stack.cs_stack">
+                    {{ name }}
                 </option>
             </select>
         </div>

@@ -24,6 +24,10 @@ const getters = {
   studyDescription (state) {
     return state.description
   },
+  // images
+  images (state) {
+    return state.images
+  },
   // imgsets
   imgsets (state) {
     return state.imageSets
@@ -104,7 +108,7 @@ const mutations = {
     state.description = study.description
     state.design = study.design
     state.images = study.images
-    state.stacks = study.cs_stacks
+    state.stacks = study.stacks
     state.imageSets = study.imgsets
     state.scales = study.scales
     state.instructions = study.instructions
@@ -116,6 +120,7 @@ const mutations = {
     state.description = String
     state.design = Object
     state.images = Array
+    state.stacks = Array
     state.imageSets = Array
     state.scales = Array
     state.instructions = String

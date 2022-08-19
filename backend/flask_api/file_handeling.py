@@ -34,18 +34,28 @@ def allowed_file(filename):
 #@access_level_required([2])
 def upload_files(study_id):
     study = Study.query.filter_by(id=study_id).first()
+    user_id = 6
     image_dir = study.get_image_dir()
-    image_names_study = [image.name for image in study.images]
+    image_urls_study = [image.base_url + image.name for image in study.images]
     files = request.files
     filenames_saved = []
     filenames_not_saved = []
     
     # save file to image dir
     for f in files.getlist('file'):
-        filename = secure_filename(f.filename)
-        if filename not in image_names_study and allowed_file(filename):
+        path = os.path.normpath(f.filename).split(os.sep)
+        folder, filename = path[-2], path[-1]
+        filename = secure_filename(filename)
+        folder = secure_filename(folder)
+        if folder == '':
+            folder = filename.split(".")[0]
+        base_url = request.url_root + f"get_file/{user_id}/{study.id}/{folder}/"
+        if base_url + filename not in image_urls_study and allowed_file(filename):
+            stack_dir = os.path.join(image_dir, folder)
+            if not os.path.isdir(stack_dir):
+                os.mkdir(os.path.join(image_dir, folder))
             try:
-                f.save(os.path.join(image_dir, filename))
+                f.save(os.path.join(stack_dir, filename))
             except:
                 print("Error saving {}.".format(filename))
             else:
@@ -60,8 +70,7 @@ def upload_files(study_id):
 
     # save image infos to db
     for filename in filenames_saved:
-        user_id = 6
-        image = Image(name=filename,base_url=request.url_root + "get_file/{}/{}/".format(user_id,study.id))
+        image = Image(name=filename,base_url=base_url)
         try:
             study.images.append(image)
         except:

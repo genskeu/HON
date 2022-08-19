@@ -127,12 +127,7 @@ export default {
   watch: {
     stackDisplayed: {
       handler (newStack) {
-        var stack = {
-          currentImageIdIndex: newStack.currentImageIdIndex,
-          imageIds: [newStack.imageIds[0]]
-        }
-        stack.imageIds[0] = stack.imageIds[0].replace('127.0.0.1', 'localhost:5000')
-        this.loadDisplayCornerstone(stack).then(() => {
+        this.loadDisplayCornerstone(newStack.cs_stack).then(() => {
         })
       }
     },

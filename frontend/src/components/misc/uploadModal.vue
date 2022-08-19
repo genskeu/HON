@@ -6,7 +6,7 @@
                     <div class="modal-title h4">File Upload</div>
                     <button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body overflow-auto" style="height:75vh;">
+                <div class="modal-body overflow-auto" style="height:75vh;" @drop="addF">
                     <table class="table table-hover">
                         <thead class="thead-light">
                             <tr>
@@ -14,43 +14,45 @@
                                 <th colspan="1">Slizes</th>
                                 <th colspan="1">Size (Mb)</th>
                                 <th colspan="1">Upload Progress %</th>
+                                <th colspan="1">Status</th>
                                 <th colspan="1"></th>
                                 <th colspan="1"></th>
                             </tr>
                         </thead>
                         <tbody>
-                            <template v-for="(data, foldername) in filesGroupedByFolders" :key="foldername">
+                            <template v-for="folder in fileFolders" :key="folder.foldername">
                                 <tr>
-                                    <td colspan="1" class="align-middle">{{foldername}}</td>
-                                    <td colspan="1" class="align-middle">{{data.slices}}</td>
-                                    <td colspan="1" class="align-middle">{{Number(data.size/(1024*1024)).toFixed(2) }}</td>
-                                    <td colspan="1" class="align-middle">{{uploadProgressFolder(data.files)}}</td>
-                                    <td colspan="1" class="align-middle" data-bs-toggle="collapse" :data-bs-target="'#' + foldername"><button class="btn btn-primary">show files</button></td>
+                                    <td colspan="1" class="align-middle">{{folder.foldername}}</td>
+                                    <td colspan="1" class="align-middle">{{folder.slices}}</td>
+                                    <td colspan="1" class="align-middle">{{Number(folder.size/(1024*1024)).toFixed(2) }}</td>
+                                    <td colspan="1" class="align-middle">{{folder.progress}}</td>
+                                    <td colspan="1" class="align-middle">{{folder.status}}</td>
+                                    <td colspan="1" class="align-middle" data-bs-toggle="collapse" :data-bs-target="'#' + folder.foldername"><button class="btn btn-primary">show files</button></td>
                                     <td colspan="1" class="align-middle"><button class="btn btn-danger">remove</button></td>
                                 </tr>
-                                <tr class="collapse" :id="foldername">
-                                    <td colspan="6">
+                                <tr class="collapse" :id="folder.foldername">
+                                    <td colspan="7">
                                       <div class="overflow-auto" style="max-height:200px;">
                                         <table class="table table-dark table-borderless">
                                             <thead class="">
-                                                <tr colspan="5">
+                                                <tr colspan="6">
                                                     <th colspan="2">Filename</th>
                                                     <th colspan="1">Size (Kb)</th>
-                                                    <th colspan="1">Upload Progress %</th>
                                                     <th colspan="1">Status</th>
+                                                    <th colspan="1"></th>
                                                     <th colspan="1"></th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr v-for="file in data.files" :key="file.name"  >
+                                                <tr v-for="file in folder.files" :key="file.name"  >
                                                     <td colspan="2" class="align-middle">{{file.name}}</td>
                                                     <td colspan="1" class="align-middle">{{Number(file.size/1024).toFixed(2)}}</td>
-                                                    <td colspan="1" class="align-middle">{{file.progress}}</td>
                                                     <td class="align-middle" v-if="file.error">{{file.error}}</td>
                                                       <td class="align-middle" v-else-if="file.success">success</td>
                                                       <td class="align-middle" v-else-if="file.active">{{file.progress}}</td>
                                                       <td class="align-middle" v-else-if="!!file.error">{{file.error}}</td>
                                                       <td class="align-middle" v-else></td>
+                                                    <td colspan="1" class="align-middle"></td>
                                                     <td colspan="1" class="align-middle"></td>
                                                 </tr>
                                             </tbody>
@@ -75,25 +77,18 @@
                         </div>
                     </div>
                     <div class="example-btn">
-                        <file-upload class="btn btn-primary"
-                            :custom-action="customPostAction"
-                            :multiple="true"
-                            :drop="true"
-                            :directory="true"
-                            :thread="5"
-                            v-model="files"
-                            @input-filter="inputFilter"
-                            @input-file="inputFile"
-                            ref="upload">
-                            Select files
-                        </file-upload>
-                        <button class="btn btn-success" v-if="!this.$refs.upload || !this.$refs.upload.active"
-                            @click.prevent="this.$refs.upload.active = true">
+                        <label class="btn btn-primary">Select Files
+                          <input @change="addFiles" type="file" name="file" class="d-none" id="file" multiple/>
+                        </label>
+                        <label class="btn btn-primary">Select Folder
+                          <input @change="addFolder" type="file" name="folder" class="d-none" id="folder" webkitdirectory multiple/>
+                        </label>
+                        <button @click="uploadFolders" class="btn btn-success">
                             Start Upload
                         </button>
-                        <button class="btn btn-danger" v-else @click.prevent="this.$refs.upload.active = false">
+<!--                         <button class="btn btn-danger" v-else @click.prevent="this.$refs.upload.active = false">
                             Stop Upload
-                        </button>
+                        </button> -->
                     </div>
                 </div>
             </div>
@@ -102,17 +97,15 @@
 </template>
 
 <script>
-import FileUpload from 'vue-upload-component'
 import axios from 'axios'
 
 export default {
   name: 'UploadModal',
   components: {
-    FileUpload
   },
   data () {
     return {
-      files: [],
+      fileFolders: [],
       filesUploaded: []
     }
   },
@@ -152,20 +145,68 @@ export default {
         }
       }
     },
-    inputFile (newFile, oldFile) {
-      if (newFile && !oldFile) {
-        // debugger // eslint-disable-line
-        // add
-        // console.log('add', newFile)
+    addFiles (e) {
+      if (!e.target.files.length > 0) {
+        return false
       }
-      if (newFile && oldFile) {
-        // update
-        // console.log('update', newFile)
+
+      Array.from(e.target.files).forEach(newFile => {
+        const foldernameNewFile = newFile.name.split('/')[0].split('.')[0]
+
+        // check if similar folder already exists
+        const index = this.fileFolders.findIndex(fileFolder => fileFolder.foldername === foldernameNewFile)
+        if (index > -1) {
+          this.fileFolders[index].files.push(newFile)
+          this.fileFolders[index].size += newFile.size
+          this.fileFolders[index].slices += 1
+        } else {
+          this.fileFolders.push({
+            foldername: foldernameNewFile,
+            files: [newFile],
+            size: newFile.size,
+            slices: 1,
+            progress: 0,
+            status: '',
+            error: ''
+          })
+        }
+      })
+    },
+    addF (e) {
+      debugger // eslint-disable-line no-debugger
+    },
+    addFolder (e) {
+      if (!e.target.files.length > 0) {
+        return false
       }
-      if (!newFile && oldFile) {
-        // remove
-        // console.log('remove', oldFile)
-      }
+
+      Array.from(e.target.files).forEach(newFile => {
+        const paths = newFile.webkitRelativePath.split('/')
+        var foldernameNewFile
+        if (paths.length > 1) {
+          foldernameNewFile = paths[paths.length - 2].split('.')[0]
+        } else {
+          foldernameNewFile = paths[paths.length - 1].split('.')[0]
+        }
+
+        // check if similar folder already exists
+        const index = this.fileFolders.findIndex(fileFolder => fileFolder.foldername === foldernameNewFile)
+        if (index > -1) {
+          this.fileFolders[index].files.push(newFile)
+          this.fileFolders[index].size += newFile.size
+          this.fileFolders[index].slices += 1
+        } else {
+          this.fileFolders.push({
+            foldername: foldernameNewFile,
+            files: [newFile],
+            size: newFile.size,
+            slices: 1,
+            progress: 0,
+            status: '',
+            error: ''
+          })
+        }
+      })
     },
     uploadProgressFolder (files) {
       var sum = 0
@@ -175,35 +216,69 @@ export default {
     },
     uploadProgressOverall () {
       var sum = 0
-      this.files.forEach(function (file) { sum += Number(file.progress) })
-      if (this.files.length) {
-        const average = sum / this.files.length
+      this.fileFolders.forEach(function (folder) { sum += Number(folder.progress) })
+      if (this.fileFolders.length) {
+        const average = sum / this.fileFolders.length
         return average.toFixed(2)
       } else {
         const average = 0
         return average.toFixed(2)
       }
     },
-    async customPostAction (file) {
-      var formData = new FormData()
-      formData.append('file', file.file)
-      var uploadComponent = this.$refs.upload
-      const config = {
-        onUploadProgress: progressEvent => {
-          var progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-          uploadComponent.update(file, { progress: progress })
+    // working
+    // todos: maxSImUploads should be respnisve to size and have an upper limit
+    // eg. 20 but if size is over x limit to y
+    uploadFolders (maxSimUp = 5) {
+      // find folder that is not uploaded yet and check the number of active uploads
+      var folderNotActive
+      var activeUploads = 0
+      for (var folder of this.fileFolders) {
+        if (folder.status === '' && folderNotActive === undefined) {
+          folderNotActive = folder
+          folderNotActive.status = 'uploading'
+        }
+        if (folder.status === 'uploading') {
+          activeUploads += 1
         }
       }
-      // const folder = file.name.split('/')[0]
-      // const name = file.name.split('/')[1]
-      axios
-        .post('http://localhost:5000/upload_files/' + this.$route.params.id,
-          // headers: { 'Content-Type': 'multipart/form-data' },
-          formData,
-          config
-        ).catch((error) => {
-          console.log(error)
-        })
+
+      if (folderNotActive) {
+        var formData = new FormData()
+        folderNotActive.files.forEach((file) => formData.append('file', file))
+
+        // start more uploads until max upload number eached
+        if (activeUploads < maxSimUp) {
+          for (var i = 0; i < maxSimUp - activeUploads; i++) {
+            this.uploadFolders()
+          }
+        }
+
+        // config request
+        const config = {
+          onUploadProgress: progressEvent => {
+            var progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+            folderNotActive.progress = progress
+          }
+        }
+
+        // request
+        axios
+          .post('http://localhost:5000/upload_files/' + this.$route.params.id,
+            // headers: { 'Content-Type': 'multipart/form-data' },
+            formData,
+            config)
+          .then(() => {
+            folderNotActive.status = 'uploaded successfully'
+          })
+          .catch(() => {
+            folderNotActive.status = 'error'
+          })
+          .then(() => {
+            this.uploadFolders()
+          })
+      } else {
+        return false
+      }
     }
   }
 }
