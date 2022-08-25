@@ -73,11 +73,14 @@
                         </div>
                     </div>
                     <div class="example-btn">
+                        <label>
+                          Files selected: {{fileNumber()}}
+                        </label>
                         <label class="btn btn-primary">Select Files
-                          <input @change="addFiles" type="file" name="file" class="d-none" id="file" multiple/>
+                          <input @change="addFolder" type="file" name="file" class="d-none" id="file" multiple/>
                         </label>
                         <label class="btn btn-primary">Select Folder
-                          <input @change="addFolder" type="file" name="folder" class="d-none" id="folder" webkitdirectory multiple/>
+                          <input @change="addFolder" type="file" name="folder" class="d-none" id="folder" ref="folder" webkitdirectory multiple/>
                         </label>
                         <button @click="uploadFolders" class="btn btn-success">
                             Start Upload
@@ -106,22 +109,6 @@ export default {
     }
   },
   computed: {
-    filesGroupedByFolders () {
-      const result = {}
-      this.files.forEach((file) => {
-        const folder = file.name.split('/')[0].split('.')[0]
-        if (!result[folder]) {
-          result[folder] = []
-          result[folder].files = []
-          result[folder].size = 0
-          result[folder].slices = 0
-        }
-        result[folder].files.push(file)
-        result[folder].size += file.size
-        result[folder].slices += 1
-      })
-      return result
-    }
   },
   watch: {
   },
@@ -129,59 +116,6 @@ export default {
   },
   methods: {
     inputFilter (newFile, oldFile, prevent) {
-      if (newFile && !oldFile) {
-        // Before adding a file
-        // Filter system files or hide files
-        if (/(\/|^)(Thumbs\.db|desktop\.ini|\..+)$/.test(newFile.name)) {
-          return prevent()
-        }
-        // Filter php html js file
-        if (/\.(php5?|html?|jsx?)$/i.test(newFile.name)) {
-          return prevent()
-        }
-      }
-    },
-    addFiles (e) {
-      if (!e.target.files.length > 0) {
-        return false
-      }
-
-      Array.from(e.target.files).forEach(newFile => {
-        const foldernameNewFile = newFile.name.split('/')[0].split('.')[0]
-
-        // check if similar folder already exists
-        const index = this.fileFolders.findIndex(fileFolder => fileFolder.foldername === foldernameNewFile)
-        if (index > -1) {
-          this.fileFolders[index].files.push({
-            file: newFile,
-            name: newFile.name,
-            size: newFile.size,
-            status: '',
-            progress: 0
-          })
-          this.fileFolders[index].size += newFile.size
-          this.fileFolders[index].slices += 1
-        } else {
-          this.fileFolders.push({
-            foldername: foldernameNewFile,
-            files: [{
-              file: newFile,
-              name: newFile.name,
-              size: newFile.size,
-              status: '',
-              progress: 0
-            }],
-            size: newFile.size,
-            slices: 1,
-            progress: 0,
-            status: '',
-            error: ''
-          })
-        }
-      })
-    },
-    addF (e) {
-      debugger // eslint-disable-line no-debugger
     },
     addFolder (e) {
       if (!e.target.files.length > 0) {
@@ -189,7 +123,12 @@ export default {
       }
 
       Array.from(e.target.files).forEach(newFile => {
-        const paths = newFile.webkitRelativePath.split('/')
+        var paths = ''
+        if (newFile.webkitRelativePath) {
+          paths = newFile.webkitRelativePath.split('/')
+        } else {
+          paths = newFile.name.split('/')
+        }
         var foldernameNewFile
         if (paths.length > 1) {
           foldernameNewFile = paths[paths.length - 2].split('.')[0]
@@ -198,38 +137,30 @@ export default {
         }
 
         // check if similar folder already exists
-        const index = this.fileFolders.findIndex(fileFolder => fileFolder.foldername === foldernameNewFile)
-        if (index > -1) {
-          this.fileFolders[index].files.push(
-            {
-              file: newFile,
-              name: newFile.name,
-              size: newFile.size,
-              status: '',
-              progress: 0
-            }
-          )
-          this.fileFolders[index].size += newFile.size
-          this.fileFolders[index].slices += 1
-        } else {
+        var index = this.fileFolders.findIndex(fileFolder => fileFolder.foldername === foldernameNewFile)
+        if (index === -1) {
           this.fileFolders.push({
             foldername: foldernameNewFile,
-            files: [
-              {
-                file: newFile,
-                name: newFile.name,
-                size: newFile.size,
-                status: '',
-                progress: 0
-              }
-            ],
-            size: newFile.size,
-            slices: 1,
+            files: [],
+            size: 0,
+            slices: 0,
             progress: 0,
             status: '',
             error: ''
           })
+          index = this.fileFolders.length - 1
         }
+        this.fileFolders[index].files.push(
+          {
+            file: newFile,
+            name: newFile.name,
+            size: newFile.size,
+            status: '',
+            progress: 0
+          }
+        )
+        this.fileFolders[index].size += newFile.size
+        this.fileFolders[index].slices += 1
       })
     },
     uploadProgressOverall () {
@@ -307,8 +238,16 @@ export default {
         })
       promises.push(promise)
     },
+    fileNumber () {
+      var fileNumb = 0
+      var selectedFiles = document.getElementById('folder')
+      if (selectedFiles) {
+        fileNumb += selectedFiles.files.length
+      }
+      return fileNumb
+    }
     // not used
-    async uploadFiles () {
+    /*     async uploadFiles () {
       // find folder that is not uploaded yet and check the number of active uploads
       var fileNotActive
       // var activeUploads = 0
@@ -397,7 +336,7 @@ export default {
           .then(() => {
           })
       })
-    }
+    } */
   }
 }
 </script>

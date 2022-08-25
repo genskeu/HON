@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <uploadModal id="uploadModal"></uploadModal>
-        <div class="row pt-1">
+        <div class="row mx-auto pt-1">
             <button class="btn btn-light btn-block" data-bs-toggle="collapse" data-bs-target="#naming"
                 aria-expanded="false" aria-controls="naming">
                 <h5 class="mt-1">Rules and Naming conventions for File Upload &#9776;</h5>
@@ -47,7 +47,7 @@
                     <div id="loader_text_del" class="mt-3" style="display: none;">Please wait</div>
                 </div>
                 <div class="w-100 mt-2">
-                    <div style="height:75vh;" class="overflow-auto mb-4">
+                    <div style="height:72vh;" class="overflow-auto mb-4">
                         <table class="table table-secondary table-hover text-left">
                             <thead class="thead sticky-top">
                                 <tr>
@@ -72,7 +72,7 @@
                         </table>
                     </div>
                 </div>
-                <div class="row justify-content-end">
+                <div class="row mx-auto justify-content-end mb-2">
                     <button id="upload_files" class="btn-success btn btn-block col-2" data-bs-toggle="modal" data-bs-target="#uploadModal">Upload Files</button>
                 </div>
             </div>
