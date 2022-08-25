@@ -161,6 +161,8 @@ class Study(db.Model):
                 if ".dcm" in image.name:
                     url = "wadouri:" + url
                 stacks[stack_folder]["cs_stack"]["imageIds"].append(url)
+            stacks[stack_folder]["cs_stack"]["imageIds"].sort()
+
 
 
         return stacks

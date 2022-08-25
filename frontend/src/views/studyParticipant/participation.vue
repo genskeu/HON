@@ -136,10 +136,10 @@ export default {
   watch: {
     imgsetActive: {
       handler (newImgset) {
-        newImgset.image_stacks.forEach((stack, index) => {
+        newImgset.imageStacks.forEach((stack, index) => {
           // ensure same structure as select menu values
-          stack.cs_stack.name = stack.name
-          this.$store.commit('imageViewers/stackDisplayed', { stackDisplayed: stack.cs_stack, index: index })
+          stack.csStack.name = stack.name
+          this.$store.commit('imageViewers/stackDisplayed', { stackDisplayed: stack.csStack, index: index })
         })
       }
     }

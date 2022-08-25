@@ -9,9 +9,11 @@
     <div id="imgset_settings" class="collapse show">
         <div class="input-group mx-auto" data-toggle="tooltip" data-placement="left"
           title="Use the select menus to activate image handling tools for the left, middle and right mouse key.">
-          <label class="input-group-text">Load Image Set</label>
+          <label class="input-group-text">Total {{imgsets.length}}</label>
+          <label class="input-group-text">Set Displayed</label>
           <select class='form-select' v-model="imgsetActive">
-            <option v-for="imgset in imgsets" :key="imgset.id" :value="imgset">{{ imgset.position }}</option>
+            <option :value="undefined"></option>
+            <option v-for="imgset in imgsets" :key="imgset.id" :value="imgset">{{ imgset.position + 1 }}</option>
           </select>
         </div>
       <div class="row mx-auto mt-1" id="general_settings_title">
@@ -62,19 +64,23 @@
       </div>
       <div id="images_create_man" class="collapse show">
         <div class="row mx-auto">
-          <button value="append imgset" class="imgset_btn btn-success btn mb-1" id="add_imgset"
-            title="add image-set to the end of the study">add new imgset</button>
+          <button class="imgset_btn btn-success btn mb-1" id="add_imgset"
+            title="add image-set to the end of the study" @click="addImgset">add new imgset
+          </button>
         </div>
         <div v-if="imgsetActive" class="row mx-auto">
-          <input value="update loaded imgset" class="imgset_btn btn-light btn mb-1" id="upd_imgset"
-            title="update currently selected image-set" />
+          <button value="update loaded imgset" class="imgset_btn btn-light btn mb-1" id="upd_imgset"
+            title="update currently selected image-set">update loaded imgset
+          </button>
         </div>
         <div v-if="imgsetActive" class="row mx-auto">
-          <input value="delete loaded imgset" class="imgset_btn btn-danger btn mb-1" id="del_imgset"
-            title="delete currently selected image-set" />
+          <button value="delete loaded imgset" class="imgset_btn btn-danger btn mb-1" id="del_imgset"
+            title="delete currently selected image-set">delete loaded imgset
+          </button>
         </div>
         <div v-if="imgsets.length" class="row mx-auto">
-          <input value="delete all imgsets" class="imgset_btn btn-danger btn mb-1" id="del_all_imgsets" />
+          <button value="delete all imgsets" class="imgset_btn btn-danger btn mb-1" id="del_all_imgsets">delete all imgsets
+          </button>
         </div>
       </div>
 
@@ -124,12 +130,33 @@ export default {
   watch: {
     imgsetActive: {
       handler (newImgset) {
-        newImgset.image_stacks.forEach((stack, index) => {
+        newImgset.imageStacks.forEach((stack, index) => {
           // ensure same structure as select menu values
-          stack.cs_stack.name = stack.name
-          this.$store.commit('imageViewers/stackDisplayed', { stackDisplayed: stack.cs_stack, index: index })
+          stack.csStack.name = stack.name
+          this.$store.commit('imageViewers/stackDisplayed', { stackDisplayed: stack.csStack, index: index })
         })
       }
+    }
+  },
+  methods: {
+    addImgset () {
+      const imgset = this.$store.getters['imageViewers/getImgset']
+      if (this.imgsetActive === undefined) {
+        imgset.position = this.imgsets.length
+      } else {
+        imgset.position = this.imgsetActive.position
+      }
+      this.$store.commit('openStudy/addImgset', imgset)
+      this.imgsetActive = imgset
+    },
+    updateImgset () {
+
+    },
+    deleteImgset () {
+
+    },
+    deleteImgsets () {
+
     }
   }
 }

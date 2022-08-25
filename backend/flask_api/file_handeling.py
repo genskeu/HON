@@ -8,11 +8,11 @@ from .auth import login_required, access_level_required
 
 # return files on request
 bp = Blueprint("file_handeling", __name__)
-@bp.route("/get_file/<int:user_id>/<int:study_id>/<image_name>",methods=['GET'])
+@bp.route("/get_file/<int:user_id>/<int:study_id>/<stack_name>/<image_name>",methods=['GET'])
 #@login_required
 #@access_level_required([1,2])
-def get_file(user_id,study_id,image_name):
-    file_path = os.path.join(current_app.config['IMAGE_PATH'],str(user_id),str(study_id),image_name)
+def get_file(user_id,study_id,stack_name,image_name):
+    file_path = os.path.join(current_app.config['IMAGE_PATH'],str(user_id),str(study_id),stack_name,image_name)
     if os.path.isfile(file_path):
         return send_file(file_path)
     else:
@@ -44,11 +44,12 @@ def upload_files(study_id):
     # save file to image dir
     for f in files.getlist('file'):
         path = os.path.normpath(f.filename).split(os.sep)
-        folder, filename = path[-2], path[-1]
+        if len(path) > 1:
+            folder, filename = path[-2], path[-1]
+        else:
+            folder, filename = path[-1].split(".")[0], path[-1]
         filename = secure_filename(filename)
         folder = secure_filename(folder)
-        if folder == '':
-            folder = filename.split(".")[0]
         base_url = request.url_root + f"get_file/{user_id}/{study.id}/{folder}/"
         if base_url + filename not in image_urls_study and allowed_file(filename):
             stack_dir = os.path.join(image_dir, folder)
@@ -59,7 +60,7 @@ def upload_files(study_id):
             except:
                 print("Error saving {}.".format(filename))
             else:
-                filenames_saved.append(f.filename)
+                filenames_saved.append(filename)
             if "zip" == filename[-3:]:
                 filenames_saved.remove(f.filename)
                 filenames_unzipped, filenames_not_unzipped = unzip_images(filename, image_dir, study)

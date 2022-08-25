@@ -26,7 +26,7 @@ e.g. how many images have to be evaluated.">
         </div>
       </div>
       <div class="row mx-auto">
-        <button class="btn btn-lg btn-secondary" @click="saveMetaInfos">Save Metainfos</button>
+        <button class="btn btn-lg btn-success" @click="saveMetaInfos">Save Metainfos</button>
       </div>
     </div>
   </div>

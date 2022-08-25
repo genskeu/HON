@@ -48,7 +48,7 @@
       <div class="col-lg-2 pt-1 overflow-auto sticky-top" id="sidebar">
         <!-- Design Settings -->
         <DesignOptions></DesignOptions>
-        <ImgsetNav class="w-100 mb-2"></ImgsetNav>
+        <ImgsetDesign class="w-100 mb-2"></ImgsetDesign>
       </div>
     </div>
   </div>
@@ -58,14 +58,14 @@
 import DicomViewer from '@/components/dicomViewer/DicomViewer.vue'
 import DicomViewerTools from '@/components/dicomViewer/DicomViewerTools.vue'
 import DesignOptions from '@/components/studyDesign/DesignOptions.vue'
-import ImgsetNav from '@/components/studyDesign/ImgsetNav.vue'
+import ImgsetDesign from '@/components/studyDesign/ImgsetDesign.vue'
 
 export default {
   name: 'Design',
   components: {
     DicomViewer,
     DicomViewerTools,
-    ImgsetNav,
+    ImgsetDesign,
     DesignOptions
   },
   computed: {

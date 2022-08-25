@@ -31,7 +31,7 @@ def get_studies(user_id=6):
             study overview html
     """
     studies = Study.query.filter_by(user_id=user_id).all()
-    studies = [study.to_dict() for study in studies]
+    studies = [study.to_dict(include_imagesets=True) for study in studies]
     response = {}
     response["studies"] = studies
     return response
@@ -193,55 +193,52 @@ def study_design(study_id):
 
 
 # set design for study json API endpoint
-@bp.route('/study/design/<int:study_id>', methods=['POST'])
-@login_required
-@access_level_required([2])
+@bp.route('/study/design/<int:study_id>', methods=['PUT'])
+#@login_required
+#@access_level_required([2])
 def design(study_id):
     study = Study.query.filter_by(id=study_id).first()
+    error = None
+    design = request.get_json()
 
-    if request.method == "POST":
-        design = request.get_json()
+    # save design
+    if study.design is None:
+        study.design = Design(study_id=study_id)
+    study.design.instructions = design["instructions"]
+    study.design.button_labels = design["button_labels"]
+    study.design.text_color = design["text_color"]
+    study.design.background_color = design["background_color"]
+    study.design.numb_img = design["numb_img"]
+    study.design.numb_refimg = design["numb_refimg"]
+    study.design.transition_time = design["transition_time"]
+    study.design.show_viewport_info = design["show_viewport_info"]
+    study.design.img_height = design["img_height"]
+    study.design.numb_rois = design["numb_rois"]
+    for toolData in design["tools"]:
+        tool = Tool.query.filter_by(
+            cs_name=toolData["cs_name"], design_id=study.design.id).first()
+        if tool is None:
+            tool = Tool(design_id=study.design.id)
+            db.session.add(tool)
+        tool.cs_name = toolData["cs_name"]
+        tool.key_binding = toolData["key_binding"]
+        tool.settings = toolData["settings"]
 
-        # save design
-        if study.design is None:
-            study.design = Design(study_id=study_id)
-        study.design.instructions = design["instructions"]
-        study.design.button_labels = design["button_labels"]
-        study.design.text_color = design["text_color"]
-        study.design.background_color = design["background_color"]
-        study.design.numb_img = design["numb_img"]
-        study.design.numb_refimg = design["numb_refimg"]
-        study.design.transition_time = design["transition_time"]
-        study.design.show_viewport_info = design["show_viewport_info"]
-        study.design.img_width = design["img_width"]
-        study.design.img_height = design["img_height"]
-        study.design.numb_rois = design["numb_rois"]
-        for key, value in design["tools"].items():
-            tool = Tool.query.filter_by(cs_name=key,design_id=study.design.id).first()
-            if tool is None:
-                tool = Tool(design_id=study.design.id)
-                db.session.add(tool)
-            tool.cs_name = key
-            tool.label = value["label"]
-            tool.key_binding = value["key_binding"]
-            tool.status = value["status"]
+    # delete old scales
+    for scale in study.design.scales:
+        db.session.delete(scale)
+    for item in design["scales"]:
+        scale = Scale(design_id=study.design.id)
+        scale.text = item["text"]
+        scale.min = item["min"]
+        scale.max = item["max"]
+        scale.type = item["type"]
+        db.session.add(scale)
 
-        # delete old scales
-        for scale in study.design.scales:
-            db.session.delete(scale)
-        for item in design["scales"]:
-            scale = Scale(design_id=study.design.id)
-            scale.text = item["text"]
-            scale.min = item["min"]
-            scale.max = item["max"]
-            scale.type = item["type"]
-            db.session.add(scale)
+    db.session.commit()
 
-        db.session.commit()
-
-        response = {}
-        response["redirect"] = url_for('studies.overview')
-        return jsonify(response)
+    response = {}
+    return jsonify(response)
 
 #get image stack in cornerstone format
 @bp.route('/study/cs_stack/<int:study_id>/<image_ids>', methods=['GET'])

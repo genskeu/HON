@@ -33,6 +33,9 @@ const getters = {
     return state.imageSets
   },
   // design data
+  design (state) {
+    return state.design
+  },
   viewerNumb (state) {
     return Number(state.design.numb_img)
   },
@@ -205,8 +208,14 @@ const mutations = {
   },
   viewerLayoutCols (state, colNumb) {
     state.design.layout_img_cols = colNumb
-  }
+  },
   // imgsets
+  addImgset (state, imgset) {
+    state.imageSets.splice(imgset.position + 1, 0, imgset)
+    state.imageSets.forEach((set, index) => {
+      set.position = index
+    })
+  }
 }
 
 const actions = {

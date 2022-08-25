@@ -127,7 +127,7 @@ export default {
   watch: {
     stackDisplayed: {
       handler (newStack) {
-        this.loadDisplayCornerstone(newStack.cs_stack).then(() => {
+        this.loadDisplayCornerstone(newStack).then(() => {
         })
       }
     },
@@ -200,7 +200,7 @@ export default {
       return promise
     },
     displayStackIndex () {
-      if (this.stackDisplayed & this.stackDisplayed.imageIds.length > 1) {
+      if (this.stackDisplayed && this.stackDisplayed.imageIds.length > 1) {
         var slice = this.$refs.slice_index
         slice.innerHTML =
           'Stack Position:' +

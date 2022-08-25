@@ -25,7 +25,7 @@
                                     <td colspan="1" class="align-middle">{{folder.foldername}}</td>
                                     <td colspan="1" class="align-middle">{{folder.slices}}</td>
                                     <td colspan="1" class="align-middle">{{Number(folder.size/(1024*1024)).toFixed(2) }}</td>
-                                    <td colspan="1" class="align-middle">{{folder.progress}}</td>
+                                    <td colspan="1" class="align-middle">{{folder.progress.toFixed(2)}}</td>
                                     <td colspan="1" class="align-middle">{{folder.status}}</td>
                                     <td colspan="1" class="align-middle" data-bs-toggle="collapse" :data-bs-target="'#' + folder.foldername"><button class="btn btn-primary">show files</button></td>
                                     <td colspan="1" class="align-middle"><button class="btn btn-danger">remove</button></td>
@@ -38,8 +38,8 @@
                                                 <tr colspan="6">
                                                     <th colspan="2">Filename</th>
                                                     <th colspan="1">Size (Kb)</th>
+                                                    <th colspan="1">Upload Progress %</th>
                                                     <th colspan="1">Status</th>
-                                                    <th colspan="1"></th>
                                                     <th colspan="1"></th>
                                                 </tr>
                                             </thead>
@@ -47,12 +47,8 @@
                                                 <tr v-for="file in folder.files" :key="file.name"  >
                                                     <td colspan="2" class="align-middle">{{file.name}}</td>
                                                     <td colspan="1" class="align-middle">{{Number(file.size/1024).toFixed(2)}}</td>
-                                                    <td class="align-middle" v-if="file.error">{{file.error}}</td>
-                                                      <td class="align-middle" v-else-if="file.success">success</td>
-                                                      <td class="align-middle" v-else-if="file.active">{{file.progress}}</td>
-                                                      <td class="align-middle" v-else-if="!!file.error">{{file.error}}</td>
-                                                      <td class="align-middle" v-else></td>
-                                                    <td colspan="1" class="align-middle"></td>
+                                                    <td colspan="1" class="align-middle">{{file.progress.toFixed(2)}}</td>
+                                                    <td colspan="1" class="align-middle">{{file.status}}</td>
                                                     <td colspan="1" class="align-middle"></td>
                                                 </tr>
                                             </tbody>
@@ -156,13 +152,25 @@ export default {
         // check if similar folder already exists
         const index = this.fileFolders.findIndex(fileFolder => fileFolder.foldername === foldernameNewFile)
         if (index > -1) {
-          this.fileFolders[index].files.push(newFile)
+          this.fileFolders[index].files.push({
+            file: newFile,
+            name: newFile.name,
+            size: newFile.size,
+            status: '',
+            progress: 0
+          })
           this.fileFolders[index].size += newFile.size
           this.fileFolders[index].slices += 1
         } else {
           this.fileFolders.push({
             foldername: foldernameNewFile,
-            files: [newFile],
+            files: [{
+              file: newFile,
+              name: newFile.name,
+              size: newFile.size,
+              status: '',
+              progress: 0
+            }],
             size: newFile.size,
             slices: 1,
             progress: 0,
@@ -192,13 +200,29 @@ export default {
         // check if similar folder already exists
         const index = this.fileFolders.findIndex(fileFolder => fileFolder.foldername === foldernameNewFile)
         if (index > -1) {
-          this.fileFolders[index].files.push(newFile)
+          this.fileFolders[index].files.push(
+            {
+              file: newFile,
+              name: newFile.name,
+              size: newFile.size,
+              status: '',
+              progress: 0
+            }
+          )
           this.fileFolders[index].size += newFile.size
           this.fileFolders[index].slices += 1
         } else {
           this.fileFolders.push({
             foldername: foldernameNewFile,
-            files: [newFile],
+            files: [
+              {
+                file: newFile,
+                name: newFile.name,
+                size: newFile.size,
+                status: '',
+                progress: 0
+              }
+            ],
             size: newFile.size,
             slices: 1,
             progress: 0,
@@ -207,12 +231,6 @@ export default {
           })
         }
       })
-    },
-    uploadProgressFolder (files) {
-      var sum = 0
-      files.forEach(function (file) { sum += Number(file.progress) })
-      const average = sum / files.length
-      return average.toFixed(2)
     },
     uploadProgressOverall () {
       var sum = 0
@@ -226,59 +244,159 @@ export default {
       }
     },
     // working
-    // todos: maxSImUploads should be respnisve to size and have an upper limit
-    // eg. 20 but if size is over x limit to y
-    uploadFolders (maxSimUp = 5) {
-      // find folder that is not uploaded yet and check the number of active uploads
-      var folderNotActive
-      var activeUploads = 0
+    async uploadFolders () {
+      // find folder that is currently uploading or that has not uploaded yet
+      var folderToUpload
       for (var folder of this.fileFolders) {
-        if (folder.status === '' && folderNotActive === undefined) {
-          folderNotActive = folder
-          folderNotActive.status = 'uploading'
+        if (folder.status === '' && folderToUpload === undefined) {
+          folderToUpload = folder
+          folderToUpload.status = 'uploading'
         }
-        if (folder.status === 'uploading') {
-          activeUploads += 1
+        if (folder.status === 'uploading' && folderToUpload === undefined) {
+          folderToUpload = folder
+        }
+      }
+      if (folderToUpload) {
+        this.uploadFolderChunkWise(folderToUpload, 5)
+      }
+    },
+    uploadFolderChunkWise (folder, chuncksize) {
+      var promises = []
+      var formData = new FormData()
+      var filesUploading = []
+      folder.files.forEach((file) => {
+        if (filesUploading.length < chuncksize && file.status === '') {
+          formData.append('file', file.file)
+          filesUploading.push(file)
+          file.status = ' uploading'
+        }
+      })
+      // config request
+      const config = {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        onUploadProgress: progressEvent => {
+          var progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+          var folderProgress = progress * (filesUploading.length / folder.files.length)
+          folder.progress += folderProgress
+          filesUploading.forEach((file) => {
+            file.progress += progress
+          })
         }
       }
 
-      if (folderNotActive) {
-        var formData = new FormData()
-        folderNotActive.files.forEach((file) => formData.append('file', file))
-
-        // start more uploads until max upload number eached
-        if (activeUploads < maxSimUp) {
-          for (var i = 0; i < maxSimUp - activeUploads; i++) {
-            this.uploadFolders()
+      // request
+      const promise = axios
+        .post('http://localhost:5000/upload_files/' + this.$route.params.id,
+          formData,
+          config)
+        .then(() => {
+          filesUploading.forEach((file) => {
+            file.status = 'uploaded successfully'
+          })
+        })
+        .catch(() => {
+          filesUploading.forEach((file) => {
+            file.status = 'error'
+          })
+        })
+        .finally(() => {
+          if (folder.files.every((file) => file.status !== '')) {
+            folder.status = 'upload finished'
           }
+          this.uploadFolders()
+        })
+      promises.push(promise)
+    },
+    // not used
+    async uploadFiles () {
+      // find folder that is not uploaded yet and check the number of active uploads
+      var fileNotActive
+      // var activeUploads = 0
+      // var maxSimUp = 1
+      for (var folder of this.fileFolders) {
+        for (var file of folder.files) {
+          if (file.status === '' && fileNotActive === undefined) {
+            fileNotActive = file
+            fileNotActive.status = 'uploading'
+          }
+          // if (folder.status === 'uploading') {
+          //   activeUploads += 1
+          // }
         }
+      }
+      if (fileNotActive) {
+        var formData = new FormData()
+        formData.append('file', fileNotActive.file)
+
+        // // start more uploads until max upload number eached
+        // if (activeUploads < maxSimUp) {
+        //   for (var i = 0; i < maxSimUp - activeUploads; i++) {
+        //     this.uploadFiles()
+        //   }
+        // }
 
         // config request
         const config = {
+          headers: { 'Content-Type': 'multipart/form-data' },
           onUploadProgress: progressEvent => {
             var progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-            folderNotActive.progress = progress
+            fileNotActive.progress = progress
+            folder.progress += progress / folder.files.length
           }
         }
 
         // request
         axios
           .post('http://localhost:5000/upload_files/' + this.$route.params.id,
-            // headers: { 'Content-Type': 'multipart/form-data' },
             formData,
             config)
           .then(() => {
-            folderNotActive.status = 'uploaded successfully'
+            fileNotActive.status = 'uploaded successfully'
           })
           .catch(() => {
-            folderNotActive.status = 'error'
+            fileNotActive.status = 'error'
           })
           .then(() => {
-            this.uploadFolders()
+            this.uploadFiles()
           })
-      } else {
-        return false
       }
+    },
+    // not used
+    async uploadFolders2 () {
+      // find folder that is not uploaded yet and check the number of active uploads
+      this.fileFolders.forEach((folder) => {
+        folder.status = 'uploading'
+
+        var formData = new FormData()
+        folder.files.forEach((file, index) => {
+          if (index < 15) {
+            formData.append('file', file)
+          }
+        })
+
+        // config request
+        const config = {
+          headers: { 'Content-Type': 'multipart/form-data' },
+          onUploadProgress: progressEvent => {
+            var progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+            folder.progress = progress
+          }
+        }
+
+        // request
+        axios
+          .post('http://localhost:5000/upload_files/' + this.$route.params.id,
+            formData,
+            config)
+          .then(() => {
+            folder.status = 'uploaded successfully'
+          })
+          .catch(() => {
+            folder.status = 'error'
+          })
+          .then(() => {
+          })
+      })
     }
   }
 }
