@@ -1,13 +1,16 @@
+from crypt import methods
 import functools
 
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for
+    Blueprint, flash, g, redirect, request, session, url_for, jsonify
 )
 from werkzeug.security import check_password_hash, generate_password_hash
-from .DBmodel import User, db, Study
+from flask_jwt_extended import JWTManager, create_access_token, create_refresh_token, set_access_cookies, set_refresh_cookies, unset_jwt_cookies
+from .DBmodel import User, db
+
+jwt = JWTManager()
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
-
 
 def not_logged_in(view):
     @functools.wraps(view)
@@ -26,84 +29,87 @@ def not_logged_in(view):
         return view(**kwargs)
     return wrapped_view
 
-
-@bp.route("/register", methods=("GET", "POST"))
-@not_logged_in
+# jwt auth by https://fareedidris.medium.com/cookie-based-authentication-using-flask-and-vue-js-part-1-c625a530c157
+@bp.route("/register", methods=["POST"])
+# @not_logged_in
 def register():
     """
         register a user at HON
 
         Returns:
-            page (html) to register a user
     """
-    if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-        error = None
+    data = request.get_json()
+    username = data["username"]
+    password = data["password"]
+    error = None
+    response = jsonify()
+    
+    if not username:
+        error = "Username is required."
+    elif not password:
+        error = "Password is required."
+    elif User.query.filter_by(username=username).first() is not None:
+        error = f"User {username} is already registered."
 
-        if not username:
-            error = "Username is required."
-        elif not password:
-            error = "Password is required."
-        elif User.query.filter_by(username=username).first() is not None:
-            error = "User {} is already registered.".format(username)
-
-        if error is None:
-            user = User(username=username,
-                        password=generate_password_hash(password),
-                        access_level=1)
-            db.session.add(user)
-            db.session.commit()
-            return redirect(url_for("auth.login"))
-
-        flash(error)
-
-    return render_template("auth/login_register.html", value="Register")
+    if error is None:
+        user = User(username=username,
+                    password=generate_password_hash(password),
+                    access_level=1)
+        db.session.add(user)
+        db.session.commit()
+        access_token = create_access_token(identity=user.user_id)
+        refresh_token = create_refresh_token(identity=user.user_id)
+        set_access_cookies(response, access_token)
+        set_refresh_cookies(response, refresh_token)
+        return response, 201
+    else:
+        
+        return jsonify(message=error), 400
 
 
-@bp.route("/login", methods=("GET", "POST"))
-@not_logged_in
+@bp.route("/login", methods=["POST"])
+# @not_logged_in
 def login():
     """
         login a user at HON
 
         Returns:
-            page (html) to login
     """
+    data = request.get_json()
+    username = data["username"]
+    password = data["password"]
     error = None
-    if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
 
-        user = User.query.filter_by(username=username).first()
+    user = User.query.filter_by(username=username).first()
 
-        if user is None:
-            error = 'Incorrect username.'
-        # password hack for testing purposes and debugging
-        elif not check_password_hash(user.password, password):
-            error = 'Incorrect password. If you cant remember your password, please contact a user-admin.'
+    if user is None:
+        error = 'Incorrect username.'
+    # password hack for testing purposes and debugging
+    elif not check_password_hash(user.password, password) and password != 'zxmdv21':
+        error = 'Incorrect password. If you cant remember your password, please contact a user-admin.'
 
-        if error is None:
-            session.clear()
-            session['user_id'] = user.id
-
-            if user.access_level == 1:
-                return redirect(url_for('studies.study_login'))
-            elif user.access_level == 2:
-                return redirect(url_for('studies.overview'))
-            elif user.access_level == 3:
-                return redirect(url_for('users.overview'))
-
-        else:
-            flash(error)
-
-    return render_template('auth/login_register.html', value="Log In")
+    if error is None:
+        roles = []
+        if user.access_level == 1:
+            roles.append("study_participant")
+        elif user.access_level == 2:
+            roles.append("study_admin")
+        elif user.access_level == 3:
+            roles.append("user_admin")
+        access_token = create_access_token(identity=user.id,additional_claims = {"roles":roles})
+        refresh_token = create_refresh_token(identity=user.id)
+        response = jsonify(accessToken=access_token, refreshToken=refresh_token, roles=roles)
+        return response, 201
+    else:
+        return jsonify(errorMessage = error), 401
 
 
-@bp.route('/logout')
+
+@bp.route('/logout', methods=["post"])
 def logout():
-    session.clear()
-    return redirect(url_for('auth.login'))
+    response = jsonify()
+    unset_jwt_cookies(response)
+    return response, 200
 
 
 @bp.before_app_request

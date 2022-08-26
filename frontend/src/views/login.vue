@@ -1,0 +1,46 @@
+<template>
+  <div class="container h-100">
+    <div class="row justify-content-center align-items-center h-100">
+      <form class="form-horizontal my-auto col-4" @submit.prevent="handleLogin">
+        <div class="form-group">
+          <input v-model="user.username" class="form-control form-control-lg" name="username" id="username"
+            placeholder="Username">
+        </div>
+        <div class="form-group">
+          <input v-model="user.password" class="form-control form-control-lg" type="password" name="password"
+            id="password" placeholder="Password" required>
+        </div>
+        <div class="form-group">
+          <input type="submit" value="Login" class="bg-dark btn btn-dark btn-lg btn-block w-100">
+        </div>
+      </form>
+    </div>
+  </div>
+</template>
+
+<script>
+
+export default {
+  data: () => ({
+    user: {
+      username: null,
+      password: null
+    }
+  }),
+  computed: {
+    loggedIn () {
+      return this.$store.state.auth.status.loggedIn
+    }
+  },
+  methods: {
+    handleLogin () {
+      this.loading = true
+      this.$store.dispatch('auth/login', this.user).then(
+        () => {
+          this.$router.push('/study-overview')
+        }
+      )
+    }
+  }
+}
+</script>

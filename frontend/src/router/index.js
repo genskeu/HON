@@ -9,8 +9,14 @@ import StudyParticipation from '@/views/studyParticipant/participation.vue'
 import UserOverview from '@/views/userAdmin/userOverview.vue'
 import UserProfile from '@/views/userAdmin/userProfile.vue'
 import Tutorials from '@/views/tutorials.vue'
+import Login from '@/views/login.vue'
 
 const routes = [
+  {
+    path: '/login',
+    name: 'Login',
+    component: Login
+  },
   {
     path: '/user-overview',
     name: 'UserOverview',

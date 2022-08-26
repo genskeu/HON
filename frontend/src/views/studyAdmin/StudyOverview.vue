@@ -3,7 +3,7 @@
   <div id="nav" class="navbar bg-dark p-0" style="height: 50px;">
         <div class="container">
           <div class="row">
-            <router-link to="#" @click="createStudy" class="btn btn-succcess">Create New Study
+            <router-link to="#" @click.prevent="createStudy" class="btn btn-succcess">Create New Study
             </router-link>
           </div>
         </div>
@@ -53,10 +53,10 @@
 </template>
 
 <script>
-import axios from 'axios'
 import delteModal from '@/components/misc/confirmDeleteModal'
 import loadingModal from '@/components/misc/loadingModal'
 import { Modal } from 'bootstrap'
+import { fetchStudies, delStudy } from '@/api'
 
 export default {
   name: 'StudyOverview',
@@ -79,7 +79,7 @@ export default {
   },
   methods: {
     createStudy () {
-      this.$store.dispatch('openStudy/createStudy')
+      this.$store.dispatch('openStudy/createNewStudy')
     },
     setStudyDelete (study) {
       this.deleteText = 'You are about to delete study ' + study.title + '. This will also delete all results.'
@@ -91,8 +91,7 @@ export default {
       this.loading = true
       const loadingModal = new Modal(document.getElementById('loadingModal'), { fade: true })
       loadingModal.show()
-      axios
-        .delete('http://localhost:5000/study/' + studyId)
+      delStudy(studyId)
         .then(response => {
           const index = this.studies.findIndex(study => study.id === studyId)
           this.studies.splice(index, 1)
@@ -114,8 +113,7 @@ export default {
   computed: {
   },
   created () {
-    axios
-      .get('http://localhost:5000/studies')
+    fetchStudies()
       .then((response) => {
         const overview = response.data
         overview.studies.forEach((study) => {

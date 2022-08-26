@@ -10,27 +10,27 @@
         </button>
         <div class="collapse navbar-collapse text-right ms-auto bg-dark" id="navbarResponsive">
           <ul class="navbar-nav ms-auto" id="navlinks">
-            <li class="nav-item">
+            <li v-if="isUserAdmin" class="nav-item">
               <router-link to="/user-overview" class="nav-link">Users Overview</router-link>
             </li>
-            <li class="nav-item">
+            <li v-if="isStudyAdmin" class="nav-item">
               <router-link to="/study-overview" class="nav-link">Studies Overview</router-link>
             </li>
-            <li class="nav-item">
+            <li v-if="loggedIn" class="nav-item">
               <router-link to="/user-profile/1" class="nav-link">User Profile</router-link>
             </li>
-            <li class="nav-item">
+            <li v-if="isStudyAdmin" class="nav-item">
               <router-link to="/tutorials" class="nav-link">Tutorials</router-link>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="">Log Out</a>
+            <li v-if="loggedIn" @click="handleLogout" class="nav-item">
+              <router-link to="/login" class="nav-link">Logout</router-link>
             </li>
-            <!-- <li class="nav-item">
-            <a class="nav-link" href="">Register</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="">Log In</a>
-          </li> -->
+            <li v-if="!loggedIn" class="nav-item">
+              <router-link to="/login" class="nav-link">Login</router-link>
+            </li>
+            <li v-if="!loggedIn" class="nav-item">
+               <a class="nav-link" href="">Register</a>
+            </li>
           </ul>
         </div>
       </div>
@@ -38,6 +38,39 @@
     <router-view />
   </div>
 </template>
+
+<script>
+export default {
+  computed: {
+    currentUser () {
+      return this.$store.state.auth.user
+    },
+    loggedIn () {
+      if (this.currentUser) {
+        return this.$store.state.auth.status.loggedIn
+      }
+      return false
+    },
+    isStudyAdmin () {
+      if (this.currentUser && this.currentUser.roles) {
+        return this.currentUser.roles.includes('study_admin')
+      }
+      return false
+    },
+    isUserAdmin () {
+      if (this.currentUser && this.currentUser.roles) {
+        return this.currentUser.roles.includes('user_admin')
+      }
+      return false
+    }
+  },
+  methods: {
+    handleLogout () {
+      this.$store.dispatch('auth/logout', this.user)
+    }
+  }
+}
+</script>
 
 <style>
 #app {
@@ -66,7 +99,9 @@
   height: 60px;
 }
 
-html, body {
-    height:100%; /*both html and body*/
+html,
+body {
+  height: 100%;
+  /*both html and body*/
 }
 </style>

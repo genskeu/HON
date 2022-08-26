@@ -14,6 +14,7 @@ def create_app(config=None):
             flask app object
     """
     app = Flask(__name__,instance_relative_config=True)
+    
     # enable cors requests
     CORS(app, resources={r"/*": {"origins": "*"}})
     
@@ -44,6 +45,7 @@ def create_app(config=None):
     app.cli.add_command(DBmodel.add_default_users_command)
 
     from . import auth
+    auth.jwt.init_app(app)
     app.register_blueprint(auth.bp)
 
     from . import studies

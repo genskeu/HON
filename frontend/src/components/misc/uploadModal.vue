@@ -73,7 +73,7 @@
                         </div>
                     </div>
                     <div class="example-btn">
-                        <label>
+                        <label class="mx-auto">
                           Files selected: {{fileNumber()}}
                         </label>
                         <label class="btn btn-primary">Select Files
@@ -96,8 +96,7 @@
 </template>
 
 <script>
-import axios from 'axios'
-
+import { uploadFiles } from '@/api'
 export default {
   name: 'UploadModal',
   components: {
@@ -216,10 +215,7 @@ export default {
       }
 
       // request
-      const promise = axios
-        .post('http://localhost:5000/upload_files/' + this.$route.params.id,
-          formData,
-          config)
+      const promise = uploadFiles(this.$route.params.id, formData, config)
         .then(() => {
           filesUploading.forEach((file) => {
             file.status = 'uploaded successfully'

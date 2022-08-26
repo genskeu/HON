@@ -1,5 +1,5 @@
-import axios from 'axios'
 import router from '@/router'
+import { createStudy } from '@/api'
 
 const state = {
   title: String,
@@ -219,9 +219,8 @@ const mutations = {
 }
 
 const actions = {
-  createStudy ({ commit }) {
-    axios
-      .post('http://localhost:5000/study')
+  createNewStudy ({ commit }) {
+    createStudy()
       .then(response => {
         const study = response.data.study
         commit('openStudy', study)
@@ -231,7 +230,7 @@ const actions = {
       .catch(error => {
         console.log(error)
       })
-      .then(() => {})
+      .finally(() => {})
   }
 }
 

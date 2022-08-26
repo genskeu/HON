@@ -4,6 +4,7 @@ from werkzeug.utils import secure_filename
 import zipfile
 from .DBmodel import Study, Image, db
 from .auth import login_required, access_level_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 
 # return files on request
@@ -30,11 +31,10 @@ def allowed_file(filename):
 
 # upload files to study
 @bp.route('/upload_files/<int:study_id>', methods=['POST'])
-#@login_required
-#@access_level_required([2])
+@jwt_required()
 def upload_files(study_id):
     study = Study.query.filter_by(id=study_id).first()
-    user_id = 6
+    user_id = get_jwt_identity()
     image_dir = study.get_image_dir()
     image_urls_study = [image.base_url + image.name for image in study.images]
     files = request.files

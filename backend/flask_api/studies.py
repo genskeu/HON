@@ -3,7 +3,6 @@ import os
 import shutil
 import json
 from datetime import datetime
-from xml.etree.ElementInclude import include
 from flask import (
     Blueprint, flash, redirect, render_template, request, url_for,
     jsonify, current_app, g, session
@@ -13,16 +12,16 @@ from .auth import login_required, access_level_required
 from .DBmodel import Study, Design, Imgset, db, Result, Scale, Tool, Image_stack, User_study_progress, Imgset_config, Image
 from sqlalchemy.orm import joinedload
 from flask import send_from_directory
+from flask_jwt_extended import jwt_required, get_jwt_identity
+
 
 bp = Blueprint("studies", __name__)
 
 
 # study overview
-@bp.route('/')
 @bp.route('/studies', methods =['GET'])
-#@login_required
-#@access_level_required([2])
-def get_studies(user_id=6):
+@jwt_required()
+def get_studies():
     """
         display all studies created by a user
         Args:
@@ -30,36 +29,24 @@ def get_studies(user_id=6):
         Returns:
             study overview html
     """
-    studies = Study.query.filter_by(user_id=user_id).all()
-    studies = [study.to_dict(include_imagesets=True) for study in studies]
+    current_user_id = get_jwt_identity()
+    studies = Study.query.filter_by(user_id=current_user_id).all()
+    studies = [study.to_dict(include_imagesets=False) for study in studies]
     response = {}
     response["studies"] = studies
     return response
 
-
-# create and modify studies
-# should be seperated into html render and json api
-# @bp.route('/study/create', methods=['GET'], defaults={'id': None})
-# @bp.route('/study/update/<int:id>', methods=['GET'])
-# @login_required
-# @access_level_required([2])
-# def get_study(id):
-#     study = Study.query.filter_by(id=id).first()
-#     return render_template("studies/create.html", study=study)
-
-
-
 @bp.route('/study', methods=['POST'])
-#@login_required
-#@access_level_required([2])
+@jwt_required()
 def create_study():
     response = {}
     error = None
     status_code = 200
+    current_user_id = get_jwt_identity()
 
     study = Study()
     # save in db
-    study.user_id = 6
+    study.user_id = current_user_id
     default_password = ""
     study.password = generate_password_hash(default_password)
     # default design
@@ -82,8 +69,7 @@ def create_study():
     return jsonify(response), status_code
 
 @bp.route('/study/<int:id>', methods=['GET'])
-#@login_required
-#@access_level_required([2])
+@jwt_required()
 def get_study(id):
     study = Study.query.filter_by(id=id).first()
     response = {}
@@ -92,8 +78,7 @@ def get_study(id):
 
 
 @bp.route('/study/<int:id>', methods=['PUT'])
-#@login_required
-#@access_level_required([2])
+@jwt_required()
 def update_study(id):
     """
         create/modify study
@@ -109,7 +94,8 @@ def update_study(id):
     password = data["password"]
     study_description = data["description"]    
     study = Study.query.filter_by(id=id).first()
-    user_id = 6
+    current_user_id = get_jwt_identity()
+    user_id = current_user_id
     if Study.query.filter(Study.id!=id,Study.title==title,Study.user_id==user_id).first() is not None:
         error = "Titel already used for a different study. Please choose a different study title."
 
@@ -129,8 +115,7 @@ def update_study(id):
 
 
 @bp.route('/study/<int:id>', methods=['DELETE'])
-#@login_required
-#@access_level_required([2])
+@jwt_required()
 def delete_study(id):
     """
         retrieve or delte study

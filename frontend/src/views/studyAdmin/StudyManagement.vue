@@ -21,8 +21,7 @@
 </template>
 
 <script>
-import axios from 'axios'
-
+import { fetchStudy } from '@/api'
 export default {
   name: 'StudyManagement',
   data () {
@@ -46,8 +45,7 @@ export default {
   },
   created () {
     const id = this.$route.params.id
-    axios
-      .get('http://localhost:5000/study/' + id)
+    fetchStudy(id)
       .then((response) => {
         const data = response.data
         this.$store.commit('openStudy/openStudy', data.study)
