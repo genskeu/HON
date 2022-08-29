@@ -18,6 +18,15 @@ const routes = [
     component: Login
   },
   {
+    path: '/register',
+    name: 'Register',
+    component: Login
+  },
+  {
+    path: '/logout',
+    name: 'Logout'
+  },
+  {
     path: '/user-overview',
     name: 'UserOverview',
     component: UserOverview

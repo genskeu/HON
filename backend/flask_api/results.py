@@ -1,17 +1,18 @@
 from flask import Blueprint, g, render_template, jsonify, request, url_for, current_app, send_file, after_this_request
-from .auth import login_required, access_level_required
+from .auth import access_level_required
 import os
 from .DBmodel import Result, Study, User, db, User_study_progress, Output
 from sqlalchemy import func
 from sqlalchemy.orm import lazyload, joinedload
 import tarfile
+from flask_jwt_extended import jwt_required
 
 bp = Blueprint("results", __name__)
 
 # get result by imgset_id
 @bp.route('/get_results_by_imgset_id/<imgset_id>')
-@login_required
-@access_level_required([2])
+@jwt_required()
+@access_level_required(["study_admin"])
 def get_results_by_imgset_id(imgset_id):
     results = Result.query.filter_by(imgset_id=imgset_id).join(User).add_column(User.username).add_column(Result.id).all()
     response = {}
@@ -23,8 +24,8 @@ def get_results_by_imgset_id(imgset_id):
 
 # get result by id
 @bp.route('/result/<id>')
-@login_required
-@access_level_required([2])
+@jwt_required()
+@access_level_required(["study_admin"])
 def get_result(id):
     result = Result.query.filter_by(id=id).first()
     response = {}
@@ -34,8 +35,8 @@ def get_result(id):
 
 # results overview
 @bp.route('/results/overview')
-@login_required
-@access_level_required([2])
+@jwt_required()
+@access_level_required(["study_admin"])
 def overview():
     studies = Study.query.filter_by(user_id=g.user.id).options(joinedload('user_study_progress',User_study_progress.user),
                                                                lazyload('imgsets'),
@@ -46,8 +47,8 @@ def overview():
 
 # delete results for user from study
 @bp.route('/result/<study_id>/<user_id>', methods=['DELETE'])
-@login_required
-@access_level_required([2])
+@jwt_required()
+@access_level_required(["study_admin"])
 def delete_result(study_id,user_id):
     results = Result.query.filter_by(study_id=study_id,user_id=user_id).all()
     for result in results:
@@ -64,8 +65,8 @@ def delete_result(study_id,user_id):
 
 # download csv file 
 @bp.route('/results/<study_id>/download',methods=["GET"])
-@login_required
-@access_level_required([2])
+@jwt_required()
+@access_level_required(["study_admin"])
 def download_csv(study_id):
     filename = "results_study_%s.xlsx" % study_id
     filepath=os.path.join(current_app.config["IMAGE_PATH"],filename)
@@ -81,8 +82,8 @@ def download_csv(study_id):
 
 # create csv file 
 @bp.route('/results/<study_id>',methods=["GET"])
-@login_required
-@access_level_required([2])
+@jwt_required()
+@access_level_required(["study_admin"])
 def create_csv(study_id):
     study = Study.query.filter_by(id=study_id).first()
     
@@ -108,8 +109,8 @@ def create_csv(study_id):
 
 
 @bp.route('/results/seg_data/<int:study_id>/download', methods=['GET'])
-@login_required
-@access_level_required([2])
+@jwt_required()
+@access_level_required(["study_admin"])
 def download_seg_data(study_id):
     study = Study.query.filter_by(id=study_id).first()
     tar_name = '%s_seg_masks.tar.gz'%study.title
@@ -129,8 +130,8 @@ def download_seg_data(study_id):
 
 
 @bp.route('/results/seg_data/<int:study_id>', methods=['GET'])
-@login_required
-@access_level_required([2])
+@jwt_required()
+@access_level_required(["study_admin"])
 def get_seg_data(study_id):
     study = Study.query.filter_by(id=study_id).first()
     results = Result.query.filter_by(study_id=study_id).all()

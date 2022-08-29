@@ -33,7 +33,7 @@ e.g. how many images have to be evaluated.">
 </template>
 
 <script>
-import axios from 'axios'
+import { updateStudy } from '@/api'
 import loadingModal from '@/components/misc/loadingModal'
 import { Modal } from 'bootstrap'
 
@@ -85,15 +85,13 @@ export default {
       loadingModal.show()
 
       const studyId = this.$route.params.id
-      const url = 'http://localhost:5000/study/' + studyId
       const data = {
         title: this.studyName,
         password: this.studyPassword,
         description: this.studyDesc
       }
 
-      axios
-        .put(url, data)
+      updateStudy(studyId, data)
         .then(response => {
           this.loading = false
           this.loadingText = 'Saving successful.'

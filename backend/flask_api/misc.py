@@ -1,14 +1,15 @@
 from flask import Blueprint, flash, render_template, request, jsonify
-from .auth import login_required, access_level_required
+from .auth import access_level_required
 from .DBmodel import RectangleRoi,EllipticalRoi
+from flask_jwt_extended import jwt_required
 
 
 bp = Blueprint("misc", __name__)
 
 #test calc of overlap
 @bp.route('/overlap', methods=['POST'])
-@login_required
-@access_level_required([2])
+@jwt_required()
+@access_level_required(["study_admin"])
 def overlap():
     error = None
     if request.method == "POST":
@@ -21,7 +22,7 @@ def overlap():
 
 #test calc of overlap
 @bp.route('/tutorials', methods=['GET'])
-@login_required
+@jwt_required()
 @access_level_required([2,3])
 def tutorials():
     return render_template("tutorials/overview.html")

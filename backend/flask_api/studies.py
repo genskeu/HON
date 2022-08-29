@@ -8,7 +8,7 @@ from flask import (
     jsonify, current_app, g, session
 )
 from werkzeug.security import check_password_hash, generate_password_hash
-from .auth import login_required, access_level_required
+from .auth import access_level_required
 from .DBmodel import Study, Design, Imgset, db, Result, Scale, Tool, Image_stack, User_study_progress, Imgset_config, Image
 from sqlalchemy.orm import joinedload
 from flask import send_from_directory
@@ -21,6 +21,7 @@ bp = Blueprint("studies", __name__)
 # study overview
 @bp.route('/studies', methods =['GET'])
 @jwt_required()
+@access_level_required(["study_admin"])
 def get_studies():
     """
         display all studies created by a user
@@ -38,6 +39,7 @@ def get_studies():
 
 @bp.route('/study', methods=['POST'])
 @jwt_required()
+@access_level_required(["study_admin"])
 def create_study():
     response = {}
     error = None
@@ -70,6 +72,7 @@ def create_study():
 
 @bp.route('/study/<int:id>', methods=['GET'])
 @jwt_required()
+@access_level_required(["study_participant","study_admin"])
 def get_study(id):
     study = Study.query.filter_by(id=id).first()
     response = {}
@@ -79,6 +82,7 @@ def get_study(id):
 
 @bp.route('/study/<int:id>', methods=['PUT'])
 @jwt_required()
+@access_level_required(["study_admin"])
 def update_study(id):
     """
         create/modify study
@@ -116,6 +120,7 @@ def update_study(id):
 
 @bp.route('/study/<int:id>', methods=['DELETE'])
 @jwt_required()
+@access_level_required(["study_admin"])
 def delete_study(id):
     """
         retrieve or delte study
@@ -149,38 +154,16 @@ def delete_study(id):
 
 #render html file upload page
 @bp.route('/study/files/<int:study_id>', methods=['GET'])
-@login_required
+@jwt_required()
 @access_level_required([2])
 def image_upload(study_id):
     study = Study.query.filter_by(id=study_id).first()
     return render_template("studies/image_upload.html", study=study)
 
-# design for study html render
-@bp.route('/study/design/<int:study_id>', methods=['GET'])
-@login_required
-@access_level_required([2])
-def study_design(study_id):
-    """
-        create/modify, retrieve or delte study design
-        Args:
-            id: study_id
-        Returns:
-    """
-    study = Study.query.filter_by(id=study_id).first()
-    # default design
-    if study.design is None:
-        study.design = Design(study_id=study_id)
-        study.design.get_defaults()
-        db.session.commit()
-
-    study.view = "study_admin"
-    return render_template("studies/design.html",study=study)
 
 
-# set design for study json API endpoint
 @bp.route('/study/design/<int:study_id>', methods=['PUT'])
-#@login_required
-#@access_level_required([2])
+@jwt_required()
 def design(study_id):
     study = Study.query.filter_by(id=study_id).first()
     error = None
@@ -227,7 +210,7 @@ def design(study_id):
 
 #get image stack in cornerstone format
 @bp.route('/study/cs_stack/<int:study_id>/<image_ids>', methods=['GET'])
-@login_required
+@jwt_required()
 @access_level_required([2])
 def get_cs_stack(study_id,image_ids):
     image_ids = [int(image_id) for image_id in image_ids.split("-")]
@@ -237,8 +220,8 @@ def get_cs_stack(study_id,image_ids):
 
 #update select menus
 @bp.route('/study/get_cs_stacks/<int:study_id>/<group_info>', methods=['GET'])
-@login_required
-@access_level_required([1,2])
+@jwt_required()
+@access_level_required(["study_participant","study_admin"])
 def get_cs_stacks(study_id,group_info):
     study = Study.query.filter_by(id=study_id).first()
     cs_stacks = study.images_to_cs_stacks(group_info)
@@ -247,8 +230,8 @@ def get_cs_stacks(study_id,group_info):
     return response
 
 @bp.route('/study/imgset/<int:study_id>/<int:position>', methods=['GET'])
-@login_required
-@access_level_required([1,2])
+@jwt_required()
+@access_level_required(["study_participant","study_admin"])
 def get_imgset(study_id, position):
     imgset = Imgset.query.filter_by(study_id=study_id,position=position).first()
     study = Study.query.filter_by(id=study_id).first()
@@ -270,7 +253,7 @@ def get_imgset(study_id, position):
 
 #retrieve, save, delete imgset API endpoint returning json
 @bp.route('/study/imgset/<int:study_id>', methods=['POST'])
-@login_required
+@jwt_required()
 @access_level_required([2])
 def add_imgset(study_id):
     """
@@ -316,7 +299,7 @@ def add_imgset(study_id):
 
 
 @bp.route('/study/imgset/<int:study_id>/<int:position>', methods=['PUT'])
-@login_required
+@jwt_required()
 @access_level_required([2])
 def update_imgset(study_id, position):
     study = Study.query.filter_by(id=study_id).first()
@@ -365,7 +348,7 @@ def update_imgset(study_id, position):
 
 
 @bp.route('/study/imgset/<int:study_id>/<int:position>', methods=['DELETE'])
-@login_required
+@jwt_required()
 @access_level_required([2])
 def delete_imgset(study_id, position):
     response = {}
@@ -390,7 +373,7 @@ def delete_imgset(study_id, position):
 
 
 @bp.route('/study/imgsets/auto', methods=['POST'])
-@login_required
+@jwt_required()
 @access_level_required([2])
 def random_imgsets():
     error = None
@@ -443,7 +426,7 @@ def random_imgsets():
 
 
 @bp.route('/study/imgsets/<int:study_id>', methods=['GET'])
-@login_required
+@jwt_required()
 @access_level_required([2])
 def get_all_imgsets(study_id):
     study = Study.query.filter_by(id=study_id).options(joinedload('imgsets')).first()
@@ -456,7 +439,7 @@ def get_all_imgsets(study_id):
     return jsonify(response)
 
 @bp.route('/study/imgsets/<int:study_id>', methods=['PUT'])
-@login_required
+@jwt_required()
 @access_level_required([2])
 def upd_all_imgsets(study_id):
     study = Study.query.filter_by(id=study_id).options(joinedload('imgsets')).first()
@@ -488,7 +471,7 @@ def upd_all_imgsets(study_id):
 
 
 @bp.route('/study/imgsets/<int:study_id>', methods=['DELETE'])
-@login_required
+@jwt_required()
 @access_level_required([2])
 def del_all_imgsets(study_id):
     response = {}
@@ -509,8 +492,8 @@ def del_all_imgsets(study_id):
 
 # access study (login)
 @bp.route('/study/login', methods=['GET', 'POST'])
-@login_required
-@access_level_required([1,2])
+@jwt_required()
+@access_level_required(["study_participant","study_admin"])
 def study_login():
     if request.method == 'POST':
         study_id = request.form['study_id']
@@ -535,8 +518,8 @@ def study_login():
 
 # run study
 @bp.route('/study/run/<int:study_id>', methods=['GET'])
-@login_required
-@access_level_required([1,2])
+@jwt_required()
+@access_level_required(["study_participant","study_admin"])
 def study_run(study_id):
     if study_id != session.get("study_id"):
         return redirect(url_for('studies.study_login'))
@@ -578,8 +561,8 @@ def study_run(study_id):
 
 # select stack, save selection and load next set
 @bp.route('/vote/<int:study_id>/<int:imgset_position>',  methods=['POST'])
-@login_required
-@access_level_required([1,2])
+@jwt_required()
+@access_level_required(["study_participant","study_admin"])
 def vote(study_id, imgset_position):
     error = None
     study = Study.query.filter_by(id=study_id).first()

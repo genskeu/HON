@@ -16,8 +16,16 @@ export function createStudy (payload = {}) {
   return axios.post(`${API_URL}/study`, payload, { headers: authHeader() })
 }
 
+export function updateStudy (studyId, payload) {
+  return axios.put(`${API_URL}/study/${studyId}`, payload, { headers: authHeader() })
+}
+
 export function delStudy (studyId) {
   return axios.delete(`${API_URL}/study/${studyId}`, { headers: authHeader() })
+}
+
+export function updateStudyDesign (studyId, payload) {
+  return axios.put(`${API_URL}/study/design/${studyId}`, payload, { headers: authHeader() })
 }
 
 export function uploadFiles (studyId, payload, config) {

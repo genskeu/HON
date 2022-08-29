@@ -3,14 +3,14 @@ from flask import request, current_app, send_file, Blueprint,abort, jsonify, g
 from werkzeug.utils import secure_filename
 import zipfile
 from .DBmodel import Study, Image, db
-from .auth import login_required, access_level_required
+from .auth import access_level_required
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 
 # return files on request
 bp = Blueprint("file_handeling", __name__)
 @bp.route("/get_file/<int:user_id>/<int:study_id>/<stack_name>/<image_name>",methods=['GET'])
-#@login_required
+#@jwt_required()
 #@access_level_required([1,2])
 def get_file(user_id,study_id,stack_name,image_name):
     file_path = os.path.join(current_app.config['IMAGE_PATH'],str(user_id),str(study_id),stack_name,image_name)
@@ -119,8 +119,8 @@ def unzip_images(image_zip,image_dir, study):
 
 # get filenames of files attached to a study
 @bp.route('/get_filenames/<int:study_id>', methods=['GET'])
-@login_required
-@access_level_required([2])
+@jwt_required()
+@access_level_required(["study_admin"])
 def get_filenames(study_id):
     study = Study.query.filter_by(id=study_id).first()
     response = {}    
@@ -133,8 +133,8 @@ def get_filenames(study_id):
 
 # delete files
 @bp.route('/delete_files/<int:study_id>', methods=['DELETE'])
-@login_required
-@access_level_required([2])
+@jwt_required()
+@access_level_required(["study_admin"])
 def delete_files(study_id):
     study = Study.query.filter_by(id=study_id).first()
     image_dir = study.get_image_dir()   

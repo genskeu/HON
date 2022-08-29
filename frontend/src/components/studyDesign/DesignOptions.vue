@@ -28,7 +28,7 @@ import GeneralSettings from '@/components/studyDesign/designOptions/GeneralSetti
 import Scales from '@/components/studyDesign/designOptions/Scales.vue'
 import Instructions from '@/components/studyDesign/designOptions/Instructions.vue'
 import Tools from '@/components/studyDesign/designOptions/Tools.vue'
-import axios from 'axios'
+import { updateStudyDesign } from '@/api'
 import loadingModal from '@/components/misc/loadingModal'
 import { Modal } from 'bootstrap'
 
@@ -54,12 +54,10 @@ export default {
     saveDesign () {
       const design = this.$store.getters['openStudy/design']
       const studyId = this.$route.params.id
-      const url = 'http://localhost:5000/study/design/' + studyId
       const loadingModal = new Modal(document.getElementById('loadingModal'), { fade: true })
       loadingModal.show()
 
-      axios
-        .put(url, design)
+      updateStudyDesign(studyId, design)
         .then(response => {
           this.loading = false
           this.loadingText = 'Saving successful.'

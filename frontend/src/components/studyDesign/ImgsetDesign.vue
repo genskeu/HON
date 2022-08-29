@@ -92,58 +92,42 @@
           <h5 class="mt-1">Creation (auto)</h5>
         </button>
       </div>
-      <div id="images_create_auto" class="collapse show">
+      <div id="images_create_auto" class="collapse">
         <!-- study type -->
         <div class="input-group w-100">
-          <label class="input-group-text">Imgset Type:</label>
-          <select class="form-select" id="imgset_type">
-            <option value=""></option>
+          <label class="input-group-text w-50">Imgset Type</label>
+          <select class="form-select" ref="imgsetType">
             <option value="standard">standard</option>
             <option value="afc">alternative forced choice</option>
           </select>
         </div>
         <!-- order -->
         <div class="input-group w-100">
-          <label class="input-group-text">Imgset Order:</label>
-          <select class="form-select" id="imgset_order">
+          <label class="input-group-text w-50">Imgset Order</label>
+          <select class="form-select" ref="imgsetOrder">
             <option value="ordered">ordered</option>
             <option value="random">random</option>
           </select>
         </div>
         <!-- signal info -->
-        <div class="input-group w-100">
+        <div v-if="afcCreateAuto" class="input-group w-100">
           <label class="input-group-text">Signal Present Pattern:</label>
           <select class="form-select pattern_imgset_auto" id="pos_pattern" placeholder="pattern pos class">
             <option></option>
           </select>
         </div>
-        <div class="input-group w-100">
+        <div v-if="afcCreateAuto" class="input-group w-100">
           <label class="input-group-text">Signal Absent Pattern:</label>
           <select class="form-select pattern_imgset_auto" id="neg_pattern" placeholder="pattern neg class">
             <option></option>
           </select>
-
-          <div id="viewport_settings_container_auto" class="w-100 mt-1" title="Image Viewer settings control display options (zoom, position, window) for the uploaded study images.
-                        Each viewport can be controlled individually.
-                        To globally control viewport settings use the defaults submenu.">
-            <div class="row mt-1 mx-auto">
-              <button class="btn btn-secondary col-12" data-bs-toggle="collapse" data-bs-target="#viewport_settings_auto"
-                aria-expanded="true" aria-controls="viewport_settings">
-                <h4 class="w-100 mt-1" id="imgset_btn">Viewer Settings</h4>
-              </button>
-            </div>
-          </div>
-          <div id="viewport_settings_auto" class="collapse">
-            <div id="viewports_man_container" v-for="(viewer, index) in imageViewers" :key="index">
-              <DicomViewportControl :target-viewer="index"></DicomViewportControl>
-            </div>
-          </div>
-
         </div>
-        <button class="w-100 btn btn-success imgset_btn" value="generate imgsets" id="btn_auto_imgset">
+        <div class="mt-1">
+        <button @click="createImgsetsAuto" class="w-100 btn btn-success imgset_btn" value="generate imgsets" id="btn_auto_imgset">
           Create Imgsets
         </button>
       </div>
+    </div>
     </div>
   </div>
 </template>
@@ -175,6 +159,12 @@ export default {
     },
     imageViewers () {
       return this.$store.getters['imageViewers/cornerstoneViewers']
+    },
+    afcCreateAuto () {
+      if (this.$refs.imgsetType) {
+        return this.$refs.imgsetType.value === 'afc'
+      }
+      return false
     }
   },
   watch: {
@@ -207,6 +197,9 @@ export default {
     },
     deleteImgsets () {
 
+    },
+    createImgsetsAuto () {
+      this.$store.commit('openStudy/createImgsetsAuto', {})
     }
   }
 }

@@ -1,18 +1,19 @@
 from flask import (
     Blueprint, flash, redirect, request, render_template, url_for, g, jsonify, current_app
 )
-from .auth import login_required, access_level_required
+from .auth import access_level_required
 from .DBmodel import db, User
 from werkzeug.security import generate_password_hash
 import os
 import shutil
+from flask_jwt_extended import jwt_required
 
 bp = Blueprint("users", __name__)
 
 # user overview
 @bp.route('/users/overview')
-@login_required
-@access_level_required([3])
+@jwt_required()
+@access_level_required(["user_admin"])
 def overview():
     users = User.query.all()
     return render_template("users/overview.html", users=users)
@@ -21,8 +22,8 @@ def overview():
 # add default version
 @bp.route('/user/', defaults={'id': None}, methods = ['GET'])
 @bp.route('/user/<id>', methods=["GET"])
-@login_required
-@access_level_required([3])
+@jwt_required()
+@access_level_required(["user_admin"])
 def get_user(id):
     user = User.query.filter_by(id=id).first()
     return render_template("users/mk_md_user.html", user=user)
@@ -30,8 +31,8 @@ def get_user(id):
 
 # create a new user
 @bp.route('/user/create', methods=["POST"])
-@login_required
-@access_level_required([3])
+@jwt_required()
+@access_level_required(["user_admin"])
 def create_user():
     error = None    
     # get form data from request
@@ -68,8 +69,8 @@ def create_user():
 
 # edit an exisiting user
 @bp.route('/user/modify/<int:id>', methods=["POST"])
-@login_required
-@access_level_required([3])
+@jwt_required()
+@access_level_required(["user_admin"])
 def modify_user(id):
     user = User.query.filter_by(id=id).first()
     error = None
@@ -109,8 +110,8 @@ def modify_user(id):
 
 # delete user
 @bp.route('/user/delete/<int:id>', methods=["DELETE"])
-@login_required
-@access_level_required([3])
+@jwt_required()
+@access_level_required(["user_admin"])
 def delete_user(id):
     response = {}
     user = User.query.filter_by(id=id).first()
@@ -137,8 +138,8 @@ def delete_user(id):
 
 #change own username and password
 @bp.route('/profile', methods=["GET", "POST"])
-@login_required
-@access_level_required([1,2,3])
+@jwt_required()
+@access_level_required(["study_participant", "study_admin", "user_admin"])
 def profile():
     id = g.user.id
     user = User.query.filter_by(id=id).first()

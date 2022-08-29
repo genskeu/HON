@@ -1,5 +1,6 @@
 import router from '@/router'
 import { createStudy } from '@/api'
+// import cornerstoneTools from 'cornerstone-tools'
 
 const state = {
   title: String,
@@ -215,6 +216,31 @@ const mutations = {
     state.imageSets.forEach((set, index) => {
       set.position = index
     })
+  },
+  createImgsetsAuto (state, imgsetConfig) {
+    const viewerNumber = state.design.numb_img
+    const numberImgsets = Object.keys(state.stacks).length / viewerNumber
+    const imgsetStartPosition = state.imageSets.length
+    debugger // eslint-disable-line
+    for (var imgsetIndex = 0; imgsetIndex < numberImgsets; imgsetIndex++) {
+      var imgset = {
+        imageStacks: [],
+        position: imgsetStartPosition + imgsetIndex
+      }
+      for (var i = 0; i < viewerNumber; i++) {
+        var stackIndex = imgsetIndex * viewerNumber + i
+        var stack = {
+          divId: i,
+          csStack: state.stacks[stackIndex].cs_stack,
+          name: '',
+          segData: '',
+          toolState: null,
+          viewport: null
+        }
+        imgset.imageStacks.push(stack)
+      }
+      state.imageSets.push(imgset)
+    }
   }
 }
 

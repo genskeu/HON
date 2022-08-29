@@ -87,13 +87,14 @@ const getters = {
       const viewport = cornerstone.getViewport(element)
 
       if (viewport) {
-        var stack = {}
-        stack.divId = index
-        stack.csStack = viewer.stackDisplayed
-        stack.name = ''
-        stack.segData = ''
-        stack.toolState = viewer.stackDisplayed.imageIds.map((id) => cornerstoneTools.globalImageIdSpecificToolStateManager.saveImageIdToolState(id))
-        stack.viewport = viewport
+        var stack = {
+          divId: index,
+          csStack: viewer.stackDisplayed,
+          name: '',
+          segData: '',
+          toolState: viewer.stackDisplayed.imageIds.map((id) => cornerstoneTools.globalImageIdSpecificToolStateManager.saveImageIdToolState(id)),
+          viewport: viewport
+        }
         imgset.imageStacks.push(stack)
       }
     })

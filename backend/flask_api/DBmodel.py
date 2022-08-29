@@ -143,27 +143,28 @@ class Study(db.Model):
     #     return cs_stacks
 
     def get_stacks(self):
-        stacks = {}
+        stacks = []
         image_dir = self.get_image_dir()
         stack_folders = os.listdir(image_dir)
+        stack_folders.sort()
         for stack_folder in stack_folders:
             stack_path = os.path.join(image_dir,stack_folder)
             stack_files = os.listdir(stack_path)
-            stacks[stack_folder] = {}
-            stacks[stack_folder]["size"] = sum( [os.path.getsize(os.path.join(stack_path, stack_file)) for stack_file in stack_files] ) 
-            stacks[stack_folder]["slices"] = len(stack_files)
-            stacks[stack_folder]["files"] = stack_files
-            stacks[stack_folder]["cs_stack"] = {"imageIds":[],
+            stack = {}
+            stack["name"] = stack_folder
+            stack["size"] = sum( [os.path.getsize(os.path.join(stack_path, stack_file)) for stack_file in stack_files] ) 
+            stack["slices"] = len(stack_files)
+            stack["files"] = stack_files
+            stack["cs_stack"] = {"imageIds":[],
                                                 "currentImageIdIndex":0}
             images = [image for image in self.images if stack_folder in image.base_url]
             for image in images:
                 url = os.path.join(image.base_url,image.name)
                 if ".dcm" in image.name:
                     url = "wadouri:" + url
-                stacks[stack_folder]["cs_stack"]["imageIds"].append(url)
-            stacks[stack_folder]["cs_stack"]["imageIds"].sort()
-
-
+                stack["cs_stack"]["imageIds"].append(url)
+            stack["cs_stack"]["imageIds"]
+            stacks.append(stack)
 
         return stacks
 
