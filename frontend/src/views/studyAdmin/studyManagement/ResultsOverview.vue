@@ -1,5 +1,5 @@
 <template>
-    <div class="container pt-2">
+    <div class="container pt-4">
         <div id="results_ov" class="">
                 <table class="table table-hover">
                     <thead class="thead-light">

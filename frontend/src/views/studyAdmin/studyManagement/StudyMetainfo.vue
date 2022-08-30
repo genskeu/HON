@@ -1,8 +1,8 @@
 <template>
-  <div class="container d-flex align-items-center">
+  <div class="container d-flex mt-4">
     <loadingModal :title="errorTitle" :text="loadingText" :loading="loading" :error="error" :errorMsg="errorMsg" id="loadingModal"></loadingModal>
     <div class="form-horizontal w-100" id="study_metadata">
-      <div class="mx-auto mt-4">
+      <div class="mx-auto">
         <div class="input-group">
           <label class="input-group-text w-40" for="title">Title</label>
           <input class="form-control" name="title" id="title" placeholder="Study Title" v-model="studyName">
@@ -25,7 +25,7 @@ e.g. how many images have to be evaluated.">
           <textarea v-model="studyDesc" class="form-control" name="description" id="description" rows="20"></textarea>
         </div>
       </div>
-      <div class="row mx-auto">
+      <div class="row mx-auto mt-1">
         <button class="btn btn-lg btn-success" @click="saveMetaInfos">Save Metainfos</button>
       </div>
     </div>

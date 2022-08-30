@@ -1,27 +1,24 @@
 <template>
-    <div class="container">
+    <div class="container mt-4">
         <uploadModal id="uploadModal"></uploadModal>
-        <div class="row mx-auto pt-1">
-            <button class="btn btn-light btn-block" data-bs-toggle="collapse" data-bs-target="#naming"
+        <div class="row mx-auto">
+            <button class="btn btn-dark btn-block" data-bs-toggle="collapse" data-bs-target="#naming"
                 aria-expanded="false" aria-controls="naming">
-                <h5 class="mt-1">Rules and Naming conventions for File Upload &#9776;</h5>
+                <h5 class="">Rules and Naming conventions for File Upload &#9776;</h5>
             </button>
             <div id="naming" class="collapse">
                 <div class="row mx-auto show" id="file_upload_rules">
                     <ul class="mt-3">
                         <li>images can be uploaded as .zip files</li>
                         <li>supported formats: dicom, jpeg, png</li>
-                        <li>don't upload more than 5000 files in one upload</li>
+                        <!-- <li>don't upload more than 5000 files in one upload</li> -->
                     </ul>
                 </div>
                 <br>
-                <p>To use all features of HON (auto study creation, stack feature) the
-                    following naming scheme needs to be used: POS_CLASS_GROUP_STACK
+                <p>To use all features of HON (auto study creation AFC studies) the
+                    following naming scheme needs to be used: POS_CLASS_GROUP
                 </p>
                 <p style="text-align: justify; hyphens:auto">
-                    All images that are identical in POS, CLASS and GROUP can be combined into one
-                    scrollable image-stack.
-                    STACK controls the position of each image within the stack.
                     POS defines he position of an stack during the study.
                     For the automatic generation of AFC image-sets it only needs to be defined
                     for the positive images i.e. images containing a signal.
@@ -48,65 +45,56 @@
                 </div>
                 <div class="w-100 mt-2">
                     <div style="height:72vh;" class="overflow-auto mb-4">
-                        <table class="table table-secondary table-hover text-left">
-                            <thead class="thead sticky-top">
+                        <table class="table table-hover text-middle">
+                            <thead class="thead sticky-top bg-white">
                                 <tr>
                                     <th >Name</th>
                                     <th >Slices</th>
                                     <th >Size (Mb)</th>
                                     <th ></th>
-                                    <th class="col-2">
-                                        <button id="delete_files" class="btn-danger btn">Delete Selected Files</button>
+                                    <th class="">
+                                        <button @click="selectAll" class="btn-secondary btn mr-1">Select All</button>
                                     </th>
                                 </tr>
                             </thead>
                             <tbody id="file_list">
-                                <tr v-for="(data,imageName) in studyStacks" :key="imageName">
-                                    <th>{{imageName}}</th>
-                                    <th>{{data.slices}}</th>
-                                    <th>{{Number(data.size/(1024*1024)).toFixed(2) }}</th>
-                                    <th><button class="btn-primary btn">Show Files</button></th>
-                                    <th class="align-middle mx-auto"><input type='checkBox' class="mt-1 mx-auto"></th>
+                                <template v-for="stack in studyStacks" :key="stack.name">
+                                <tr >
+                                    <th>{{stack.name}}</th>
+                                    <th>{{stack.slices}}</th>
+                                    <th>{{Number(stack.size/(1024*1024)).toFixed(2) }}</th>
+                                    <th data-bs-toggle="collapse" :data-bs-target="'#' + stack.name"><button class="btn-light btn">Show Files</button></th>
+                                    <th class="align-middle mx-auto"><input name="filesToDelete" v-model="filesToDelete" type='checkbox' :value="stack" class="mt-1"></th>
                                 </tr>
+                                <tr :id="stack.name" class="collapse">
+                                    <td colspan="5">
+                                        <div class="overflow-auto" style="max-height:200px;">
+                                        <table class="table table-dark table-borderless">
+                                            <thead class="">
+                                                <tr colspan="6">
+                                                    <th colspan="2">Filename</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="file in stack.files" :key="file"  >
+                                                    <td colspan="2" class="align-middle">{{file}}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                      </div>
+                                    </td>
+                                </tr>
+                                </template>
                             </tbody>
                         </table>
                     </div>
                 </div>
                 <div class="row mx-auto justify-content-end mb-2">
+                    <button id="delete_files" class="btn-danger btn col-2 mr-1" :disabled="filesToDelete.length === 0">Delete Selected Files</button>
                     <button id="upload_files" class="btn-success btn btn-block col-2" data-bs-toggle="modal" data-bs-target="#uploadModal">Upload Files</button>
                 </div>
             </div>
         </div>
-
-        <!-- <div class="row pt-1 pb-1">
-            <button class="btn btn-secondary btn-block" data-bs-toggle="collapse" data-bs-target="#files_upload"
-                aria-expanded="false" aria-controls="files_upload">
-                <h5 class="col-12 mt-1">Upload &#9776;</h5>
-            </button>
-            <div id="files_upload" class="collapse show bg-light">
-                <h6 class="badge badge-light w-100">Progress</h6>
-                <div id="upload_infos" class="w-100 mx-auto">
-                    <div class='progress w-100'>
-                        <div class='progress-bar' id='progress'></div>
-                    </div>
-                    <div class='row mx-auto' id='uploadStatus'></div>
-
-                    <div style="height:300px;" class="overflow-auto row mx-auto">
-                        <div class='col-4 mx-auto' id='files_uploaded_saved'></div>
-                        <div class='col-4 mx-auto' id='files_uploaded_not_saved'></div>
-                        <div class='col-4 mx-auto' id='files_not_uploaded'></div>
-                    </div>
-
-                </div>
-
-                <div class="row mx-auto">
-                    <div class="custom-file mx-auto col-6">
-                        <input type="file" name="file" class="custom-file-input form-control w-100" id="file"
-                            multiple />
-                    </div>
-                </div>
-            </div>
-        </div> -->
     </div>
 </template>
 
@@ -117,9 +105,26 @@ export default {
   components: {
     uploadModal
   },
+  data () {
+    return {
+      filesToDelete: []
+    }
+  },
   computed: {
     studyStacks () {
       return this.$store.getters['openStudy/stacks']
+    }
+  },
+  methods: {
+    selectAll () {
+      if (this.studyStacks.length !== this.filesToDelete.length) {
+        this.filesToDelete = []
+        this.studyStacks.forEach(stack => {
+          this.filesToDelete.push(stack)
+        })
+      } else {
+        this.filesToDelete = []
+      }
     }
   }
 }

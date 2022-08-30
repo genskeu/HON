@@ -11,7 +11,7 @@
   <div class="container">
         <div class="row mx-auto mt-4" id="studies_ov">
             <delte-modal :title="deleteTitle" :text="deleteText" id="deleteStudy" @deleteComfirmed="deleteStudy(this.deleteIdDb)"></delte-modal>
-            <loadingModal :title="errorTitle" :text="loadingText" :loading="loading" :error="error" :errorMsg="errorMsg" id="loadingModal"></loadingModal>
+            <loadingModal id="loadingModal" ref="loadingScreen"></loadingModal>
             <table class="table table-hover">
                 <thead class="thead-light">
                     <tr>
@@ -55,8 +55,6 @@
 <script>
 import delteModal from '@/components/misc/confirmDeleteModal'
 import loadingModal from '@/components/misc/loadingModal'
-import { Modal } from 'bootstrap'
-import { fetchStudies, delStudy } from '@/api'
 
 export default {
   name: 'StudyOverview',
@@ -66,15 +64,14 @@ export default {
   },
   data () {
     return {
-      studies: [],
       deleteText: String,
       deleteTitle: String,
-      deleteIdDb: Number,
-      loadingText: String,
-      loading: Boolean,
-      error: false,
-      errorTitle: String,
-      errorMsg: String
+      deleteIdDb: Number
+    }
+  },
+  computed: {
+    studies () {
+      return this.$store.state.studies.studies
     }
   },
   methods: {
@@ -87,39 +84,11 @@ export default {
       this.deleteIdDb = study.id
     },
     deleteStudy (studyId) {
-      this.loadingText = 'Deleting Study. Please wait...'
-      this.loading = true
-      const loadingModal = new Modal(document.getElementById('loadingModal'), { fade: true })
-      loadingModal.show()
-      delStudy(studyId)
-        .then(response => {
-          const index = this.studies.findIndex(study => study.id === studyId)
-          this.studies.splice(index, 1)
-          this.loading = false
-          this.loadingText = 'Deletion successful.'
-          setTimeout(function () {
-            loadingModal.hide()
-          }, 1000)
-        })
-        .catch(error => {
-          this.errorTitle = 'Deleting Study...'
-          this.error = true
-          this.errorMsg = error
-        })
-        .then(() => {
-        })
+      this.$store.dispatch('studies/deleteStudy', { studyId: studyId, loadingComp: this.$refs.loadingScreen })
     }
   },
-  computed: {
-  },
   created () {
-    fetchStudies()
-      .then((response) => {
-        const overview = response.data
-        overview.studies.forEach((study) => {
-          this.studies.push(study)
-        })
-      })
+    this.$store.dispatch('studies/initStudies')
   }
 }
 </script>

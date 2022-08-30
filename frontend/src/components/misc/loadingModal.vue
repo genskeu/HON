@@ -8,14 +8,14 @@
                         <span class="visually-hidden">Loading...</span>
                     </div>
                 </div>
-                <div class="row mx-auto text-white">
-                    <p class="h4">{{this.text}}</p>
+                <div v-if="loadingTitle.length > 0" class="row mx-auto text-white">
+                    <p class="h4">{{this.loadingTitle}}</p>
                 </div>
             </div>
             <!-- error text -->
             <div v-if="error" class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">{{this.title}}</h5>
+                    <h5 class="modal-title">{{this.errorTitle}}</h5>
                 </div>
                 <div class="modal-body bg-opacity-10 bg-transparent">
                     {{this.errorMsg}}
@@ -31,14 +31,14 @@
 <script>
 export default {
   props: {
-    loading: Boolean,
-    text: String,
-    error: Boolean,
-    title: String,
-    errorMsg: String
   },
   data () {
     return {
+      loading: false,
+      loadingTitle: String,
+      error: false,
+      errorTitle: String,
+      errorMsg: String
     }
   }
 }

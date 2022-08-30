@@ -73,16 +73,16 @@
                         </div>
                     </div>
                     <div class="example-btn">
-                        <label class="mx-auto">
-                          Files selected: {{fileNumber()}}
-                        </label>
-                        <label class="btn btn-primary">Select Files
+                        <label class="btn btn-primary ml-1">Select Files
                           <input @change="addFolder" type="file" name="file" class="d-none" id="file" multiple/>
                         </label>
-                        <label class="btn btn-primary">Select Folder
+                        <label class="btn btn-primary ml-1">Select Folder
                           <input @change="addFolder" type="file" name="folder" class="d-none" id="folder" ref="folder" webkitdirectory multiple/>
                         </label>
-                        <button @click="uploadFolders" class="btn btn-success">
+                        <label class="ml-1">
+                          Files selected: {{fileNumber()}}
+                        </label>
+                        <button @click="uploadFolders" class="btn btn-success ml-1">
                             Start Upload
                         </button>
 <!--                         <button class="btn btn-danger" v-else @click.prevent="this.$refs.upload.active = false">

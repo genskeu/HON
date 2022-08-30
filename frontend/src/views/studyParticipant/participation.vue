@@ -1,5 +1,5 @@
 <template>
-    <div class="container-fluid" id="content" :style="cssStyle">
+    <div class="container-fluid pt-4" id="content" :style="cssStyle">
         <div class="row mx-auto">
             <!-- Imgsets -->
             <div class="col-lg-10 pt-1" id="imgset_creation">

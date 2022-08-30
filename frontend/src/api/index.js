@@ -1,5 +1,6 @@
 // api/index.js
 import axios from 'axios'
+import { Modal } from 'bootstrap'
 // import router from '@/router'
 
 const API_URL = 'http://localhost:5000'
@@ -20,8 +21,31 @@ export function updateStudy (studyId, payload) {
   return axios.put(`${API_URL}/study/${studyId}`, payload, { headers: authHeader() })
 }
 
-export function delStudy (studyId) {
+export function delStudy (studyId, loadingScreenComponent) {
+  loadingScreenComponent.$data.error = false
+  loadingScreenComponent.$data.errorTitle = ''
+  loadingScreenComponent.$data.errorMsg = ''
+  loadingScreenComponent.$data.loadingTitle = 'Deleting Study. Please wait...'
+  loadingScreenComponent.$data.loading = true
+  const loadingModal = new Modal(loadingScreenComponent.$el, { fade: true })
+  loadingModal.show()
   return axios.delete(`${API_URL}/study/${studyId}`, { headers: authHeader() })
+    .then(response => {
+      loadingScreenComponent.$data.loadingTitle = 'Deletion successful.'
+      loadingScreenComponent.$data.loading = false
+      setTimeout(function () {
+        loadingModal.hide()
+      }, 1000)
+    })
+    .catch(error => {
+      loadingScreenComponent.$data.loading = false
+      loadingScreenComponent.$data.loadingTitle = ''
+      loadingScreenComponent.$data.error = true
+      loadingScreenComponent.$data.errorTitle = 'Deleting Study...'
+      loadingScreenComponent.$data.errorMsg = error
+    })
+    .finally(() => {
+    })
 }
 
 export function updateStudyDesign (studyId, payload) {
