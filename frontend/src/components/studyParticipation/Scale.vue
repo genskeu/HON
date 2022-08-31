@@ -11,9 +11,9 @@
                 </div>
             </div>
             <div class="mx-auto justify-content-center mt-1 scale_values">
-                <div v-for="i in scaleValues" :key="i" class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" :name=this.scaleIndex id="" value="option1">
-                    <label class="form-check-label" for="inlineRadio1">{{i}}</label>
+                <div v-for="(value, index) in scaleValues" :key="value" class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" :name=this.scaleIndex id="">
+                    <label class="form-check-label" for="inlineRadio1">{{scaleLabels[index]}}</label>
                 </div>
             </div>
         </div>
@@ -52,6 +52,9 @@ export default {
         values.push(i)
       }
       return values
+    },
+    scaleLabels () {
+      return this.$store.getters['openStudy/scaleLabels'](this.scaleIndex)
     }
   }
 }

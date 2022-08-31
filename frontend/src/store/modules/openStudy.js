@@ -9,7 +9,6 @@ const state = {
   design: Object,
   images: Array,
   imageSets: Array,
-  scales: Array,
   instructions: String,
   user_study_progress: Array
 }
@@ -92,6 +91,9 @@ const getters = {
   scaleMax: (state) => (index) => {
     return state.design.scales[index].max
   },
+  scaleLabels: (state) => (index) => {
+    return state.design.scales[index].labels
+  },
   tools (state) {
     return state.design.tools
   },
@@ -114,7 +116,6 @@ const mutations = {
     state.images = study.images
     state.stacks = study.stacks
     state.imageSets = study.imgsets
-    state.scales = study.scales
     state.instructions = study.instructions
     state.user_study_progress = study.user_study_progress
   },
@@ -126,7 +127,6 @@ const mutations = {
     state.images = Array
     state.stacks = Array
     state.imageSets = Array
-    state.scales = Array
     state.instructions = String
   },
   // meta data
@@ -185,9 +185,22 @@ const mutations = {
   },
   scaleMin (state, payload) {
     state.design.scales[payload.index].min = payload.min
+    var labels = []
+    for (let i = state.design.scales[payload.index].min; i <= state.design.scales[payload.index].max; i++) {
+      labels.push(i)
+    }
+    state.design.scales[payload.index].labels = labels
   },
   scaleMax (state, payload) {
     state.design.scales[payload.index].max = payload.max
+    var labels = []
+    for (let i = state.design.scales[payload.index].min; i <= state.design.scales[payload.index].max; i++) {
+      labels.push(i)
+    }
+    state.design.scales[payload.index].labels = labels
+  },
+  scaleLabel (state, payload) {
+    state.design.scales[payload.index].labels[[payload.labelIndex]] = payload.label
   },
   addScale (state, payload) {
     state.design.scales.push(payload)

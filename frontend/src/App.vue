@@ -52,14 +52,14 @@ export default {
       return false
     },
     isStudyAdmin () {
-      if (this.currentUser && this.currentUser.roles) {
-        return this.currentUser.roles.includes('study_admin')
+      if (this.currentUser && this.currentUser.role) {
+        return this.currentUser.role === 'study_admin'
       }
       return false
     },
     isUserAdmin () {
-      if (this.currentUser && this.currentUser.roles) {
-        return this.currentUser.roles.includes('user_admin')
+      if (this.currentUser && this.currentUser.role) {
+        return this.currentUser.role === 'user_admin'
       }
       return false
     }

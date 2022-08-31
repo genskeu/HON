@@ -35,12 +35,16 @@ export default {
   },
   methods: {
     addScale () {
+      var labels = []
+      for (let i = 1; i <= 7; i++) {
+        labels.push(i)
+      }
       const defScale = {
         min: 1,
         max: 7,
         text: '',
         type: '',
-        labels: ''
+        labels: labels
       }
       this.$store.commit('openStudy/addScale', defScale)
     }

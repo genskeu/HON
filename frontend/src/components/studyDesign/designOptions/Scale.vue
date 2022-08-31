@@ -1,33 +1,41 @@
 <template>
-    <div id="sclae_temp" class="mt-1 scale_template">
-        <span class="badge badge-light w-100 mt-1">
-            <h6 id="scale_heading_" class="mt-1 scale_heading">Scale {{this.scaleIndex + 1}}</h6>
-        </span>
+    <div class="mt-1 scale_template">
+        <h6 class="my-1 scale_heading">Scale {{this.scaleIndex + 1}}</h6>
         <!-- admin view to define scale -->
-        <div class="mx-auto scale_view_admin" id="scale_view_admin_">
+        <div class="mx-auto scale_view_admin">
                 <div class="input-group mx-auto">
                     <label class="input-group-text w-25">Text</label>
                     <textarea class="form-control scale_text_input" v-model="scaleText" rows="3"></textarea>
                 </div>
                 <div class="input-group mx-auto">
                     <label class="input-group-text w-25">Start</label>
-                    <input class="form-control scale_min_input" min="-100" max="100" type="number" id="scale_min_input_"
+                    <input class="form-control" min="-100" max="100" type="number" id="scale_min_input_"
                         placeholder="min" v-model="scaleMin"/>
-                </div>
-                <div class="input-group">
                     <label class="input-group-text w-25">End</label>
-                    <input class="form-control scale_max_input" min="-100" max="100" type="number" id="scale_max_input_"
+                    <input class="form-control" min="-100" max="100" type="number" id="scale_max_input_"
                         placeholder="max"  v-model="scaleMax" />
                 </div>
-                <div class="input-group" title="Can be left blank for most studies except for FROC designs,
+                <div class="row mx-auto">
+                  <button class="input-group-text " data-bs-toggle="collapse" :data-bs-target= "'#labels_scale_' + this.scaleIndex"
+                          aria-expanded="true" :aria-controls="'#labels_scale_' + this.scaleIndex">
+                    <h5 class="mx-auto">Labels</h5>
+                  </button>
+                </div>
+                <div :id="'labels_scale_' + this.scaleIndex" class="collapse">
+                  <div v-for="(value, index) in scaleValues" :key="value" class="input-group mx-auto">
+                    <label class="input-group-text w-25">{{value}}</label>
+                    <input class="form-control" type="text" :value="scaleLabels[index]" @change="updateScaleLabel(index)"/>
+                  </div>
+                </div>
+<!--                 <div class="input-group" title="Can be left blank for most studies except for FROC designs,
                     where a scale needs to be repeated each time a new roi is drawn.">
                     <label class="input-group-text w-25">Type</label>
                     <select id="scale_type_input_" class="form-control scale_type_input">
                         <option value=""></option>
                         <option value=""></option>
                     </select>
-                </div>
-            <button class="btn btn-danger btn-block scale_rm w-100" id="scale_rm_" @click="deleteScale">
+                </div> -->
+            <button class="btn btn-danger btn-block scale_rm w-100" @click="deleteScale">
                 delete scale
             </button>
         </div>
@@ -38,6 +46,10 @@
 export default {
   props: {
     scaleIndex: Number
+  },
+  data () {
+    return {
+    }
   },
   computed: {
     scaleText: {
@@ -70,11 +82,24 @@ export default {
       },
       set () {
       }
+    },
+    scaleValues () {
+      var values = []
+      for (let i = this.scaleMin; i <= this.scaleMax; i++) {
+        values.push(i)
+      }
+      return values
+    },
+    scaleLabels () {
+      return this.$store.getters['openStudy/scaleLabels'](this.scaleIndex)
     }
   },
   methods: {
     deleteScale () {
       this.$store.commit('openStudy/delScale', { index: this.scaleIndex })
+    },
+    updateScaleLabel (i) {
+      this.$store.commit('openStudy/scaleLabel', { index: this.scaleIndex, labelIndex: i, label: event.target.value })
     }
   }
 }
