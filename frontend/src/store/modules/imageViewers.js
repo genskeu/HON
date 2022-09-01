@@ -76,6 +76,30 @@ const getters = {
   toolsMousewheel (state) {
     return state.toolsMousewheel
   },
+  EllipticalRois: (state) => (index) => {
+    if (state.viewers[index].toolState.annotations.EllipticalRoi) {
+      return state.viewers[index].toolState.annotations.EllipticalRoi
+    } else {
+      return {}
+    }
+  },
+  RectangleRois: (state) => (index) => {
+    if (state.viewers[index].toolState.annotations.RectangleRoi) {
+      return state.viewers[index].toolState.annotations.RectangleRoi
+    } else {
+      return {}
+    }
+  },
+  CircleRois: (state) => (index) => {
+    if (state.viewers[index].toolState.annotations.CircleRoi) {
+      return state.viewers[index].toolState.annotations.CircleRoi
+    } else {
+      return {}
+    }
+  },
+  EllipticalRoi: (state) => (index, uuid) => {
+    return state.viewers[index].toolState.annotations.EllipticalRoi[uuid]
+  },
   // imgsets
   getImgset (state) {
     var imgset = {
@@ -154,6 +178,25 @@ const mutations = {
   // tools
   toolsInitialized (state, value) {
     state.toolsInitialized = value
+  },
+  addAnnotation (state, payload) {
+    var viewer = state.viewers[payload.index]
+    if (!viewer.toolState.annotations[payload.type]) {
+      viewer.toolState.annotations[payload.type] = {}
+    }
+    viewer.toolState.annotations[payload.type][payload.uuid] = payload.annotation
+  },
+  updateAnnotation (state, payload) {
+    var viewer = state.viewers[payload.index]
+    if (!viewer.toolState.annotations[payload.type]) {
+      viewer.toolState.annotations[payload.type] = {}
+    }
+    viewer.toolState.annotations[payload.type][payload.uuid] = payload.annotation
+  },
+  removeAnnotation (state, payload) {
+    var viewer = state.viewers[payload.index]
+    // debugger // eslint-disable-line
+    delete viewer.toolState.annotations[payload.type][payload.uuid]
   }
 }
 

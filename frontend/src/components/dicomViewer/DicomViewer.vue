@@ -1,7 +1,11 @@
 <template>
   <div class='relative grid grid-cols-1' @cornerstoneimagerendered.capture='displayStackIndex'>
     <!-- image viewer :style='viewerSizeCSS' -->
-    <div ref='viewer' class='dicom_viewer col-span-1 relative' @cornerstoneimagerendered="updateViewportSettings">
+    <div ref='viewer' class='dicom_viewer col-span-1 relative'
+    @cornerstoneimagerendered="updateViewportSettings"
+    @cornerstonetoolsmeasurementcompleted="addAnnotation"
+    @cornerstonetoolsmeasurementmodified="updateAnnotation"
+    @cornerstonetoolsmeasurementremoved="removeAnnotation">
       <!-- metadata viewer -->
       <div class='absolute top-0 left-0 p-4 text-white'>
         <ul class='list-none text-left'>
@@ -184,7 +188,10 @@ export default {
           posY: Number,
           rotation: Number
         },
-        toolState: {}
+        toolState: {
+          annotations: {},
+          segmentations: {}
+        }
       })
     },
     loadDisplayCornerstone (stack) {
@@ -228,6 +235,46 @@ export default {
       cornerstone.resize(element)
       cornerstone.updateImage(element)
       this.$store.commit('openStudy/viewerHeight', heigth)
+    },
+    // will be called when measurment completed (add new or update form of exisiting roi)
+    addAnnotation (e) {
+      e.detail.measurementData.handles.end.x = e.detail.measurementData.handles.start.x - 50
+      e.detail.measurementData.handles.end.y = e.detail.measurementData.handles.start.y - 50
+      const toolName = e.detail.toolName
+      // assumption: toolName only defined when new measurment added
+      if (toolName) {
+        const annotation = {
+          toolName: toolName,
+          measurementData: e.detail.measurementData
+        }
+        const uuid = e.detail.measurementData.uuid
+        const toolType = e.detail.toolType
+        this.$store.commit('imageViewers/addAnnotation', { annotation: annotation, type: toolType, uuid: uuid, index: this.viewerIndex })
+      }
+    },
+    // will be called when measurment modified (update exisiting)
+    updateAnnotation (e) {
+      e.detail.measurementData.handles.end.x = e.detail.measurementData.handles.start.x - 50
+      e.detail.measurementData.handles.end.y = e.detail.measurementData.handles.start.y - 50
+      const toolName = e.detail.toolName
+      const annotation = {
+        toolName: toolName,
+        measurementData: e.detail.measurementData
+      }
+      const uuid = e.detail.measurementData.uuid
+      const toolType = e.detail.toolType
+      this.$store.commit('imageViewers/updateAnnotation', { annotation: annotation, type: toolType, uuid: uuid, index: this.viewerIndex })
+    },
+    // will be called when measurment deleted (update exisiting)
+    removeAnnotation (e) {
+      const toolName = e.detail.toolName
+      const annotation = {
+        toolName: toolName,
+        measurementData: e.detail.measurementData
+      }
+      const uuid = e.detail.measurementData.uuid
+      const toolType = e.detail.toolType
+      this.$store.commit('imageViewers/removeAnnotation', { annotation: annotation, type: toolType, uuid: uuid, index: this.viewerIndex })
     }
   }
 }

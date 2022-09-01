@@ -1,7 +1,23 @@
 <template>
+  <!-- viewport info -->
   <div>
-    <!--ROIs-->
-    <div id="roi_settings_container" class="w-100 mb-1" style="display: none" title="The ROIs section shows the annotation coordinates drawn on each image.
+    <div class="row mx-auto">
+      <button class="input-group-text " data-bs-toggle="collapse" :data-bs-target= "'#' + id"
+        aria-expanded="true" :aria-controls="id">
+        <h5 class="mx-auto">{{heading}}</h5>
+      </button>
+    </div>
+
+    <div :id="id" class="collapse">
+      <symetric-ROI v-for="uuid in Object.keys(EllipticalRois)" :key="uuid" :uuid="uuid" :target-viewer="this.targetViewer" :tool-name="'EllipticalRoi'"></symetric-ROI>
+    </div>
+
+    <div :id="id" class="collapse">
+      <symetric-ROI v-for="uuid in Object.keys(RectangleRois)" :key="uuid" :uuid="uuid" :target-viewer="this.targetViewer" :tool-name="'RectangleRoi'"></symetric-ROI>
+    </div>
+  </div>
+    <!--ROIs old-->
+<!--     <div id="roi_settings_container" class="w-100 mb-1" title="The ROIs section shows the annotation coordinates drawn on each image.
                     ROIs can be drawn on images to define the ground truth in LROC and FROC studies.">
       <div class="row mx-auto roi_input">
         <button class="btn btn-dark col-12 mb-1" data-bs-toggle="collapse" data-bs-target="#roi_settings"
@@ -10,7 +26,7 @@
         </button>
       </div>
       <div id="roi_settings" class="collapse mb-3 show roi_input">
-        <!-- roi info -->
+        roi info
         <div id="roi_info_img_" class="mt-1 ref_rois">
           <span class="badge-secondary badge col-12">
             <button class="btn btn-secondary btn-block" data-bs-toggle="collapse" data-bs-target="#rois_img_"
@@ -48,19 +64,46 @@
                 </div>
               </div>
               <div class="row text-center mx-auto">
-                <!-- <button id=overlap class="btn btn-primary overlap">overlap</button> -->
+                <button id=overlap class="btn btn-primary overlap">overlap</button>
               </div>
             </div>
           </span>
         </div>
       </div>
-    </div>
-  </div>
+    </div> -->
 </template>
 
 <script>
-export default {
+import symetricROI from '@/components/dicomViewer/ToolsAnnotationControl/symetricROI.vue'
 
+export default {
+  props: {
+    targetViewer: Number
+  },
+  components: {
+    symetricROI
+  },
+  data () {
+    return {
+    }
+  },
+  computed: {
+    id () {
+      return 'annotationControl_' + this.targetViewer
+    },
+    heading () {
+      return 'Viewer ' + (this.targetViewer + 1)
+    },
+    EllipticalRois () {
+      return this.$store.getters['imageViewers/EllipticalRois'](this.targetViewer)
+    },
+    RectangleRois () {
+      return this.$store.getters['imageViewers/RectangleRois'](this.targetViewer)
+    },
+    CircleRois () {
+      return this.$store.getters['imageViewers/CircleRois'](this.targetViewer)
+    }
+  }
 }
 </script>
 

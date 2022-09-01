@@ -48,10 +48,23 @@
             <h4 class="w-100 mt-1" id="imgset_btn">Viewer Settings</h4>
           </button>
         </div>
+        <div id="viewport_settings" class="collapse">
+          <div id="" v-for="(viewer, index) in imageViewers" :key="index">
+            <DicomViewportControl :target-viewer="index"></DicomViewportControl>
+          </div>
+        </div>
       </div>
-      <div id="viewport_settings" class="collapse">
-        <div id="viewports_man_container" v-for="(viewer, index) in imageViewers" :key="index">
-          <DicomViewportControl :target-viewer="index"></DicomViewportControl>
+      <div id="annotations_settings_container" class="w-100 mt-1" title="">
+        <div class="row mt-1 mx-auto">
+          <button class="btn btn-secondary col-12" data-bs-toggle="collapse" data-bs-target="#annotation_settings"
+            aria-expanded="true" aria-controls="viewport_settings">
+            <h4 class="w-100 mt-1">Annotation Settings</h4>
+          </button>
+        </div>
+        <div id="annotation_settings" class="collapse">
+          <div id="" v-for="(viewer, index) in imageViewers" :key="index">
+            <ToolsAnnotationControl :target-viewer="index"></ToolsAnnotationControl>
+          </div>
         </div>
       </div>
 
@@ -135,12 +148,14 @@
 <script>
 import DicomViewerImageSelect from '@/components/dicomViewer/DicomViewerImageSelect.vue'
 import DicomViewportControl from '@/components/dicomViewer/DicomViewportControl.vue'
+import ToolsAnnotationControl from '@/components/dicomViewer/ToolsAnnotationControl.vue'
 
 export default {
   name: 'ImgsetControl',
   components: {
     DicomViewerImageSelect,
-    DicomViewportControl
+    DicomViewportControl,
+    ToolsAnnotationControl
   },
   data () {
     return {
