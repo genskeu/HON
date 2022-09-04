@@ -57,6 +57,18 @@ export function uploadFiles (studyId, payload, config) {
   return axios.post(`${API_URL}/upload_files/${studyId}`, payload, config)
 }
 
+export function deleteFiles (studyId, payload) {
+  return axios.delete(`${API_URL}/delete_files/${studyId}`, { data: payload, headers: authHeader() })
+}
+
+export function getResults (studyId) {
+  return axios
+    .get(`${API_URL}/results/${studyId}`, { headers: authHeader() })
+    .then(() => { window.location = `${API_URL}/results/${studyId}/download` })
+    .catch(() => {})
+    .finally(() => {})
+}
+
 class AuthService {
   login (user) {
     return axios

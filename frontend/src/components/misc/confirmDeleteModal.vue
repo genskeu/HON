@@ -21,8 +21,8 @@
 <script>
 export default {
   props: {
-    title: String,
-    text: String
+    title: undefined,
+    text: undefined
   },
   data () {
     return {

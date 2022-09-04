@@ -5,6 +5,7 @@ import zipfile
 from .DBmodel import Study, Image, db
 from .auth import access_level_required
 from flask_jwt_extended import jwt_required, get_jwt_identity
+import shutil
 
 
 # return files on request
@@ -61,11 +62,12 @@ def upload_files(study_id):
                 print("Error saving {}.".format(filename))
             else:
                 filenames_saved.append(filename)
-            if "zip" == filename[-3:]:
-                filenames_saved.remove(f.filename)
-                filenames_unzipped, filenames_not_unzipped = unzip_images(filename, image_dir, study)
-                filenames_saved += filenames_unzipped
-                filenames_not_saved += filenames_not_unzipped
+            # not working
+            # if "zip" == filename[-3:]:
+            #     filenames_saved.remove(f.filename)
+            #     filenames_unzipped, filenames_not_unzipped = unzip_images(filename, image_dir, study)
+            #     filenames_saved += filenames_unzipped
+            #     filenames_not_saved += filenames_not_unzipped
         else:
             filenames_not_saved.append(filename)
 
@@ -81,10 +83,12 @@ def upload_files(study_id):
             filenames_not_saved.append(filename)            
     db.session.commit()
 
+    stack = study.get_stack(stack_dir)
     response = {}
     response["filenames_db"] = [image.name for image in study.images]
     response["filenames_not_saved"] = filenames_not_saved
     response["filenames_saved"] = filenames_saved
+    response["stack"] = stack
     return jsonify(response)
 
 
@@ -137,39 +141,44 @@ def get_filenames(study_id):
 @access_level_required(["study_admin"])
 def delete_files(study_id):
     study = Study.query.filter_by(id=study_id).first()
-    image_dir = study.get_image_dir()   
-    filenames = request.get_json()
-    files_del = []
-    files_not_del = []
+    image_dir = study.get_image_dir()
+    user_id = get_jwt_identity()
+    stacks = request.get_json()
+    stacks_del = []
+    stacks_not_del = []
 
     # delete from db
-    for filename in filenames:
-        base_url=request.url_root + "get_file/{}/{}/".format(g.user.id,study.id)
-        image = Image.query.filter_by(name = filename,base_url=base_url).first()
-        try:
-            db.session.delete(image)
-        except:
-            print("Error deleting image {} from database for study {} {}.".format(filename, study.title, study.id))
-            files_not_del.append(filename)
-        else:
-            files_del.append(filename)
-    db.session.commit()
-
-    # delete from dir
-    image_names_dir = os.listdir(image_dir)
-    for filename in filenames:
-        if filename in image_names_dir:    
+    for stack in stacks:
+        base_url = request.url_root + f"get_file/{user_id}/{study.id}/{stack['name']}/"
+        for filename in stack["files"]:
+            image = Image.query.filter_by(name = filename, base_url=base_url).first()
             try:
-                image_path = os.path.join(image_dir,filename)
-                os.remove(image_path)
+                db.session.delete(image)
             except:
-                print("Error deleting image {} from dir for study {} {}.".format(image_path,study.title, study.id))
+                print(f"Error deleting image {filename} from database for study {study.title} {study.id}.")
+                stacks_not_del.append(filename)
+            else:
+                stacks_del.append(filename)
+        db.session.commit()
+
+        # delete from dir
+        image_names_dir = os.listdir(os.path.join(image_dir,stack["name"]))
+        for filename in stack["files"]:
+            if filename in image_names_dir:    
+                try:
+                    image_path = os.path.join(image_dir,stack["name"],filename)
+                    os.remove(image_path)
+                except:
+                    print("Error deleting image {} from dir for study {} {}.".format(image_path,study.title, study.id))
+
+        if len(os.listdir(os.path.join(image_dir,stack["name"]))) == 0:
+            shutil.rmtree(os.path.join(image_dir,stack["name"]))
     
     response = {}     
     image_names_db = [image.name for image in study.images]
     response["filenames_db"] = image_names_db
-    response["files_del"] = files_del
-    response["files_not_del"] = files_not_del
+    response["files_del"] = stacks_del
+    response["files_not_del"] = stacks_not_del
     return jsonify(response)
 
 

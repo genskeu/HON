@@ -7,19 +7,22 @@
                 <h5 class="">Rules and Naming conventions for File Upload &#9776;</h5>
             </button>
             <div id="naming" class="collapse">
-                <div class="row mx-auto show" id="file_upload_rules">
+                <h3>General Information</h3>
+                <div class="row mx-auto">
                     <ul class="mt-3">
-                        <li>images can be uploaded as .zip files</li>
+                        <!-- <li>images can be uploaded as .zip files</li> -->
                         <li>supported formats: dicom, jpeg, png</li>
-                        <!-- <li>don't upload more than 5000 files in one upload</li> -->
+                        <li>don't upload more than 10000 files in one upload</li>
                     </ul>
                 </div>
                 <br>
-                <p>To use all features of HON (auto study creation AFC studies) the
+                <h3>AFC Information</h3>
+                <br>
+                <p>To use HON feature to automatically create AFC studies the
                     following naming scheme needs to be used: POS_CLASS_GROUP
                 </p>
                 <p style="text-align: justify; hyphens:auto">
-                    POS defines he position of an stack during the study.
+                    POS defines he tposition of an stack during the study.
                     For the automatic generation of AFC image-sets it only needs to be defined
                     for the positive images i.e. images containing a signal.
                     For the negative class it can be left empty or used to avoid duplicate file names.
@@ -29,6 +32,7 @@
                     For each AFC stack-set one positive and n-1 negative stacks are combined.
                     If more than n-1 negative images match they will be subsampled randomly.
                 </p>
+                <br>
                 AFC-Example:
                 <p>
                     014_pos_Group1.dcm will be combined with n-1 images named _neg_Group1.dcm to form
@@ -44,7 +48,7 @@
                     <div id="loader_text_del" class="mt-3" style="display: none;">Please wait</div>
                 </div>
                 <div class="w-100 mt-2">
-                    <div style="height:72vh;" class="overflow-auto mb-4">
+                    <div style="height:70vh;" class="overflow-auto mb-4">
                         <table class="table table-hover text-middle">
                             <thead class="thead sticky-top bg-white">
                                 <tr>
@@ -90,8 +94,8 @@
                     </div>
                 </div>
                 <div class="row mx-auto justify-content-end mb-2">
-                    <button id="delete_files" class="btn-danger btn col-2 mr-1" :disabled="filesToDelete.length === 0">Delete Selected Files</button>
-                    <button id="upload_files" class="btn-success btn btn-block col-2" data-bs-toggle="modal" data-bs-target="#uploadModal">Upload Files</button>
+                    <button @click="deleteSelectedFiles()" class="btn-danger btn col-2 mr-1" :disabled="filesToDelete.length === 0">Delete Selected Files</button>
+                    <button class="btn-success btn btn-block col-2" data-bs-toggle="modal" data-bs-target="#uploadModal">Upload Files</button>
                 </div>
             </div>
         </div>
@@ -125,6 +129,11 @@ export default {
       } else {
         this.filesToDelete = []
       }
+    },
+    deleteSelectedFiles () {
+      const studyId = this.$route.params.id
+      this.$store.dispatch('openStudy/deleteSelectedFiles', { studyId: studyId, files: this.filesToDelete })
+      this.filesToDelete = []
     }
   }
 }

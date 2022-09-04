@@ -149,25 +149,29 @@ class Study(db.Model):
         stack_folders.sort()
         for stack_folder in stack_folders:
             stack_path = os.path.join(image_dir,stack_folder)
-            stack_files = os.listdir(stack_path)
-            stack = {}
-            stack["name"] = stack_folder
-            stack["size"] = sum( [os.path.getsize(os.path.join(stack_path, stack_file)) for stack_file in stack_files] ) 
-            stack["slices"] = len(stack_files)
-            stack["files"] = stack_files
-            stack["cs_stack"] = {"imageIds":[],
-                                                "currentImageIdIndex":0}
-            images = [image for image in self.images if stack_folder in image.base_url]
-            for image in images:
-                url = os.path.join(image.base_url,image.name)
-                if ".dcm" in image.name:
-                    url = "wadouri:" + url
-                stack["cs_stack"]["imageIds"].append(url)
-            stack["cs_stack"]["imageIds"]
+            stack = self.get_stack(stack_path)
             stacks.append(stack)
 
         return stacks
 
+    def get_stack(self, stack_path):
+        stack_files = os.listdir(stack_path)
+        stack = {}
+        stack_folder = os.path.normpath(stack_path).split(os.sep)[-1]
+        stack["name"] = stack_folder
+        stack["size"] = sum( [os.path.getsize(os.path.join(stack_path, stack_file)) for stack_file in stack_files] ) 
+        stack["slices"] = len(stack_files)
+        stack["files"] = stack_files
+        stack["cs_stack"] = {"imageIds":[],
+                                                "currentImageIdIndex":0}
+        images = [image for image in self.images if stack_folder in image.base_url]
+        for image in images:
+            url = os.path.join(image.base_url,image.name)
+            if ".dcm" in image.name:
+                url = "wadouri:" + url
+            stack["cs_stack"]["imageIds"].append(url)
+        stack["cs_stack"]["imageIds"]
+        return stack
 
     def insert_imgset(self,imgset,position):
         self.imgsets.insert(position,imgset)

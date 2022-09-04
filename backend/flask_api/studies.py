@@ -342,7 +342,7 @@ def update_imgset(study_id, position):
         response["error_msg"] = image_error
         status_code = 200
     else:
-        status_code =404
+        status_code = 404
 
     return jsonify(response), status_code
 

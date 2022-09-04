@@ -32,6 +32,9 @@ const mutations = {
   initStudies (state, studies) {
     state.studies = studies
   },
+  addStudy (state, study) {
+    state.studies.push(study)
+  },
   deleteStudy (state, studyId) {
     const index = state.studies.findIndex(study => study.id === studyId)
     state.studies.splice(index, 1)

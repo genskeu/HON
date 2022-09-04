@@ -60,6 +60,6 @@ export default {
 }
 
 #router_helper_view {
-  min-height: calc(100% - 50px);
+  min-height: calc(100% - 75px);
 }
 </style>

@@ -1,5 +1,7 @@
 import router from '@/router'
-import { createStudy } from '@/api'
+import { createStudy, deleteFiles } from '@/api'
+import store from '@/store'
+
 // import cornerstoneTools from 'cornerstone-tools'
 
 const state = {
@@ -254,6 +256,15 @@ const mutations = {
       }
       state.imageSets.push(imgset)
     }
+  },
+  deleteStacks (state, stacks) {
+    stacks.forEach((stackDeleted) => {
+      const index = state.stacks.findIndex(stack => stack === stackDeleted)
+      state.stacks.splice(index, 1)
+    })
+  },
+  addStack (state, stack) {
+    state.stacks.push(stack)
   }
 }
 
@@ -263,6 +274,7 @@ const actions = {
       .then(response => {
         const study = response.data.study
         commit('openStudy', study)
+        store.commit('studies/addStudy', study)
         const route = '/study-management/' + study.id + '/metainfos'
         router.push(route)
       })
@@ -270,6 +282,11 @@ const actions = {
         console.log(error)
       })
       .finally(() => {})
+  },
+  deleteSelectedFiles ({ commit }, payload) {
+    deleteFiles(payload.studyId, payload.files).then(() => {
+      commit('deleteStacks', payload.files)
+    })
   }
 }
 

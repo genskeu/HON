@@ -159,8 +159,6 @@ export default {
   },
   methods: {
     initViewer () {
-      console.log('Init Viewer  ' + this.viewerIndex)
-
       // enable element for cornerstone
       cornerstone.enable(this.$refs.viewer // ,{
         // renderer: 'webgl'
@@ -238,8 +236,6 @@ export default {
     },
     // will be called when measurment completed (add new or update form of exisiting roi)
     addAnnotation (e) {
-      e.detail.measurementData.handles.end.x = e.detail.measurementData.handles.start.x - 50
-      e.detail.measurementData.handles.end.y = e.detail.measurementData.handles.start.y - 50
       const toolName = e.detail.toolName
       // assumption: toolName only defined when new measurment added
       if (toolName) {
@@ -254,8 +250,6 @@ export default {
     },
     // will be called when measurment modified (update exisiting)
     updateAnnotation (e) {
-      e.detail.measurementData.handles.end.x = e.detail.measurementData.handles.start.x - 50
-      e.detail.measurementData.handles.end.y = e.detail.measurementData.handles.start.y - 50
       const toolName = e.detail.toolName
       const annotation = {
         toolName: toolName,

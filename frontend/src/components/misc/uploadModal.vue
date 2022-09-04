@@ -216,10 +216,16 @@ export default {
 
       // request
       const promise = uploadFiles(this.$route.params.id, formData, config)
-        .then(() => {
+        .then((response) => {
           filesUploading.forEach((file) => {
             file.status = 'uploaded successfully'
           })
+          if (folder.files.every((file) => file.status === 'uploaded successfully')) {
+            folder.status = 'upload finished'
+            const stack = response.data.stack
+            console.log(stack)
+            this.$store.commit('openStudy/addStack', stack)
+          }
         })
         .catch(() => {
           filesUploading.forEach((file) => {
@@ -227,9 +233,6 @@ export default {
           })
         })
         .finally(() => {
-          if (folder.files.every((file) => file.status !== '')) {
-            folder.status = 'upload finished'
-          }
           this.uploadFolders()
         })
       promises.push(promise)

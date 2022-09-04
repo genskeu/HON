@@ -65,8 +65,8 @@ def delete_result(study_id,user_id):
 
 # download csv file 
 @bp.route('/results/<study_id>/download',methods=["GET"])
-@jwt_required()
-@access_level_required(["study_admin"])
+#@jwt_required()
+#@access_level_required(["study_admin"])
 def download_csv(study_id):
     filename = "results_study_%s.xlsx" % study_id
     filepath=os.path.join(current_app.config["IMAGE_PATH"],filename)

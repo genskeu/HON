@@ -63,19 +63,19 @@ export default {
   watch: {
     activeToolLeft (newTool, oldTool) {
       if (oldTool !== undefined) {
-        cornerstoneTools.setToolDisabled(oldTool)
+        cornerstoneTools.setToolEnabled(oldTool)
       }
       cornerstoneTools.setToolActive(newTool, { mouseButtonMask: 1 })
     },
     activeToolRight (newTool, oldTool) {
       if (oldTool !== undefined) {
-        cornerstoneTools.setToolDisabled(oldTool)
+        cornerstoneTools.setToolEnabled(oldTool)
       }
       cornerstoneTools.setToolActive(newTool, { mouseButtonMask: 2 })
     },
     activeToolWheel (newTool, oldTool) {
       if (oldTool !== undefined) {
-        cornerstoneTools.setToolDisabled(oldTool)
+        cornerstoneTools.setToolEnabled(oldTool)
       }
       cornerstoneTools.setToolActive(newTool, { mouseButtonMask: 3 })
     }

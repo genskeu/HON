@@ -16,7 +16,7 @@
                     <div id="stacks" :class="viewerLayout">
                         <div v-for="index in viewerNumb" :key="index">
                           <dicom-viewer :viewer-index="index - 1" :style="viewerHeight"></dicom-viewer>
-                          <Votebtn class="my-4"></Votebtn>
+                          <Votebtn class="my-2"></Votebtn>
                         </div>
                     </div>
                     <div>
