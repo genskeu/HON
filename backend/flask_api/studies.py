@@ -181,6 +181,8 @@ def design(study_id):
     study.design.transition_time = design["transition_time"]
     study.design.show_viewport_info = design["show_viewport_info"]
     study.design.img_height = design["img_height"]
+    study.design.img_height_auto = design["img_height_auto"]
+    study.design.img_per_row = design["img_per_row"]
     study.design.numb_rois = design["numb_rois"]
     for toolData in design["tools"]:
         tool = Tool.query.filter_by(
@@ -190,7 +192,7 @@ def design(study_id):
             db.session.add(tool)
         tool.cs_name = toolData["cs_name"]
         tool.key_binding = toolData["key_binding"]
-        tool.settings = toolData["settings"]
+        tool.settings = json.dumps(toolData["settings"])
 
     # delete old scales
     for scale in study.design.scales:

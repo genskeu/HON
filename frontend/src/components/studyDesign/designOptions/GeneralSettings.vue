@@ -51,15 +51,6 @@
           </div>
         </div>
 
-        <!--- Roi number-->
-        <div class="input-group mx-auto" title="Controls the number of annotations (e.g. rois)
-                    that need to be drawn by participants
-                    before evaluating the next picture.
-                    Set to 0 to allow any number.">
-          <label for="numb_rois" class="input-group-text w-50">Annotation #</label>
-          <input class="form-control" type="Number" step="any" id="numb_rois" min="0" v-model="roiNumb" />
-        </div>
-
         <div class="input-group mx-auto">
           <label class="input-group-text w-50">Text Color</label>
           <input class="form-control" type="text" id="text_color" placeholder="Text-Color (Hex or Name)" v-model="textColor" />
@@ -162,14 +153,6 @@ export default {
         } else {
           return 'hidden'
         }
-      }
-    },
-    roiNumb: {
-      get () {
-        return this.$store.getters['openStudy/roiNumb']
-      },
-      set (value) {
-        this.$store.commit('openStudy/roiNumb', value)
       }
     },
     backgroundColor: {

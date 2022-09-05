@@ -6,27 +6,33 @@
         <select class='form-select' v-model="toolActiveLeft">
             <option></option>
             <option class="h5" disabled>ViewerSettings</option>
-            <option v-for="(label, tool) in viewerSettingToolsMousekeys" :key="tool" :value="tool">{{label}}</option>
+            <option v-for="(label, tool) in viewerSettingToolsMousekeys" :key="tool" :value="tool.cs_name">{{label}}</option>
             <option class="h5" disabled>Annotation</option>
-            <option v-for="(tool, label) in annotationToolsMousekeys" :key="tool" :value="tool">{{label}}</option>
+            <template v-for="(tool, label) in annotationToolsMousekeys" :key="tool">
+              <option v-if="!tool.settings.labels" :value="tool.cs_name">{{label}}</option>
+              <option v-else v-for="l in tool.settings.labels" :key="l" :value="l + tool.cs_name">{{l + ' (' + label + ')'}}</option>
+            </template>
             <option class="h5" disabled>Segmentation</option>
-            <option v-for="(tool, label) in segmentationToolsMousekeys" :key="tool" :value="tool">{{label}}</option>
+            <option v-for="(tool, label) in segmentationToolsMousekeys" :key="tool" :value="tool.cs_name">{{label}}</option>
         </select>
         <label class="input-group-text">Right Mouse Key</label>
         <select class='form-select' v-model="toolActiveRight">
             <option></option>
             <option class="h5" disabled>ViewerSettings</option>
-            <option v-for="(label, tool) in viewerSettingToolsMousekeys" :key="tool" :value="tool">{{label}}</option>
+            <option v-for="(label, tool) in viewerSettingToolsMousekeys" :key="tool" :value="tool.cs_name">{{label}}</option>
             <option class="h5" disabled>Annotation</option>
-            <option v-for="(tool, label) in annotationToolsMousekeys" :key="tool" :value="tool">{{label}}</option>
+            <template v-for="(tool, label) in annotationToolsMousekeys" :key="tool">
+              <option v-if="!tool.settings.labels" :value="tool.cs_name">{{label}}</option>
+              <option v-else v-for="l in tool.settings.labels" :key="l" :value="l + tool.cs_name">{{l + ' (' + label + ')'}}</option>
+            </template>
             <option class="h5" disabled>Segmentation</option>
-            <option v-for="(tool, label) in segmentationToolsMousekeys" :key="tool" :value="tool">{{label}}</option>
+            <option v-for="(tool, label) in segmentationToolsMousekeys" :key="tool" :value="tool.cs_name">{{label}}</option>
         </select>
         <label class="input-group-text">Mouse Wheel</label>
         <select class='form-select' v-model="toolActiveWheel">
             <option></option>
             <option class="h5" disabled>ViewerSettings</option>
-            <option v-for="(label, tool) in viewerSettingToolsMousewheel" :key="tool" :value="tool">{{label}}</option>
+            <option v-for="(label, tool) in viewerSettingToolsMousewheel" :key="tool" :value="tool.cs_name">{{label}}</option>
         </select>
     </div>
 </template>
@@ -43,6 +49,10 @@ cornerstoneTools.external.Hammer = Hammer
 
 export default {
   name: 'cornerstoneTools',
+  props: {
+    toolsMousekeysp: {},
+    toolsMousewheelp: {}
+  },
   data () {
     return {
       toolActiveLeft: undefined,
@@ -51,10 +61,9 @@ export default {
     }
   },
   mounted () {
-    var toolsInitialized = this.$store.getters['imageViewers/toolsInitialized']
-    if (!toolsInitialized) {
-      this.initCornerstoneTools()
-    }
+    // var toolsInitialized = this.$store.getters['imageViewers/toolsInitialized']
+    // console.log(cornerstoneTools.store.state)
+    this.initCornerstoneTools()
   },
   computed: {
     activeToolLeft () {
@@ -67,16 +76,19 @@ export default {
       return this.toolActiveWheel
     },
     annotationToolsMousekeys () {
-      return this.$store.getters['imageViewers/annotationToolsMousekeys']
+      return this.$store.getters['openStudy/annToolsMousekeysParticipant']
     },
     segmentationToolsMousekeys () {
-      return this.$store.getters['imageViewers/segmentationToolsMousekeys']
+      return this.$store.getters['openStudy/segToolsMousekeysParticipant']
     },
     viewerSettingToolsMousekeys () {
-      return this.$store.getters['imageViewers/viewerSettingToolsMousekeys']
+      return this.$store.getters['openStudy/viewerToolsMousekeysParticipant']
     },
     viewerSettingToolsMousewheel () {
-      return this.$store.getters['imageViewers/viewerSettingToolsMousewheel']
+      return this.$store.getters['openStudy/viewerToolsMousewheelParticipant']
+    },
+    toolsParticipant () {
+      return this.$store.getters['openStudy/tools']
     }
   },
   watch: {
@@ -104,17 +116,18 @@ export default {
       cornerstoneTools.init({
         globalToolSyncEnabled: true
       })
-      Object.keys(this.viewerSettingToolsMousekeys).forEach(tool => {
-        cornerstoneTools.addTool(cornerstoneTools[tool + 'Tool'])
-      })
-      Object.keys(this.annotationToolsMousekeys).forEach(tool => {
-        cornerstoneTools.addTool(cornerstoneTools[tool + 'Tool'])
-      })
-      Object.keys(this.segmentationToolsMousekeys).forEach(tool => {
-        cornerstoneTools.addTool(cornerstoneTools[tool + 'Tool'])
-      })
-      Object.keys(this.viewerSettingToolsMousewheel).forEach(tool => {
-        cornerstoneTools.addTool(cornerstoneTools[tool + 'Tool'])
+      this.toolsParticipant.forEach(tool => {
+        const toolCornerStone = cornerstoneTools[tool.cs_name + 'Tool']
+        if (tool.settings.labels) {
+          tool.settings.labels.forEach(label => {
+            const toolConfig = {
+              name: label + tool.cs_name
+            }
+            cornerstoneTools.addTool(toolCornerStone, toolConfig)
+          })
+        } else {
+          cornerstoneTools.addTool(toolCornerStone)
+        }
       })
       this.$store.commit('imageViewers/toolsInitialized', true)
     }

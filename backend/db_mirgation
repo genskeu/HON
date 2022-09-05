@@ -1,0 +1,4 @@
+use phantomx
+ALTER TABLE scale ADD COLUMN labels VARCHAR(1000) AFTER text;
+ALTER TABLE design ADD COLUMN img_height_auto BOOL AFTER img_height;
+ALTER TABLE design ADD COLUMN img_per_row INT(8) AFTER img_height_auto;

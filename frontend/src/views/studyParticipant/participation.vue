@@ -9,13 +9,13 @@
                                 -->
                 <div id="imgset" class="mx-auto px-0 w-100">
                     <!--Images -->
-                    <DicomViewerTools :toolsMousekeysp="toolsMousekeysAvailable" :toolsMousewheelp="toolsMousewheelAvailable" class="sticky-top"></DicomViewerTools>
+                    <DicomViewerTools class="sticky-top"></DicomViewerTools>
                     <div id="ref-stacks" :class="refviewerLayout">
                         <dicom-viewer v-for="index in refviewerNumb" :key="index"></dicom-viewer>
                     </div>
                     <div id="stacks" :class="viewerLayout">
                         <div v-for="index in viewerNumb" :key="index">
-                          <dicom-viewer :viewer-index="index - 1" :style="viewerHeight"></dicom-viewer>
+                          <dicom-viewer @cornerstonetoolsmeasurementmodified="applySize" :viewer-index="index - 1" :style="viewerHeight"></dicom-viewer>
                           <Votebtn class="my-2"></Votebtn>
                         </div>
                     </div>
@@ -35,7 +35,7 @@
 
 <script>
 import DicomViewer from '@/components/dicomViewer/DicomViewer.vue'
-import DicomViewerTools from '@/components/dicomViewer/DicomViewerTools.vue'
+import DicomViewerTools from '@/components/studyParticipation/DicomViewerTools.vue'
 import Instructions from '@/components/studyParticipation/Instructions.vue'
 import Scales from '@/components/studyParticipation/Scales.vue'
 import Progressbar from '@/components/studyParticipation/progressBar.vue'
@@ -105,32 +105,6 @@ export default {
     },
     imgsets () {
       return this.$store.getters['openStudy/imgsets']
-    },
-    toolsMousekeys () {
-      return this.$store.getters['imageViewers/toolsMousekeys']
-    },
-    toolsMousewheel () {
-      return this.$store.getters['imageViewers/toolsMousewheel']
-    },
-    toolsMousekeysAvailable () {
-      var toolsAvailable = this.$store.getters['openStudy/tools']
-      var tools = {}
-      toolsAvailable.forEach(tool => {
-        if (Object.keys(this.toolsMousekeys).includes(tool.cs_name)) {
-          tools[tool.cs_name] = this.toolsMousekeys[tool.cs_name]
-        }
-      })
-      return tools
-    },
-    toolsMousewheelAvailable () {
-      var toolsAvailable = this.$store.getters['openStudy/tools']
-      var tools = {}
-      toolsAvailable.forEach(tool => {
-        if (Object.keys(this.toolsMousewheel).includes(tool.cs_name)) {
-          tools[tool.cs_name] = this.toolsMousewheel[tool.cs_name]
-        }
-      })
-      return tools
     }
   },
   watch: {
@@ -145,6 +119,8 @@ export default {
     }
   },
   methods: {
+    applySize () {
+    }
   }
 }
 </script>

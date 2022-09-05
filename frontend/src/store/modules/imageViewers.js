@@ -1,35 +1,13 @@
 // import cornerstone from 'cornerstone-core'
 import cornerstone from 'cornerstone-core'
 import cornerstoneTools from 'cornerstone-tools'
+import { tools } from '@/store/modules/tools'
 
 const state = {
   refViewers: [],
   viewers: [],
   // workaround to get rid of warnings
-  toolsInitialized: false,
-  toolsMousekeys: {
-    Wwwc: 'Windowing',
-    WwwcRegion: 'Windowing (region auto)',
-    Pan: 'Move',
-    Magnify: 'Magnify',
-    Rotate: 'Rotate',
-    Zoom: 'Zoom',
-    StackScroll: 'Stack scroll',
-    CircleRoi: 'Circle-roi',
-    EllipticalRoi: 'Elliptical-roi',
-    RectangleRoi: 'Rectangle-roi',
-    FreehandRoi: 'Freehand-roi',
-    Length: 'Length Measurment',
-    Eraser: 'Remove ROI/Length',
-    Brush: 'Brush-Segmentation',
-    FreehandScissors: 'Freehand-Segmentation',
-    CorrectionScissors: 'Freehand with correction',
-    RectangleScissors: 'Rectangle-Segmentation'
-  },
-  toolsMousewheel: {
-    ZoomMouseWheel: 'Zoom (mouse wheel)',
-    StackScrollMouseWheel: 'Stack scroll (mouse wheel)'
-  }
+  toolsInitialized: false
 }
 
 const getters = {
@@ -70,12 +48,20 @@ const getters = {
   toolsInitialized (state) {
     return state.toolsInitialized
   },
-  toolsMousekeys (state) {
-    return state.toolsMousekeys
+  // tools avaiblable
+  viewerSettingToolsMousekeys (state) {
+    return tools.toolsMousekeys.viewerSetting
   },
-  toolsMousewheel (state) {
-    return state.toolsMousewheel
+  annotationToolsMousekeys (state) {
+    return tools.toolsMousekeys.annotation
   },
+  segmentationToolsMousekeys (state) {
+    return tools.toolsMousekeys.segmentation
+  },
+  viewerSettingToolsMousewheel (state) {
+    return tools.toolsMousewheel.viewerSetting
+  },
+  // viewer tool state
   EllipticalRois: (state) => (index) => {
     if (state.viewers[index].toolState.annotations.EllipticalRoi) {
       return state.viewers[index].toolState.annotations.EllipticalRoi
@@ -179,6 +165,7 @@ const mutations = {
   toolsInitialized (state, value) {
     state.toolsInitialized = value
   },
+  // viewer tool state
   addAnnotation (state, payload) {
     var viewer = state.viewers[payload.index]
     if (!viewer.toolState.annotations[payload.type]) {

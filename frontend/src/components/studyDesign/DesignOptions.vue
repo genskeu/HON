@@ -12,8 +12,8 @@
         </div>
         <div id="design_options_content" class="collapse show">
             <GeneralSettings></GeneralSettings>
-            <Scales></Scales>
             <Instructions></Instructions>
+            <Scales></Scales>
             <Tools></Tools>
             <button @click="saveDesign" class="mt-1 btn btn-success w-100">
                 Save Design

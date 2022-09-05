@@ -1,6 +1,7 @@
 import router from '@/router'
 import { createStudy, deleteFiles } from '@/api'
 import store from '@/store'
+import { tools } from '@/store/modules/tools'
 
 // import cornerstoneTools from 'cornerstone-tools'
 
@@ -42,7 +43,7 @@ const getters = {
     return Number(state.design.numb_img)
   },
   viewerLayoutCols (state) {
-    return Number(state.design.layout_img_cols)
+    return Number(state.design.img_per_row)
   },
   viewerLayoutRows (state) {
     return Number(state.design.layout_img_rows)
@@ -96,8 +97,44 @@ const getters = {
   scaleLabels: (state) => (index) => {
     return state.design.scales[index].labels
   },
+  // tools with settings (saved in db)
   tools (state) {
     return state.design.tools
+  },
+  // complete list of tools (user interface study design)
+  annToolsMousekeysSettings (state) {
+    var toolsAnnotation = tools.toolsMousekeys.annotation
+    // match toolsAvailable with tools with saved settings
+    return matchTools(toolsAnnotation, state.design.tools)
+  },
+  viewerToolsMousekeysSettings (state) {
+    var toolsViewerSetting = tools.toolsMousekeys.viewerSetting
+    return matchTools(toolsViewerSetting, state.design.tools)
+  },
+  segToolsMousekeysSettings (state) {
+    var toolsSegmentation = tools.toolsMousekeys.segmentation
+    return matchTools(toolsSegmentation, state.design.tools)
+  },
+  viewerToolsMousewheelSettings (state) {
+    var toolsViewerSetting = tools.toolsMousewheel.viewerSetting
+    return matchTools(toolsViewerSetting, state.design.tools)
+  },
+  // list of tools (user interface study participation)
+  annToolsMousekeysParticipant (state) {
+    var toolsAnnotation = tools.toolsMousekeys.annotation
+    return filterTools(toolsAnnotation, state.design.tools)
+  },
+  viewerToolsMousekeysParticipant (state) {
+    var toolsViewerSetting = tools.toolsMousekeys.viewerSetting
+    return filterTools(toolsViewerSetting, state.design.tools)
+  },
+  segToolsMousekeysParticipant (state) {
+    var toolsSegmentation = tools.toolsMousekeys.segmentation
+    return filterTools(toolsSegmentation, state.design.tools)
+  },
+  viewerToolsMousewheelParticipant (state) {
+    var toolsViewerSetting = tools.toolsMousewheel.viewerSetting
+    return filterTools(toolsViewerSetting, state.design.tools)
   },
   // stacks
   stacks (state) {
@@ -107,6 +144,32 @@ const getters = {
   userStudyProgress (state) {
     return state.user_study_progress
   }
+}
+
+function matchTools (toolsAll, toolsSaved) {
+  var toolsSettings = {}
+  Object.keys(toolsAll).forEach(toolCsname => {
+    var toolSetting = toolsSaved.find(tool => tool.cs_name === toolCsname)
+    var label = toolsAll[toolCsname]
+    if (!toolSetting) {
+      toolsSettings[label] = { cs_name: toolCsname, key_binding: null, settings: {} }
+    } else {
+      toolsSettings[label] = toolSetting
+    }
+  })
+  return toolsSettings
+}
+
+function filterTools (toolsAll, toolsSaved) {
+  var toolsSettings = {}
+  Object.keys(toolsAll).forEach(toolCsname => {
+    var toolSetting = toolsSaved.find(tool => tool.cs_name === toolCsname)
+    var label = toolsAll[toolCsname]
+    if (toolSetting) {
+      toolsSettings[label] = toolSetting
+    }
+  })
+  return toolsSettings
 }
 
 const mutations = {
@@ -210,8 +273,27 @@ const mutations = {
   delScale (state, payload) {
     state.design.scales.splice(payload.index)
   },
+  // tools available and tool settings
   tools (state, tools) {
     state.design.tools = tools
+  },
+  toolSettings (state, payload) {
+    var tool = state.design.tools.find(tool => tool.cs_name === payload.csName)
+    if (!tool) {
+      tool = { cs_name: payload.csName, key_binding: null, settings: {} }
+      state.design.tools.push(tool)
+    }
+    tool.settings[payload.propName] = payload.value
+    if (payload.propName === 'maxNumber') {
+      tool.settings.labels = []
+      for (let i = 1; i <= payload.value; i++) {
+        tool.settings.labels.push(i)
+      }
+    }
+  },
+  toolLabel (state, payload) {
+    var tool = state.design.tools.find(tool => tool.cs_name === payload.csName)
+    tool.settings.labels[payload.labelIndex] = payload.value
   },
   viewerNumber (state, numbViewer) {
     state.design.numb_img = numbViewer
@@ -219,11 +301,8 @@ const mutations = {
   refviewerNumber (state, refnumbViewer) {
     state.design.numb_refimg = refnumbViewer
   },
-  viewerLayoutRows (state, rowNumb) {
-    state.design.layout_img_rows = rowNumb
-  },
   viewerLayoutCols (state, colNumb) {
-    state.design.layout_img_cols = colNumb
+    state.design.img_per_row = colNumb
   },
   // imgsets
   addImgset (state, imgset) {

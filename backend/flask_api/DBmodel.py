@@ -356,6 +356,8 @@ class Design(db.Model):
     numb_img = db.Column(db.Integer())
     numb_refimg = db.Column(db.Integer())
     img_height = db.Column(db.Integer())
+    img_height_auto = db.Column(db.Boolean)
+    img_per_row = db.Column(db.Integer())
     numb_rois = db.Column(db.Integer())
     show_viewport_info = db.Column(db.Boolean)
     transition_time = db.Column(db.Integer())
@@ -373,15 +375,15 @@ class Design(db.Model):
             design_dict["text_color"] = self.text_color
             design_dict["numb_img"] = self.numb_img
             design_dict["numb_refimg"] = self.numb_refimg
+            design_dict["img_per_row"] = self.img_per_row
             design_dict["img_height"] = self.img_height
-            design_dict["img_height_auto"] = True
+            design_dict["img_height_auto"] = self.img_height_auto
             design_dict["numb_rois"] = self.numb_rois
             design_dict["show_viewport_info"] = self.show_viewport_info
             design_dict["transition_time"] = self.transition_time
             design_dict["randomize_order"] = self.randomize_order
             design_dict["scales"] = [scale.to_dict() for scale in self.scales]
             design_dict["tools"] = [tool.to_dict() for tool in self.tools]
-            design_dict["layout_img_cols"] = 2
 
             return design_dict
 
@@ -400,9 +402,9 @@ class Design(db.Model):
         self.text_color="white"
         self.numb_img=1
         self.numb_refimg=0
-        self.img_width=512
         self.img_height=512
-        self.numb_rois=None
+        self.img_height_auto=True
+        self.img_per_row = 1
         self.show_viewport_info=False
         self.transition_time=0
         self.tools=[]
@@ -422,19 +424,22 @@ class Scale(db.Model):
     design_id = db.Column(db.Integer(), db.ForeignKey("design.id"), nullable=False)
     min = db.Column(db.Integer())
     max = db.Column(db.Integer())
+    labels = db.Column(db.String(1000))
     text = db.Column(db.String(1000))
+    labels = db.Column(db.String(1000))
     type = db.Column(db.String(20))
 
     def to_dict(self):
-            scale_dict = {}
-            scale_dict["id"] = self.id
-            scale_dict["design_id"] = self.design_id
-            scale_dict["min"] = self.min
-            scale_dict["max"] = self.max
-            scale_dict["text"] = self.text
-            scale_dict["type"] = self.type
+        scale_dict = {}
+        scale_dict["id"] = self.id
+        scale_dict["design_id"] = self.design_id
+        scale_dict["min"] = self.min
+        scale_dict["max"] = self.max
+        scale_dict["text"] = self.text
+        scale_dict["type"] = self.type
+        scale_dict["labels"] = self.labels
 
-            return scale_dict
+        return scale_dict
 
 class Tool(db.Model):
     """
@@ -457,12 +462,15 @@ class Tool(db.Model):
     settings = db.Column(db.String(120))
 
     def to_dict(self):
-            tool_dict = {}
-            tool_dict["cs_name"] = self.cs_name
-            tool_dict["key_binding"] = self.key_binding
+        tool_dict = {}
+        tool_dict["cs_name"] = self.cs_name
+        tool_dict["key_binding"] = self.key_binding
+        try:
+            tool_dict["settings"] = json.loads(self.settings)
+        except:
             tool_dict["settings"] = self.settings
-
-            return tool_dict
+        
+        return tool_dict
 
 
 class Result(db.Model):
@@ -1239,3 +1247,8 @@ def init_all_command():
     init_db()
     init_img_dir()
     add_default_users()
+
+
+# def database changes for vue update
+def updateDB():
+    return
