@@ -112,14 +112,8 @@ export default {
       }
       return metadata
     },
-    stackDisplayed: {
-      get () {
-        return this.$store.getters['imageViewers/stackDisplayed'](this.viewerIndex)
-      },
-      set (stack) {
-        // can be deleted after db change
-        this.$store.commit('imageViewers/stackDisplayed', { stackDisplayed: stack, index: this.viewerIndex })
-      }
+    stackDisplayed () {
+      return this.$store.getters['imageViewers/stackDisplayed'](this.viewerIndex)
     },
     viewerHeight () {
       return this.$store.getters['openStudy/viewerHeight']
@@ -131,7 +125,11 @@ export default {
   watch: {
     stackDisplayed: {
       handler (newStack) {
-        this.loadDisplayCornerstone(newStack).then(() => {
+        const stackToDisplay = {
+          currentImageIdIndex: newStack.csStack.currentImageIdIndex,
+          imageIds: newStack.csStack.imageIds
+        }
+        this.loadDisplayCornerstone(stackToDisplay).then(() => {
         })
       }
     },
@@ -199,19 +197,20 @@ export default {
         cornerstone.displayImage(this.$refs.viewer, image)
         cornerstoneTools.addStackStateManager(this.$refs.viewer, ['stack'])
         cornerstoneTools.addToolState(this.$refs.viewer, 'stack', stack)
-        var viewport = cornerstone.getViewport(this.$refs.viewer)
-        this.$store.commit('imageViewers/cornerstoneViewportUpdate', { viewport: viewport, index: this.viewerIndex })
+        // resets viewport
+        // var viewport = cornerstone.getViewport(this.$refs.viewer)
+        // this.$store.commit('imageViewers/cornerstoneViewportUpdate', { viewport: viewport, index: this.viewerIndex })
       })
       return promise
     },
     displayStackIndex () {
-      if (this.stackDisplayed && this.stackDisplayed.imageIds.length > 1) {
+      if (this.stackDisplayed && this.stackDisplayed.csStack.imageIds.length > 1) {
         var slice = this.$refs.slice_index
         slice.innerHTML =
           'Stack Position:' +
-          (this.stackDisplayed.currentImageIdIndex + 1) +
+          (this.stackDisplayed.csStack.currentImageIdIndex + 1) +
          '/' +
-          this.stackDisplayed.imageIds.length
+          this.stackDisplayed.csStack.imageIds.length
       }
     },
     updateViewportSettings () {

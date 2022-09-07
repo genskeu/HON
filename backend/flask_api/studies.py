@@ -203,6 +203,8 @@ def design(study_id):
         scale.min = item["min"]
         scale.max = item["max"]
         scale.type = item["type"]
+        scale.labels = json.dumps(item["labels"])
+
         db.session.add(scale)
 
     db.session.commit()
@@ -253,10 +255,9 @@ def get_imgset(study_id, position):
 
     return jsonify(response), status_code
 
-#retrieve, save, delete imgset API endpoint returning json
 @bp.route('/study/imgset/<int:study_id>', methods=['POST'])
 @jwt_required()
-@access_level_required([2])
+@access_level_required(["study_admin"])
 def add_imgset(study_id):
     """
         add imageset
@@ -267,42 +268,42 @@ def add_imgset(study_id):
     study = Study.query.filter_by(id=study_id).first()
     image_error = ""
     data = request.get_json()
-    imgset_dict = data["imgset"]
+    imgset_dict = data
     response = {}
 
     imgset = Imgset(study_id=study_id,position=imgset_dict["position"])
-    if int(imgset_dict["position"]) < len(study.imgsets):
+    if int(imgset_dict["position"]) <= len(study.imgsets):
         study.insert_imgset(imgset,imgset_dict["position"])
-    db.session.add(imgset)
-    db.session.commit()
 
-    # add images
-    for stack in imgset_dict["stacks"]:
-        image_stack = Image_stack(imgset_id=imgset.id,
-                                  div_id=stack["div_id"],
-                                  name=stack["name"],
-                                  viewport=json.dumps(stack["viewport"]))
-        if any(stack["tool_state"]):
-            image_stack.tool_state = json.dumps(stack["tool_state"])
-        if stack["segmentation_data"]:
-            image_stack.seg_data = stack["segmentation_data"]
+        # add stacks to imgset
+        for stack in imgset_dict["stacks"]:
+            image_stack = Image_stack(imgset_id=imgset.id,
+                                    div_id=stack["div_id"],
+                                    name=stack["name"],
+                                    viewport=json.dumps(stack["viewport"]))
+            if any(stack["tool_state"]):
+                image_stack.tool_state = json.dumps(stack["tool_state"])
+            if stack["segmentation_data"]:
+                image_stack.seg_data = stack["segmentation_data"]
 
-        for image_name in stack["image_names"]:
-            image = Image.query.filter_by(name=image_name,base_url=stack["base_url"]).first()
-            if image is None:
-                image_error += image_name + " not part of study %s."%study.title
-            else:
-                image_stack.images.append(image)
-        db.session.add(image_stack)
-    db.session.commit()
+            for image_name in stack["image_names"]:
+                image = Image.query.filter_by(name=image_name,base_url=stack["base_url"]).first()
+                if image is None:
+                    image_error += image_name + " not part of study %s."%study.title
+                else:
+                    image_stack.images.append(image)
+            db.session.add(image_stack)
+        db.session.commit()
 
     response["error_msg"] = image_error
+    response["imgset"] = imgset.to_dict()
+
     return jsonify(response)
 
 
 @bp.route('/study/imgset/<int:study_id>/<int:position>', methods=['PUT'])
 @jwt_required()
-@access_level_required([2])
+@access_level_required(["study_admin"])
 def update_imgset(study_id, position):
     study = Study.query.filter_by(id=study_id).first()
     imgset = Imgset.query.filter_by(study_id=study_id,position=position).first()
@@ -351,7 +352,7 @@ def update_imgset(study_id, position):
 
 @bp.route('/study/imgset/<int:study_id>/<int:position>', methods=['DELETE'])
 @jwt_required()
-@access_level_required([2])
+@access_level_required(["study_admin"])
 def delete_imgset(study_id, position):
     response = {}
     study = Study.query.filter_by(id=study_id).first()
@@ -376,7 +377,7 @@ def delete_imgset(study_id, position):
 
 @bp.route('/study/imgsets/auto', methods=['POST'])
 @jwt_required()
-@access_level_required([2])
+@access_level_required(["study_admin"])
 def random_imgsets():
     error = None
     data = request.get_json()
@@ -429,7 +430,7 @@ def random_imgsets():
 
 @bp.route('/study/imgsets/<int:study_id>', methods=['GET'])
 @jwt_required()
-@access_level_required([2])
+@access_level_required(["study_admin"])
 def get_all_imgsets(study_id):
     study = Study.query.filter_by(id=study_id).options(joinedload('imgsets')).first()
     #response
@@ -442,7 +443,7 @@ def get_all_imgsets(study_id):
 
 @bp.route('/study/imgsets/<int:study_id>', methods=['PUT'])
 @jwt_required()
-@access_level_required([2])
+@access_level_required(["study_admin"])
 def upd_all_imgsets(study_id):
     study = Study.query.filter_by(id=study_id).options(joinedload('imgsets')).first()
 
@@ -474,7 +475,7 @@ def upd_all_imgsets(study_id):
 
 @bp.route('/study/imgsets/<int:study_id>', methods=['DELETE'])
 @jwt_required()
-@access_level_required([2])
+@access_level_required(["study_admin"])
 def del_all_imgsets(study_id):
     response = {}
     study = Study.query.filter_by(id=study_id).options(joinedload('imgsets')).first()

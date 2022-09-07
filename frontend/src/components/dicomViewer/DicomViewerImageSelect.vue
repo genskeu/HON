@@ -27,11 +27,20 @@ export default {
     },
     stackDisplayed: {
       get () {
-        return this.$store.getters['imageViewers/stackDisplayed'](this.viewerIndex)
+        const stackDisplayed = this.$store.getters['imageViewers/stackDisplayed'](this.viewerIndex)
+        if (stackDisplayed) {
+          return stackDisplayed.csStack
+        } else {
+          return undefined
+        }
       },
       set (stack) {
-        // can be deleted after db change
-        this.$store.commit('imageViewers/stackDisplayed', { stackDisplayed: stack, index: this.viewerIndex })
+        this.$store.commit('imageViewers/stackDisplayed',
+          {
+            stackDisplayed: stack,
+            index: this.viewerIndex
+          }
+        )
       }
     }
   }

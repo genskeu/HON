@@ -1,5 +1,5 @@
 import router from '@/router'
-import { createStudy, deleteFiles } from '@/api'
+import { createStudy, deleteFiles, createImgset, deleteImgsets } from '@/api'
 import store from '@/store'
 import { tools } from '@/store/modules/tools'
 
@@ -13,7 +13,8 @@ const state = {
   images: Array,
   imageSets: Array,
   instructions: String,
-  user_study_progress: Array
+  user_study_progress: Array,
+  imgsetDisplayed: undefined
 }
 
 const getters = {
@@ -34,6 +35,9 @@ const getters = {
   // imgsets
   imgsets (state) {
     return state.imageSets
+  },
+  imgsetDisplayed (state) {
+    return state.imgsetDisplayed
   },
   // design data
   design (state) {
@@ -306,16 +310,18 @@ const mutations = {
   },
   // imgsets
   addImgset (state, imgset) {
-    state.imageSets.splice(imgset.position + 1, 0, imgset)
+    state.imageSets.splice(imgset.position, 0, imgset)
     state.imageSets.forEach((set, index) => {
       set.position = index
     })
+  },
+  imgsetDisplayed (state, imgset) {
+    state.imgsetDisplayed = imgset
   },
   createImgsetsAuto (state, imgsetConfig) {
     const viewerNumber = state.design.numb_img
     const numberImgsets = Object.keys(state.stacks).length / viewerNumber
     const imgsetStartPosition = state.imageSets.length
-    debugger // eslint-disable-line
     for (var imgsetIndex = 0; imgsetIndex < numberImgsets; imgsetIndex++) {
       var imgset = {
         imageStacks: [],
@@ -335,6 +341,10 @@ const mutations = {
       }
       state.imageSets.push(imgset)
     }
+  },
+  deleteAllImgsets (state) {
+    state.imageSets = []
+    state.imgsetDisplayed = undefined
   },
   deleteStacks (state, stacks) {
     stacks.forEach((stackDeleted) => {
@@ -366,6 +376,20 @@ const actions = {
     deleteFiles(payload.studyId, payload.files).then(() => {
       commit('deleteStacks', payload.files)
     })
+  },
+  // imgsets
+  addImgset ({ commit }, payload) {
+    createImgset(payload.studyId, payload.imgset)
+      .then(response => {
+        commit('addImgset', response.data.imgset)
+        commit('imgsetDisplayed', response.data.imgset)
+      })
+  },
+  deleteAllImgsets ({ commit }, studyId) {
+    deleteImgsets(studyId)
+      .then(response => {
+        commit('deleteAllImgsets')
+      })
   }
 }
 

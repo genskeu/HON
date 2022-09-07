@@ -174,11 +174,14 @@ class Study(db.Model):
         return stack
 
     def insert_imgset(self,imgset,position):
+        # add to db
+        # db.session.add(imgset)
+        # db.session.commit()    
         self.imgsets.insert(position,imgset)
         # updating position
         for imgset in self.imgsets:
             imgset.position = self.imgsets.index(imgset)
-        db.session.commit()
+        db.session.commit()    
 
 
     def shuffle_imgsets(self):
@@ -437,8 +440,11 @@ class Scale(db.Model):
         scale_dict["max"] = self.max
         scale_dict["text"] = self.text
         scale_dict["type"] = self.type
-        scale_dict["labels"] = self.labels
-
+        # fix for compatibility with old db design
+        if self.labels:
+            scale_dict["labels"] = json.loads(self.labels)
+        else:
+            scale_dict["labels"] = [i for i in range(self.min, self.max + 1)]
         return scale_dict
 
 class Tool(db.Model):

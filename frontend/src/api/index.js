@@ -69,6 +69,14 @@ export function getResults (studyId) {
     .finally(() => {})
 }
 
+export function createImgset (studyId, payload) {
+  return axios.post(`${API_URL}/study/imgset/${studyId}`, payload, { headers: authHeader() })
+}
+
+export function deleteImgsets (studyId) {
+  return axios.delete(`${API_URL}/study/imgsets/${studyId}`, { headers: authHeader() })
+}
+
 class AuthService {
   login (user) {
     return axios

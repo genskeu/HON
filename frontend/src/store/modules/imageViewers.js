@@ -20,7 +20,7 @@ const getters = {
   },
   stackDisplayed: (state) => (index) => {
     const viewer = state.viewers[index]
-    if (viewer) {
+    if (viewer && viewer.stackDisplayed) {
       return viewer.stackDisplayed
     } else {
       return undefined
@@ -90,22 +90,23 @@ const getters = {
   getImgset (state) {
     var imgset = {
       position: Number,
-      imageStacks: []
+      stacks: []
     }
     state.viewers.forEach((viewer, index) => {
       const element = viewer.element
       const viewport = cornerstone.getViewport(element)
-
+      const imageIds = viewer.stackDisplayed.imageIds
       if (viewport) {
         var stack = {
-          divId: index,
-          csStack: viewer.stackDisplayed,
+          div_id: index,
+          image_names: imageIds.map((id) => id.split('/').pop()),
+          base_url: imageIds[0].substring(0, viewer.stackDisplayed.imageIds[0].lastIndexOf('/')).replace('wadouri:', '') + '/',
           name: '',
-          segData: '',
-          toolState: viewer.stackDisplayed.imageIds.map((id) => cornerstoneTools.globalImageIdSpecificToolStateManager.saveImageIdToolState(id)),
+          segmentation_data: '',
+          tool_state: viewer.stackDisplayed.imageIds.map((id) => cornerstoneTools.globalImageIdSpecificToolStateManager.saveImageIdToolState(id)),
           viewport: viewport
         }
-        imgset.imageStacks.push(stack)
+        imgset.stacks.push(stack)
       }
     })
     return imgset
@@ -122,7 +123,16 @@ const mutations = {
   },
   stackDisplayed (state, payload) {
     var viewer = state.viewers[payload.index]
-    viewer.stackDisplayed = payload.stackDisplayed
+    viewer.stackDisplayed =
+      {
+        csStack: {
+          currentImageIdIndex: payload.stackDisplayed.currentImageIdIndex,
+          imageIds: payload.stackDisplayed.imageIds
+        },
+        savedViewport: payload.savedViewport,
+        savedToolstate: payload.savedToolstate,
+        savedSegmentation: payload.savedSegmentation
+      }
   },
   // viewport settings
   cornerstoneViewerWindowWidth: (state, payload) => {

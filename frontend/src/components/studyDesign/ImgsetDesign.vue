@@ -10,7 +10,7 @@
       <div class="input-group mx-auto" data-toggle="tooltip" data-placement="left"
         title="Use the select menus to activate image handling tools for the left, middle and right mouse key.">
         <label class="input-group-text">Image Set Displayed</label>
-        <select class='form-select' v-model="imgsetActive">
+        <select class='form-select' v-model="imgsetDisplayed">
           <option :value="undefined"></option>
           <option v-for="imgset in imgsets" :key="imgset.id" :value="imgset">{{ imgset.position + 1 }}</option>
         </select>
@@ -81,18 +81,18 @@
             @click="addImgset">add new imgset
           </button>
         </div>
-        <div v-if="imgsetActive" class="row mx-auto">
+        <div v-if="imgsetDisplayed" class="row mx-auto">
           <button value="update loaded imgset" class="imgset_btn btn-light btn mb-1" id="upd_imgset"
             title="update currently selected image-set">update loaded imgset
           </button>
         </div>
-        <div v-if="imgsetActive" class="row mx-auto">
+        <div v-if="imgsetDisplayed" class="row mx-auto">
           <button value="delete loaded imgset" class="imgset_btn btn-danger btn mb-1" id="del_imgset"
             title="delete currently selected image-set">delete loaded imgset
           </button>
         </div>
         <div v-if="imgsets.length" class="row mx-auto">
-          <button value="delete all imgsets" class="imgset_btn btn-danger btn mb-1" id="del_all_imgsets">delete all
+          <button class="btn-danger btn mb-1" @click="deleteAllImgsets">delete all
             imgsets
           </button>
         </div>
@@ -159,10 +159,17 @@ export default {
   },
   data () {
     return {
-      imgsetActive: undefined
     }
   },
   computed: {
+    imgsetDisplayed: {
+      get () {
+        return this.$store.getters['openStudy/imgsetDisplayed']
+      },
+      set (imgset) {
+        this.$store.commit('openStudy/imgsetDisplayed', imgset)
+      }
+    },
     imgsets () {
       return this.$store.getters['openStudy/imgsets']
     },
@@ -183,26 +190,37 @@ export default {
     }
   },
   watch: {
-    imgsetActive: {
+    imgsetDisplayed: {
       handler (newImgset) {
-        newImgset.imageStacks.forEach((stack, index) => {
-          // ensure same structure as select menu values
-          stack.csStack.name = stack.name
-          this.$store.commit('imageViewers/stackDisplayed', { stackDisplayed: stack.csStack, index: index })
-        })
+        if (newImgset) {
+          newImgset.image_stacks.forEach((stack, index) => {
+            this.$store.commit('imageViewers/stackDisplayed',
+              {
+                stackDisplayed: stack.cs_stack,
+                savedViewport: stack.viewport,
+                savedToolstate: stack.tool_state,
+                savedSegmentation: stack.seg_data,
+                index: index
+              })
+          })
+        }
       }
     }
   },
   methods: {
     addImgset () {
+      const studyId = this.$route.params.id
       const imgset = this.$store.getters['imageViewers/getImgset']
-      if (this.imgsetActive === undefined) {
+      if (this.imgsetDisplayed === undefined) {
         imgset.position = this.imgsets.length
       } else {
-        imgset.position = this.imgsetActive.position
+        imgset.position = this.imgsetDisplayed.position
       }
-      this.$store.commit('openStudy/addImgset', imgset)
-      this.imgsetActive = imgset
+      const payload = {
+        studyId: studyId,
+        imgset: imgset
+      }
+      this.$store.dispatch('openStudy/addImgset', payload)
     },
     updateImgset () {
 
@@ -210,8 +228,9 @@ export default {
     deleteImgset () {
 
     },
-    deleteImgsets () {
-
+    deleteAllImgsets () {
+      const studyId = this.$route.params.id
+      this.$store.dispatch('openStudy/deleteAllImgsets', studyId)
     },
     createImgsetsAuto () {
       this.$store.commit('openStudy/createImgsetsAuto', {})

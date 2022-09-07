@@ -8,9 +8,9 @@
             <option class="h5" disabled>ViewerSettings</option>
             <option v-for="(label, tool) in viewerSettingToolsMousekeys" :key="tool" :value="tool">{{label}}</option>
             <option class="h5" disabled>Annotation</option>
-            <option v-for="(tool, label) in annotationToolsMousekeys" :key="tool" :value="tool">{{label}}</option>
+            <option v-for="(label, tool) in annotationToolsMousekeys" :key="tool" :value="tool">{{label}}</option>
             <option class="h5" disabled>Segmentation</option>
-            <option v-for="(tool, label) in segmentationToolsMousekeys" :key="tool" :value="tool">{{label}}</option>
+            <option v-for="(label, tool) in segmentationToolsMousekeys" :key="tool" :value="tool">{{label}}</option>
         </select>
         <label class="input-group-text">Right Mouse Key</label>
         <select class='form-select' v-model="toolActiveRight">
@@ -18,9 +18,9 @@
             <option class="h5" disabled>ViewerSettings</option>
             <option v-for="(label, tool) in viewerSettingToolsMousekeys" :key="tool" :value="tool">{{label}}</option>
             <option class="h5" disabled>Annotation</option>
-            <option v-for="(tool, label) in annotationToolsMousekeys" :key="tool" :value="tool">{{label}}</option>
+            <option v-for="(label, tool) in annotationToolsMousekeys" :key="tool" :value="tool">{{label}}</option>
             <option class="h5" disabled>Segmentation</option>
-            <option v-for="(tool, label) in segmentationToolsMousekeys" :key="tool" :value="tool">{{label}}</option>
+            <option v-for="(label, tool) in segmentationToolsMousekeys" :key="tool" :value="tool">{{label}}</option>
         </select>
         <label class="input-group-text">Mouse Wheel</label>
         <select class='form-select' v-model="toolActiveWheel">
