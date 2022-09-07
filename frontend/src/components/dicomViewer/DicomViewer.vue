@@ -129,8 +129,7 @@ export default {
           currentImageIdIndex: newStack.csStack.currentImageIdIndex,
           imageIds: newStack.csStack.imageIds
         }
-        this.loadDisplayCornerstone(stackToDisplay).then(() => {
-        })
+        this.loadDisplayCornerstone(stackToDisplay, newStack.savedViewport, newStack.savedToolstate, newStack.savedSegmentation)
       }
     },
     viewerHeight: {
@@ -190,18 +189,30 @@ export default {
         }
       })
     },
-    loadDisplayCornerstone (stack) {
+    loadDisplayCornerstone (stack, viewportSaved = undefined, toolStateSaved = undefined, segDataSaved = undefined) {
       // load images and set the stack
-      const promise = cornerstone.loadImage(stack.imageIds[0]).then((image) => {
-        this.activeImage = image
-        cornerstone.displayImage(this.$refs.viewer, image)
-        cornerstoneTools.addStackStateManager(this.$refs.viewer, ['stack'])
-        cornerstoneTools.addToolState(this.$refs.viewer, 'stack', stack)
-        // resets viewport
-        // var viewport = cornerstone.getViewport(this.$refs.viewer)
-        // this.$store.commit('imageViewers/cornerstoneViewportUpdate', { viewport: viewport, index: this.viewerIndex })
-      })
-      return promise
+      cornerstone.loadImage(stack.imageIds[0])
+        .then((image) => {
+          this.activeImage = image
+          // viewport
+          var viewport = viewportSaved !== undefined ? viewportSaved : cornerstone.getDefaultViewportForImage(this.$refs.viewer, image)
+          this.$store.commit('imageViewers/cornerstoneViewportUpdate', { viewport: viewport, index: this.viewerIndex })
+          // display image
+          cornerstone.displayImage(this.$refs.viewer, image, viewport)
+          cornerstoneTools.addStackStateManager(this.$refs.viewer, ['stack'])
+          cornerstoneTools.addToolState(this.$refs.viewer, 'stack', stack)
+        })
+        .then(() => {
+          if (toolStateSaved) {
+            toolStateSaved.forEach((state, index) => {
+              console.log(state)
+              if (state) {
+                cornerstoneTools.globalImageIdSpecificToolStateManager.restoreImageIdToolState(stack.imageIds[index], state)
+                // $(element).trigger('cornerstonetoolsmeasurementrestored', [stack.imageIds[index], element])
+              }
+            })
+          }
+        })
     },
     displayStackIndex () {
       if (this.stackDisplayed && this.stackDisplayed.csStack.imageIds.length > 1) {

@@ -95,15 +95,15 @@ const getters = {
     state.viewers.forEach((viewer, index) => {
       const element = viewer.element
       const viewport = cornerstone.getViewport(element)
-      const imageIds = viewer.stackDisplayed.imageIds
+      const imageIds = viewer.stackDisplayed.csStack.imageIds
       if (viewport) {
         var stack = {
           div_id: index,
           image_names: imageIds.map((id) => id.split('/').pop()),
-          base_url: imageIds[0].substring(0, viewer.stackDisplayed.imageIds[0].lastIndexOf('/')).replace('wadouri:', '') + '/',
+          base_url: imageIds[0].substring(0, imageIds[0].lastIndexOf('/')).replace('wadouri:', '') + '/',
           name: '',
           segmentation_data: '',
-          tool_state: viewer.stackDisplayed.imageIds.map((id) => cornerstoneTools.globalImageIdSpecificToolStateManager.saveImageIdToolState(id)),
+          tool_state: imageIds.map((id) => cornerstoneTools.globalImageIdSpecificToolStateManager.saveImageIdToolState(id)),
           viewport: viewport
         }
         imgset.stacks.push(stack)
