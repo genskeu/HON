@@ -8,20 +8,37 @@
 
 <script>
 export default {
+  props: {
+    viewerIndex: Number
+  },
   computed: {
-    buttonLabel: {
-      get () {
-        return this.$store.getters['openStudy/buttonLabels']
-      }
+    buttonLabel () {
+      return this.$store.getters['openStudy/buttonLabels']
+    },
+    scalesInput () {
+      return this.$store.getters['openStudy/scalesInput']
+    },
+    imgsetDisplayed () {
+      return this.$store.getters['openStudy/imgsetDisplayed']
+    },
+    imgsetInput () {
+      return this.$store.getters['imageViewers/getImgset']
     }
   },
   methods: {
-    saveResults () {
+    saveResult () {
       // get viewer id
       // get displayed imagestacks incl viewport settings (ww, wc ...) and tool states from store
+      const imgset = this.imgsetInput
       // get scale data
       // sent data to backend via axios
-      // load next image set
+      const payload = {
+        imgset_id: this.imgsetDisplayed.id,
+        picked_stack: imgset.stacks[this.viewerIndex],
+        stacks_displayed: imgset.stacks,
+        scale_input: this.scalesInput
+      }
+      this.$store.dispatch('openStudy/saveResult', payload)
     }
   }
 }

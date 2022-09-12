@@ -37,6 +37,16 @@ def get_studies():
     response["studies"] = studies
     return response
 
+@bp.route('/study/<int:id>', methods=['GET'])
+@jwt_required()
+@access_level_required(["study_participant","study_admin"])
+def get_study(id):
+    study = Study.query.filter_by(id=id).first()
+    response = {}
+    response["study"] = study.to_dict(include_images=True,include_imagesets=True)
+    return response    
+
+
 @bp.route('/study', methods=['POST'])
 @jwt_required()
 @access_level_required(["study_admin"])
@@ -70,16 +80,7 @@ def create_study():
 
     return jsonify(response), status_code
 
-@bp.route('/study/<int:id>', methods=['GET'])
-@jwt_required()
-@access_level_required(["study_participant","study_admin"])
-def get_study(id):
-    study = Study.query.filter_by(id=id).first()
-    response = {}
-    response["study"] = study.to_dict(include_images=True,include_imagesets=True)
-    return response        
-
-
+    
 @bp.route('/study/<int:id>', methods=['PUT'])
 @jwt_required()
 @access_level_required(["study_admin"])
@@ -520,7 +521,7 @@ def study_login():
 
 
 # run study
-@bp.route('/study/run/<int:study_id>', methods=['GET'])
+""" @bp.route('/study/run/<int:study_id>', methods=['GET'])
 @jwt_required()
 @access_level_required(["study_participant","study_admin"])
 def study_run(study_id):
@@ -559,27 +560,27 @@ def study_run(study_id):
                            imgset=imgset,
                            study=study,
                            user_study_progress=user_study_progress,
-                           study_length=len(study.imgsets))
+                           study_length=len(study.imgsets)) """
 
 
 # select stack, save selection and load next set
-@bp.route('/vote/<int:study_id>/<int:imgset_position>',  methods=['POST'])
+@bp.route('/study/result/<int:study_id>',  methods=['POST'])
 @jwt_required()
 @access_level_required(["study_participant","study_admin"])
-def vote(study_id, imgset_position):
+def save_result(study_id):
     error = None
+    result_dict = request.get_json()
+    imgset_id = result_dict["imgset_id"]
     study = Study.query.filter_by(id=study_id).first()
-    imgset = Imgset.query.filter_by(study_id=study_id,
-                                    position=imgset_position).first()
-    user_id = g.user.id
-    result = Result.query.filter_by(imgset_id=imgset.id,
+    current_user_id = get_jwt_identity()
+    user_id = current_user_id
+    result = Result.query.filter_by(imgset_id=imgset_id,
                                     user_id=user_id).first()
 
     if result is None:
-        result_dict = request.get_json()
         result = Result(user_id=user_id,
                         study_id=study_id,
-                        imgset_id=imgset.id)
+                        imgset_id=imgset_id)
         if result_dict["scale_input"]:
             result.scale_input= json.dumps(result_dict["scale_input"])
         db.session.add(result)
@@ -618,28 +619,8 @@ def vote(study_id, imgset_position):
     # response
     response = {}
     response["error"] = error
+    response["result"] = result.to_dict()    
 
-    # check for imgsets without result for this user
-    results_user = Result.query.filter_by(study_id=study_id,user_id=user_id).all()
-    imgsets_finished = len(results_user)
-    results_user_imgset_ids = set([result.imgset.position for result in results_user])
-    study_imgset_ids = set([imgset.position for imgset in study.imgsets])
-    imgsets_left_ids = study_imgset_ids.difference(results_user_imgset_ids)
-    imgsets_left_ids = list(imgsets_left_ids)
-    imgsets_left_ids.sort()
-    if len(imgsets_left_ids):
-        next_imgset = Imgset.query.filter_by(study_id=study_id,position=imgsets_left_ids[0]).first()
-        response['imgset'] = next_imgset.to_dict()
-        response['status'] = "ok"
-        response['study_id'] = study_id
-        response['user'] = user_id
-        response['study_length'] = len(study.imgsets)
-        response['transition_time'] = study.design.transition_time
-        response['imgsets_finished'] = imgsets_finished
-    else:
-        response['status'] = "done"
-        response['imgsets_finished'] = imgsets_finished
-        response['study_length'] = len(study.imgsets)
     return jsonify(response)
 
 

@@ -12,7 +12,7 @@
             </div>
             <div class="mx-auto justify-content-center mt-1 scale_values">
                 <div v-for="(value, index) in scaleValues" :key="value" class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" :name=this.scaleIndex id="">
+                    <input class="form-check-input" type="radio" :value="value" :name=this.scaleIndex v-model="scaleInput">
                     <label class="form-check-label" for="inlineRadio1">{{scaleLabels[index]}}</label>
                 </div>
             </div>
@@ -26,25 +26,17 @@ export default {
     scaleIndex: Number
   },
   computed: {
-    scaleText: {
-      get () {
-        return this.$store.getters['openStudy/scaleText'](this.scaleIndex)
-      }
+    scaleText () {
+      return this.$store.getters['openStudy/scaleText'](this.scaleIndex)
     },
-    scaleMin: {
-      get () {
-        return this.$store.getters['openStudy/scaleMin'](this.scaleIndex)
-      }
+    scaleMin () {
+      return this.$store.getters['openStudy/scaleMin'](this.scaleIndex)
     },
-    scaleMax: {
-      get () {
-        return this.$store.getters['openStudy/scaleMax'](this.scaleIndex)
-      }
+    scaleMax () {
+      return this.$store.getters['openStudy/scaleMax'](this.scaleIndex)
     },
-    scaleType: {
-      get () {
-        return this.$store.getters['openStudy/scaleMax'](this.scaleIndex)
-      }
+    scaleType () {
+      return this.$store.getters['openStudy/scaleMax'](this.scaleIndex)
     },
     scaleValues () {
       var values = []
@@ -55,6 +47,14 @@ export default {
     },
     scaleLabels () {
       return this.$store.getters['openStudy/scaleLabels'](this.scaleIndex)
+    },
+    scaleInput: {
+      get () {
+        return this.$store.getters['openStudy/scaleInput'](this.scaleIndex)
+      },
+      set (value) {
+        this.$store.commit('openStudy/scaleInput', { index: this.scaleIndex, input: value })
+      }
     }
   }
 }

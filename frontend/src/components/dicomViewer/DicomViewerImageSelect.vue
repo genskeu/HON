@@ -8,7 +8,7 @@
                 class='form-select'
                 v-model="stackDisplayed">
                 <option></option>
-                <option v-for='stack in stacks' :key='stack.name' :value="stack.cs_stack">
+                <option v-for='stack in stacks' :key='stack.name' :value="{ cs_stack: stack.cs_stack, name: stack.name }">
                     {{ stack.name }}
                 </option>
             </select>
@@ -29,7 +29,7 @@ export default {
       get () {
         const stackDisplayed = this.$store.getters['imageViewers/stackDisplayed'](this.viewerIndex)
         if (stackDisplayed) {
-          return stackDisplayed.csStack
+          return { cs_stack: stackDisplayed.csStack, name: stackDisplayed.name }
         } else {
           return undefined
         }
@@ -37,7 +37,8 @@ export default {
       set (stack) {
         this.$store.commit('imageViewers/stackDisplayed',
           {
-            stackDisplayed: stack,
+            name: stack.name,
+            stackDisplayed: stack.cs_stack,
             index: this.viewerIndex
           }
         )

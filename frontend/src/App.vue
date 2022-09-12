@@ -66,7 +66,7 @@ export default {
   },
   methods: {
     handleLogout () {
-      this.$store.dispatch('auth/logout', this.user)
+      this.$store.dispatch('auth/logout')
     }
   }
 }

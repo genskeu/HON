@@ -535,6 +535,7 @@ class User_study_progress(db.Model):
 
     def to_dict(self):
         dict = {}
+        dict["user_id"] = self.user_id
         dict["username"] = self.user.username
         dict["imgsets_finished"] = self.imgsets_finished
         dict["updated"] = self.updated
@@ -750,8 +751,8 @@ class Output:
 
     def get_img_disp_data(self,result):
         for i in range(self.study.design.numb_img):
-            div_id_ref = "dicom_img_" + str(i+2)
-            stack = result.imgset.get_stack_by_div_id(div_id_ref)
+            div_id = "dicom_img_" + str(i)
+            stack = result.imgset.get_stack_by_div_id(div_id)
             # stack can be none if left blank
             if stack:
                 image_names = [image.name for image in stack.images]

@@ -1,7 +1,8 @@
 // api/index.js
 import axios from 'axios'
 import { Modal } from 'bootstrap'
-// import router from '@/router'
+import router from '@/router'
+import store from '@/store'
 
 const API_URL = 'http://localhost:5000'
 
@@ -69,12 +70,25 @@ export function getResults (studyId) {
     .finally(() => {})
 }
 
+export function getResultsCurrentUser (studyId) {
+  return axios
+    .get(`${API_URL}/results/current_user/${studyId}`, { headers: authHeader() })
+}
+
 export function createImgset (studyId, payload) {
   return axios.post(`${API_URL}/study/imgset/${studyId}`, payload, { headers: authHeader() })
 }
 
 export function deleteImgsets (studyId) {
   return axios.delete(`${API_URL}/study/imgsets/${studyId}`, { headers: authHeader() })
+}
+
+export function saveResultDb (studyId, payload) {
+  return axios.post(`${API_URL}/study/result/${studyId}`, payload, { headers: authHeader() })
+}
+
+export function deleteResultUserDb (studyId, userId) {
+  return axios.delete(`${API_URL}/result/${studyId}/${userId}`, { headers: authHeader() })
 }
 
 class AuthService {
@@ -116,3 +130,18 @@ function authHeader () {
     return {}
   }
 }
+
+axios.interceptors.response.use(
+  response => {
+    return response
+  },
+  function (error) {
+    if (
+      error.response.status === 401
+    ) {
+      store.dispatch('auth/logout')
+      router.push('/login')
+    }
+    return Promise.reject(error)
+  }
+)

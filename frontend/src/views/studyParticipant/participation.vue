@@ -1,36 +1,37 @@
 <template>
-    <div class="container-fluid pt-4" id="content" :style="cssStyle">
-        <div class="row mx-auto">
-            <!-- Imgsets -->
-            <div class="col-lg-10 pt-1" id="imgset_creation">
-                <!-- Create Image Sets -->
-                <!-- Display warning if the study already started (results are present)
+  <div class="container-fluid pt-4" id="content" :style="cssStyle">
+    <div class="row mx-auto">
+      <!-- Imgsets -->
+      <div class="col-lg-10 pt-1" id="imgset_creation">
+        <!-- Create Image Sets -->
+        <!-- Display warning if the study already started (results are present)
                                  User can still modify design but should be aware that this can cause bugs
                                 -->
-                <div id="imgset" class="mx-auto px-0 w-100">
-                    <!--Images -->
-                    <DicomViewerTools class="sticky-top"></DicomViewerTools>
-                    <div id="ref-stacks" :class="refviewerLayout">
-                        <dicom-viewer v-for="index in refviewerNumb" :key="index"></dicom-viewer>
-                    </div>
-                    <div id="stacks" :class="viewerLayout">
-                        <div v-for="index in viewerNumb" :key="index">
-                          <dicom-viewer @cornerstonetoolsmeasurementmodified="applySize" :viewer-index="index - 1" :style="viewerHeight"></dicom-viewer>
-                          <Votebtn class="my-2"></Votebtn>
-                        </div>
-                    </div>
-                    <div>
-                    </div>
-                </div>
+        <div id="imgset" class="mx-auto px-0 w-100">
+          <!--Images -->
+          <DicomViewerTools class="sticky-top"></DicomViewerTools>
+          <div id="ref-stacks" :class="refviewerLayout">
+            <dicom-viewer v-for="index in refviewerNumb" :key="index"></dicom-viewer>
+          </div>
+          <div id="stacks" :class="viewerLayout">
+            <div v-for="index in viewerNumb" :key="index">
+              <dicom-viewer @cornerstonetoolsmeasurementmodified="applySize" :viewer-index="index - 1"
+                :style="viewerHeight"></dicom-viewer>
+              <Votebtn :viewer-index="index-1" class="my-2"></Votebtn>
             </div>
-            <!-- sidebar for design, viewport settings, scales etc (rigth) -->
-            <div class="col-lg-2 pt-1 overflow-auto sticky-top" id="sidebar">
-              <Instructions></Instructions>
-              <Scales></Scales>
-            </div>
+          </div>
+          <div>
+          </div>
         </div>
-      <Progressbar></Progressbar>
+      </div>
+      <!-- sidebar for design, viewport settings, scales etc (rigth) -->
+      <div class="col-lg-2 pt-1 overflow-auto sticky-top" id="sidebar">
+        <Instructions></Instructions>
+        <Scales></Scales>
+      </div>
     </div>
+    <Progressbar></Progressbar>
+  </div>
 </template>
 
 <script>
@@ -52,11 +53,13 @@ export default {
   },
   data () {
     return {
-      imgsetActive: undefined
     }
   },
   mounted () {
-    this.imgsetActive = this.imgsets[0]
+    // get starting imgset (first without results)
+    const idsImgsetFinished = this.resultsCurrentUser.map(result => result.imgset_id)
+    const imgsetDisplayed = this.imgsets.find(imgset => !idsImgsetFinished.includes(imgset.id))
+    this.$store.commit('openStudy/imgsetDisplayed', imgsetDisplayed)
   },
   computed: {
     viewerNumb () {
@@ -105,20 +108,40 @@ export default {
     },
     imgsets () {
       return this.$store.getters['openStudy/imgsets']
+    },
+    resultsCurrentUser () {
+      return this.$store.getters['openStudy/resultsCurrentUser']
+    },
+    imgsetDisplayed () {
+      return this.$store.getters['openStudy/imgsetDisplayed']
     }
   },
   watch: {
-    imgsetActive: {
+    imgsetDisplayed: {
       handler (newImgset) {
         newImgset.image_stacks.forEach((stack, index) => {
           // ensure same structure as select menu values
           // stack.csStack.name = stack.name
-          this.$store.commit('imageViewers/stackDisplayed', { stackDisplayed: stack.cs_stack, index: index })
+          this.$store.commit('imageViewers/stackDisplayed', {
+            name: stack.name,
+            stackDisplayed: stack.cs_stack,
+            savedViewport: stack.viewport,
+            index: index
+          })
         })
+      }
+    },
+    resultsCurrentUser: {
+      deep: true,
+      handler () {
+        const idsImgsetFinished = this.resultsCurrentUser.map(result => result.imgset_id)
+        const imgsetDisplayed = this.imgsets.find(imgset => !idsImgsetFinished.includes(imgset.id))
+        this.$store.commit('openStudy/imgsetDisplayed', imgsetDisplayed)
       }
     }
   },
   methods: {
+    // enforece ann too size limits (settings)
     applySize () {
     }
   }
@@ -126,7 +149,7 @@ export default {
 </script>
 
 <style>
-  #sidebar {
-    height: 85vh;
-  }
+#sidebar {
+  height: 85vh;
+}
 </style>

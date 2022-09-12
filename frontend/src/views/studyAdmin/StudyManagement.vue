@@ -44,11 +44,13 @@ export default {
     }
   },
   created () {
+    // get study data from backend
     const id = this.$route.params.id
     fetchStudy(id)
       .then((response) => {
         const data = response.data
         this.$store.commit('openStudy/openStudy', data.study)
+        this.$store.dispatch('openStudy/resultsCurrentUser')
       })
   }
 }

@@ -1,3 +1,4 @@
+from crypt import methods
 from flask import Blueprint, g, render_template, jsonify, request, url_for, current_app, send_file, after_this_request
 from .auth import access_level_required
 import os
@@ -5,7 +6,7 @@ from .DBmodel import Result, Study, User, db, User_study_progress, Output
 from sqlalchemy import func
 from sqlalchemy.orm import lazyload, joinedload
 import tarfile
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 bp = Blueprint("results", __name__)
 
@@ -23,7 +24,7 @@ def get_results_by_imgset_id(imgset_id):
     return response
 
 # get result by id
-@bp.route('/result/<id>')
+@bp.route('/result/<id>', methods=["GET"])
 @jwt_required()
 @access_level_required(["study_admin"])
 def get_result(id):
@@ -32,6 +33,18 @@ def get_result(id):
     response["result"] = result.to_dict()
     return response
 
+
+# get results by study for logged in user
+@bp.route('/results/current_user/<study_id>', methods=["GET"])
+@jwt_required()
+@access_level_required(["study_admin"])
+def get_result_current_user(study_id):
+    current_user_id = get_jwt_identity()
+    user_id = current_user_id
+    results = Result.query.filter_by(study_id=study_id, user_id=user_id).all()
+    response = {}
+    response["results"] = [result.to_dict() for result in results]
+    return response
 
 # results overview
 @bp.route('/results/overview')
@@ -59,7 +72,7 @@ def delete_result(study_id,user_id):
     db.session.commit()
 
     response = {}
-    response["redirect"] = url_for("results.overview")
+    response["user_study_progress"] = User_study_progress.query.filter_by(study_id=study_id).all()
     return jsonify(response)
 
 

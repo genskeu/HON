@@ -1,11 +1,12 @@
 import router from '@/router'
-import { createStudy, deleteFiles, createImgset, deleteImgsets } from '@/api'
+import { createStudy, deleteFiles, createImgset, deleteImgsets, saveResultDb, getResultsCurrentUser, deleteResultUserDb } from '@/api'
 import store from '@/store'
 import { tools } from '@/store/modules/tools'
 
 // import cornerstoneTools from 'cornerstone-tools'
 
 const state = {
+  id: Number,
   title: String,
   password: String,
   description: String,
@@ -13,8 +14,9 @@ const state = {
   images: Array,
   imageSets: Array,
   instructions: String,
-  user_study_progress: Array,
-  imgsetDisplayed: undefined
+  userStudyProgress: Array,
+  imgsetDisplayed: undefined,
+  resultsCurrentUser: Array
 }
 
 const getters = {
@@ -89,6 +91,21 @@ const getters = {
   scales (state) {
     return state.design.scales
   },
+  scalesInput (state) {
+    var scalesInput = {}
+    state.design.scales.forEach(scale => {
+      console.log(scale)
+      if (scalesInput[scale.text] === undefined) {
+        scalesInput[scale.text] = {
+          values: [],
+          uuids: []
+        }
+      }
+      scalesInput[scale.text].values.push(scale.input)
+      scalesInput[scale.text].uuids.push(scale.uuid)
+    })
+    return scalesInput
+  },
   scaleText: (state) => (index) => {
     return state.design.scales[index].text
   },
@@ -100,6 +117,9 @@ const getters = {
   },
   scaleLabels: (state) => (index) => {
     return state.design.scales[index].labels
+  },
+  scaleInput: (state) => (index) => {
+    return state.design.scales[index].input
   },
   // tools with settings (saved in db)
   tools (state) {
@@ -146,7 +166,10 @@ const getters = {
   },
   // results
   userStudyProgress (state) {
-    return state.user_study_progress
+    return state.userStudyProgress
+  },
+  resultsCurrentUser (state) {
+    return state.resultsCurrentUser
   }
 }
 
@@ -178,6 +201,7 @@ function filterTools (toolsAll, toolsSaved) {
 
 const mutations = {
   openStudy (state, study) {
+    state.id = study.id
     state.title = study.title
     state.password = ''
     state.description = study.description
@@ -186,7 +210,8 @@ const mutations = {
     state.stacks = study.stacks
     state.imageSets = study.imgsets
     state.instructions = study.instructions
-    state.user_study_progress = study.user_study_progress
+    state.userStudyProgress = study.user_study_progress
+    state.resultsCurrentUser = []
   },
   closeStudy () {
     state.title = String
@@ -269,7 +294,10 @@ const mutations = {
     state.design.scales[payload.index].labels = labels
   },
   scaleLabel (state, payload) {
-    state.design.scales[payload.index].labels[[payload.labelIndex]] = payload.label
+    state.design.scales[payload.index].labels[payload.labelIndex] = payload.label
+  },
+  scaleInput (state, payload) {
+    state.design.scales[payload.index].input = payload.input
   },
   addScale (state, payload) {
     state.design.scales.push(payload)
@@ -354,6 +382,15 @@ const mutations = {
   },
   addStack (state, stack) {
     state.stacks.push(stack)
+  },
+  addResultCurrentUser (state, result) {
+    state.resultsCurrentUser.push(result)
+  },
+  addResultsCurrentUser (state, results) {
+    state.resultsCurrentUser = results
+  },
+  userStudyProgress (state, userStudyProgress) {
+    state.userStudyProgress = userStudyProgress
   }
 }
 
@@ -389,6 +426,26 @@ const actions = {
     deleteImgsets(studyId)
       .then(response => {
         commit('deleteAllImgsets')
+      })
+  },
+  saveResult ({ commit }, payload) {
+    saveResultDb(state.id, payload)
+      .then((response) => {
+        const result = response.data.result
+        commit('addResultCurrentUser', result)
+      })
+  },
+  resultsCurrentUser ({ commit }) {
+    getResultsCurrentUser(state.id).then((response) => {
+      const results = response.data.results
+      commit('addResultsCurrentUser', results)
+    })
+  },
+  delResultsUser ({ commit }, userId) {
+    deleteResultUserDb(state.id, userId)
+      .then((response) => {
+        const userStudyProgress = response.data.user_study_progress
+        commit('userStudyProgress', userStudyProgress)
       })
   }
 }

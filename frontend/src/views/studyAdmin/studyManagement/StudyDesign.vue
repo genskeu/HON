@@ -118,7 +118,9 @@ export default {
   watch: {
   },
   mounted () {
-    // watcher with flag immdiate runs to early => set height on mount
+    // bug fix for switching between design and participation interface
+    // set active imgset to undefined when mounting => find more elegant solution later
+    this.$store.commit('openStudy/imgsetDisplayed', undefined)
   },
   methods: {
   }

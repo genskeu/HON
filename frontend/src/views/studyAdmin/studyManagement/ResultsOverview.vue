@@ -17,7 +17,7 @@
                             <td class="align-middle">{{usp.updated}}</td>
                             <td class="align-middle">{{usp.imgsets_finished/studyLength * 100 + '%'}}</td>
                             <td class="align-middle">
-                                <button class="btn-danger btn-sm" onclick="">delete
+                                <button class="btn-danger btn-sm" @click="delResultsUser(usp.user_id)">delete
                                 </button>
                             </td>
                         </tr>
@@ -61,6 +61,9 @@ export default {
     downloadResults () {
       const studyId = this.$route.params.id
       getResults(studyId)
+    },
+    delResultsUser (userId) {
+      this.$store.dispatch('openStudy/delResultsUser', userId)
     }
   },
   computed: {

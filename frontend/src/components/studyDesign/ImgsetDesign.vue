@@ -196,6 +196,7 @@ export default {
           newImgset.image_stacks.forEach((stack, index) => {
             this.$store.commit('imageViewers/stackDisplayed',
               {
+                name: stack.name,
                 stackDisplayed: stack.cs_stack,
                 savedViewport: stack.viewport,
                 savedToolstate: stack.tool_state,

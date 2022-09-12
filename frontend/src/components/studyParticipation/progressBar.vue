@@ -14,10 +14,10 @@
 export default {
   computed: {
     imgsetsFinished () {
-      return 10
+      return this.$store.getters['openStudy/resultsCurrentUser'].length
     },
     imgsetsTotal () {
-      return 100
+      return this.$store.getters['openStudy/imgsets'].length
     },
     progress () {
       var percFinished = this.imgsetsFinished / this.imgsetsTotal * 100
