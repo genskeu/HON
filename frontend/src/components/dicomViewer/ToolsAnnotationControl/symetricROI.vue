@@ -36,6 +36,7 @@
 export default {
   props: {
     targetViewer: Number,
+    viewerType: String,
     uuid: String,
     toolName: String
   },
@@ -45,28 +46,28 @@ export default {
     },
     startX: {
       get () {
-        const roi = this.$store.getters['imageViewers/EllipticalRoi'](this.targetViewer, this.uuid)
+        const roi = this.$store.getters['imageViewers/EllipticalRoi'](this.targetViewer, this.viewerType, this.uuid)
         const startX = roi.measurementData.handles.start.x
         return startX.toFixed(2)
       }
     },
     startY: {
       get () {
-        const roi = this.$store.getters['imageViewers/EllipticalRoi'](this.targetViewer, this.uuid)
+        const roi = this.$store.getters['imageViewers/EllipticalRoi'](this.targetViewer, this.viewerType, this.uuid)
         const startY = roi.measurementData.handles.start.y
         return startY.toFixed(2)
       }
     },
     endX: {
       get () {
-        const roi = this.$store.getters['imageViewers/EllipticalRoi'](this.targetViewer, this.uuid)
+        const roi = this.$store.getters['imageViewers/EllipticalRoi'](this.targetViewer, this.viewerType, this.uuid)
         const endX = roi.measurementData.handles.end.x
         return endX.toFixed(2)
       }
     },
     endY: {
       get () {
-        const roi = this.$store.getters['imageViewers/EllipticalRoi'](this.targetViewer, this.uuid)
+        const roi = this.$store.getters['imageViewers/EllipticalRoi'](this.targetViewer, this.viewerType, this.uuid)
         const endY = roi.measurementData.handles.end.y
         return endY.toFixed(2)
       }
@@ -74,7 +75,7 @@ export default {
   },
   methods: {
     deleteAnnotation () {
-      this.$store.commit('imageViewers/removeAnnotation', { type: 'EllipticalRoi', uuid: this.uuid, index: this.targetViewer })
+      this.$store.commit('imageViewers/removeAnnotation', { type: 'EllipticalRoi', uuid: this.uuid, index: this.targetViewer, viewertype: this.viewerType })
     }
   }
 }

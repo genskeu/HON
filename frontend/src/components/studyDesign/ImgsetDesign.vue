@@ -29,16 +29,16 @@
           <h5 class="mx-auto">Reference-Images</h5>
         </div>
         <div v-for="index in refviewerNumb" :key="index">
-          <DicomViewerImageSelect :viewer-index="index - 1"></DicomViewerImageSelect>
+          <DicomViewerImageSelect :viewer-index="index - 1" viewer-type="refviewers"></DicomViewerImageSelect>
         </div>
         <div v-if="refviewerNumb" class="input-group-text">
           <h5 class="mx-auto">Images</h5>
         </div>
         <div v-for="index in viewerNumb" :key="index">
-          <DicomViewerImageSelect :viewer-index="refviewerNumb + index - 1"></DicomViewerImageSelect>
+          <DicomViewerImageSelect :viewer-index="index - 1" viewer-type="viewers"></DicomViewerImageSelect>
         </div>
       </div>
-      <!-- default viewport settings -->
+      <!-- viewport settings -->
       <div id="viewport_settings_container" class="w-100 mt-1" title="Image Viewer settings control display options (zoom, position, window) for the uploaded study images.
                         Each viewport can be controlled individually.
                         To globally control viewport settings use the defaults submenu.">
@@ -49,8 +49,17 @@
           </button>
         </div>
         <div id="viewport_settings" class="collapse">
+          <div v-if="refviewerNumb" class="input-group-text">
+            <h5 class="mx-auto">Reference-Images</h5>
+          </div>
+          <div id="" v-for="(viewer, index) in refimageViewers" :key="index">
+            <DicomViewportControl :target-viewer="index" viewer-type="refviewers"></DicomViewportControl>
+          </div>
+          <div v-if="refviewerNumb" class="input-group-text">
+            <h5 class="mx-auto">Images</h5>
+          </div>
           <div id="" v-for="(viewer, index) in imageViewers" :key="index">
-            <DicomViewportControl :target-viewer="index"></DicomViewportControl>
+            <DicomViewportControl :target-viewer="index" viewer-type="viewers"></DicomViewportControl>
           </div>
         </div>
       </div>
@@ -63,7 +72,7 @@
         </div>
         <div id="annotation_settings" class="collapse">
           <div id="" v-for="(viewer, index) in imageViewers" :key="index">
-            <ToolsAnnotationControl :target-viewer="index"></ToolsAnnotationControl>
+            <ToolsAnnotationControl :target-viewer="index" viewer-type="viewers"></ToolsAnnotationControl>
           </div>
         </div>
       </div>
@@ -180,7 +189,10 @@ export default {
       return this.$store.getters['openStudy/refviewerNumb']
     },
     imageViewers () {
-      return this.$store.getters['imageViewers/cornerstoneViewers']
+      return this.$store.getters['imageViewers/viewers']
+    },
+    refimageViewers () {
+      return this.$store.getters['imageViewers/refviewers']
     },
     afcCreateAuto () {
       if (this.$refs.imgsetType) {
@@ -194,15 +206,20 @@ export default {
       handler (newImgset) {
         if (newImgset) {
           newImgset.image_stacks.forEach((stack, index) => {
-            this.$store.commit('imageViewers/stackDisplayed',
-              {
-                name: stack.name,
-                stackDisplayed: stack.cs_stack,
-                savedViewport: stack.viewport,
-                savedToolstate: stack.tool_state,
-                savedSegmentation: stack.seg_data,
-                index: index
-              })
+            var viewertype = this.refviewerNumb > index ? 'refviewers' : 'viewers'
+            var viewerindex = this.refviewerNumb > index ? index : index - this.refviewerNumb
+
+            const stackData = {
+              name: stack.name,
+              stackDisplayed: stack.cs_stack,
+              savedViewport: stack.viewport,
+              savedToolstate: stack.tool_state,
+              savedSegmentation: stack.seg_data,
+              index: viewerindex,
+              viewertype: viewertype
+            }
+
+            this.$store.commit('imageViewers/stackDisplayed', stackData)
           })
         }
       }

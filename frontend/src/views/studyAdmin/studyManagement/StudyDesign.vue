@@ -27,7 +27,7 @@
               <div id="ref-stacks" :class="refviewerLayout">
                 <div v-for="index in refviewerNumb" :key="index">
                   <h4>Reference Image Viewer {{index}}</h4>
-                <dicom-viewer viewer-type="reference" :viewer-index="index-1"></dicom-viewer>
+                <dicom-viewer viewer-type="refviewers" :viewer-index="index-1"></dicom-viewer>
                 </div>
               </div>
               <div v-if="refviewerNumb"  class="badge bg-secondary w-100 mb-2">
@@ -36,7 +36,7 @@
               <div id="stacks" :class="viewerLayout">
                 <div v-for="index in viewerNumb" :key="index">
                   <h4>Image Viewer {{index}}</h4>
-                  <dicom-viewer viewer-type="regular" :viewer-index="refviewerNumb+index-1"></dicom-viewer>
+                  <dicom-viewer viewer-type="viewers" :viewer-index="index-1"></dicom-viewer>
                 </div>
               </div>
             <div>
@@ -98,6 +98,9 @@ export default {
         'gap-2': true,
         'grid-cols-1': this.$store.getters['openStudy/refviewerNumb'] === 1,
         'grid-cols-2': this.$store.getters['openStudy/refviewerNumb'] === 2,
+        'grid-cols-3': this.$store.getters['openStudy/refviewerNumb'] === 3,
+        'grid-cols-4': this.$store.getters['openStudy/refviewerNumb'] === 4,
+        'grid-cols-5': this.$store.getters['openStudy/refviewerNumb'] === 5,
         'grid-rows-1': true
       }
       return gridClass
@@ -120,6 +123,10 @@ export default {
   mounted () {
     // bug fix for switching between design and participation interface
     // set active imgset to undefined when mounting => find more elegant solution later
+  },
+  activated () {
+  },
+  deactivated () {
     this.$store.commit('openStudy/imgsetDisplayed', undefined)
   },
   methods: {

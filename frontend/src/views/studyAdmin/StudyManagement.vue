@@ -10,8 +10,12 @@
         <router-link :to="{ name: 'StudyResults', params: { id: this.$route.params.id }}" class="nav-link">Results</router-link>
       </div>
     </div>
-    <router-view name="helper" id="router_helper_view">
+    <router-view v-slot="{ Component }" name="helper" id="router_helper_view">
+      <keep-alive include="Design,participation">
+        <component :is="Component" />
+      </keep-alive>
     </router-view>
+
   </div>
   <div v-else id="study_management" class="">
     <div id="nav" class="navbar bg-dark p-0" style="height: 50px;">
@@ -21,7 +25,6 @@
 </template>
 
 <script>
-import { fetchStudy } from '@/api'
 export default {
   name: 'StudyManagement',
   data () {
@@ -46,12 +49,7 @@ export default {
   created () {
     // get study data from backend
     const id = this.$route.params.id
-    fetchStudy(id)
-      .then((response) => {
-        const data = response.data
-        this.$store.commit('openStudy/openStudy', data.study)
-        this.$store.dispatch('openStudy/resultsCurrentUser')
-      })
+    this.$store.dispatch('openStudy/openStudy', id)
   }
 }
 </script>

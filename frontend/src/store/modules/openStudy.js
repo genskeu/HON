@@ -1,5 +1,5 @@
 import router from '@/router'
-import { createStudy, deleteFiles, createImgset, deleteImgsets, saveResultDb, getResultsCurrentUser, deleteResultUserDb } from '@/api'
+import { createStudy, deleteFiles, createImgset, deleteImgsets, saveResultDb, getResultsCurrentUser, deleteResultUserDb, fetchStudy } from '@/api'
 import store from '@/store'
 import { tools } from '@/store/modules/tools'
 
@@ -200,7 +200,7 @@ function filterTools (toolsAll, toolsSaved) {
 }
 
 const mutations = {
-  openStudy (state, study) {
+  openStudy (state, study, context) {
     state.id = study.id
     state.title = study.title
     state.password = ''
@@ -395,6 +395,22 @@ const mutations = {
 }
 
 const actions = {
+  openStudy (context, id) {
+    fetchStudy(id)
+      .then((response) => {
+        const data = response.data
+        context.commit('openStudy', data.study)
+        context.dispatch('resultsCurrentUser')
+        const viewerNumber = context.getters.viewerNumb
+        const refviewerNumber = context.getters.refviewerNumb
+        for (let i = 0; i < viewerNumber; i++) {
+          store.commit('imageViewers/initViewer', { viewertype: 'viewers' })
+        }
+        for (let i = 0; i < refviewerNumber; i++) {
+          store.commit('imageViewers/initViewer', { viewertype: 'refviewers' })
+        }
+      })
+  },
   createNewStudy ({ commit }) {
     createStudy()
       .then(response => {

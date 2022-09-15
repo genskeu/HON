@@ -11,17 +11,17 @@
     <div id="general_settings_content" class="collapse">
       <div class="mx-auto">
         <div class="input-group mx-auto" title="Controls max number of reference images">
-          <label for="numb_refimg" class="input-group-text w-50">RefImg Viewer #</label>
-          <input class="form-control" type="Number" min="0" max="2" id="numb_refimg" v-model="refviewerNumb"/>
+          <label for="numb_refimg" class="input-group-text w-50"># RefImg Viewer</label>
+          <input class="form-control" type="Number" min="0" max="5" id="numb_refimg" v-model="refviewerNumb"/>
         </div>
 
         <div class="input-group mx-auto" title="Controls max number of images">
-          <label for="numb_img" class="input-group-text w-50">Img Viewer #</label>
+          <label for="numb_img" class="input-group-text w-50"> # Img Viewer</label>
           <input class="form-control" type="Number" min="1" max="50" id="numb_img" v-model="viewerNumb"/>
         </div>
 
         <div class="input-group mx-auto my-auto" title="Controls max number of images">
-          <label for="numb_img" class="input-group-text w-50">Viewer Layout</label>
+          <label for="numb_img" class="input-group-text w-50">Viewers per Row</label>
           <input type="number" min="1" max="5" class="form-control" id="numb_img_cols" v-model="viewerLayoutCols"/>
         </div>
 

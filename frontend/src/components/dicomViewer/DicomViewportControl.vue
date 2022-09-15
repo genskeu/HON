@@ -13,9 +13,9 @@
       <div class="mx-auto">
         <div class="input-group mx-auto">
           <label class="input-group-text w-20">WW/WC</label>
-          <input id="ww_" type="Number" step="any" min="0" class="form-control ww viewport_prop" placeholder="WW"
+          <input type="Number" step="any" min="0" class="form-control ww viewport_prop" placeholder="WW"
             v-model="windowWidth" />
-          <input id="wc_" type="Number" step="any" class="form-control wc viewport_prop" placeholder="WC"
+          <input type="Number" step="any" class="form-control wc viewport_prop" placeholder="WC"
             v-model="windowCenter"/>
         </div>
       </div>
@@ -24,7 +24,7 @@
       <div class="mx-auto">
         <div class="input-group">
           <label class="input-group-text w-20">Zoom</label>
-          <input id="zoom_" type="Number" step="0.1" min="0.1" class="form-control zoom viewport_prop"
+          <input type="Number" step="0.1" min="0.1" class="form-control zoom viewport_prop"
             placeholder="Zoom" v-model="scale"/>
         </div>
       </div>
@@ -33,8 +33,8 @@
       <div class="mx-auto">
         <div class="input-group">
           <label class="input-group-text w-20">Pos</label>
-          <input id="pos_x_" type="Number" step="any" class="form-control pos_x viewport_prop" placeholder="x" v-model="posX"/>
-          <input id="pos_y_" type="Number" step="any" class="form-control pos_y viewport_prop" placeholder="y" v-model="posY"/>
+          <input type="Number" step="any" class="form-control pos_x viewport_prop" placeholder="x" v-model="posX"/>
+          <input type="Number" step="any" class="form-control pos_y viewport_prop" placeholder="y" v-model="posY"/>
         </div>
       </div>
 
@@ -42,7 +42,7 @@
       <div class="mx-auto">
         <div class="input-group">
           <label class="input-group-text w-20">Rotation</label>
-          <input id="pos_y_" type="Number" step="1" class="form-control pos_y viewport_prop" placeholder="rotation" v-model="rotation"/>
+          <input type="Number" step="1" class="form-control pos_y viewport_prop" placeholder="rotation" v-model="rotation"/>
         </div>
       </div>
 
@@ -60,7 +60,7 @@ import cornerstone from 'cornerstone-core'
 export default {
   props: {
     targetViewer: Number,
-    test: Object
+    viewerType: String
   },
   data () {
     return {
@@ -75,102 +75,84 @@ export default {
     },
     windowWidth: {
       get () {
-        return this.$store.getters['imageViewers/cornerstoneViewerWindowWidth'](this.targetViewer)
+        return this.$store.getters['imageViewers/cornerstoneViewerWindowWidth'](this.targetViewer, this.viewerType)
       },
       set (value) {
-        this.$store.commit('imageViewers/cornerstoneViewerWindowWidth', {
-          viewer: this.targetViewer,
-          windowWidth: value
-        })
-        const element = this.$store.getters['imageViewers/cornerstoneViewer'](this.targetViewer)
+        // viewer settings in store are updated by function triggered on image rendered, see dicomviewer
+        const element = this.$store.getters['imageViewers/element'](this.targetViewer, this.viewerType)
         var viewport = cornerstone.getViewport(element)
-        viewport.voi.windowWidth = value
+        viewport.voi.windowWidth = Number(value)
         cornerstone.updateImage(element)
       }
     },
     windowCenter: {
       get () {
-        return this.$store.getters['imageViewers/cornerstoneViewerWindowCenter'](this.targetViewer)
+        return this.$store.getters['imageViewers/cornerstoneViewerWindowCenter'](this.targetViewer, this.viewerType)
       },
       set (value) {
-        this.$store.commit('imageViewers/cornerstoneViewerWindowCenter', {
-          viewer: this.targetViewer,
-          windowCenter: value
-        })
-        const element = this.$store.getters['imageViewers/cornerstoneViewer'](this.targetViewer)
+        // viewer settings in store are updated by function triggered on image rendered, see dicomviewer
+        const element = this.$store.getters['imageViewers/element'](this.targetViewer, this.viewerType)
         var viewport = cornerstone.getViewport(element)
-        viewport.voi.windowCenter = value
+        viewport.voi.windowCenter = Number(value)
         cornerstone.updateImage(element)
       }
     },
     scale: {
       get () {
-        return this.$store.getters['imageViewers/cornerstoneViewerScale'](this.targetViewer)
+        return this.$store.getters['imageViewers/cornerstoneViewerScale'](this.targetViewer, this.viewerType)
       },
       set (value) {
-        this.$store.commit('imageViewers/cornerstoneViewerScale', {
-          viewer: this.targetViewer,
-          scale: value
-        })
-        const element = this.$store.getters['imageViewers/cornerstoneViewer'](this.targetViewer)
+        // viewer settings in store are updated by function triggered on image rendered, see dicomviewer
+        const element = this.$store.getters['imageViewers/element'](this.targetViewer, this.viewerType)
         var viewport = cornerstone.getViewport(element)
-        viewport.scale = value
+        viewport.scale = Number(value)
         // not sure why update not working here
         cornerstone.setViewport(element, viewport)
       }
     },
     posX: {
       get () {
-        return this.$store.getters['imageViewers/cornerstoneViewerPosX'](this.targetViewer)
+        return this.$store.getters['imageViewers/cornerstoneViewerPosX'](this.targetViewer, this.viewerType)
       },
       set (value) {
-        this.$store.commit('imageViewers/cornerstoneViewerPosX', {
-          viewer: this.targetViewer,
-          posX: value
-        })
-        const element = this.$store.getters['imageViewers/cornerstoneViewer'](this.targetViewer)
+        // viewer settings in store are updated by function triggered on image rendered, see dicomviewer
+        const element = this.$store.getters['imageViewers/element'](this.targetViewer, this.viewerType)
         var viewport = cornerstone.getViewport(element)
-        viewport.translation.x = value
+        viewport.translation.x = Number(value)
         cornerstone.updateImage(element)
       }
     },
     posY: {
       get () {
-        return this.$store.getters['imageViewers/cornerstoneViewerPosY'](this.targetViewer)
+        return this.$store.getters['imageViewers/cornerstoneViewerPosY'](this.targetViewer, this.viewerType)
       },
       set (value) {
-        this.$store.commit('imageViewers/cornerstoneViewerPosY', {
-          viewer: this.targetViewer,
-          posY: value
-        })
-        const element = this.$store.getters['imageViewers/cornerstoneViewer'](this.targetViewer)
+        // viewer settings in store are updated by function triggered on image rendered, see dicomviewer
+        const element = this.$store.getters['imageViewers/element'](this.targetViewer, this.viewerType)
         var viewport = cornerstone.getViewport(element)
-        viewport.translation.y = value
+        viewport.translation.y = Number(value)
         cornerstone.updateImage(element)
       }
     },
     rotation: {
       get () {
-        return this.$store.getters['imageViewers/cornerstoneViewerRotation'](this.targetViewer)
+        return this.$store.getters['imageViewers/cornerstoneViewerRotation'](this.targetViewer, this.viewerType)
       },
       set (value) {
-        this.$store.commit('imageViewers/cornerstoneViewerRotation', {
-          viewer: this.targetViewer,
-          rotation: value
-        })
-        const element = this.$store.getters['imageViewers/cornerstoneViewer'](this.targetViewer)
+        // viewer settings in store are updated by function triggered on image rendered, see dicomviewer
+        const element = this.$store.getters['imageViewers/element'](this.targetViewer, this.viewerType)
         var viewport = cornerstone.getViewport(element)
-        viewport.rotation = value
+        viewport.rotation = Number(value)
         cornerstone.setViewport(element, viewport)
       }
     }
   },
   methods: {
     resetViewport () {
-      const element = this.$store.getters['imageViewers/cornerstoneViewer'](this.targetViewer)
+      const element = this.$store.getters['imageViewers/element'](this.targetViewer, this.viewerType)
       const enabledElement = cornerstone.getEnabledElement(element)
       var defViewport = cornerstone.getDefaultViewportForImage(element, enabledElement.image)
-      this.$store.commit('imageViewers/cornerstoneViewportUpdate', { viewport: defViewport, index: this.targetViewer })
+      this.$store.commit('imageViewers/cornerstoneViewportUpdate', { viewport: defViewport, index: this.targetViewer, viewertype: this.viewerType })
       cornerstone.reset(element)
     }
   }

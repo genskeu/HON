@@ -57,6 +57,7 @@ cornerstoneTools.external.cornerstone = cornerstone
 cornerstoneTools.external.Hammer = Hammer
 
 export default {
+  name: 'DicomViewer',
   props: {
     viewerIndex: Number,
     viewerType: String
@@ -68,8 +69,7 @@ export default {
       metaDataTL: ['x00100010', 'x00100020', 'x00081030', 'x0008103e'],
       metaDataTR: ['x00080080', 'x00081090', 'x00080090'],
       metaDataBL: ['x00200011', 'x00180050', 'x00201041'],
-      metaDataBR: ['x00181151', 'x00281051', 'x00281051'],
-      maskDisplayed: undefined
+      metaDataBR: ['x00181151', 'x00281051', 'x00281051']
     }
   },
   computed: {
@@ -113,10 +113,16 @@ export default {
       return metadata
     },
     stackDisplayed () {
-      return this.$store.getters['imageViewers/stackDisplayed'](this.viewerIndex)
+      return this.$store.getters['imageViewers/stackDisplayed'](this.viewerIndex, this.viewerType)
     },
     viewerHeight () {
       return this.$store.getters['openStudy/viewerHeight']
+    },
+    viewerNumb () {
+      return this.$store.getters['openStudy/viewerNumb']
+    },
+    refviewerNumb () {
+      return this.$store.getters['openStudy/refviewerNumb']
     },
     viewerLayout () {
       return this.$store.getters['openStudy/viewerLayoutCols']
@@ -125,11 +131,15 @@ export default {
   watch: {
     stackDisplayed: {
       handler (newStack) {
-        const stackToDisplay = {
-          currentImageIdIndex: newStack.csStack.currentImageIdIndex,
-          imageIds: newStack.csStack.imageIds
+        if (newStack !== undefined & newStack.csStack.imageIds.length > 0) {
+          const stackToDisplay = {
+            currentImageIdIndex: newStack.csStack.currentImageIdIndex,
+            imageIds: newStack.csStack.imageIds
+          }
+          this.loadDisplayCornerstone(stackToDisplay, newStack.savedViewport, newStack.savedToolstate, newStack.savedSegmentation)
+        } else {
+          this.loadDisplayCornerstoneDefault()
         }
-        this.loadDisplayCornerstone(stackToDisplay, newStack.savedViewport, newStack.savedToolstate, newStack.savedSegmentation)
       }
     },
     viewerHeight: {
@@ -138,7 +148,19 @@ export default {
       },
       flush: 'post'
     },
+    viewerNumb: {
+      handler () {
+        this.updateViewerHeight()
+      },
+      flush: 'post'
+    },
     viewerLayout: {
+      handler () {
+        this.updateViewerHeight()
+      },
+      flush: 'post'
+    },
+    refviewerNumb: {
       handler () {
         this.updateViewerHeight()
       },
@@ -151,16 +173,18 @@ export default {
     this.initViewer()
     this.updateViewerHeight()
   },
+  activated () {
+    this.updateViewerHeight()
+  },
   beforeUnmount () {
     this.$store.commit('imageViewers/removeCornerstoneViewer', this.$refs.viewer)
   },
   methods: {
     initViewer () {
       // enable element for cornerstone
-      cornerstone.enable(this.$refs.viewer // ,{
-        // renderer: 'webgl'
-      // }
-      )
+      cornerstone.enable(this.$refs.viewer, {
+        renderer: 'webgl'
+      })
       // disable right click on image viewer
       this.$refs.viewer.addEventListener(
         'contextmenu',
@@ -169,34 +193,29 @@ export default {
         },
         false
       )
-
-      // add to vuex store sdsdyc
-      this.$store.commit('imageViewers/cornerstoneViewer', {
-        type: this.viewerType,
+      // update vuex store
+      const viewer = this.$store.getters['imageViewers/viewer'](this.viewerIndex, this.viewerType)
+      if (viewer === undefined) {
+        this.$store.commit('imageViewers/initViewer', { viewertype: this.viewerType })
+      }
+      this.$store.commit('imageViewers/updateViewerElement', {
+        index: this.viewerIndex,
         element: this.$refs.viewer,
-        stackDisplayed: undefined,
-        viewportSettings: {
-          windowWidth: Number,
-          windowCenter: Number,
-          scale: Number,
-          posX: Number,
-          posY: Number,
-          rotation: Number
-        },
-        toolState: {
-          annotations: {},
-          segmentations: {}
-        }
+        viewertype: this.viewerType
       })
     },
     loadDisplayCornerstone (stack, viewportSaved = undefined, toolStateSaved = undefined, segDataSaved = undefined) {
       // load images and set the stack
-      cornerstone.loadImage(stack.imageIds[0])
+      cornerstone.loadAndCacheImage(stack.imageIds[0])
         .then((image) => {
           this.activeImage = image
           // viewport
           var viewport = viewportSaved !== undefined ? viewportSaved : cornerstone.getDefaultViewportForImage(this.$refs.viewer, image)
-          this.$store.commit('imageViewers/cornerstoneViewportUpdate', { viewport: viewport, index: this.viewerIndex })
+          this.$store.commit('imageViewers/cornerstoneViewportUpdate', {
+            viewport: viewport,
+            index: this.viewerIndex,
+            viewertype: this.viewerType
+          })
           // display image
           cornerstone.displayImage(this.$refs.viewer, image, viewport)
           cornerstoneTools.addStackStateManager(this.$refs.viewer, ['stack'])
@@ -214,6 +233,9 @@ export default {
           }
         })
     },
+    // when no image selected load a black blank screen
+    loadDisplayCornerstoneDefault () {
+    },
     displayStackIndex () {
       if (this.stackDisplayed && this.stackDisplayed.csStack.imageIds.length > 1) {
         var slice = this.$refs.slice_index
@@ -230,7 +252,7 @@ export default {
       // debugger // eslint-disable-line
       if (this.$refs.viewer !== null) {
         var viewport = cornerstone.getViewport(this.$refs.viewer)
-        this.$store.commit('imageViewers/cornerstoneViewportUpdate', { viewport: viewport, index: this.viewerIndex })
+        this.$store.commit('imageViewers/cornerstoneViewportUpdate', { viewport: viewport, index: this.viewerIndex, viewertype: this.viewerType })
       }
     },
     updateViewerHeight () {
@@ -255,7 +277,13 @@ export default {
         }
         const uuid = e.detail.measurementData.uuid
         const toolType = e.detail.toolType
-        this.$store.commit('imageViewers/addAnnotation', { annotation: annotation, type: toolType, uuid: uuid, index: this.viewerIndex })
+        this.$store.commit('imageViewers/addAnnotation', {
+          annotation: annotation,
+          type: toolType,
+          uuid: uuid,
+          index: this.viewerIndex,
+          viewertype: this.viewerType
+        })
       }
     },
     // will be called when measurment modified (update exisiting)
@@ -268,7 +296,7 @@ export default {
       }
       const uuid = e.detail.measurementData.uuid
       const toolType = e.detail.toolType
-      this.$store.commit('imageViewers/updateAnnotation', { annotation: annotation, type: toolType, uuid: uuid, index: this.viewerIndex })
+      this.$store.commit('imageViewers/updateAnnotation', { annotation: annotation, type: toolType, uuid: uuid, index: this.viewerIndex, viewertype: this.viewerType })
     },
     // will be called when measurment deleted (update exisiting)
     removeAnnotation (e) {
@@ -279,7 +307,7 @@ export default {
       }
       const uuid = e.detail.measurementData.uuid
       const toolType = e.detail.toolType
-      this.$store.commit('imageViewers/removeAnnotation', { annotation: annotation, type: toolType, uuid: uuid, index: this.viewerIndex })
+      this.$store.commit('imageViewers/removeAnnotation', { annotation: annotation, type: toolType, uuid: uuid, index: this.viewerIndex, viewertype: this.viewerType })
     }
   }
 }

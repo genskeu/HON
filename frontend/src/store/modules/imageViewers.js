@@ -4,87 +4,127 @@ import cornerstoneTools from 'cornerstone-tools'
 import { tools } from '@/store/modules/tools'
 
 const state = {
-  refViewers: [],
+  refviewers: [],
   viewers: [],
   // workaround to get rid of warnings
   toolsInitialized: false
 }
 
+// interface class to hold data from cornerstone image viewers and tools
+class Viewer {
+  constructor () {
+    this.element = undefined
+    this.stackDisplayed = {
+      csStack: {
+        imageIds: [],
+        currentImageIdIndex: Number
+      },
+      name: String,
+      savedSegmentation: undefined,
+      savedToolstate: undefined,
+      savedViewport: undefined
+    }
+    this.viewportSettings = {
+      windowWidth: Number,
+      windowCenter: Number,
+      scale: Number,
+      rotation: Number,
+      posX: Number,
+      posY: Number
+    }
+    this.toolState = {
+      annotations: {
+        CircleRoi: {},
+        RectangleRoi: {},
+        EllipticalRoi: {},
+        FreehandRoi: {},
+        LengthMeasurement: {}
+      }
+    }
+  }
+}
+
 const getters = {
   // viewer
-  cornerstoneViewers (state) {
+  viewers (state) {
     return state.viewers
   },
-  cornerstoneViewer: (state) => (index) => {
-    return state.viewers[index].element
+  refviewers (state) {
+    return state.refviewers
   },
-  stackDisplayed: (state) => (index) => {
-    const viewer = state.viewers[index]
+  viewer: (state) => (index, viewertype) => {
+    return state[viewertype][index]
+  },
+  stackDisplayed: (state) => (index, viewertype) => {
+    const viewer = state[viewertype][index]
     if (viewer && viewer.stackDisplayed) {
       return viewer.stackDisplayed
     } else {
       return undefined
     }
   },
-  cornerstoneViewerWindowWidth: (state) => (index) => {
-    return state.viewers[index].viewportSettings.windowWidth
+  element: (state) => (index, viewertype) => {
+    return state[viewertype][index].element
   },
-  cornerstoneViewerWindowCenter: (state) => (index) => {
-    return state.viewers[index].viewportSettings.windowCenter
+  cornerstoneViewerWindowWidth: (state) => (index, viewertype) => {
+    return state[viewertype][index].viewportSettings.windowWidth
   },
-  cornerstoneViewerScale: (state) => (index) => {
-    return state.viewers[index].viewportSettings.scale
+  cornerstoneViewerWindowCenter: (state) => (index, viewertype) => {
+    return state[viewertype][index].viewportSettings.windowCenter
   },
-  cornerstoneViewerPosX: (state) => (index) => {
-    return state.viewers[index].viewportSettings.posX
+  cornerstoneViewerScale: (state) => (index, viewertype) => {
+    return state[viewertype][index].viewportSettings.scale
   },
-  cornerstoneViewerPosY: (state) => (index) => {
-    return state.viewers[index].viewportSettings.posY
+  cornerstoneViewerPosX: (state) => (index, viewertype) => {
+    return state[viewertype][index].viewportSettings.posX
   },
-  cornerstoneViewerRotation: (state) => (index) => {
-    return state.viewers[index].viewportSettings.rotation
+  cornerstoneViewerPosY: (state) => (index, viewertype) => {
+    return state[viewertype][index].viewportSettings.posY
+  },
+  cornerstoneViewerRotation: (state) => (index, viewertype) => {
+    return state[viewertype][index].viewportSettings.rotation
   },
   // tools
   toolsInitialized (state) {
     return state.toolsInitialized
   },
   // tools avaiblable
-  viewerSettingToolsMousekeys (state) {
+  viewerSettingToolsMousekeys () {
     return tools.toolsMousekeys.viewerSetting
   },
-  annotationToolsMousekeys (state) {
+  annotationToolsMousekeys () {
     return tools.toolsMousekeys.annotation
   },
-  segmentationToolsMousekeys (state) {
+  segmentationToolsMousekeys () {
     return tools.toolsMousekeys.segmentation
   },
-  viewerSettingToolsMousewheel (state) {
+  viewerSettingToolsMousewheel () {
     return tools.toolsMousewheel.viewerSetting
   },
   // viewer tool state
-  EllipticalRois: (state) => (index) => {
-    if (state.viewers[index].toolState.annotations.EllipticalRoi) {
-      return state.viewers[index].toolState.annotations.EllipticalRoi
+  EllipticalRois: (state) => (index, viewertype) => {
+    if (state[viewertype][index].toolState.annotations.EllipticalRoi) {
+      return state[viewertype][index].toolState.annotations.EllipticalRoi
     } else {
       return {}
     }
   },
-  RectangleRois: (state) => (index) => {
-    if (state.viewers[index].toolState.annotations.RectangleRoi) {
-      return state.viewers[index].toolState.annotations.RectangleRoi
+  RectangleRois: (state) => (index, viewertype) => {
+    if (state[viewertype][index].toolState.annotations.RectangleRoi) {
+      return state[viewertype][index].toolState.annotations.RectangleRoi
     } else {
       return {}
     }
   },
-  CircleRois: (state) => (index) => {
-    if (state.viewers[index].toolState.annotations.CircleRoi) {
-      return state.viewers[index].toolState.annotations.CircleRoi
+  CircleRois: (state) => (index, viewertype) => {
+    if (state[viewertype][index].toolState.annotations.CircleRoi) {
+      return state[viewertype][index].toolState.annotations.CircleRoi
     } else {
       return {}
     }
   },
-  EllipticalRoi: (state) => (index, uuid) => {
-    return state.viewers[index].toolState.annotations.EllipticalRoi[uuid]
+  EllipticalRoi: (state) => (index, viewertype, uuid) => {
+    return state[viewertype][index].toolState.annotations.EllipticalRoi[uuid]
   },
   // imgsets
   getImgset (state) {
@@ -115,15 +155,22 @@ const getters = {
 
 const mutations = {
   // viewer
-  cornerstoneViewer (state, viewer) {
-    state.viewers.push(viewer)
+  initViewer (state, payload) {
+    const viewer = new Viewer()
+    state[payload.viewertype].push(viewer)
+  },
+  updateViewerElement (state, payload) {
+    var viewer = state[payload.viewertype][payload.index]
+    viewer.element = payload.element
   },
   removeCornerstoneViewer (state, viewer) {
     state.viewers = state.viewers.filter(v => v.element !== viewer)
+    state.refviewers = state.refviewers.filter(v => v.element !== viewer)
   },
   stackDisplayed (state, payload) {
-    var viewer = state.viewers[payload.index]
-    viewer.stackDisplayed =
+    var viewer = state[payload.viewertype][payload.index]
+    if (viewer) {
+      viewer.stackDisplayed =
       {
         name: payload.name,
         csStack: {
@@ -134,37 +181,38 @@ const mutations = {
         savedToolstate: payload.savedToolstate,
         savedSegmentation: payload.savedSegmentation
       }
+    }
   },
   // viewport settings
   cornerstoneViewerWindowWidth: (state, payload) => {
-    var viewer = state.viewers[payload.viewer]
-    viewer.viewportSettings.windowWidth = Number(payload.windowWidth).toFixed(2)
+    var viewer = state[payload.viewertype][payload.viewer]
+    viewer.viewportSettings.windowWidth = Number(payload.windowWidth)
   },
   cornerstoneViewerWindowCenter: (state, payload) => {
-    var viewer = state.viewers[payload.viewer]
+    var viewer = state[payload.viewertype][payload.viewer]
     viewer.viewportSettings.windowCenter = Number(payload.windowCenter).toFixed(2)
   },
   cornerstoneViewerScale: (state, payload) => {
-    var viewer = state.viewers[payload.viewer]
+    var viewer = state[payload.viewertype][payload.viewer]
     viewer.viewportSettings.scale = Number(payload.scale).toFixed(2)
   },
   cornerstoneViewerPosX: (state, payload) => {
-    var viewer = state.viewers[payload.viewer]
+    var viewer = state[payload.viewertype][payload.viewer]
     viewer.viewportSettings.posX = Number(payload.posX).toFixed(2)
   },
   cornerstoneViewerPosY: (state, payload) => {
-    var viewer = state.viewers[payload.viewer]
-    viewer.viewportSettings.PosY = Number(payload.PosY).toFixed(2)
+    var viewer = state[payload.viewertype][payload.viewer]
+    viewer.viewportSettings.posY = Number(payload.posY).toFixed(2)
   },
   cornerstoneViewerRotation: (state, payload) => {
-    var viewer = state.viewers[payload.viewer]
+    var viewer = state[payload.viewertype][payload.viewer]
     viewer.viewportSettings.rotation = Number(payload.rotation).toFixed(2)
   },
   cornerstoneViewportAdd (state, viewport) {
     state.viewports.push(viewport)
   },
   cornerstoneViewportUpdate (state, payload) {
-    var viewportSettings = state.viewers[payload.index].viewportSettings
+    var viewportSettings = state[payload.viewertype][payload.index].viewportSettings
     viewportSettings.windowWidth = payload.viewport.voi.windowWidth
     viewportSettings.windowCenter = payload.viewport.voi.windowCenter
     viewportSettings.scale = payload.viewport.scale
@@ -178,21 +226,21 @@ const mutations = {
   },
   // viewer tool state
   addAnnotation (state, payload) {
-    var viewer = state.viewers[payload.index]
+    var viewer = state[payload.viewertype][payload.index]
     if (!viewer.toolState.annotations[payload.type]) {
       viewer.toolState.annotations[payload.type] = {}
     }
     viewer.toolState.annotations[payload.type][payload.uuid] = payload.annotation
   },
   updateAnnotation (state, payload) {
-    var viewer = state.viewers[payload.index]
+    var viewer = state[payload.viewertype][payload.index]
     if (!viewer.toolState.annotations[payload.type]) {
       viewer.toolState.annotations[payload.type] = {}
     }
     viewer.toolState.annotations[payload.type][payload.uuid] = payload.annotation
   },
   removeAnnotation (state, payload) {
-    var viewer = state.viewers[payload.index]
+    var viewer = state[payload.viewertype][payload.index]
     // debugger // eslint-disable-line
     delete viewer.toolState.annotations[payload.type][payload.uuid]
   }

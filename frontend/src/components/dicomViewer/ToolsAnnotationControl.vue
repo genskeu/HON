@@ -9,11 +9,11 @@
     </div>
 
     <div :id="id" class="collapse">
-      <symetric-ROI v-for="uuid in Object.keys(EllipticalRois)" :key="uuid" :uuid="uuid" :target-viewer="this.targetViewer" :tool-name="'EllipticalRoi'"></symetric-ROI>
+      <symetric-ROI v-for="uuid in Object.keys(EllipticalRois)" :key="uuid" :uuid="uuid" :target-viewer="this.targetViewer" viewer-type="viewers" :tool-name="'EllipticalRoi'"></symetric-ROI>
     </div>
 
     <div :id="id" class="collapse">
-      <symetric-ROI v-for="uuid in Object.keys(RectangleRois)" :key="uuid" :uuid="uuid" :target-viewer="this.targetViewer" :tool-name="'RectangleRoi'"></symetric-ROI>
+      <symetric-ROI v-for="uuid in Object.keys(RectangleRois)" :key="uuid" :uuid="uuid" :target-viewer="this.targetViewer" viewer-type="viewers" :tool-name="'RectangleRoi'"></symetric-ROI>
     </div>
   </div>
     <!--ROIs old-->
@@ -78,7 +78,8 @@ import symetricROI from '@/components/dicomViewer/ToolsAnnotationControl/symetri
 
 export default {
   props: {
-    targetViewer: Number
+    targetViewer: Number,
+    viewerType: String
   },
   components: {
     symetricROI
@@ -95,13 +96,13 @@ export default {
       return 'Viewer ' + (this.targetViewer + 1)
     },
     EllipticalRois () {
-      return this.$store.getters['imageViewers/EllipticalRois'](this.targetViewer)
+      return this.$store.getters['imageViewers/EllipticalRois'](this.targetViewer, this.viewerType)
     },
     RectangleRois () {
-      return this.$store.getters['imageViewers/RectangleRois'](this.targetViewer)
+      return this.$store.getters['imageViewers/RectangleRois'](this.targetViewer, this.viewerType)
     },
     CircleRois () {
-      return this.$store.getters['imageViewers/CircleRois'](this.targetViewer)
+      return this.$store.getters['imageViewers/CircleRois'](this.targetViewer, this.viewerType)
     }
   }
 }

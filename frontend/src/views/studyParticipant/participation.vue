@@ -11,12 +11,14 @@
           <!--Images -->
           <DicomViewerTools class="sticky-top"></DicomViewerTools>
           <div id="ref-stacks" :class="refviewerLayout">
-            <dicom-viewer v-for="index in refviewerNumb" :key="index"></dicom-viewer>
+            <div v-for="index in refviewerNumb" :key="index">
+                <dicom-viewer viewer-type="refviewers" :viewer-index="index-1"></dicom-viewer>
+            </div>
           </div>
           <div id="stacks" :class="viewerLayout">
             <div v-for="index in viewerNumb" :key="index">
-              <dicom-viewer @cornerstonetoolsmeasurementmodified="applySize" :viewer-index="index - 1"
-                :style="viewerHeight"></dicom-viewer>
+              <dicom-viewer @cornerstonetoolsmeasurementmodified="applySize" viewer-type="viewers" :viewer-index="index - 1">
+              </dicom-viewer>
               <Votebtn :viewer-index="index-1" class="my-2"></Votebtn>
             </div>
           </div>
@@ -43,6 +45,7 @@ import Progressbar from '@/components/studyParticipation/progressBar.vue'
 import Votebtn from '@/components/studyParticipation/Votebtn.vue'
 
 export default {
+  name: 'participation',
   components: {
     DicomViewer,
     DicomViewerTools,
@@ -60,6 +63,14 @@ export default {
     const idsImgsetFinished = this.resultsCurrentUser.map(result => result.imgset_id)
     const imgsetDisplayed = this.imgsets.find(imgset => !idsImgsetFinished.includes(imgset.id))
     this.$store.commit('openStudy/imgsetDisplayed', imgsetDisplayed)
+  },
+  activated () {
+    const idsImgsetFinished = this.resultsCurrentUser.map(result => result.imgset_id)
+    const imgsetDisplayed = this.imgsets.find(imgset => !idsImgsetFinished.includes(imgset.id))
+    this.$store.commit('openStudy/imgsetDisplayed', imgsetDisplayed)
+  },
+  deactivated () {
+    this.$store.commit('openStudy/imgsetDisplayed', undefined)
   },
   computed: {
     viewerNumb () {
@@ -101,11 +112,6 @@ export default {
         color: this.$store.getters['openStudy/textColor']
       }
     },
-    viewerHeight () {
-      return {
-        height: this.$store.getters['openStudy/viewerHeight'] + 'px'
-      }
-    },
     imgsets () {
       return this.$store.getters['openStudy/imgsets']
     },
@@ -119,16 +125,24 @@ export default {
   watch: {
     imgsetDisplayed: {
       handler (newImgset) {
-        newImgset.image_stacks.forEach((stack, index) => {
-          // ensure same structure as select menu values
-          // stack.csStack.name = stack.name
-          this.$store.commit('imageViewers/stackDisplayed', {
-            name: stack.name,
-            stackDisplayed: stack.cs_stack,
-            savedViewport: stack.viewport,
-            index: index
+        if (newImgset) {
+          newImgset.image_stacks.forEach((stack, index) => {
+            var viewertype = this.refviewerNumb > index ? 'refviewers' : 'viewers'
+            var viewerindex = this.refviewerNumb > index ? index : index - this.refviewerNumb
+
+            const stackData = {
+              name: stack.name,
+              stackDisplayed: stack.cs_stack,
+              savedViewport: stack.viewport,
+              savedToolstate: stack.tool_state,
+              savedSegmentation: stack.seg_data,
+              index: viewerindex,
+              viewertype: viewertype
+            }
+
+            this.$store.commit('imageViewers/stackDisplayed', stackData)
           })
-        })
+        }
       }
     },
     resultsCurrentUser: {
