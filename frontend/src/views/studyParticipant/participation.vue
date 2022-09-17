@@ -80,6 +80,7 @@ export default {
       // var colClass = 'grid-cols-' + this.$store.getters.viewerLayoutCols
       // var rowClass = 'grid-rows-' + this.$store.getters.viewerLayoutRows
       var gridClass = {
+        'mb-4': true,
         flex: true,
         relative: true,
         grid: true,

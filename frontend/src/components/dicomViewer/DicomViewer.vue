@@ -131,14 +131,14 @@ export default {
   watch: {
     stackDisplayed: {
       handler (newStack) {
-        if (newStack !== undefined & newStack.csStack.imageIds.length > 0) {
+        if (newStack.csStack.imageIds.length > 0) {
           const stackToDisplay = {
             currentImageIdIndex: newStack.csStack.currentImageIdIndex,
             imageIds: newStack.csStack.imageIds
           }
           this.loadDisplayCornerstone(stackToDisplay, newStack.savedViewport, newStack.savedToolstate, newStack.savedSegmentation)
         } else {
-          this.loadDisplayCornerstoneDefault()
+          this.resetViewer()
         }
       }
     },
@@ -234,7 +234,10 @@ export default {
         })
     },
     // when no image selected load a black blank screen
-    loadDisplayCornerstoneDefault () {
+    resetViewer () {
+      cornerstone.disable(this.$refs.viewer)
+      console.log('disable')
+      this.initViewer()
     },
     displayStackIndex () {
       if (this.stackDisplayed && this.stackDisplayed.csStack.imageIds.length > 1) {

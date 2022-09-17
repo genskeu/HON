@@ -23,6 +23,9 @@ export default {
     },
     imgsetInput () {
       return this.$store.getters['imageViewers/getImgset']
+    },
+    refimageViewers () {
+      return this.$store.getters['imageViewers/refviewers']
     }
   },
   methods: {
@@ -32,9 +35,11 @@ export default {
       const imgset = this.imgsetInput
       // get scale data
       // sent data to backend via axios
+      const stackIndex = this.refimageViewers.length + this.viewerIndex
+      const stackPicked = imgset.stacks[stackIndex]
       const payload = {
         imgset_id: this.imgsetDisplayed.id,
-        picked_stack: imgset.stacks[this.viewerIndex],
+        picked_stack: stackPicked,
         stacks_displayed: imgset.stacks,
         scale_input: this.scalesInput
       }

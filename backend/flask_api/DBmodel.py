@@ -750,18 +750,21 @@ class Output:
 
 
     def get_img_disp_data(self,result):
-        for i in range(self.study.design.numb_img):
+        for i in range(self.study.design.numb_refimg, self.study.design.numb_img + self.study.design.numb_refimg):
             div_id = "dicom_img_" + str(i)
             stack = result.imgset.get_stack_by_div_id(div_id)
+            stack_col_index = str(i+1 - self.study.design.numb_refimg)
+            stack_col_name = f"stack-{stack_col_index}"
+            stack_files_col_name = f"stack-{stack_col_index}-files"
             # stack can be none if left blank
             if stack:
                 image_names = [image.name for image in stack.images]
-                self.stacks_disp["stack-%s"%str(i+1)].append(stack.name)
-                self.stacks_disp["stack-%s-files"%str(i+1)].append(image_names)
+                self.stacks_disp[stack_col_name].append(stack.name)
+                self.stacks_disp[stack_files_col_name].append(image_names)
                 self.max_stack_size = max(self.max_stack_size,len(image_names))
             else:
-                self.stacks_disp["stack-%s"%str(i+1)].append(None)
-                self.stacks_disp["stack-%s-files"%str(i+1)].append(None)
+                self.stacks_disp[stack_col_name].append(None)
+                self.stacks_disp[stack_files_col_name].append(None)
 
     def get_img_user_data(self,result):
         stack_picked = result.stack_picked
@@ -867,6 +870,9 @@ class Output:
     def calc_overlap_data(self):
         rois_cols_input = {k: v for k, v in self.tool_input.items() if "Roi" in k}
 
+        if not rois_cols_input:
+            return
+
         for row in range(self.row_numb):
             stack_name_user = self.stack_user["stack-user"][row]
             gt_ind= int([k.split("-")[1] for k,v in self.stacks_disp.items() if v[row] == stack_name_user][0]) 
@@ -917,6 +923,8 @@ class Output:
     def save_table(self,format = "excel", include_ov=True, include_raw_tool_data=False, include_expl=False):
         # combine data into pandas dataframe
         self.df = pd.DataFrame({**self.imgset,**self.user,**self.stacks_disp,**self.date,**self.scale_input,**self.stack_user})
+        for k,v in self.ref_stacks.items():
+            self.df[k] = v
         for k,v in self.tool_gt.items():
             self.df[k] = v
         for k,v in self.tool_input.items():

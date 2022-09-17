@@ -204,11 +204,27 @@ export default {
   watch: {
     imgsetDisplayed: {
       handler (newImgset) {
+        // code could be moved to store to avoid duplication?
         if (newImgset) {
-          newImgset.image_stacks.forEach((stack, index) => {
-            var viewertype = this.refviewerNumb > index ? 'refviewers' : 'viewers'
-            var viewerindex = this.refviewerNumb > index ? index : index - this.refviewerNumb
-
+          const viewers = this.refimageViewers.concat(this.imageViewers)
+          // itterate over viewers and display stack according to div_id
+          // if no stack found reset stack to trigger viewer reset
+          viewers.forEach((viewer, index) => {
+            var stack = newImgset.image_stacks.find(stack => stack.div_id === 'dicom_img_' + index)
+            if (stack === undefined) {
+              stack = {
+                cs_stack: {
+                  imageIds: [],
+                  currentImageIdIndex: Number
+                },
+                name: String,
+                savedSegmentation: undefined,
+                savedToolstate: undefined,
+                savedViewport: undefined
+              }
+            }
+            var viewertype = this.refimageViewers.includes(viewer) ? 'refviewers' : 'viewers'
+            var viewerindex = this.refimageViewers.includes(viewer) ? index : index - this.refimageViewers.length
             const stackData = {
               name: stack.name,
               stackDisplayed: stack.cs_stack,
@@ -218,7 +234,6 @@ export default {
               index: viewerindex,
               viewertype: viewertype
             }
-
             this.$store.commit('imageViewers/stackDisplayed', stackData)
           })
         }

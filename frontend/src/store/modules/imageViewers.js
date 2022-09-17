@@ -132,11 +132,12 @@ const getters = {
       position: Number,
       stacks: []
     }
-    state.viewers.forEach((viewer, index) => {
+    const viewersAll = state.refviewers.concat(state.viewers)
+    viewersAll.forEach((viewer, index) => {
       const element = viewer.element
       const viewport = cornerstone.getViewport(element)
-      const imageIds = viewer.stackDisplayed.csStack.imageIds
       if (viewport) {
+        const imageIds = viewer.stackDisplayed.csStack.imageIds
         var stack = {
           div_id: 'dicom_img_' + index,
           image_names: imageIds.map((id) => id.split('/').pop()),
