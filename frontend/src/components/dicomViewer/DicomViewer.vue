@@ -291,7 +291,7 @@ export default {
     },
     // will be called when measurment modified (update exisiting)
     updateAnnotation (e) {
-      this.$emit('cornerstonetoolsmeasurementmodified')
+      this.$emit('cornerstonetoolsmeasurementmodified', e)
       const toolName = e.detail.toolName
       const annotation = {
         toolName: toolName,

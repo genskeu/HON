@@ -17,7 +17,7 @@
           </div>
           <div id="stacks" :class="viewerLayout">
             <div v-for="index in viewerNumb" :key="index">
-              <dicom-viewer @cornerstonetoolsmeasurementmodified="applySize" viewer-type="viewers" :viewer-index="index - 1">
+              <dicom-viewer @cornerstonetoolsmeasurementmodified="(event) => applySize(event)" viewer-type="viewers" :viewer-index="index - 1">
               </dicom-viewer>
               <Votebtn :viewer-index="index-1" class="my-2"></Votebtn>
             </div>
@@ -157,7 +157,9 @@ export default {
   },
   methods: {
     // enforece ann too size limits (settings)
-    applySize () {
+    applySize (event) {
+      var measurementData = event.detail.measurementData
+      console.log(measurementData)
     }
   }
 }
