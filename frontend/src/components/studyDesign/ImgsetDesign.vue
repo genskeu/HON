@@ -9,7 +9,7 @@
     <div id="imgset_settings" class="collapse show">
       <div class="input-group mx-auto" data-toggle="tooltip" data-placement="left"
         title="Use the select menus to activate image handling tools for the left, middle and right mouse key.">
-        <label class="input-group-text">Image Set Displayed</label>
+        <label class="input-group-text">Set Displayed</label>
         <select class='form-select' v-model="imgsetDisplayed">
           <option :value="undefined"></option>
           <option v-for="imgset in imgsets" :key="imgset.id" :value="imgset">{{ imgset.position + 1 }}</option>

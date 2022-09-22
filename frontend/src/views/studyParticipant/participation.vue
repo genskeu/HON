@@ -158,8 +158,21 @@ export default {
   methods: {
     // enforece ann too size limits (settings)
     applySize (event) {
-      var measurementData = event.detail.measurementData
-      console.log(measurementData)
+      var handles = event.detail.measurementData.handles
+      event.detail.measurementData.cachedStats = undefined
+      const size = 10
+      var startX = handles.start.x
+      var startY = handles.start.y
+      var endX = handles.end.x
+      var endY = handles.end.y
+      const distance = Math.sqrt(Math.pow(startX - endX, 2) + Math.pow(startY - endY, 2))
+      if (Math.round(distance) !== size) {
+        var endX2 = Math.sqrt(Math.pow(size, 2) / 2) + startX
+        var endY2 = Math.sqrt(Math.pow(size, 2) / 2) + startY
+        // var distance2 = Math.sqrt(Math.pow(startX - endX2, 2) + Math.pow(startY - endY2, 2))
+        handles.end.x = endX2
+        handles.end.y = endY2
+      }
     }
   }
 }

@@ -1,5 +1,5 @@
 <template>
-  <div class='relative grid grid-cols-1' @cornerstoneimagerendered.capture='displayStackIndex'>
+  <div class='relative grid grid-cols-1' @cornerstoneimagerendered.capture='(event) => displayStackIndex(event)'>
     <!-- image viewer :style='viewerSizeCSS' -->
     <div ref='viewer' class='dicom_viewer col-span-1 relative'
     @cornerstoneimagerendered="updateViewportSettings"
@@ -224,7 +224,6 @@ export default {
         .then(() => {
           if (toolStateSaved) {
             toolStateSaved.forEach((state, index) => {
-              console.log(state)
               if (state) {
                 cornerstoneTools.globalImageIdSpecificToolStateManager.restoreImageIdToolState(stack.imageIds[index], state)
                 // $(element).trigger('cornerstonetoolsmeasurementrestored', [stack.imageIds[index], element])
@@ -239,12 +238,13 @@ export default {
       console.log('disable')
       this.initViewer()
     },
-    displayStackIndex () {
+    displayStackIndex (event) {
       if (this.stackDisplayed && this.stackDisplayed.csStack.imageIds.length > 1) {
+        const index = event.detail.enabledElement.toolStateManager.toolState.stack.data[0].currentImageIdIndex + 1
         var slice = this.$refs.slice_index
         slice.innerHTML =
           'Stack Position:' +
-          (this.stackDisplayed.csStack.currentImageIdIndex + 1) +
+          index +
          '/' +
           this.stackDisplayed.csStack.imageIds.length
       }
@@ -271,6 +271,7 @@ export default {
     },
     // will be called when measurment completed (add new or update form of exisiting roi)
     addAnnotation (e) {
+      this.$emit('cornerstonetoolsmeasurementmodified', e)
       const toolName = e.detail.toolName
       // assumption: toolName only defined when new measurment added
       if (toolName) {
@@ -299,7 +300,13 @@ export default {
       }
       const uuid = e.detail.measurementData.uuid
       const toolType = e.detail.toolType
-      this.$store.commit('imageViewers/updateAnnotation', { annotation: annotation, type: toolType, uuid: uuid, index: this.viewerIndex, viewertype: this.viewerType })
+      this.$store.commit('imageViewers/updateAnnotation', {
+        annotation: annotation,
+        type: toolType,
+        uuid: uuid,
+        index: this.viewerIndex,
+        viewertype: this.viewerType
+      })
     },
     // will be called when measurment deleted (update exisiting)
     removeAnnotation (e) {

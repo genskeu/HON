@@ -162,15 +162,16 @@ class Study(db.Model):
         stack["size"] = sum( [os.path.getsize(os.path.join(stack_path, stack_file)) for stack_file in stack_files] ) 
         stack["slices"] = len(stack_files)
         stack["files"] = stack_files
-        stack["cs_stack"] = {"imageIds":[],
-                                                "currentImageIdIndex":0}
-        images = [image for image in self.images if stack_folder in image.base_url]
+        stack["files"].sort()
+        stack["cs_stack"] = {"imageIds":[], "currentImageIdIndex":0}
+        images = [image for image in self.images if image.base_url.split(os.sep)[-2] == stack_folder]
         for image in images:
             url = os.path.join(image.base_url,image.name)
             if ".dcm" in image.name:
                 url = "wadouri:" + url
             stack["cs_stack"]["imageIds"].append(url)
         stack["cs_stack"]["imageIds"]
+        stack["cs_stack"]["imageIds"].sort()
         return stack
 
     def insert_imgset(self,imgset,position):

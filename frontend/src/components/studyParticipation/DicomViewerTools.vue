@@ -121,7 +121,8 @@ export default {
         if (tool.settings.labels) {
           tool.settings.labels.forEach(label => {
             const toolConfig = {
-              name: label + tool.cs_name
+              name: label + tool.cs_name,
+              type: tool.cs_name
             }
             cornerstoneTools.addTool(toolCornerStone, toolConfig)
           })

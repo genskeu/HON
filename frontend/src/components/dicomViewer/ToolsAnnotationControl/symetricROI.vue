@@ -1,7 +1,7 @@
 <template>
   <div class="my-1">
-     <div class="input-group-text " data-bs-toggle="collapse" :data-bs-target= "'#' + id"
-        aria-expanded="true" :aria-controls="id">
+     <div class="input-group-text " data-bs-toggle="collapse" data-bs-target= "#id"
+        aria-expanded="true" aria-controls="id">
         <h5 class="mx-auto">{{heading}}</h5>
       </div>
       <div class="mx-auto">
@@ -33,12 +33,23 @@
 </template>
 
 <script>
+// import cornerstoneTools from 'cornerstone-tools'
+import cornerstone from 'cornerstone-core'
+
 export default {
   props: {
     targetViewer: Number,
     viewerType: String,
     uuid: String,
-    toolName: String
+    toolName: String,
+    measurementData: Object
+  },
+  data () {
+    return {
+      handles: this.measurementData.handles,
+      data: this.measurementData,
+      cachedStats: this.measurementData.cachedStats
+    }
   },
   computed: {
     heading () {
@@ -46,28 +57,35 @@ export default {
     },
     startX: {
       get () {
-        const roi = this.$store.getters['imageViewers/EllipticalRoi'](this.targetViewer, this.viewerType, this.uuid)
+        const roi = this.$store.getters['imageViewers/Roi'](this.targetViewer, this.viewerType, this.uuid, this.toolName)
         const startX = roi.measurementData.handles.start.x
         return startX.toFixed(2)
+      },
+      // test
+      set (value) {
+        this.handles.start.x = Number(value)
+        const element = this.$store.getters['imageViewers/element'](this.targetViewer, this.viewerType)
+        this.data.invalidated = true
+        cornerstone.updateImage(element)
       }
     },
     startY: {
       get () {
-        const roi = this.$store.getters['imageViewers/EllipticalRoi'](this.targetViewer, this.viewerType, this.uuid)
+        const roi = this.$store.getters['imageViewers/Roi'](this.targetViewer, this.viewerType, this.uuid, this.toolName)
         const startY = roi.measurementData.handles.start.y
         return startY.toFixed(2)
       }
     },
     endX: {
       get () {
-        const roi = this.$store.getters['imageViewers/EllipticalRoi'](this.targetViewer, this.viewerType, this.uuid)
+        const roi = this.$store.getters['imageViewers/Roi'](this.targetViewer, this.viewerType, this.uuid, this.toolName)
         const endX = roi.measurementData.handles.end.x
         return endX.toFixed(2)
       }
     },
     endY: {
       get () {
-        const roi = this.$store.getters['imageViewers/EllipticalRoi'](this.targetViewer, this.viewerType, this.uuid)
+        const roi = this.$store.getters['imageViewers/Roi'](this.targetViewer, this.viewerType, this.uuid, this.toolName)
         const endY = roi.measurementData.handles.end.y
         return endY.toFixed(2)
       }
@@ -75,7 +93,14 @@ export default {
   },
   methods: {
     deleteAnnotation () {
-      this.$store.commit('imageViewers/removeAnnotation', { type: 'EllipticalRoi', uuid: this.uuid, index: this.targetViewer, viewertype: this.viewerType })
+      const payload = {
+        type: this.toolName,
+        uuid: this.uuid,
+        index: this.targetViewer,
+        viewertype: this.viewerType
+      }
+      this.$store.commit('imageViewers/removeAnnotation', payload)
+      // cornerstoneTools.removeToolState(this.toolName)
     }
   }
 }

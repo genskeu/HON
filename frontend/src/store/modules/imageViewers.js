@@ -123,8 +123,8 @@ const getters = {
       return {}
     }
   },
-  EllipticalRoi: (state) => (index, viewertype, uuid) => {
-    return state[viewertype][index].toolState.annotations.EllipticalRoi[uuid]
+  Roi: (state) => (index, viewertype, uuid, roiType) => {
+    return state[viewertype][index].toolState.annotations[roiType][uuid]
   },
   // imgsets
   getImgset (state) {
