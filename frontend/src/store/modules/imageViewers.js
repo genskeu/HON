@@ -231,14 +231,13 @@ const mutations = {
     if (!viewer.toolState.annotations[payload.type]) {
       viewer.toolState.annotations[payload.type] = {}
     }
-    viewer.toolState.annotations[payload.type][payload.uuid] = payload.annotation
+    var annotations = viewer.toolState.annotations[payload.type]
+    annotations[payload.uuid] = payload.annotation
   },
   updateAnnotation (state, payload) {
     var viewer = state[payload.viewertype][payload.index]
-    if (!viewer.toolState.annotations[payload.type]) {
-      viewer.toolState.annotations[payload.type] = {}
-    }
-    viewer.toolState.annotations[payload.type][payload.uuid] = payload.annotation
+    var annotations = viewer.toolState.annotations[payload.type]
+    annotations[payload.uuid] = payload.annotation
   },
   removeAnnotation (state, payload) {
     var viewer = state[payload.viewertype][payload.index]

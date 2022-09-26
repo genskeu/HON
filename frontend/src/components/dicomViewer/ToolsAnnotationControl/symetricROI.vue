@@ -41,31 +41,30 @@ export default {
     targetViewer: Number,
     viewerType: String,
     uuid: String,
-    toolName: String,
-    measurementData: Object
+    toolName: String
   },
   data () {
     return {
-      handles: this.measurementData.handles,
-      data: this.measurementData,
-      cachedStats: this.measurementData.cachedStats
     }
   },
   computed: {
     heading () {
       return this.uuid
     },
+    // hacky solution to control roi position, could be improved
+    // get positions reactive via vuex store (contains reference to cornerstone tool state)
+    // set operates directly on reference to cornerstone tool state
     startX: {
       get () {
         const roi = this.$store.getters['imageViewers/Roi'](this.targetViewer, this.viewerType, this.uuid, this.toolName)
         const startX = roi.measurementData.handles.start.x
         return startX.toFixed(2)
       },
-      // test
       set (value) {
-        this.handles.start.x = Number(value)
+        const roi = this.$store.getters['imageViewers/Roi'](this.targetViewer, this.viewerType, this.uuid, this.toolName)
         const element = this.$store.getters['imageViewers/element'](this.targetViewer, this.viewerType)
-        this.data.invalidated = true
+        roi.measurementData.handles.start.x = Number(value)
+        roi.measurementData.invalidated = true
         cornerstone.updateImage(element)
       }
     },
@@ -74,6 +73,13 @@ export default {
         const roi = this.$store.getters['imageViewers/Roi'](this.targetViewer, this.viewerType, this.uuid, this.toolName)
         const startY = roi.measurementData.handles.start.y
         return startY.toFixed(2)
+      },
+      set (value) {
+        const roi = this.$store.getters['imageViewers/Roi'](this.targetViewer, this.viewerType, this.uuid, this.toolName)
+        const element = this.$store.getters['imageViewers/element'](this.targetViewer, this.viewerType)
+        roi.measurementData.handles.start.y = Number(value)
+        roi.measurementData.invalidated = true
+        cornerstone.updateImage(element)
       }
     },
     endX: {
@@ -81,6 +87,13 @@ export default {
         const roi = this.$store.getters['imageViewers/Roi'](this.targetViewer, this.viewerType, this.uuid, this.toolName)
         const endX = roi.measurementData.handles.end.x
         return endX.toFixed(2)
+      },
+      set (value) {
+        const roi = this.$store.getters['imageViewers/Roi'](this.targetViewer, this.viewerType, this.uuid, this.toolName)
+        const element = this.$store.getters['imageViewers/element'](this.targetViewer, this.viewerType)
+        roi.measurementData.handles.end.x = Number(value)
+        roi.measurementData.invalidated = true
+        cornerstone.updateImage(element)
       }
     },
     endY: {
@@ -88,6 +101,13 @@ export default {
         const roi = this.$store.getters['imageViewers/Roi'](this.targetViewer, this.viewerType, this.uuid, this.toolName)
         const endY = roi.measurementData.handles.end.y
         return endY.toFixed(2)
+      },
+      set (value) {
+        const roi = this.$store.getters['imageViewers/Roi'](this.targetViewer, this.viewerType, this.uuid, this.toolName)
+        const element = this.$store.getters['imageViewers/element'](this.targetViewer, this.viewerType)
+        roi.measurementData.handles.end.y = Number(value)
+        roi.measurementData.invalidated = true
+        cornerstone.updateImage(element)
       }
     }
   },
