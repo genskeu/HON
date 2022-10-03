@@ -376,56 +376,56 @@ def delete_imgset(study_id, position):
 
 
 
-@bp.route('/study/imgsets/auto', methods=['POST'])
-@jwt_required()
-@access_level_required(["study_admin"])
-def random_imgsets():
-    error = None
-    data = request.get_json()
-    study_id = data['study_id']
-    study = Study.query.filter_by(id=study_id).options(joinedload('images')).first()
-    config = Imgset_config(data)
-    imgsets, ref_stack, error_image_stacks, error_imgsets = study.auto_create_imgsets(config)
+# @bp.route('/study/imgsets/auto', methods=['POST'])
+# @jwt_required()
+# @access_level_required(["study_admin"])
+# def random_imgsets():
+#     error = None
+#     data = request.get_json()
+#     study_id = data['study_id']
+#     study = Study.query.filter_by(id=study_id).options(joinedload('images')).first()
+#     config = Imgset_config(data)
+#     imgsets, ref_stack, error_image_stacks, error_imgsets = study.auto_create_imgsets(config)
 
-    if error is error_image_stacks:
-        # add imgsets to DB
-        study_length=len(study.imgsets)
+#     if error is error_image_stacks:
+#         # add imgsets to DB
+#         study_length=len(study.imgsets)
 
-        for i, imgset_dict in enumerate(imgsets):
-            imgset = Imgset(study_id=study.id,position=i+study_length)
-            study.imgsets.append(imgset)
-            for stack in imgset_dict:
-                image_stack = Image_stack(imgset_id=imgset.id)
-                image_stack.div_id = stack["div_id"]
-                image_stack.name = stack["name"]
-                image_stack.viewport = json.dumps(stack["viewport"])
-                for image in stack["images"]:
-                    image_stack.images.append(image)
-                imgset.image_stacks.append(image_stack)
+#         for i, imgset_dict in enumerate(imgsets):
+#             imgset = Imgset(study_id=study.id,position=i+study_length)
+#             study.imgsets.append(imgset)
+#             for stack in imgset_dict:
+#                 image_stack = Image_stack(imgset_id=imgset.id)
+#                 image_stack.div_id = stack["div_id"]
+#                 image_stack.name = stack["name"]
+#                 image_stack.viewport = json.dumps(stack["viewport"])
+#                 for image in stack["images"]:
+#                     image_stack.images.append(image)
+#                 imgset.image_stacks.append(image_stack)
 
-            for i in range(len(config.div_ids_ref)):
-                image_stack_ref = Image_stack(imgset_id=imgset.id)
-                image_stack_ref.div_id = config.div_ids_ref[i]
-                image_stack_ref.name = ref_stack["name"]
-                image_stack_ref.viewport = json.dumps(config.viewport_ref)
-                with db.session.no_autoflush:
-                    for img in ref_stack["images"]:
-                        image = [image for image in study.images if image.name == img.name][0]
-                        image_stack_ref.images.append(image)
-                    imgset.image_stacks.append(image_stack_ref)
+#             for i in range(len(config.div_ids_ref)):
+#                 image_stack_ref = Image_stack(imgset_id=imgset.id)
+#                 image_stack_ref.div_id = config.div_ids_ref[i]
+#                 image_stack_ref.name = ref_stack["name"]
+#                 image_stack_ref.viewport = json.dumps(config.viewport_ref)
+#                 with db.session.no_autoflush:
+#                     for img in ref_stack["images"]:
+#                         image = [image for image in study.images if image.name == img.name][0]
+#                         image_stack_ref.images.append(image)
+#                     imgset.image_stacks.append(image_stack_ref)
 
-        db.session.commit()
+#         db.session.commit()
 
-    # response
-    imgsets = []
-    for imgset in study.imgsets:
-        imgsets.append(imgset.to_dict())
+#     # response
+#     imgsets = []
+#     for imgset in study.imgsets:
+#         imgsets.append(imgset.to_dict())
 
-    response = {}
-    response["imgsets"] = imgsets
-    response["error"] = error_image_stacks
-    response["error_imgsets"] = error_imgsets
-    return response
+#     response = {}
+#     response["imgsets"] = imgsets
+#     response["error"] = error_image_stacks
+#     response["error_imgsets"] = error_imgsets
+#     return response
 
 
 
@@ -440,6 +440,44 @@ def get_all_imgsets(study_id):
     for imgset in study.imgsets:
         imgsets.append(imgset.to_dict())
     response["imgsets"] = imgsets
+    return jsonify(response)
+
+@bp.route('/study/imgsets/<int:study_id>', methods=['POST'])
+@jwt_required()
+@access_level_required(["study_admin"])
+def imgsets(study_id):
+    study = Study.query.filter_by(id=study_id).options(joinedload('imgsets')).first()
+    image_error = ""
+    #response
+    response = {"imgsets":[]}
+    imgsets_dict = request.get_json()
+    for imgset_dict in imgsets_dict:
+        imgset = Imgset(study_id=study_id,position=imgset_dict["position"])
+        study.insert_imgset(imgset,imgset_dict["position"])
+
+        # add stacks to imgset
+        for stack in imgset_dict["stacks"]:
+            image_stack = Image_stack(imgset_id=imgset.id,
+                                      div_id=stack["div_id"],
+                                      name=stack["name"],
+                                      viewport=json.dumps(stack["viewport"]))
+            if any(stack["tool_state"]):
+                image_stack.tool_state = json.dumps(stack["tool_state"])
+            if stack["segmentation_data"]:
+                image_stack.seg_data = stack["segmentation_data"]
+
+            for image_name in stack["image_names"]:
+                image = Image.query.filter_by(name=image_name,base_url=stack["base_url"]).first()
+                if image is None:
+                    image_error += image_name + " not part of study %s."%study.title
+                else:
+                    image_stack.images.append(image)
+            db.session.add(image_stack)
+        db.session.commit()
+        response["imgsets"].append(imgset.to_dict())
+
+    response["error_msg"] = image_error
+
     return jsonify(response)
 
 @bp.route('/study/imgsets/<int:study_id>', methods=['PUT'])

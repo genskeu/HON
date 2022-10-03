@@ -85,10 +85,13 @@
         </button> -->
       </div>
       <div id="images_create_man" class="collapse show">
-        <div class="row mx-auto">
-          <button class="imgset_btn btn-success btn mb-1" id="add_imgset" title="add image-set to the end of the study"
-            @click="addImgset">add new imgset
-          </button>
+        <div class="row mb-1">
+          <div class="input-group">
+            <button class="btn-success btn col-9" title="add image-set to the end of the study"
+            @click="addImgset">add image set at position
+            </button>
+            <input class="form-control" type="Number" min="1" :max="imgsets.length + 1" step="1" id="numb_refimg" v-model="imagesetAddPosition"/>
+          </div>
         </div>
         <div v-if="imgsetDisplayed" class="row mx-auto">
           <button value="update loaded imgset" class="imgset_btn btn-light btn mb-1" id="upd_imgset"
@@ -168,6 +171,7 @@ export default {
   },
   data () {
     return {
+      imagesetAddPosition: 1
     }
   },
   computed: {
@@ -178,6 +182,9 @@ export default {
       set (imgset) {
         this.$store.commit('openStudy/imgsetDisplayed', imgset)
       }
+    },
+    stacks () {
+      return this.$store.getters['openStudy/stacks']
     },
     imgsets () {
       return this.$store.getters['openStudy/imgsets']
@@ -244,11 +251,7 @@ export default {
     addImgset () {
       const studyId = this.$route.params.id
       const imgset = this.$store.getters['imageViewers/getImgset']
-      if (this.imgsetDisplayed === undefined) {
-        imgset.position = this.imgsets.length
-      } else {
-        imgset.position = this.imgsetDisplayed.position
-      }
+      imgset.position = this.imagesetAddPosition - 1
       const payload = {
         studyId: studyId,
         imgset: imgset
@@ -266,7 +269,8 @@ export default {
       this.$store.dispatch('openStudy/deleteAllImgsets', studyId)
     },
     createImgsetsAuto () {
-      this.$store.commit('openStudy/createImgsetsAuto', {})
+      const studyId = this.$route.params.id
+      this.$store.dispatch('openStudy/createImgsetsAuto', studyId)
     }
   }
 }

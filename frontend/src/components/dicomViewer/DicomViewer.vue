@@ -204,13 +204,13 @@ export default {
         viewertype: this.viewerType
       })
     },
-    loadDisplayCornerstone (stack, viewportSaved = undefined, toolStateSaved = undefined, segDataSaved = undefined) {
+    loadDisplayCornerstone (stack, viewportSaved = null, toolStateSaved = null, segDataSaved = null) {
       // load images and set the stack
       cornerstone.loadAndCacheImage(stack.imageIds[0])
         .then((image) => {
           this.activeImage = image
           // viewport
-          var viewport = viewportSaved !== undefined ? viewportSaved : cornerstone.getDefaultViewportForImage(this.$refs.viewer, image)
+          var viewport = viewportSaved !== null ? viewportSaved : cornerstone.getDefaultViewportForImage(this.$refs.viewer, image)
           this.$store.commit('imageViewers/cornerstoneViewportUpdate', {
             viewport: viewport,
             index: this.viewerIndex,

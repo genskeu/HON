@@ -1,5 +1,5 @@
 import router from '@/router'
-import { createStudy, deleteFiles, createImgset, deleteImgsets, saveResultDb, getResultsCurrentUser, deleteResultUserDb, fetchStudy } from '@/api'
+import { createStudy, deleteFiles, createImgset, createImgsets, deleteImgsets, saveResultDb, getResultsCurrentUser, deleteResultUserDb, fetchStudy } from '@/api'
 import store from '@/store'
 import { tools } from '@/store/modules/tools'
 
@@ -12,6 +12,7 @@ const state = {
   description: String,
   design: Object,
   images: Array,
+  stacks: Array,
   imageSets: Array,
   instructions: String,
   userStudyProgress: Array,
@@ -346,30 +347,6 @@ const mutations = {
   imgsetDisplayed (state, imgset) {
     state.imgsetDisplayed = imgset
   },
-  createImgsetsAuto (state, imgsetConfig) {
-    const viewerNumber = state.design.numb_img
-    const numberImgsets = Object.keys(state.stacks).length / viewerNumber
-    const imgsetStartPosition = state.imageSets.length
-    for (var imgsetIndex = 0; imgsetIndex < numberImgsets; imgsetIndex++) {
-      var imgset = {
-        imageStacks: [],
-        position: imgsetStartPosition + imgsetIndex
-      }
-      for (var i = 0; i < viewerNumber; i++) {
-        var stackIndex = imgsetIndex * viewerNumber + i
-        var stack = {
-          divId: i,
-          csStack: state.stacks[stackIndex].cs_stack,
-          name: '',
-          segData: '',
-          toolState: null,
-          viewport: null
-        }
-        imgset.imageStacks.push(stack)
-      }
-      state.imageSets.push(imgset)
-    }
-  },
   deleteAllImgsets (state) {
     state.imageSets = []
     state.imgsetDisplayed = undefined
@@ -436,6 +413,42 @@ const actions = {
       .then(response => {
         commit('addImgset', response.data.imgset)
         commit('imgsetDisplayed', response.data.imgset)
+      })
+  },
+  // imgsets
+  createImgsetsAuto ({ state, commit }, studyId) {
+    var imgsets = []
+    const viewerNumber = state.design.numb_img
+    const numberImgsets = state.stacks.length / viewerNumber
+    const imgsetStartPosition = state.imageSets.length
+    for (var imgsetIndex = 0; imgsetIndex < numberImgsets; imgsetIndex++) {
+      var imgset = {
+        stacks: [],
+        position: imgsetStartPosition + imgsetIndex
+      }
+      for (var i = 0; i < viewerNumber; i++) {
+        var stackIndex = imgsetIndex * viewerNumber + i
+        const imageIds = state.stacks[stackIndex].cs_stack.imageIds
+        var stack = {
+          div_id: 'dicom_img_' + i,
+          image_names: imageIds.map((id) => id.split('/').pop()),
+          base_url: imageIds[0].substring(0, imageIds[0].lastIndexOf('/')).replace('wadouri:', '') + '/',
+          name: state.stacks[stackIndex].name,
+          segmentation_data: '',
+          tool_state: imageIds.map((id) => null),
+          viewport: null
+        }
+        imgset.stacks.push(stack)
+      }
+      imgsets.push(imgset)
+    }
+    console.log(imgsets)
+    createImgsets(studyId, imgsets)
+      .then(response => {
+        response.data.imgsets.forEach(imgset => {
+          commit('addImgset', imgset)
+          commit('imgsetDisplayed', imgset)
+        })
       })
   },
   deleteAllImgsets ({ commit }, studyId) {
