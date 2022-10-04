@@ -14,6 +14,10 @@ export function fetchStudy (studyId) {
   return axios.get(`${API_URL}/study/${studyId}`, { headers: authHeader() })
 }
 
+export function studyLoginParticipant (payload) {
+  return axios.post(`${API_URL}/study/login`, payload, { headers: authHeader() })
+}
+
 export function createStudy (payload = {}) {
   return axios.post(`${API_URL}/study`, payload, { headers: authHeader() })
 }
@@ -105,6 +109,14 @@ class AuthService {
       .then(response => {
         if (response.data.accessToken) {
           localStorage.setItem('user', JSON.stringify(response.data))
+          if (response.data.role === 'study_participant') {
+            router.push('/study-login')
+          } else if (response.data.role === 'study_admin') {
+            router.push('/study-overview')
+          } else if (response.data.role === 'user_admin') {
+            router.push('/user-overview')
+          } else {
+          }
         }
         return response.data
       }).catch(error => console.log(error))
@@ -112,6 +124,7 @@ class AuthService {
 
   logout () {
     localStorage.removeItem('user')
+    router.push('/login')
   }
 
   register (user) {

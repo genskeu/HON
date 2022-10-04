@@ -4,9 +4,10 @@
 class Config(object):
     TESTING = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-
+    JWT_ACCESS_TOKEN_EXPIRES = False
 class DevelopmentConfig(Config):
     SECRET_KEY = "dev-key"
+    JWT_SECRET_KEY = "dev-key"
     #IMAGE_PATH = "/home/HON/instance/images_dev"
     #SQLALCHEMY_DATABASE_URI = "sqlite://////home/HON/instance/dev.db"
     IMAGE_PATH = "/home/backend/instance/images_prod"

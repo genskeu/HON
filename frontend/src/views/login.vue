@@ -35,11 +35,7 @@ export default {
   methods: {
     handleLogin () {
       this.loading = true
-      this.$store.dispatch('auth/login', this.user).then(
-        () => {
-          this.$router.push('/study-overview')
-        }
-      )
+      this.$store.dispatch('auth/login', this.user)
     }
   }
 }

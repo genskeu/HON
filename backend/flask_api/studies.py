@@ -533,16 +533,20 @@ def del_all_imgsets(study_id):
 
 
 # access study (login)
-@bp.route('/study/login', methods=['GET', 'POST'])
+@bp.route('/study/login', methods=['POST'])
 @jwt_required()
-@access_level_required(["study_participant","study_admin"])
+@access_level_required(["study_participant"])
 def study_login():
     if request.method == 'POST':
-        study_id = request.form['study_id']
-        password = request.form['password']
+        data = request.get_json()
+        study_id = data['study_id']
+        password = data['password']
         error = None
-
+        response = {}
         study = Study.query.filter_by(id=study_id).first()
+        user_id = get_jwt_identity()
+        results = Result.query.filter_by(study_id=study_id, user_id=user_id).all()
+        
         if study is None:
             error = 'Study not found.'
         # password hack for testing purposes and debugging
@@ -550,12 +554,13 @@ def study_login():
             error = 'Incorrect password.'
 
         if error is None:
-            session['study_id'] = study.id
-            return redirect(url_for('studies.study_run', study_id=study.id))
+            response["study"] = study.to_dict(include_imagesets=True)
+            response["results"] = [result.to_dict() for result in results]
+            return response
+        else:
+            response["error"] = error
+            return response, 404
 
-        flash(error)
-
-    return render_template("auth/login_register.html", value="Access Study")
 
 
 # run study

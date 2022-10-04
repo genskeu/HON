@@ -1,5 +1,5 @@
 import router from '@/router'
-import { createStudy, deleteFiles, createImgset, createImgsets, deleteImgsets, saveResultDb, getResultsCurrentUser, deleteResultUserDb, fetchStudy } from '@/api'
+import { createStudy, deleteFiles, createImgset, createImgsets, deleteImgsets, saveResultDb, getResultsCurrentUser, deleteResultUserDb, fetchStudy, studyLoginParticipant } from '@/api'
 import store from '@/store'
 import { tools } from '@/store/modules/tools'
 
@@ -378,6 +378,23 @@ const actions = {
         const data = response.data
         context.commit('openStudy', data.study)
         context.dispatch('resultsCurrentUser')
+        const viewerNumber = context.getters.viewerNumb
+        const refviewerNumber = context.getters.refviewerNumb
+        for (let i = 0; i < viewerNumber; i++) {
+          store.commit('imageViewers/initViewer', { viewertype: 'viewers' })
+        }
+        for (let i = 0; i < refviewerNumber; i++) {
+          store.commit('imageViewers/initViewer', { viewertype: 'refviewers' })
+        }
+      })
+  },
+  studyLogin (context, payload) {
+    studyLoginParticipant(payload)
+      .then((response) => {
+        const study = response.data.study
+        context.commit('openStudy', study)
+        const results = response.data.results
+        context.commit('addResultsCurrentUser', results)
         const viewerNumber = context.getters.viewerNumb
         const refviewerNumber = context.getters.refviewerNumb
         for (let i = 0; i < viewerNumber; i++) {

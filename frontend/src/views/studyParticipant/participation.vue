@@ -121,6 +121,9 @@ export default {
     },
     imgsetDisplayed () {
       return this.$store.getters['openStudy/imgsetDisplayed']
+    },
+    toolsParticipant () {
+      return this.$store.getters['openStudy/tools']
     }
   },
   watch: {
@@ -159,19 +162,23 @@ export default {
     // enforece ann too size limits (settings)
     applySize (event) {
       var handles = event.detail.measurementData.handles
+      const toolname = event.detail.toolName
+      const tool = this.toolsParticipant.find(tool => toolname.includes(tool.cs_name))
       event.detail.measurementData.cachedStats = undefined
-      const size = 10
-      var startX = handles.start.x
-      var startY = handles.start.y
-      var endX = handles.end.x
-      var endY = handles.end.y
-      const distance = Math.sqrt(Math.pow(startX - endX, 2) + Math.pow(startY - endY, 2))
-      if (Math.round(distance) !== size) {
-        var endX2 = Math.sqrt(Math.pow(size, 2) / 2) + startX
-        var endY2 = Math.sqrt(Math.pow(size, 2) / 2) + startY
-        // var distance2 = Math.sqrt(Math.pow(startX - endX2, 2) + Math.pow(startY - endY2, 2))
-        handles.end.x = endX2
-        handles.end.y = endY2
+      if (tool && tool.settings && tool.settings.size) {
+        const size = Number(tool.settings.size)
+        var startX = handles.start.x
+        var startY = handles.start.y
+        var endX = handles.end.x
+        var endY = handles.end.y
+        const distance = Math.sqrt(Math.pow(startX - endX, 2) + Math.pow(startY - endY, 2))
+        if (Math.round(distance) !== size) {
+          var endX2 = Math.sqrt(Math.pow(size, 2) / 2) + startX
+          var endY2 = Math.sqrt(Math.pow(size, 2) / 2) + startY
+          // var distance2 = Math.sqrt(Math.pow(startX - endX2, 2) + Math.pow(startY - endY2, 2))
+          handles.end.x = endX2
+          handles.end.y = endY2
+        }
       }
     }
   }

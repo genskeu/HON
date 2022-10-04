@@ -46,16 +46,16 @@ def get_result_current_user(study_id):
     response["results"] = [result.to_dict() for result in results]
     return response
 
-# results overview
-@bp.route('/results/overview')
-@jwt_required()
-@access_level_required(["study_admin"])
-def overview():
-    studies = Study.query.filter_by(user_id=g.user.id).options(joinedload('user_study_progress',User_study_progress.user),
-                                                               lazyload('imgsets'),
-                                                               lazyload('imgsets.image_stacks')).all()
+# # results overview
+# @bp.route('/results/overview')
+# @jwt_required()
+# @access_level_required(["study_admin"])
+# def overview():
+#     studies = Study.query.filter_by(user_id=g.user.id).options(joinedload('user_study_progress',User_study_progress.user),
+#                                                                lazyload('imgsets'),
+#                                                                lazyload('imgsets.image_stacks')).all()
 
-    return render_template("results/overview.html", studies=studies)
+#     return render_template("results/overview.html", studies=studies)
 
 
 # delete results for user from study
