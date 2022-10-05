@@ -6,7 +6,7 @@
         <select class='form-select' v-model="toolActiveLeft">
             <option></option>
             <option class="h5" disabled>ViewerSettings</option>
-            <option v-for="(label, tool) in viewerSettingToolsMousekeys" :key="tool" :value="tool.cs_name">{{label}}</option>
+            <option v-for="(tool, label) in viewerSettingToolsMousekeys" :key="tool" :value="tool.cs_name">{{label}}</option>
             <option class="h5" disabled>Annotation</option>
             <template v-for="(tool, label) in annotationToolsMousekeys" :key="tool">
               <option v-if="!tool.settings.labels" :value="tool.cs_name">{{label}}</option>
@@ -19,7 +19,7 @@
         <select class='form-select' v-model="toolActiveRight">
             <option></option>
             <option class="h5" disabled>ViewerSettings</option>
-            <option v-for="(label, tool) in viewerSettingToolsMousekeys" :key="tool" :value="tool.cs_name">{{label}}</option>
+            <option v-for="(tool, label) in viewerSettingToolsMousekeys" :key="tool" :value="tool.cs_name">{{label}}</option>
             <option class="h5" disabled>Annotation</option>
             <template v-for="(tool, label) in annotationToolsMousekeys" :key="tool">
               <option v-if="!tool.settings.labels" :value="tool.cs_name">{{label}}</option>
@@ -32,7 +32,7 @@
         <select class='form-select' v-model="toolActiveWheel">
             <option></option>
             <option class="h5" disabled>ViewerSettings</option>
-            <option v-for="(label, tool) in viewerSettingToolsMousewheel" :key="tool" :value="tool.cs_name">{{label}}</option>
+            <option v-for="(tool, label) in viewerSettingToolsMousewheel" :key="tool" :value="tool.cs_name">{{label}}</option>
         </select>
     </div>
 </template>

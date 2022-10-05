@@ -1,8 +1,8 @@
 <template>
     <div id="sclae_temp" class="mt-1 scale_template">
-        <span class="badge badge-light w-100 mt-1">
+        <!-- <span class="badge badge-light w-100 mt-1">
             <h6 id="scale_heading_" class="mt-1 scale_heading">Scale {{this.scaleIndex + 1}}</h6>
-        </span>
+        </span> -->
         <!-- participant view of scale -->
         <div class="mx-auto mb-3 scale_view_user" id="scale_view_user_">
             <div class="row mx-auto justify-content-center">

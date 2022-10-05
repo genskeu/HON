@@ -466,7 +466,7 @@ class Tool(db.Model):
     label = db.Column(db.String(120))
     key_binding = db.Column(db.String(120))
     status = db.Column(db.String(120))
-    settings = db.Column(db.String(120))
+    settings = db.Column(db.String(1000))
 
     def to_dict(self):
         tool_dict = {}

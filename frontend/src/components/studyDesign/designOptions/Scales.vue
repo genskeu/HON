@@ -9,13 +9,13 @@
       </button>
     </div>
     <div id="scales_container" class="collapse">
-      <div class="row mx-auto">
+      <div id="scales" class="mt-1">
+          <ScaleAdminView v-for="(scale, index) in scales" :key="index" :scale-index="index"></ScaleAdminView>
+      </div>
+      <div class="row mx-auto mt-1">
         <button class="btn btn-success btn-block col" id="add_scale" @click="addScale">
           add scale
         </button>
-      </div>
-      <div id="scales" class="mt-1">
-          <ScaleAdminView v-for="(scale, index) in scales" :key="index" :scale-index="index"></ScaleAdminView>
       </div>
     </div>
   </div>
