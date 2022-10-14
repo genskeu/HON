@@ -9,13 +9,14 @@ WORKDIR /home/frontend
 COPY package*.json ./
 COPY postcss.config.js ./
 COPY tailwind.config.js ./
-#COPY .eslintrc.js ./
+COPY vue.config.js ./
 
 # install project dependencies
-RUN npm install
+RUN npm i -g npm@8.5.1
+RUN npm install --force
 
 # Expose a port
 EXPOSE 8080
 
-# Executables
+# start dev server
 CMD [ "npm", "run", "serve" ]

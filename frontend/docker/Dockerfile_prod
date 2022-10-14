@@ -1,0 +1,28 @@
+#Base image
+FROM hon_vue_dev
+LABEL maintainer "Ulrich Genske"
+
+# Set the working directory
+WORKDIR /home/frontend
+
+# Copy the code
+COPY src /home/frontend/src
+COPY public /home/frontend/public
+
+# build project
+RUN npm run build
+
+# install ngnix
+RUN apk --no-cache update \
+&& apk --no-cache upgrade \
+&& apk --no-cache add nginx
+
+# copy ngnix config
+COPY docker/nginx.conf /etc/nginx/nginx.conf
+# test ngnix config, returns error during build but not on up => deactivated for now
+# RUN nginx -t
+
+# start server
+COPY docker/entrypoint_prod.sh /entry.sh
+RUN ["chmod","+x","/entry.sh"]
+CMD /entry.sh

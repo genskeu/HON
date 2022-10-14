@@ -3,8 +3,20 @@ import axios from 'axios'
 import { Modal } from 'bootstrap'
 import router from '@/router'
 import store from '@/store'
+import cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader'
 
-const API_URL = 'http://localhost:5000'
+// production backend reached via nginx proxy (nginx.conf)
+// development backend reached via vue-cli-service dev server proxy (vue.config.js)
+const API_URL = 'flask-api'
+
+//
+cornerstoneWADOImageLoader.configure({
+  beforeSend: function (xhr) {
+    // debugger // eslint-disable-line no-debugger
+    const user = JSON.parse(localStorage.getItem('user'))
+    xhr.setRequestHeader('Authorization', 'Bearer ' + user.accessToken)
+  }
+})
 
 export function fetchStudies () {
   return axios.get(`${API_URL}/studies`, { headers: authHeader() })
@@ -138,7 +150,6 @@ class AuthService {
 var authService = new AuthService()
 export { authService }
 
-// adjust for flask jwt?
 function authHeader () {
   const user = JSON.parse(localStorage.getItem('user'))
   if (user && user.accessToken) {

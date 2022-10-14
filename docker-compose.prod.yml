@@ -1,21 +1,32 @@
-version: "3.9"
+version: '3.9'
+name: 'hon_production'
+
 services:
-  app:
-    container_name: HON_prod
-    image: hon_prod  
-    build: 
-      context: .
+  backend:
+    container_name: hon_flask_api_prod
+    image: hon_flask_api_prod
+    build:
+      context: ./backend
       dockerfile: ./docker/Dockerfile_prod
     environment:
-      - FLASK_APP=app
       - FLASK_ENV=production
       - PYTHONDONTWRITEBYTECODE=1
       - PYTHONUNBUFFERED=1
-    # only needed for external mysql db
+    # only needed if mysql db runs outisde of docker container on host machine
     extra_hosts:
       - 'host.docker.internal:host-gateway'
+    volumes:
+      - './instance:/home/backend/instance'
+      - './logs/gunicorn:/var/log/gunicorn'
+    stdin_open: true
+    tty: true
+  frontend:
+    container_name: hon_vue_prod
+    image: hon_vue_prod
+    build:
+      context: ./frontend
+      dockerfile: ./docker/Dockerfile_prod
     ports:
       - 80:80
-    volumes: 
-      - './logs:/var/log/'
-      - './instance:/home/HON/instance'
+    volumes:
+      - './logs/nginx:/var/log/nginx'

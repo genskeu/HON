@@ -11,16 +11,15 @@ COPY requirements.txt /home/backend
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
+# set time
 RUN cp /usr/share/zoneinfo/Europe/Berlin /etc/localtime \
  && echo "Europe/Berlin" > /etc/timezone
 
 # copy config
 COPY config.py /home/backend/config.py
+COPY wsgi.py /home/backend/wsgi.py
 
-# download js dependencies
-COPY get_js_dep.sh /home/backend
-RUN ["chmod","+x","get_js_dep.sh"]
-
-# use flask dev sever during development
+# start dev server
 COPY docker/entrypoint_dev.sh /entry.sh
 RUN ["chmod","+x","/entry.sh"]
+CMD /entry.sh

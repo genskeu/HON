@@ -11,8 +11,8 @@ import shutil
 # return files on request
 bp = Blueprint("file_handeling", __name__)
 @bp.route("/get_file/<int:user_id>/<int:study_id>/<stack_name>/<image_name>",methods=['GET'])
-#@jwt_required()
-#@access_level_required([1,2])
+@jwt_required()
+@access_level_required(["study_participant","study_admin"])
 def get_file(user_id,study_id,stack_name,image_name):
     file_path = os.path.join(current_app.config['IMAGE_PATH'],str(user_id),str(study_id),stack_name,image_name)
     if os.path.isfile(file_path):
@@ -33,6 +33,7 @@ def allowed_file(filename):
 # upload files to study
 @bp.route('/upload_files/<int:study_id>', methods=['POST'])
 @jwt_required()
+@access_level_required(["study_admin"])
 def upload_files(study_id):
     study = Study.query.filter_by(id=study_id).first()
     user_id = get_jwt_identity()
@@ -51,7 +52,7 @@ def upload_files(study_id):
             folder, filename = path[-1].split(".")[0], path[-1]
         filename = secure_filename(filename)
         folder = secure_filename(folder)
-        base_url = request.url_root + f"get_file/{user_id}/{study.id}/{folder}/"
+        base_url = f"flask-api/get_file/{user_id}/{study.id}/{folder}/"
         if base_url + filename not in image_urls_study and allowed_file(filename):
             stack_dir = os.path.join(image_dir, folder)
             if not os.path.isdir(stack_dir):

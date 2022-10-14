@@ -1,11 +1,5 @@
 #!/usr/bin/env sh
 #start gunicorn
-static_dir="app/static/dependencies/"
-
-if [ ! -d "$static_dir" ]
-then
-    echo "download js dependencies"
-    ./get_js_dep.sh
-fi
-echo "starting devlopment server"
-flask run --host=0.0.0.0 --port=80
+echo "start flask-api development server"
+# setup to develop and debug with vs code
+python3 -m debugpy --listen 0.0.0.0:5678 -m wsgi --wait-for-client --multiprocess
