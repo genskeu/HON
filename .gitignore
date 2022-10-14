@@ -6,3 +6,6 @@
 *.log
 /images
 */static/dependencies*
+frontend*
+backend*
+launch.json
