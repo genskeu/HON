@@ -98,23 +98,23 @@
 export default {
   computed: {
     annotationToolsMousekeys () {
-      return this.$store.getters['openStudy/annToolsMousekeysSettings']
+      return this.$store.getters['currentStudy/annToolsMousekeysSettings']
     },
     viewerSettingToolsMousekeys () {
-      return this.$store.getters['openStudy/viewerToolsMousekeysSettings']
+      return this.$store.getters['currentStudy/viewerToolsMousekeysSettings']
     },
     segmentationToolsMousekeys () {
-      return this.$store.getters['openStudy/segToolsMousekeysSettings']
+      return this.$store.getters['currentStudy/segToolsMousekeysSettings']
     },
     viewerToolsMousewheelSettings () {
-      return this.$store.getters['openStudy/viewerToolsMousewheelSettings']
+      return this.$store.getters['currentStudy/viewerToolsMousewheelSettings']
     },
     toolsParticipant: {
       get () {
-        return this.$store.getters['openStudy/tools']
+        return this.$store.getters['currentStudy/tools']
       },
       set (tools) {
-        this.$store.commit('openStudy/tools', tools)
+        this.$store.commit('currentStudy/tools', tools)
       }
     },
     toolsMousewheel () {
@@ -129,11 +129,11 @@ export default {
   methods: {
     updateToolSettings (event, csName, propName) {
       const payload = { csName: csName, value: event.target.value, propName: propName }
-      this.$store.commit('openStudy/toolSettings', payload)
+      this.$store.commit('currentStudy/toolSettings', payload)
     },
     updateToolLabel (event, csName, labelIndex) {
       const payload = { csName: csName, value: event.target.value, labelIndex: labelIndex }
-      this.$store.commit('openStudy/toolLabel', payload)
+      this.$store.commit('currentStudy/toolLabel', payload)
     }
   }
 }

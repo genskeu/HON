@@ -1,14 +1,16 @@
 import { createStore } from 'vuex'
-import openStudy from './modules/openStudy'
+import currentStudy from './modules/currentStudy'
 import imageViewers from './modules/imageViewers'
 import auth from './modules/auth'
 import studies from './modules/studies'
+import loadingState from './modules/loadingState'
 
 export default createStore({
   modules: {
     studies: studies,
-    openStudy: openStudy,
+    currentStudy: currentStudy,
     imageViewers: imageViewers,
-    auth
+    auth: auth,
+    loadingState: loadingState
   }
 })

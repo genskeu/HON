@@ -116,7 +116,7 @@ export default {
   },
   computed: {
     studyStacks () {
-      return this.$store.getters['openStudy/stacks']
+      return this.$store.getters['currentStudy/stacks']
     }
   },
   methods: {
@@ -132,7 +132,7 @@ export default {
     },
     deleteSelectedFiles () {
       const studyId = this.$route.params.id
-      this.$store.dispatch('openStudy/deleteSelectedFiles', { studyId: studyId, files: this.filesToDelete })
+      this.$store.dispatch('currentStudy/deleteSelectedFiles', { studyId: studyId, files: this.filesToDelete })
       this.filesToDelete = []
     }
   }

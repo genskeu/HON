@@ -223,8 +223,7 @@ export default {
           if (folder.files.every((file) => file.status === 'uploaded successfully')) {
             folder.status = 'upload finished'
             const stack = response.data.stack
-            console.log(stack)
-            this.$store.commit('openStudy/addStack', stack)
+            this.$store.commit('currentStudy/addStack', stack)
           }
         })
         .catch(() => {

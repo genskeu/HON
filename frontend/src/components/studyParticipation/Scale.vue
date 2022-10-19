@@ -27,16 +27,16 @@ export default {
   },
   computed: {
     scaleText () {
-      return this.$store.getters['openStudy/scaleText'](this.scaleIndex)
+      return this.$store.getters['currentStudy/scaleText'](this.scaleIndex)
     },
     scaleMin () {
-      return this.$store.getters['openStudy/scaleMin'](this.scaleIndex)
+      return this.$store.getters['currentStudy/scaleMin'](this.scaleIndex)
     },
     scaleMax () {
-      return this.$store.getters['openStudy/scaleMax'](this.scaleIndex)
+      return this.$store.getters['currentStudy/scaleMax'](this.scaleIndex)
     },
     scaleType () {
-      return this.$store.getters['openStudy/scaleMax'](this.scaleIndex)
+      return this.$store.getters['currentStudy/scaleMax'](this.scaleIndex)
     },
     scaleValues () {
       var values = []
@@ -46,14 +46,14 @@ export default {
       return values
     },
     scaleLabels () {
-      return this.$store.getters['openStudy/scaleLabels'](this.scaleIndex)
+      return this.$store.getters['currentStudy/scaleLabels'](this.scaleIndex)
     },
     scaleInput: {
       get () {
-        return this.$store.getters['openStudy/scaleInput'](this.scaleIndex)
+        return this.$store.getters['currentStudy/scaleInput'](this.scaleIndex)
       },
       set (value) {
-        this.$store.commit('openStudy/scaleInput', { index: this.scaleIndex, input: value })
+        this.$store.commit('currentStudy/scaleInput', { index: this.scaleIndex, input: value })
       }
     }
   }

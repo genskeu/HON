@@ -76,19 +76,19 @@ export default {
       return this.toolActiveWheel
     },
     annotationToolsMousekeys () {
-      return this.$store.getters['openStudy/annToolsMousekeysParticipant']
+      return this.$store.getters['currentStudy/annToolsMousekeysParticipant']
     },
     segmentationToolsMousekeys () {
-      return this.$store.getters['openStudy/segToolsMousekeysParticipant']
+      return this.$store.getters['currentStudy/segToolsMousekeysParticipant']
     },
     viewerSettingToolsMousekeys () {
-      return this.$store.getters['openStudy/viewerToolsMousekeysParticipant']
+      return this.$store.getters['currentStudy/viewerToolsMousekeysParticipant']
     },
     viewerSettingToolsMousewheel () {
-      return this.$store.getters['openStudy/viewerToolsMousewheelParticipant']
+      return this.$store.getters['currentStudy/viewerToolsMousewheelParticipant']
     },
     toolsParticipant () {
-      return this.$store.getters['openStudy/tools']
+      return this.$store.getters['currentStudy/tools']
     }
   },
   watch: {

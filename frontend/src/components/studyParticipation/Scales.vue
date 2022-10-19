@@ -24,7 +24,7 @@ export default {
   },
   computed: {
     scales () {
-      return this.$store.getters['openStudy/scales']
+      return this.$store.getters['currentStudy/scales']
     }
   },
   methods: {

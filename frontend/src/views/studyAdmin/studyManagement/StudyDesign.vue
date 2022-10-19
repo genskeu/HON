@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid pt-4" id="content" :style="cssStyle">
+  <div v-if="studyOpened" class="container-fluid pt-4" id="content" :style="cssStyle">
     <div class="row mx-auto">
       <!-- Imgsets -->
       <div class="col-lg-10 pt-1" id="imgset_creation">
@@ -69,8 +69,11 @@ export default {
     DesignOptions
   },
   computed: {
+    studyOpened () {
+      return this.$store.getters['currentStudy/studyTitle'] !== String
+    },
     viewerNumb () {
-      return this.$store.getters['openStudy/viewerNumb']
+      return this.$store.getters['currentStudy/viewerNumb']
     },
     viewerLayout () {
       // var colClass = 'grid-cols-' + this.$store.getters.viewerLayoutCols
@@ -79,16 +82,16 @@ export default {
         flex: true,
         relative: true,
         grid: true,
-        'grid-cols-5': this.$store.getters['openStudy/viewerLayoutCols'] === 5,
-        'grid-cols-4': this.$store.getters['openStudy/viewerLayoutCols'] === 4,
-        'grid-cols-3': this.$store.getters['openStudy/viewerLayoutCols'] === 3,
-        'grid-cols-2': this.$store.getters['openStudy/viewerLayoutCols'] === 2,
-        'grid-cols-1': this.$store.getters['openStudy/viewerLayoutCols'] === 1
+        'grid-cols-5': this.$store.getters['currentStudy/viewerLayoutCols'] === 5,
+        'grid-cols-4': this.$store.getters['currentStudy/viewerLayoutCols'] === 4,
+        'grid-cols-3': this.$store.getters['currentStudy/viewerLayoutCols'] === 3,
+        'grid-cols-2': this.$store.getters['currentStudy/viewerLayoutCols'] === 2,
+        'grid-cols-1': this.$store.getters['currentStudy/viewerLayoutCols'] === 1
       }
       return gridClass
     },
     refviewerNumb () {
-      return this.$store.getters['openStudy/refviewerNumb']
+      return this.$store.getters['currentStudy/refviewerNumb']
     },
     refviewerLayout () {
       var gridClass = {
@@ -96,19 +99,19 @@ export default {
         relative: true,
         grid: true,
         'gap-2': true,
-        'grid-cols-1': this.$store.getters['openStudy/refviewerNumb'] === 1,
-        'grid-cols-2': this.$store.getters['openStudy/refviewerNumb'] === 2,
-        'grid-cols-3': this.$store.getters['openStudy/refviewerNumb'] === 3,
-        'grid-cols-4': this.$store.getters['openStudy/refviewerNumb'] === 4,
-        'grid-cols-5': this.$store.getters['openStudy/refviewerNumb'] === 5,
+        'grid-cols-1': this.$store.getters['currentStudy/refviewerNumb'] === 1,
+        'grid-cols-2': this.$store.getters['currentStudy/refviewerNumb'] === 2,
+        'grid-cols-3': this.$store.getters['currentStudy/refviewerNumb'] === 3,
+        'grid-cols-4': this.$store.getters['currentStudy/refviewerNumb'] === 4,
+        'grid-cols-5': this.$store.getters['currentStudy/refviewerNumb'] === 5,
         'grid-rows-1': true
       }
       return gridClass
     },
     cssStyle () {
       return {
-        'background-color': this.$store.getters['openStudy/backgroundColor'],
-        color: this.$store.getters['openStudy/textColor']
+        'background-color': this.$store.getters['currentStudy/backgroundColor'],
+        color: this.$store.getters['currentStudy/textColor']
       }
     },
     toolsMousekeys () {
@@ -127,7 +130,7 @@ export default {
   activated () {
   },
   deactivated () {
-    this.$store.commit('openStudy/imgsetDisplayed', undefined)
+    this.$store.commit('currentStudy/imgsetDisplayed', undefined)
   },
   methods: {
   }

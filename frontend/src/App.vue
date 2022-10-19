@@ -14,7 +14,7 @@
               <router-link to="/user-overview" class="nav-link">Users Overview</router-link>
             </li>
             <li v-if="isStudyAdmin" class="nav-item">
-              <router-link to="/study-overview" class="nav-link">Studies Overview</router-link>
+              <router-link to="/study-management/study-overview" class="nav-link">Studies Overview</router-link>
             </li>
             <li v-if="loggedIn" class="nav-item">
               <router-link to="/user-profile/1" class="nav-link">User Profile</router-link>

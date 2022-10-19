@@ -1,7 +1,7 @@
 // import cornerstone from 'cornerstone-core'
 import cornerstone from 'cornerstone-core'
 import cornerstoneTools from 'cornerstone-tools'
-import { tools } from '@/store/modules/tools'
+import { tools } from '@/store/modules/currentStudy/tools'
 
 const state = {
   refviewers: [],

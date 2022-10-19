@@ -74,7 +74,7 @@ export default {
   },
   computed: {
     viewerMetainfo () {
-      return this.$store.getters['openStudy/viewerMetainfo']
+      return this.$store.getters['currentStudy/viewerMetainfo']
     },
     stackMetadataTL () {
       var metadata = []
@@ -116,16 +116,16 @@ export default {
       return this.$store.getters['imageViewers/stackDisplayed'](this.viewerIndex, this.viewerType)
     },
     viewerHeight () {
-      return this.$store.getters['openStudy/viewerHeight']
+      return this.$store.getters['currentStudy/viewerHeight']
     },
     viewerNumb () {
-      return this.$store.getters['openStudy/viewerNumb']
+      return this.$store.getters['currentStudy/viewerNumb']
     },
     refviewerNumb () {
-      return this.$store.getters['openStudy/refviewerNumb']
+      return this.$store.getters['currentStudy/refviewerNumb']
     },
     viewerLayout () {
-      return this.$store.getters['openStudy/viewerLayoutCols']
+      return this.$store.getters['currentStudy/viewerLayoutCols']
     }
   },
   watch: {
@@ -261,13 +261,13 @@ export default {
     updateViewerHeight () {
       const element = this.$refs.viewer
       var heigth = this.viewerHeight
-      if (this.$store.getters['openStudy/viewerHeightAuto']) {
+      if (this.$store.getters['currentStudy/viewerHeightAuto']) {
         heigth = Math.min(Number(element.clientWidth), Number(window.innerHeight - 250))
       }
       element.style.height = heigth + 'px'
       cornerstone.resize(element)
       cornerstone.updateImage(element)
-      this.$store.commit('openStudy/viewerHeight', heigth)
+      this.$store.commit('currentStudy/viewerHeight', heigth)
     },
     // will be called when measurment completed (add new or update form of exisiting roi)
     addAnnotation (e) {

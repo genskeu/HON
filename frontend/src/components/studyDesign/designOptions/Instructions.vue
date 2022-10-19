@@ -22,10 +22,10 @@ export default {
   computed: {
     instructions: {
       get () {
-        return this.$store.getters['openStudy/instructions']
+        return this.$store.getters['currentStudy/instructions']
       },
       set (value) {
-        this.$store.commit('openStudy/instructions', value)
+        this.$store.commit('currentStudy/instructions', value)
       }
     }
   }

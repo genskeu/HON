@@ -30,13 +30,13 @@ export default {
   }),
   computed: {
     studyOpened () {
-      return this.$store.getters['openStudy/studyTitle'] !== String
+      return this.$store.getters['currentStudy/studyTitle'] !== String
     }
   },
   methods: {
     studyLogin () {
       // get study data from backend
-      this.$store.dispatch('openStudy/studyLogin', { study_id: this.studyId, password: this.studyPassword })
+      this.$store.dispatch('currentStudy/studyLogin', { study_id: this.studyId, password: this.studyPassword })
     }
   }
 }

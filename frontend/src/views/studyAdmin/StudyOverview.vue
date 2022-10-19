@@ -1,17 +1,9 @@
 <template>
 <div id="study_overview" class="">
-  <div id="nav" class="navbar bg-dark p-0" style="height: 50px;">
-        <div class="container">
-          <div class="row">
-            <router-link to="#" @click.prevent="createStudy" class="btn btn-succcess">Create New Study
-            </router-link>
-          </div>
-        </div>
-  </div>
   <div class="container">
         <div class="row mx-auto mt-4" id="studies_ov">
             <delte-modal :title="deleteTitle" :text="deleteText" id="deleteStudy" @deleteComfirmed="deleteStudy(this.deleteIdDb)"></delte-modal>
-            <loadingModal id="loadingModal" ref="loadingScreen"></loadingModal>
+            <!-- <loadingModal id="loadingModal" ref="loadingScreen"></loadingModal> -->
             <table class="table table-hover">
                 <thead class="thead-light">
                     <tr>
@@ -30,9 +22,7 @@
                         <td class="align-middle">{{study.created}}</td>
                         <td class="align-middle">{{study.updated}}</td>
                         <td>
-                            <router-link :to="{ name: 'StudyMetainfos', params: { id: study.id }}">
-                                <button class="btn-success btn">edit</button>
-                            </router-link>
+                          <button @click="editStudy(study.id)" class="btn-success btn">edit</button>
                         </td>
                         <td>
                             <router-link :to="{ name: 'StudyResults', params: { id: study.id }}">
@@ -54,13 +44,12 @@
 
 <script>
 import delteModal from '@/components/misc/confirmDeleteModal'
-import loadingModal from '@/components/misc/loadingModal'
+import router from '@/router'
 
 export default {
   name: 'StudyOverview',
   components: {
-    delteModal,
-    loadingModal
+    delteModal
   },
   data () {
     return {
@@ -75,8 +64,13 @@ export default {
     }
   },
   methods: {
-    createStudy () {
-      this.$store.dispatch('openStudy/createNewStudy')
+    editStudy (studyId) {
+      this.$store.dispatch('currentStudy/openStudy', studyId)
+        .then(() => {
+          setTimeout(function () {
+            router.push(studyId + '/metainfos')
+          }, 500)
+        })
     },
     setStudyDelete (study) {
       this.deleteText = 'You are about to delete study ' + study.title + '. This will also delete all results.'
@@ -87,7 +81,7 @@ export default {
       this.$store.dispatch('studies/deleteStudy', { studyId: studyId, loadingComp: this.$refs.loadingScreen })
     }
   },
-  created () {
+  mounted () {
     this.$store.dispatch('studies/initStudies')
   }
 }

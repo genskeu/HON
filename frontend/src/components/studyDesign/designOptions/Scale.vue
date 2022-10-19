@@ -54,31 +54,31 @@ export default {
   computed: {
     scaleText: {
       get () {
-        return this.$store.getters['openStudy/scaleText'](this.scaleIndex)
+        return this.$store.getters['currentStudy/scaleText'](this.scaleIndex)
       },
       set (value) {
-        this.$store.commit('openStudy/scaleText', { index: this.scaleIndex, text: value })
+        this.$store.commit('currentStudy/scaleText', { index: this.scaleIndex, text: value })
       }
     },
     scaleMin: {
       get () {
-        return this.$store.getters['openStudy/scaleMin'](this.scaleIndex)
+        return this.$store.getters['currentStudy/scaleMin'](this.scaleIndex)
       },
       set (value) {
-        this.$store.commit('openStudy/scaleMin', { index: this.scaleIndex, min: value })
+        this.$store.commit('currentStudy/scaleMin', { index: this.scaleIndex, min: value })
       }
     },
     scaleMax: {
       get () {
-        return this.$store.getters['openStudy/scaleMax'](this.scaleIndex)
+        return this.$store.getters['currentStudy/scaleMax'](this.scaleIndex)
       },
       set (value) {
-        this.$store.commit('openStudy/scaleMax', { index: this.scaleIndex, max: value })
+        this.$store.commit('currentStudy/scaleMax', { index: this.scaleIndex, max: value })
       }
     },
     scaleType: {
       get () {
-        return this.$store.getters['openStudy/scaleMax'](this.scaleIndex)
+        return this.$store.getters['currentStudy/scaleMax'](this.scaleIndex)
       },
       set () {
       }
@@ -91,15 +91,15 @@ export default {
       return values
     },
     scaleLabels () {
-      return this.$store.getters['openStudy/scaleLabels'](this.scaleIndex)
+      return this.$store.getters['currentStudy/scaleLabels'](this.scaleIndex)
     }
   },
   methods: {
     deleteScale () {
-      this.$store.commit('openStudy/delScale', { index: this.scaleIndex })
+      this.$store.commit('currentStudy/delScale', { index: this.scaleIndex })
     },
     updateScaleLabel (i) {
-      this.$store.commit('openStudy/scaleLabel', { index: this.scaleIndex, labelIndex: i, label: event.target.value })
+      this.$store.commit('currentStudy/scaleLabel', { index: this.scaleIndex, labelIndex: i, label: event.target.value })
     }
   }
 }

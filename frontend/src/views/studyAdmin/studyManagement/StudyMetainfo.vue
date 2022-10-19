@@ -1,6 +1,5 @@
 <template>
   <div class="container d-flex mt-4">
-    <loadingModal :title="errorTitle" :text="loadingText" :loading="loading" :error="error" :errorMsg="errorMsg" id="loadingModal"></loadingModal>
     <div class="form-horizontal w-100" id="study_metadata">
       <div class="mx-auto">
         <div class="input-group">
@@ -33,78 +32,47 @@ e.g. how many images have to be evaluated.">
 </template>
 
 <script>
-import { updateStudy } from '@/api'
-import loadingModal from '@/components/misc/loadingModal'
-import { Modal } from 'bootstrap'
-
 export default {
   name: 'StudyMetainfo',
-  components: {
-    loadingModal
-  },
   data () {
     return {
-      loadingText: String,
-      loading: Boolean,
-      error: false,
-      errorTitle: String,
-      errorMsg: String
     }
   },
   computed: {
     studyName: {
       get () {
-        return this.$store.getters['openStudy/studyTitle']
+        return this.$store.getters['currentStudy/studyTitle']
       },
       set (value) {
-        this.$store.commit('openStudy/updateStudyTitle', value)
+        this.$store.commit('currentStudy/updateStudyTitle', value)
       }
     },
     studyPassword: {
       get () {
-        return this.$store.getters['openStudy/studyPassword']
+        return this.$store.getters['currentStudy/studyPassword']
       },
       set (value) {
-        this.$store.commit('openStudy/updateStudyPassword', value)
+        this.$store.commit('currentStudy/updateStudyPassword', value)
       }
     },
     studyDesc: {
       get () {
-        return this.$store.getters['openStudy/studyDescription']
+        return this.$store.getters['currentStudy/studyDescription']
       },
       set (value) {
-        this.$store.commit('openStudy/updateStudyDesc', value)
+        this.$store.commit('currentStudy/updateStudyDesc', value)
       }
     }
   },
   methods: {
     saveMetaInfos () {
-      this.loadingText = 'Saving Metainfos. Please wait...'
-      this.loading = true
-      const loadingModal = new Modal(document.getElementById('loadingModal'), { fade: true })
-      loadingModal.show()
-
       const studyId = this.$route.params.id
       const data = {
         title: this.studyName,
         password: this.studyPassword,
         description: this.studyDesc
       }
-
-      updateStudy(studyId, data)
-        .then(response => {
-          this.loading = false
-          this.loadingText = 'Saving successful.'
-          setTimeout(function () {
-            loadingModal.hide()
-          }, 1000)
-        })
-        .catch(error => {
-          this.errorTitle = 'Saving Metainfos...'
-          this.error = true
-          this.errorMsg = error
-        })
-        .then()
+      this.$store.dispatch('currentStudy/updateStudyMetainfos', { studyId: studyId, data: data })
     }
   }
 }

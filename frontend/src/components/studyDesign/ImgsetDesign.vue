@@ -177,23 +177,23 @@ export default {
   computed: {
     imgsetDisplayed: {
       get () {
-        return this.$store.getters['openStudy/imgsetDisplayed']
+        return this.$store.getters['currentStudy/imgsetDisplayed']
       },
       set (imgset) {
-        this.$store.commit('openStudy/imgsetDisplayed', imgset)
+        this.$store.commit('currentStudy/imgsetDisplayed', imgset)
       }
     },
     stacks () {
-      return this.$store.getters['openStudy/stacks']
+      return this.$store.getters['currentStudy/stacks']
     },
     imgsets () {
-      return this.$store.getters['openStudy/imgsets']
+      return this.$store.getters['currentStudy/imgsets']
     },
     viewerNumb () {
-      return this.$store.getters['openStudy/viewerNumb']
+      return this.$store.getters['currentStudy/viewerNumb']
     },
     refviewerNumb () {
-      return this.$store.getters['openStudy/refviewerNumb']
+      return this.$store.getters['currentStudy/refviewerNumb']
     },
     imageViewers () {
       return this.$store.getters['imageViewers/viewers']
@@ -256,7 +256,7 @@ export default {
         studyId: studyId,
         imgset: imgset
       }
-      this.$store.dispatch('openStudy/addImgset', payload)
+      this.$store.dispatch('currentStudy/addImgset', payload)
     },
     updateImgset () {
 
@@ -266,11 +266,11 @@ export default {
     },
     deleteAllImgsets () {
       const studyId = this.$route.params.id
-      this.$store.dispatch('openStudy/deleteAllImgsets', studyId)
+      this.$store.dispatch('currentStudy/deleteAllImgsets', studyId)
     },
     createImgsetsAuto () {
       const studyId = this.$route.params.id
-      this.$store.dispatch('openStudy/createImgsetsAuto', studyId)
+      this.$store.dispatch('currentStudy/createImgsetsAuto', studyId)
     }
   }
 }

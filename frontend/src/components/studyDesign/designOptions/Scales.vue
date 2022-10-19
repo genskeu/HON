@@ -30,7 +30,7 @@ export default {
   },
   computed: {
     scales () {
-      return this.$store.getters['openStudy/scales']
+      return this.$store.getters['currentStudy/scales']
     }
   },
   methods: {
@@ -46,7 +46,7 @@ export default {
         type: '',
         labels: labels
       }
-      this.$store.commit('openStudy/addScale', defScale)
+      this.$store.commit('currentStudy/addScale', defScale)
     }
   }
 }

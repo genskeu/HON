@@ -24,7 +24,7 @@ export default {
   },
   computed: {
     stacks () {
-      return this.$store.getters['openStudy/stacks']
+      return this.$store.getters['currentStudy/stacks']
     },
     stackDisplayed: {
       get () {

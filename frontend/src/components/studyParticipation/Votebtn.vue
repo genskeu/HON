@@ -13,13 +13,13 @@ export default {
   },
   computed: {
     buttonLabel () {
-      return this.$store.getters['openStudy/buttonLabels']
+      return this.$store.getters['currentStudy/buttonLabels']
     },
     scalesInput () {
-      return this.$store.getters['openStudy/scalesInput']
+      return this.$store.getters['currentStudy/scalesInput']
     },
     imgsetDisplayed () {
-      return this.$store.getters['openStudy/imgsetDisplayed']
+      return this.$store.getters['currentStudy/imgsetDisplayed']
     },
     imgsetInput () {
       return this.$store.getters['imageViewers/getImgset']
@@ -43,7 +43,7 @@ export default {
         stacks_displayed: imgset.stacks,
         scale_input: this.scalesInput
       }
-      this.$store.dispatch('openStudy/saveResult', payload)
+      this.$store.dispatch('currentStudy/saveResult', payload)
     }
   }
 }

@@ -1,7 +1,7 @@
 import router from '@/router'
-import { createStudy, deleteFiles, createImgset, createImgsets, deleteImgsets, saveResultDb, getResultsCurrentUser, deleteResultUserDb, fetchStudy, studyLoginParticipant } from '@/api'
+import { createStudy, updateStudy, deleteFiles, createImgset, createImgsets, deleteImgsets, saveResultDb, getResultsCurrentUser, deleteResultUserDb, fetchStudy, studyLoginParticipant } from '@/api'
 import store from '@/store'
-import { tools } from '@/store/modules/tools'
+import { tools } from '@/store/modules/currentStudy/tools'
 
 // import cornerstoneTools from 'cornerstone-tools'
 
@@ -13,11 +13,17 @@ const state = {
   design: Object,
   images: Array,
   stacks: Array,
-  imageSets: Array,
+  imageSets: [],
   instructions: String,
   userStudyProgress: Array,
   imgsetDisplayed: undefined,
-  resultsCurrentUser: Array
+  resultsCurrentUser: [],
+  loadingState: {
+    isLoading: false,
+    title: '',
+    errorOccured: false,
+    errorMsg: ''
+  }
 }
 
 const getters = {
@@ -171,9 +177,13 @@ const getters = {
   },
   resultsCurrentUser (state) {
     return state.resultsCurrentUser
+  },
+  loadingState (state) {
+    return state.loadingState
   }
 }
 
+// helper functions for getters of tool states
 function matchTools (toolsAll, toolsSaved) {
   var toolsSettings = {}
   Object.keys(toolsAll).forEach(toolCsname => {
@@ -201,7 +211,7 @@ function filterTools (toolsAll, toolsSaved) {
 }
 
 const mutations = {
-  openStudy (state, study, context) {
+  openStudy (state, study) {
     state.id = study.id
     state.title = study.title
     state.password = ''
@@ -368,11 +378,25 @@ const mutations = {
   },
   userStudyProgress (state, userStudyProgress) {
     state.userStudyProgress = userStudyProgress
+  },
+  // loading state
+  startLoading (state, { title }) {
+    state.loadingState.isLoading = true
+    state.loadingState.title = title
+    state.loadingState.errorOccured = false
+    state.loadingState.errorMsg = ''
+  },
+  // loading state
+  finishLoading (state, { errorOccured, errorMsg }) {
+    state.loadingState.isLoading = false
+    state.loadingState.errorOccured = errorOccured
+    state.loadingState.errorMsg = errorMsg
   }
 }
 
 const actions = {
   openStudy (context, id) {
+    store.commit('loadingState/startLoading', { title: 'Opening Study' })
     fetchStudy(id)
       .then((response) => {
         const data = response.data
@@ -386,7 +410,17 @@ const actions = {
         for (let i = 0; i < refviewerNumber; i++) {
           store.commit('imageViewers/initViewer', { viewertype: 'refviewers' })
         }
+        store.commit('loadingState/finishLoading', { errorOccured: false, errorMsg: '' })
       })
+      .catch((response) => {
+        store.commit('loadingState/finishLoading', { errorOccured: true, errorMsg: response.data.error })
+      })
+  },
+  closeStudy (context) {
+    store.commit('loadingState/startLoading', { title: 'Close Study' })
+    context.commit('closeStudy')
+    store.commit('loadingState/finishLoading', { errorOccured: false, errorMsg: '' })
+    router.push('/study-management/study-overview')
   },
   studyLogin (context, payload) {
     studyLoginParticipant(payload)
@@ -406,13 +440,17 @@ const actions = {
       })
   },
   createNewStudy ({ commit }) {
+    store.commit('loadingState/startLoading', { title: 'Creating new study' })
     createStudy()
       .then(response => {
         const study = response.data.study
         commit('openStudy', study)
         store.commit('studies/addStudy', study)
+        store.commit('loadingState/finishLoading', { errorOccured: false, errorMsg: '' })
         const route = '/study-management/' + study.id + '/metainfos'
-        router.push(route)
+        setTimeout(function () {
+          router.push(route)
+        }, 500)
       })
       .catch(error => {
         console.log(error)
@@ -420,20 +458,42 @@ const actions = {
       .finally(() => {})
   },
   deleteSelectedFiles ({ commit }, payload) {
-    deleteFiles(payload.studyId, payload.files).then(() => {
-      commit('deleteStacks', payload.files)
-    })
+    store.commit('loadingState/startLoading', { title: 'Deleting Files' })
+    deleteFiles(payload.studyId, payload.files)
+      .then(() => {
+        commit('deleteStacks', payload.files)
+        store.commit('loadingState/finishLoading', { errorOccured: false, errorMsg: '' })
+      })
+      .catch((response) => {
+        store.commit('loadingState/finishLoading', { errorOccured: true, errorMsg: response.data.error })
+      })
+  },
+  updateStudyMetainfos ({ commit }, { studyId, data }) {
+    store.commit('loadingState/startLoading', { title: 'Saving updated Metainfos' })
+    updateStudy(studyId, data)
+      .then(() => {
+        store.commit('loadingState/finishLoading', { errorOccured: false, errorMsg: '' })
+      })
+      .catch((response) => {
+        store.commit('loadingState/finishLoading', { errorOccured: true, errorMsg: response.data.error })
+      })
   },
   // imgsets
   addImgset ({ commit }, payload) {
+    store.commit('loadingState/startLoading', { title: 'Creating Imageset' })
     createImgset(payload.studyId, payload.imgset)
       .then(response => {
         commit('addImgset', response.data.imgset)
         commit('imgsetDisplayed', response.data.imgset)
+        store.commit('loadingState/finishLoading', { errorOccured: false, errorMsg: '' })
+      })
+      .catch((response) => {
+        store.commit('loadingState/finishLoading', { errorOccured: true, errorMsg: response.data.error })
       })
   },
   // imgsets
   createImgsetsAuto ({ state, commit }, studyId) {
+    store.commit('loadingState/startLoading', { title: 'Creating Imagesets' })
     var imgsets = []
     const viewerNumber = state.design.numb_img
     const numberImgsets = state.stacks.length / viewerNumber
@@ -459,26 +519,39 @@ const actions = {
       }
       imgsets.push(imgset)
     }
-    console.log(imgsets)
     createImgsets(studyId, imgsets)
       .then(response => {
         response.data.imgsets.forEach(imgset => {
           commit('addImgset', imgset)
           commit('imgsetDisplayed', imgset)
+          store.commit('loadingState/finishLoading', { errorOccured: false, errorMsg: '' })
         })
+      })
+      .catch((response) => {
+        store.commit('loadingState/finishLoading', { errorOccured: true, errorMsg: response.data.error })
       })
   },
   deleteAllImgsets ({ commit }, studyId) {
+    store.commit('loadingState/startLoading', { title: 'Deleting all Imagesets' })
     deleteImgsets(studyId)
       .then(response => {
         commit('deleteAllImgsets')
+        store.commit('loadingState/finishLoading', { errorOccured: false, errorMsg: '' })
+      })
+      .catch((response) => {
+        store.commit('loadingState/finishLoading', { errorOccured: true, errorMsg: response.data.error })
       })
   },
   saveResult ({ commit }, payload) {
+    store.commit('loadingState/startLoading', { title: 'Saving Results' })
     saveResultDb(state.id, payload)
       .then((response) => {
         const result = response.data.result
         commit('addResultCurrentUser', result)
+        store.commit('loadingState/finishLoading', { errorOccured: false, errorMsg: '' })
+      })
+      .catch((response) => {
+        store.commit('loadingState/finishLoading', { errorOccured: true, errorMsg: response.data.error })
       })
   },
   resultsCurrentUser ({ commit }) {
@@ -488,10 +561,15 @@ const actions = {
     })
   },
   delResultsUser ({ commit }, userId) {
+    store.commit('loadingState/startLoading', { title: 'Deleting Results' })
     deleteResultUserDb(state.id, userId)
       .then((response) => {
         const userStudyProgress = response.data.user_study_progress
         commit('userStudyProgress', userStudyProgress)
+        store.commit('loadingState/finishLoading', { errorOccured: false, errorMsg: '' })
+      })
+      .catch((response) => {
+        store.commit('loadingState/finishLoading', { errorOccured: true, errorMsg: response.data.error })
       })
   }
 }

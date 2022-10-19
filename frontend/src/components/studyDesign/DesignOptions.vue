@@ -1,6 +1,5 @@
 <template>
     <div>
-        <loadingModal :title="errorTitle" :text="loadingText" :loading="loading" :error="error" :errorMsg="errorMsg" id="loadingModal"></loadingModal>
         <div class="row mx-auto" id="design_options_title">
             <button class="btn btn-dark col-12 mb-1" data-bs-toggle="collapse" data-bs-target="#design_options_content"
                 title="Click on the sections to expand the sub-menus.
@@ -29,8 +28,6 @@ import Scales from '@/components/studyDesign/designOptions/Scales.vue'
 import Instructions from '@/components/studyDesign/designOptions/Instructions.vue'
 import Tools from '@/components/studyDesign/designOptions/Tools.vue'
 import { updateStudyDesign } from '@/api'
-import loadingModal from '@/components/misc/loadingModal'
-import { Modal } from 'bootstrap'
 
 export default {
   name: 'DesignOptions',
@@ -38,8 +35,7 @@ export default {
     GeneralSettings,
     Scales,
     Instructions,
-    Tools,
-    loadingModal
+    Tools
   },
   data () {
     return {
@@ -52,25 +48,9 @@ export default {
   },
   methods: {
     saveDesign () {
-      const design = this.$store.getters['openStudy/design']
+      const design = this.$store.getters['currentStudy/design']
       const studyId = this.$route.params.id
-      const loadingModal = new Modal(document.getElementById('loadingModal'), { fade: true })
-      loadingModal.show()
-
       updateStudyDesign(studyId, design)
-        .then(response => {
-          this.loading = false
-          this.loadingText = 'Saving successful.'
-          setTimeout(function () {
-            loadingModal.hide()
-          }, 1000)
-        })
-        .catch(error => {
-          this.errorTitle = 'Error Saving Design...'
-          this.error = true
-          this.errorMsg = error
-        })
-        .then()
     }
   }
 }

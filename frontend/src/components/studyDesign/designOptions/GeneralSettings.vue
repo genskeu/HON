@@ -83,47 +83,47 @@ export default {
   computed: {
     refviewerNumb: {
       get () {
-        return this.$store.getters['openStudy/refviewerNumb']
+        return this.$store.getters['currentStudy/refviewerNumb']
       },
       set (value) {
-        this.$store.commit('openStudy/refviewerNumber', value)
+        this.$store.commit('currentStudy/refviewerNumber', value)
       }
     },
     viewerNumb: {
       get () {
-        return this.$store.getters['openStudy/viewerNumb']
+        return this.$store.getters['currentStudy/viewerNumb']
       },
       set (value) {
-        this.$store.commit('openStudy/viewerNumber', value)
+        this.$store.commit('currentStudy/viewerNumber', value)
       }
     },
     viewerLayoutCols: {
       get () {
-        return this.$store.getters['openStudy/viewerLayoutCols']
+        return this.$store.getters['currentStudy/viewerLayoutCols']
       },
       set (value) {
-        this.$store.commit('openStudy/viewerLayoutCols', value)
+        this.$store.commit('currentStudy/viewerLayoutCols', value)
       }
     },
     viewerHeight: {
       get () {
-        return this.$store.getters['openStudy/viewerHeight']
+        return this.$store.getters['currentStudy/viewerHeight']
       },
       set (value) {
-        this.$store.commit('openStudy/viewerHeight', value)
+        this.$store.commit('currentStudy/viewerHeight', value)
       }
     },
     viewerHeightAuto: {
       get () {
-        return this.$store.getters['openStudy/viewerHeightAuto']
+        return this.$store.getters['currentStudy/viewerHeightAuto']
       },
       set (value) {
-        this.$store.commit('openStudy/viewerHeightAuto', value)
+        this.$store.commit('currentStudy/viewerHeightAuto', value)
       }
     },
     viewerHeightAutoText: {
       get () {
-        if (this.$store.getters['openStudy/viewerHeightAuto']) {
+        if (this.$store.getters['currentStudy/viewerHeightAuto']) {
           return 'automatically'
         } else {
           return 'manual'
@@ -132,23 +132,23 @@ export default {
     },
     viewerWidth: {
       get () {
-        return this.$store.getters['openStudy/viewerWidth']
+        return this.$store.getters['currentStudy/viewerWidth']
       },
       set (value) {
-        this.$store.commit('openStudy/viewerWidth', value)
+        this.$store.commit('currentStudy/viewerWidth', value)
       }
     },
     viewerMetainfo: {
       get () {
-        return this.$store.getters['openStudy/viewerMetainfo']
+        return this.$store.getters['currentStudy/viewerMetainfo']
       },
       set (value) {
-        this.$store.commit('openStudy/viewerMetainfo', value)
+        this.$store.commit('currentStudy/viewerMetainfo', value)
       }
     },
     viewerMetainfoText: {
       get () {
-        if (this.$store.getters['openStudy/viewerMetainfo']) {
+        if (this.$store.getters['currentStudy/viewerMetainfo']) {
           return 'show'
         } else {
           return 'hidden'
@@ -157,34 +157,34 @@ export default {
     },
     backgroundColor: {
       get () {
-        return this.$store.getters['openStudy/backgroundColor']
+        return this.$store.getters['currentStudy/backgroundColor']
       },
       set (value) {
-        this.$store.commit('openStudy/backgroundColor', value)
+        this.$store.commit('currentStudy/backgroundColor', value)
       }
     },
     textColor: {
       get () {
-        return this.$store.getters['openStudy/textColor']
+        return this.$store.getters['currentStudy/textColor']
       },
       set (value) {
-        this.$store.commit('openStudy/textColor', value)
+        this.$store.commit('currentStudy/textColor', value)
       }
     },
     transitionTime: {
       get () {
-        return this.$store.getters['openStudy/transitionTime']
+        return this.$store.getters['currentStudy/transitionTime']
       },
       set (value) {
-        this.$store.commit('openStudy/transitionTime', value)
+        this.$store.commit('currentStudy/transitionTime', value)
       }
     },
     buttonLabels: {
       get () {
-        return this.$store.getters['openStudy/buttonLabels']
+        return this.$store.getters['currentStudy/buttonLabels']
       },
       set (value) {
-        this.$store.commit('openStudy/buttonLabels', value)
+        this.$store.commit('currentStudy/buttonLabels', value)
       }
     }
   },

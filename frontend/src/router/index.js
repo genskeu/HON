@@ -49,47 +49,48 @@ const routes = [
     meta: { requireAuth: true }
   },
   {
-    path: '/study-overview',
-    name: 'StudyOverview',
-    component: StudyOverview,
-    meta: { requireAuth: true, requireStudyAdmin: true }
-  },
-  {
-    path: '/study-management/:id',
+    path: '/study-management',
     name: 'StudyManagement',
     component: StudyManagement,
     meta: { requireAuth: true, requireStudyAdmin: true },
     children: [
       {
-        path: 'metainfos',
+        path: 'study-overview',
+        name: 'StudyOverview',
+        components: {
+          helper: StudyOverview
+        }
+      },
+      {
+        path: ':id/metainfos',
         name: 'StudyMetainfos',
         components: {
           helper: StudyMetainfo
         }
       },
       {
-        path: 'files',
+        path: ':id/files',
         name: 'StudyFiles',
         components: {
           helper: FileManagement
         }
       },
       {
-        path: 'design',
+        path: ':id/design',
         name: 'StudyDesign',
         components: {
           helper: StudyDesign
         }
       },
       {
-        path: 'participation',
+        path: ':id/participation',
         name: 'StudyParticipation',
         components: {
           helper: StudyParticipation
         }
       },
       {
-        path: 'results',
+        path: ':id/results',
         name: 'StudyResults',
         components: {
           helper: ResultsOverview
@@ -118,7 +119,7 @@ router.beforeEach(async (to, from) => {
     } else if (store.state.auth.user.role === 'study_participant') {
       router.push('/study-login')
     } else if (store.state.auth.user.role === 'study_admin') {
-      router.push('/study-overview')
+      router.push('/study-management')
     } else if (store.state.auth.user.role === 'user_admin') {
       router.push('/user-overview')
     } else {
@@ -132,7 +133,7 @@ router.beforeEach(async (to, from) => {
     if (store.state.auth.user.role === 'study_participant') {
       router.push('/study-login')
     } else if (store.state.auth.user.role === 'study_admin') {
-      router.push('/study-overview')
+      router.push('/study-management')
     } else if (store.state.auth.user.role === 'user_admin') {
       router.push('/user-overview')
     } else {

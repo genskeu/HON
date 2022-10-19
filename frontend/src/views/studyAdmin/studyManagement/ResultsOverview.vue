@@ -63,15 +63,15 @@ export default {
       getResults(studyId)
     },
     delResultsUser (userId) {
-      this.$store.dispatch('openStudy/delResultsUser', userId)
+      this.$store.dispatch('currentStudy/delResultsUser', userId)
     }
   },
   computed: {
     userStudyProgress () {
-      return this.$store.getters['openStudy/userStudyProgress']
+      return this.$store.getters['currentStudy/userStudyProgress']
     },
     studyLength () {
-      return this.$store.getters['openStudy/imgsets'].length
+      return this.$store.getters['currentStudy/imgsets'].length
     }
   },
   created () {
