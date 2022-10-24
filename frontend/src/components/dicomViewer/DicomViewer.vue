@@ -280,7 +280,8 @@ export default {
           measurementData: e.detail.measurementData
         }
         const uuid = e.detail.measurementData.uuid
-        const toolType = e.detail.toolType
+        const toolType = e.detail.toolType.split('-')[0]
+        e.detail.toolType = toolType
         this.$store.commit('imageViewers/addAnnotation', {
           annotation: annotation,
           type: toolType,
@@ -299,7 +300,8 @@ export default {
         measurementData: e.detail.measurementData
       }
       const uuid = e.detail.measurementData.uuid
-      const toolType = e.detail.toolType
+      const toolType = e.detail.toolType.split('-')[0]
+      e.detail.toolType = toolType
       this.$store.commit('imageViewers/updateAnnotation', {
         annotation: annotation,
         type: toolType,

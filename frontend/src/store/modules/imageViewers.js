@@ -34,11 +34,11 @@ class Viewer {
     }
     this.toolState = {
       annotations: {
-        CircleRoi: [],
-        RectangleRoi: [],
-        EllipticalRoi: [],
-        FreehandRoi: [],
-        LengthMeasurement: []
+        CircleRoi: {},
+        RectangleRoi: {},
+        EllipticalRoi: {},
+        FreehandRoi: {},
+        LengthMeasurement: {}
       }
     }
   }
@@ -228,15 +228,13 @@ const mutations = {
   // viewer tool state
   addAnnotation (state, payload) {
     var viewer = state[payload.viewertype][payload.index]
-    if (!viewer.toolState.annotations[payload.type]) {
-      viewer.toolState.annotations[payload.type] = {}
-    }
     var annotations = viewer.toolState.annotations[payload.type]
     annotations[payload.uuid] = payload.annotation
   },
   updateAnnotation (state, payload) {
     var viewer = state[payload.viewertype][payload.index]
     var annotations = viewer.toolState.annotations[payload.type]
+    // to do: only update the values that changed
     annotations[payload.uuid] = payload.annotation
   },
   removeAnnotation (state, payload) {

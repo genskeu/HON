@@ -10,7 +10,7 @@
             <option class="h5" disabled>Annotation</option>
             <template v-for="(tool, label) in annotationToolsMousekeys" :key="tool">
               <option v-if="!tool.settings.labels" :value="tool.cs_name">{{label}}</option>
-              <option v-else v-for="l in tool.settings.labels" :key="l" :value="l + tool.cs_name">{{l + ' (' + label + ')'}}</option>
+              <option v-else v-for="l in tool.settings.labels" :key="l" :value="tool.cs_name + '-' + l">{{l + ' (' + label + ')'}}</option>
             </template>
             <option class="h5" disabled>Segmentation</option>
             <option v-for="(tool, label) in segmentationToolsMousekeys" :key="tool" :value="tool.cs_name">{{label}}</option>
@@ -121,8 +121,7 @@ export default {
         if (tool.settings.labels) {
           tool.settings.labels.forEach(label => {
             const toolConfig = {
-              name: label + tool.cs_name,
-              type: tool.cs_name
+              name: tool.cs_name + '-' + label
             }
             cornerstoneTools.addTool(toolCornerStone, toolConfig)
           })
