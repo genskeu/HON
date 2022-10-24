@@ -1,5 +1,5 @@
 <template>
-  <div v-if="studyOpened" class="container-fluid pt-4" id="content" :style="cssStyle">
+  <div class="container-fluid pt-4" id="content" :style="cssStyle">
     <div class="row mx-auto">
       <!-- Imgsets -->
       <div class="col-lg-10 pt-1" id="imgset_creation">
@@ -69,9 +69,6 @@ export default {
     DesignOptions
   },
   computed: {
-    studyOpened () {
-      return this.$store.getters['currentStudy/studyTitle'] !== String
-    },
     viewerNumb () {
       return this.$store.getters['currentStudy/viewerNumb']
     },

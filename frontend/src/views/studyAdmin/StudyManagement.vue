@@ -15,8 +15,8 @@
         </router-link>
       </div>
     </div>
-    <router-view v-slot="{ Component }" name="helper" id="router_helper_view">
-      <keep-alive include="Design,participation">
+    <router-view v-if="studyOpened | this.$route.name === 'StudyOverview'" v-slot="{ Component }" name="helper" id="router_helper_view">
+      <keep-alive include="Design,participation,FileUpload">
         <component :is="Component" />
       </keep-alive>
     </router-view>

@@ -106,6 +106,7 @@
 import uploadModal from '@/components/misc/uploadModal'
 
 export default {
+  name: 'FileUpload',
   components: {
     uploadModal
   },
