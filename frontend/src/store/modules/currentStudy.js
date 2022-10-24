@@ -11,18 +11,39 @@ const state = {
   password: String,
   description: String,
   design: Object,
-  images: Array,
-  stacks: Array,
+  images: [],
+  stacks: [],
   imageSets: [],
   instructions: String,
-  userStudyProgress: Array,
-  imgsetDisplayed: undefined,
+  usersStudyProgress: [],
+  imgsetDisplayed: null,
   resultsCurrentUser: [],
-  loadingState: {
-    isLoading: false,
-    title: '',
-    errorOccured: false,
-    errorMsg: ''
+  scalesInput: []
+}
+
+// class Design {
+//   constructor () {
+//     this.element = null
+//   }
+// }
+
+// class ScaleDesign {
+//   constructor () {
+//     this.element = null
+//   }
+// }
+
+// class Tool {
+//   constructor () {
+//     this.element = null
+//   }
+// }
+
+class ScaleInput {
+  constructor (scaleName, scaleValue, uuidAnnoation = null) {
+    this.name = scaleName
+    this.value = scaleValue
+    this.uuid = uuidAnnoation
   }
 }
 
@@ -98,21 +119,6 @@ const getters = {
   scales (state) {
     return state.design.scales
   },
-  scalesInput (state) {
-    var scalesInput = {}
-    state.design.scales.forEach(scale => {
-      console.log(scale)
-      if (scalesInput[scale.text] === undefined) {
-        scalesInput[scale.text] = {
-          values: [],
-          uuids: []
-        }
-      }
-      scalesInput[scale.text].values.push(scale.input)
-      scalesInput[scale.text].uuids.push(scale.uuid)
-    })
-    return scalesInput
-  },
   scaleText: (state) => (index) => {
     return state.design.scales[index].text
   },
@@ -126,7 +132,22 @@ const getters = {
     return state.design.scales[index].labels
   },
   scaleInput: (state) => (index) => {
-    return state.design.scales[index].input
+    return state.scalesInput[index]
+  },
+  scalesInput (state) {
+    return state.scalesInput
+  },
+  scalesInputDB (state) {
+    // format for database
+    // old: multiple values for one scaleInput possible (FROC, LROC)
+    // new: each scaleInput has only one value and uuid
+    var scalesInputDB = {}
+    state.scalesInput.forEach(scale => {
+      scalesInputDB[scale.name] = {}
+      scalesInputDB[scale.name].values = [scale.value]
+      scalesInputDB[scale.name].uuids = [scale.uuid]
+    })
+    return scalesInputDB
   },
   // tools with settings (saved in db)
   tools (state) {
@@ -172,8 +193,8 @@ const getters = {
     return state.stacks
   },
   // results
-  userStudyProgress (state) {
-    return state.userStudyProgress
+  usersStudyProgress (state) {
+    return state.usersStudyProgress
   },
   resultsCurrentUser (state) {
     return state.resultsCurrentUser
@@ -221,7 +242,7 @@ const mutations = {
     state.stacks = study.stacks
     state.imageSets = study.imgsets
     state.instructions = study.instructions
-    state.userStudyProgress = study.user_study_progress
+    state.usersStudyProgress = study.user_study_progress
     state.resultsCurrentUser = []
   },
   closeStudy () {
@@ -307,14 +328,18 @@ const mutations = {
   scaleLabel (state, payload) {
     state.design.scales[payload.index].labels[payload.labelIndex] = payload.label
   },
-  scaleInput (state, payload) {
-    state.design.scales[payload.index].input = payload.input
-  },
   addScale (state, payload) {
     state.design.scales.push(payload)
   },
   delScale (state, payload) {
     state.design.scales.splice(payload.index)
+  },
+  scaleInput (state, { index, scaleName, scaleValue }) {
+    const scale = new ScaleInput(scaleName, scaleValue)
+    state.scalesInput[index] = scale
+  },
+  resetScalesInput (state) {
+    state.scalesInput = []
   },
   // tools available and tool settings
   tools (state, tools) {
@@ -376,8 +401,19 @@ const mutations = {
   addResultsCurrentUser (state, results) {
     state.resultsCurrentUser = results
   },
-  userStudyProgress (state, userStudyProgress) {
-    state.userStudyProgress = userStudyProgress
+  removeResultsCurrentUser (state) {
+    state.resultsCurrentUser = []
+  },
+  userStudyProgress (state, userStudyProgressNew) {
+    var userStudyProgressIndex = state.usersStudyProgress.findIndex(usp => usp.user_id === userStudyProgressNew.user_id)
+    if (userStudyProgressIndex > -1) {
+      state.usersStudyProgress[userStudyProgressIndex] = userStudyProgressNew
+    } else {
+      state.usersStudyProgress.push(userStudyProgressNew)
+    }
+  },
+  usersStudyProgress (state, usersStudyProgress) {
+    state.usersStudyProgress = usersStudyProgress
   },
   // loading state
   startLoading (state, { title }) {
@@ -547,7 +583,10 @@ const actions = {
     saveResultDb(state.id, payload)
       .then((response) => {
         const result = response.data.result
+        const usp = response.data.study_progress
         commit('addResultCurrentUser', result)
+        commit('userStudyProgress', usp)
+        commit('resetScalesInput')
         store.commit('loadingState/finishLoading', { errorOccured: false, errorMsg: '' })
       })
       .catch((response) => {
@@ -564,8 +603,9 @@ const actions = {
     store.commit('loadingState/startLoading', { title: 'Deleting Results' })
     deleteResultUserDb(state.id, userId)
       .then((response) => {
-        const userStudyProgress = response.data.user_study_progress
-        commit('userStudyProgress', userStudyProgress)
+        const usersStudyProgress = response.data.user_study_progress
+        commit('usersStudyProgress', usersStudyProgress)
+        commit('removeResultsCurrentUser')
         store.commit('loadingState/finishLoading', { errorOccured: false, errorMsg: '' })
       })
       .catch((response) => {

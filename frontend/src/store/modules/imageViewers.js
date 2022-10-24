@@ -13,16 +13,16 @@ const state = {
 // interface class to hold data from cornerstone image viewers and tools
 class Viewer {
   constructor () {
-    this.element = undefined
+    this.element = null
     this.stackDisplayed = {
       csStack: {
         imageIds: [],
         currentImageIdIndex: Number
       },
       name: String,
-      savedSegmentation: undefined,
-      savedToolstate: undefined,
-      savedViewport: undefined
+      savedSegmentation: null,
+      savedToolstate: null,
+      savedViewport: null
     }
     this.viewportSettings = {
       windowWidth: Number,
@@ -34,11 +34,11 @@ class Viewer {
     }
     this.toolState = {
       annotations: {
-        CircleRoi: {},
-        RectangleRoi: {},
-        EllipticalRoi: {},
-        FreehandRoi: {},
-        LengthMeasurement: {}
+        CircleRoi: [],
+        RectangleRoi: [],
+        EllipticalRoi: [],
+        FreehandRoi: [],
+        LengthMeasurement: []
       }
     }
   }

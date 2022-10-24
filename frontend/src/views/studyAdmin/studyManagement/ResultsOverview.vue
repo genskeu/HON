@@ -12,10 +12,10 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="usp in userStudyProgress" :key="usp">
+                        <tr v-for="usp in usersStudyProgress" :key="usp">
                             <td class="align-middle">{{usp.username}}</td>
                             <td class="align-middle">{{usp.updated}}</td>
-                            <td class="align-middle">{{usp.imgsets_finished/studyLength * 100 + '%'}}</td>
+                            <td class="align-middle">{{Math.round(usp.imgsets_finished/studyLength * 10000)/100 + '%'}}</td>
                             <td class="align-middle">
                                 <button class="btn-danger btn-sm" @click="delResultsUser(usp.user_id)">delete
                                 </button>
@@ -67,8 +67,8 @@ export default {
     }
   },
   computed: {
-    userStudyProgress () {
-      return this.$store.getters['currentStudy/userStudyProgress']
+    usersStudyProgress () {
+      return this.$store.getters['currentStudy/usersStudyProgress']
     },
     studyLength () {
       return this.$store.getters['currentStudy/imgsets'].length

@@ -663,6 +663,7 @@ def save_result(study_id):
     response = {}
     response["error"] = error
     response["result"] = result.to_dict()    
+    response["study_progress"] = study_progress.to_dict()
 
     return jsonify(response)
 

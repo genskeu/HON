@@ -15,8 +15,8 @@ export default {
     buttonLabel () {
       return this.$store.getters['currentStudy/buttonLabels']
     },
-    scalesInput () {
-      return this.$store.getters['currentStudy/scalesInput']
+    scalesInputDB () {
+      return this.$store.getters['currentStudy/scalesInputDB']
     },
     imgsetDisplayed () {
       return this.$store.getters['currentStudy/imgsetDisplayed']
@@ -41,7 +41,7 @@ export default {
         imgset_id: this.imgsetDisplayed.id,
         picked_stack: stackPicked,
         stacks_displayed: imgset.stacks,
-        scale_input: this.scalesInput
+        scale_input: this.scalesInputDB
       }
       this.$store.dispatch('currentStudy/saveResult', payload)
     }
