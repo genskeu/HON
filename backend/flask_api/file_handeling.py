@@ -150,7 +150,7 @@ def delete_files(study_id):
 
     # delete from db
     for stack in stacks:
-        base_url = request.url_root + f"get_file/{user_id}/{study.id}/{stack['name']}/"
+        base_url = f"flask-api/get_file/{user_id}/{study.id}/{stack['name']}/"
         for filename in stack["files"]:
             image = Image.query.filter_by(name = filename, base_url=base_url).first()
             try:

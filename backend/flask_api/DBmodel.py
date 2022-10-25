@@ -11,9 +11,8 @@ import json
 import random
 import pandas as pd
 import numpy as np
-import copy
 import nibabel as nib
-from pydicom import dcmread
+
 
 db = SQLAlchemy()
 
@@ -51,6 +50,7 @@ class User(db.Model):
         return self.access_level == 3
 
 #tables for m to n relationships (study - images)
+#to do: to enable image sharing between studies => feature never finished
 study_images = db.Table("study_images",
     db.Column("study_id",db.Integer, db.ForeignKey("study.id"), primary_key=True),
     db.Column("image_id",db.Integer, db.ForeignKey("image.id"), primary_key=True)
@@ -84,6 +84,7 @@ class Study(db.Model):
     images = db.relationship("Image",secondary=study_images, backref=db.backref("studies", lazy=True),lazy='subquery')
     imgsets = db.relationship("Imgset", backref="study", lazy=True, order_by="Imgset.position",
                               cascade="all, delete-orphan")
+    results = db.relationship("Result", backref="study", lazy=True, cascade="all, delete-orphan")
     user_study_progress = db.relationship("User_study_progress", backref="study",
                                            lazy=True, cascade="all, delete-orphan")
 
@@ -167,8 +168,8 @@ class Study(db.Model):
         images = [image for image in self.images if image.base_url.split(os.sep)[-2] == stack_folder]
         for image in images:
             url = os.path.join(image.base_url,image.name)
-            if ".dcm" in image.name:
-                url = "wadouri:" + url
+            if ".dcm" in image.name.lower():
+                url = "wadouri:" + url                
             stack["cs_stack"]["imageIds"].append(url)
         stack["cs_stack"]["imageIds"]
         stack["cs_stack"]["imageIds"].sort()
@@ -227,110 +228,110 @@ class Study(db.Model):
 
         return imgsets, ref_stack, error_image_stacks, error_imgsets
 
-    def get_image_stacks(self,imgset_config):
-        # build stacks from images
-        image_stacks = {}
-        ref_stack = {}
-        error = None
+    # def get_image_stacks(self,imgset_config):
+    #     # build stacks from images
+    #     image_stacks = {}
+    #     ref_stack = {}
+    #     error = None
 
-        self.images.sort(key=lambda image: image.name)
-        for image in self.images:
-            if imgset_config.stackmode == "single_images":
-                stack_name = image.name
-            else:
-                stack_name = "_".join(image.name.split("_")[0:3])
+    #     self.images.sort(key=lambda image: image.name)
+    #     for image in self.images:
+    #         if imgset_config.stackmode == "single_images":
+    #             stack_name = image.name
+    #         else:
+    #             stack_name = "_".join(image.name.split("_")[0:3])
 
-            if stack_name in image_stacks:
-                image_stacks[stack_name]["images"].append(image)
-            else:
-                image_stacks[stack_name] = {}
-                image_stacks[stack_name]["name"] = stack_name
-                image_stacks[stack_name]["viewport"] = imgset_config.viewport
-                image_stacks[stack_name]["images"] = [image]
+    #         if stack_name in image_stacks:
+    #             image_stacks[stack_name]["images"].append(image)
+    #         else:
+    #             image_stacks[stack_name] = {}
+    #             image_stacks[stack_name]["name"] = stack_name
+    #             image_stacks[stack_name]["viewport"] = imgset_config.viewport
+    #             image_stacks[stack_name]["images"] = [image]
         
-        if imgset_config.ref_stack_name in image_stacks.keys():
-            ref_stack = image_stacks[imgset_config.ref_stack_name]
-        elif imgset_config.ref_stack_name != "" and imgset_config.ref_stack_name not in image_stacks.keys():
-            error = "Error creating the reference stack: " + imgset_config.ref_stack_name + "."
-        elif imgset_config.ref_stack_name == "" and imgset_config.div_ids_ref:
-            error = "No reference stack specified, but the number of reference images (general settings) is not 0."
-        image_stacks = [image_stacks[stack_name] for stack_name in image_stacks if stack_name != imgset_config.ref_stack_name]
+    #     if imgset_config.ref_stack_name in image_stacks.keys():
+    #         ref_stack = image_stacks[imgset_config.ref_stack_name]
+    #     elif imgset_config.ref_stack_name != "" and imgset_config.ref_stack_name not in image_stacks.keys():
+    #         error = "Error creating the reference stack: " + imgset_config.ref_stack_name + "."
+    #     elif imgset_config.ref_stack_name == "" and imgset_config.div_ids_ref:
+    #         error = "No reference stack specified, but the number of reference images (general settings) is not 0."
+    #     image_stacks = [image_stacks[stack_name] for stack_name in image_stacks if stack_name != imgset_config.ref_stack_name]
         
-        return image_stacks, ref_stack, error
+    #     return image_stacks, ref_stack, error
 
-    def auto_create_AFC_imgsets(self, image_stacks, config):
-        #auto create imgsets
-        imgset_size = len(config.div_ids)
-        error = ""
-        pos_stacks = []
-        neg_stacks = []
-        for stack in image_stacks:
-            stack_info = stack["name"].split("_")
-            if len(stack_info) < 3:
-                error += stack["name"] + ": wrong naming scheme." + "\n"
-            elif config.pos_pattern == stack_info[1]:
-                pos_stacks.append(stack)
-            elif config.neg_pattern == stack_info[1]:
-                neg_stacks.append(stack)
-            else:
-                error += stack["name"] + ": group info not found." + "\n"
-        if config.order == "ordered":
-            pos_stacks.sort(key=lambda pos_stack: int(pos_stack["name"].split("_")[0]))
-        else:
-            random.shuffle(pos_stacks)
-        imgsets = []
-        for pos_stack in pos_stacks:
-            imgset = []
-            pos_stack_info = pos_stack["name"].split("_")
-            group_info = pos_stack_info[2]
-            neg_stacks_group = [neg_stack for neg_stack in neg_stacks if group_info == neg_stack["name"].split("_")[2]]
-            if len(neg_stacks_group) < (imgset_size-1):
-                error += "Not enough negative images found for " + pos_stack["name"] + "\n"
-                continue
-            # pick neg images
-            for rand_int in random.sample(range(len(neg_stacks_group)), imgset_size-1):
-                imgset.append(copy.copy(neg_stacks_group[rand_int]))
-            # add pos stack
-            imgset.insert(random.randint(0,imgset_size),pos_stack)
-            for i in range(imgset_size):
-                imgset[i]["div_id"] = config.div_ids[i]
-            imgsets.append(imgset)
+    # def auto_create_AFC_imgsets(self, image_stacks, config):
+    #     #auto create imgsets
+    #     imgset_size = len(config.div_ids)
+    #     error = ""
+    #     pos_stacks = []
+    #     neg_stacks = []
+    #     for stack in image_stacks:
+    #         stack_info = stack["name"].split("_")
+    #         if len(stack_info) < 3:
+    #             error += stack["name"] + ": wrong naming scheme." + "\n"
+    #         elif config.pos_pattern == stack_info[1]:
+    #             pos_stacks.append(stack)
+    #         elif config.neg_pattern == stack_info[1]:
+    #             neg_stacks.append(stack)
+    #         else:
+    #             error += stack["name"] + ": group info not found." + "\n"
+    #     if config.order == "ordered":
+    #         pos_stacks.sort(key=lambda pos_stack: int(pos_stack["name"].split("_")[0]))
+    #     else:
+    #         random.shuffle(pos_stacks)
+    #     imgsets = []
+    #     for pos_stack in pos_stacks:
+    #         imgset = []
+    #         pos_stack_info = pos_stack["name"].split("_")
+    #         group_info = pos_stack_info[2]
+    #         neg_stacks_group = [neg_stack for neg_stack in neg_stacks if group_info == neg_stack["name"].split("_")[2]]
+    #         if len(neg_stacks_group) < (imgset_size-1):
+    #             error += "Not enough negative images found for " + pos_stack["name"] + "\n"
+    #             continue
+    #         # pick neg images
+    #         for rand_int in random.sample(range(len(neg_stacks_group)), imgset_size-1):
+    #             imgset.append(copy.copy(neg_stacks_group[rand_int]))
+    #         # add pos stack
+    #         imgset.insert(random.randint(0,imgset_size),pos_stack)
+    #         for i in range(imgset_size):
+    #             imgset[i]["div_id"] = config.div_ids[i]
+    #         imgsets.append(imgset)
             
-        return imgsets,error
+    #     return imgsets,error
 
 
-    def auto_create_ROClike_imgsets(self, image_stacks, config):
-        imgset_size = len(config.div_ids)
-        if config.order == "random":
-            random.shuffle(image_stacks)
-        else:
-            image_stacks.sort(key=lambda stack: stack["name"].split("_")[0])
-        imgsets = []
-        error = None
-        for i in range(0,len(image_stacks) - imgset_size + 1, imgset_size):
-            imgset = image_stacks[i:i+imgset_size]
-            for i, stack in enumerate(imgset):
-                stack["div_id"] = config.div_ids[i]
-            imgsets.append(imgset)
+    # def auto_create_ROClike_imgsets(self, image_stacks, config):
+    #     imgset_size = len(config.div_ids)
+    #     if config.order == "random":
+    #         random.shuffle(image_stacks)
+    #     else:
+    #         image_stacks.sort(key=lambda stack: stack["name"].split("_")[0])
+    #     imgsets = []
+    #     error = None
+    #     for i in range(0,len(image_stacks) - imgset_size + 1, imgset_size):
+    #         imgset = image_stacks[i:i+imgset_size]
+    #         for i, stack in enumerate(imgset):
+    #             stack["div_id"] = config.div_ids[i]
+    #         imgsets.append(imgset)
 
-        if config.order == "random":
-            random.shuffle(imgsets)
+    #     if config.order == "random":
+    #         random.shuffle(imgsets)
 
-        return imgsets,error
+    #     return imgsets,error
         
-class Imgset_config:
-    def __init__(self,config_dict):
-        self.pos_pattern = config_dict["pos_pattern"] 
-        self.neg_pattern = config_dict["neg_pattern"]
-        self.stackmode = config_dict["stackmode"]  
-        self.ref_stack_name = config_dict["ref_stack_name"] 
-        self.div_ids = config_dict["div_ids"] 
-        self.div_ids_ref = config_dict["div_ids_ref"] 
-        self.viewport = config_dict["viewport"] 
-        self.viewport_ref = config_dict["viewport_ref"] 
-        self.imgset_type = config_dict["imgset_type"] 
-        self.order = config_dict["order"] 
-        self.stackmode = config_dict["stackmode"]
+# class Imgset_config:
+#     def __init__(self,config_dict):
+#         self.pos_pattern = config_dict["pos_pattern"] 
+#         self.neg_pattern = config_dict["neg_pattern"]
+#         self.stackmode = config_dict["stackmode"]  
+#         self.ref_stack_name = config_dict["ref_stack_name"] 
+#         self.div_ids = config_dict["div_ids"] 
+#         self.div_ids_ref = config_dict["div_ids_ref"] 
+#         self.viewport = config_dict["viewport"] 
+#         self.viewport_ref = config_dict["viewport_ref"] 
+#         self.imgset_type = config_dict["imgset_type"] 
+#         self.order = config_dict["order"] 
+#         self.stackmode = config_dict["stackmode"]
 
 
 
@@ -503,16 +504,16 @@ class Result(db.Model):
 
 
     def to_dict(self):
-            result_dict = {}
-            result_dict["id"] = self.id
-            result_dict["user_id"] = self.user_id
-            result_dict["study_id"] = self.study_id
-            result_dict["imgset_id"] = self.imgset_id
-            result_dict["stack_picked"] = self.stack_picked.to_dict()
-            result_dict["created"] = self.created
-            result_dict["scale_input"] = self.scale_input
+        result_dict = {}
+        result_dict["id"] = self.id
+        result_dict["user_id"] = self.user_id
+        result_dict["study_id"] = self.study_id
+        result_dict["imgset_id"] = self.imgset_id
+        result_dict["stack_picked"] = self.stack_picked.to_dict()
+        result_dict["created"] = self.created
+        result_dict["scale_input"] = self.scale_input
 
-            return result_dict
+        return result_dict
 
 
 
@@ -557,8 +558,7 @@ class Imgset(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     study_id = db.Column(db.Integer(), db.ForeignKey("study.id"), nullable=False)
     position = db.Column(db.Integer(), nullable=False)
-    image_stacks = db.relationship("Image_stack", lazy=False, cascade="all, delete-orphan")
-
+    image_stacks = db.relationship("Image_stack",backref="imgset", lazy=False, cascade="all, delete-orphan")
 
     def get_stack_by_div_id(self,div_id):
         stack = [stack for stack in self.image_stacks if stack.div_id == div_id]
@@ -602,10 +602,10 @@ class Image(db.Model):
 
 
 #table for m to n relationships (image_stacks - images)
-stack_images = db.Table("stack_images",
-    db.Column("image_stack_id",db.Integer, db.ForeignKey("image_stack.id"), primary_key=True),
-    db.Column("image_id",db.Integer, db.ForeignKey("image.id"), primary_key=True)
-)
+# stack_images = db.Table("stack_images",
+#     db.Column("image_stack_id",db.Integer, db.ForeignKey("image_stack.id"), primary_key=True),
+#     db.Column("image_id",db.Integer, db.ForeignKey("image.id"), primary_key=True)
+# )
     
 
 
@@ -628,7 +628,7 @@ class Image_stack(db.Model):
     result_id = db.Column(db.Integer(), db.ForeignKey("result.id"))
     div_id = db.Column(db.String(120))
     name = db.Column(db.String(120))
-    images = db.relationship("Image",secondary=stack_images, backref=db.backref("image_stacks", lazy=True),lazy='subquery', order_by='Image.name')
+    # images = db.relationship("Image",secondary=stack_images, backref=db.backref("image_stacks", lazy=True),lazy='subquery', order_by='Image.name')
     viewport = db.Column(db.String(1000))
     tool_state = db.Column(db.Text(1000000))
     seg_data = db.Column(db.Text(100000000))
@@ -637,9 +637,16 @@ class Image_stack(db.Model):
         image_stack_dict = {}
         image_stack_dict["div_id"] = self.div_id
         image_stack_dict["name"] = self.name
-        imageIds = ['wadouri:' + image.base_url + image.name if ".dcm" in  image.name else image.base_url + image.name for image in self.images]
-        image_stack_dict["cs_stack"] = {"imageIds":imageIds,
-                            "currentImageIdIndex":0}
+        image_stack_dict["cs_stack"] = {"imageIds":[],
+                                        "currentImageIdIndex":0}
+        images = self.get_images()
+        for image in images:
+            url = os.path.join(image.base_url,image.name)
+            if ".dcm" in image.name.lower():
+                url = "wadouri:" + url                
+            image_stack_dict["cs_stack"]["imageIds"].append(url)
+        image_stack_dict["cs_stack"]["imageIds"]
+        image_stack_dict["cs_stack"]["imageIds"].sort()
         if self.viewport:
             image_stack_dict["viewport"] = json.loads(self.viewport)
         if self.tool_state:
@@ -649,10 +656,12 @@ class Image_stack(db.Model):
         
         return image_stack_dict
 
-
-    def get_filenames(self):
-        image_names = json.loads(self.image_names)
-        return image_names
+    def get_images(self):
+        if self.imgset:
+            images = [image for image in self.imgset.study.images if image.base_url.split(os.sep)[-2] == self.name]
+        else:
+            images = [image for image in self.result.study.images if image.base_url.split(os.sep)[-2] == self.name]
+        return images
 
     def save_seg_data(self,file_path):
         data = json.loads(self.seg_data)
@@ -675,9 +684,6 @@ class Image_stack(db.Model):
         new_image = nib.Nifti1Image(array3d, affine=np.eye(4))
         new_image.header.get_xyzt_units()
         new_image.to_filename(file_path)       
-
-
-
 
 
 #### none db model classes
@@ -759,7 +765,7 @@ class Output:
             stack_files_col_name = f"stack-{stack_col_index}-files"
             # stack can be none if left blank
             if stack:
-                image_names = [image.name for image in stack.images]
+                image_names = [image.name for image in stack.get_images()]
                 self.stacks_disp[stack_col_name].append(stack.name)
                 self.stacks_disp[stack_files_col_name].append(image_names)
                 self.max_stack_size = max(self.max_stack_size,len(image_names))
@@ -771,7 +777,7 @@ class Output:
         stack_picked = result.stack_picked
         # stack can be none if left blank
         if stack_picked:
-            image_names = [image.name for image in stack_picked.images]
+            image_names = [image.name for image in stack_picked.get_images()]
             self.stack_user["stack-user"].append(stack_picked.name)
             self.stack_user["stack-user-files"].append(image_names)
         else:
@@ -789,7 +795,7 @@ class Output:
             stack = result.imgset.get_stack_by_div_id(div_id_ref)
             # stack can be none if left blank
             if stack:
-                image_names = [image.name for image in stack.images]
+                image_names = [image.name for image in stack.get_images()]
                 self.ref_stacks["ref-stack-%s"%str(i+1)].append(stack.name)
                 self.ref_stacks["ref-stack-%s-files"%str(i+1)].append(image_names)
                 self.max_stack_size = max(self.max_stack_size,len(image_names))

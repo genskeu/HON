@@ -1,15 +1,13 @@
-from crypt import methods
 import os
 import shutil
 import json
 from datetime import datetime
 from flask import (
-    Blueprint, flash, redirect, render_template, request, url_for,
-    jsonify, current_app, g, session
+    Blueprint, render_template, request, jsonify, current_app
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 from .auth import access_level_required
-from .DBmodel import Study, Design, Imgset, db, Result, Scale, Tool, Image_stack, User_study_progress, Imgset_config, Image
+from .DBmodel import Study, Design, Imgset, db, Result, Scale, Tool, Image_stack, User_study_progress, Image
 from sqlalchemy.orm import joinedload
 from flask import send_from_directory
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -224,15 +222,15 @@ def get_cs_stack(study_id,image_ids):
     return cs_stack
 
 #update select menus
-@bp.route('/study/get_cs_stacks/<int:study_id>/<group_info>', methods=['GET'])
-@jwt_required()
-@access_level_required(["study_participant","study_admin"])
-def get_cs_stacks(study_id,group_info):
-    study = Study.query.filter_by(id=study_id).first()
-    cs_stacks = study.images_to_cs_stacks(group_info)
-    response = {}
-    response["cs_stacks"] = cs_stacks
-    return response
+# @bp.route('/study/get_cs_stacks/<int:study_id>/<group_info>', methods=['GET'])
+# @jwt_required()
+# @access_level_required(["study_participant","study_admin"])
+# def get_cs_stacks(study_id,group_info):
+#     study = Study.query.filter_by(id=study_id).first()
+#     cs_stacks = study.images_to_cs_stacks(group_info)
+#     response = {}
+#     response["cs_stacks"] = cs_stacks
+#     return response
 
 @bp.route('/study/imgset/<int:study_id>/<int:position>', methods=['GET'])
 @jwt_required()
@@ -287,12 +285,12 @@ def add_imgset(study_id):
             if stack["segmentation_data"]:
                 image_stack.seg_data = stack["segmentation_data"]
 
-            for image_name in stack["image_names"]:
-                image = Image.query.filter_by(name=image_name,base_url=stack["base_url"]).first()
-                if image is None:
-                    image_error += image_name + " not part of study %s."%study.title
-                else:
-                    image_stack.images.append(image)
+            # for image_name in stack["image_names"]:
+            #     image = Image.query.filter_by(name=image_name,base_url=stack["base_url"]).first()
+            #     if image is None:
+            #         image_error += image_name + " not part of study %s."%study.title
+            #     else:
+            #         image_stack.images.append(image)
             db.session.add(image_stack)
         db.session.commit()
 
@@ -335,12 +333,12 @@ def update_imgset(study_id, position):
             if stack["segmentation_data"]:
                 image_stack.seg_data = stack["segmentation_data"]
 
-            for image_name in stack["image_names"]:
-                image = Image.query.filter_by(name=image_name,base_url=stack["base_url"]).first()
-                if image is None:
-                    image_error += image_name + " not part of study %s."%study.title
-                else:
-                    image_stack.images.append(image)
+            # for image_name in stack["image_names"]:
+            #     image = Image.query.filter_by(name=image_name,base_url=stack["base_url"]).first()
+            #     if image is None:
+            #         image_error += image_name + " not part of study %s."%study.title
+            #     else:
+            #         image_stack.images.append(image)
             db.session.add(image_stack)
         db.session.commit()
         response["error_msg"] = image_error
@@ -466,12 +464,12 @@ def imgsets(study_id):
             if stack["segmentation_data"]:
                 image_stack.seg_data = stack["segmentation_data"]
 
-            for image_name in stack["image_names"]:
-                image = Image.query.filter_by(name=image_name,base_url=stack["base_url"]).first()
-                if image is None:
-                    image_error += image_name + " not part of study %s."%study.title
-                else:
-                    image_stack.images.append(image)
+            # for image_name in stack["image_names"]:
+            #     image = Image.query.filter_by(name=image_name,base_url=stack["base_url"]).first()
+            #     if image is None:
+            #         image_error += image_name + " not part of study %s."%study.title
+            #     else:
+            #         image_stack.images.append(image)
             db.session.add(image_stack)
         db.session.commit()
         response["imgsets"].append(imgset.to_dict())
@@ -637,12 +635,12 @@ def save_result(study_id):
         if result_dict["picked_stack"]["segmentation_data"]:
             picked_stack.seg_data = result_dict["picked_stack"]["segmentation_data"]
         db.session.add(picked_stack)
-        for image_name in result_dict["picked_stack"]["image_names"]:
-            image = Image.query.filter_by(name=image_name,base_url=result_dict["picked_stack"]["base_url"]).first()
-            if image is None:
-                error = f"Error saving results. Is {image_name} part of the study?"
-            else:
-                picked_stack.images.append(image)
+        # for image_name in result_dict["picked_stack"]["image_names"]:
+        #     image = Image.query.filter_by(name=image_name,base_url=result_dict["picked_stack"]["base_url"]).first()
+        #     if image is None:
+        #         error = f"Error saving results. Is {image_name} part of the study?"
+        #     else:
+        #         picked_stack.images.append(image)
 
         study_progress = User_study_progress.query.filter_by(study_id=study_id,
                                                              user_id=user_id).first()
