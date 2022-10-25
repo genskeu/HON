@@ -14,18 +14,18 @@ const getters = {
 
 const actions = {
   initStudies ({ commit }) {
-    if (state.studies.length === 0) {
-      store.commit('loadingState/startLoading', { title: 'Loading Study Overview' })
-      fetchStudies()
-        .then((response) => {
-          const studies = response.data.studies
-          commit('initStudies', studies)
-          store.commit('loadingState/finishLoading', { errorOccured: false, errorMsg: '' })
-        })
-        .catch((response) => {
-          store.commit('loadingState/finishLoading', { errorOccured: true, errorMsg: response.data.error })
-        })
-    }
+    // if (state.studies.length === 0) {
+    store.commit('loadingState/startLoading', { title: 'Loading Study Overview' })
+    fetchStudies()
+      .then((response) => {
+        const studies = response.data.studies
+        commit('initStudies', studies)
+        store.commit('loadingState/finishLoading', { errorOccured: false, errorMsg: '' })
+      })
+      .catch((response) => {
+        store.commit('loadingState/finishLoading', { errorOccured: true, errorMsg: response.data.error })
+      })
+    // }
   },
   deleteStudy ({ commit }, payload) {
     store.commit('loadingState/startLoading', { title: 'Deleting Study' })
