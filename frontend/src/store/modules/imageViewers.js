@@ -5,9 +5,7 @@ import { tools } from '@/store/modules/currentStudy/tools'
 
 const state = {
   refviewers: [],
-  viewers: [],
-  // workaround to get rid of warnings
-  toolsInitialized: false
+  viewers: []
 }
 
 // interface class to hold data from cornerstone image viewers and tools
@@ -85,9 +83,9 @@ const getters = {
     return state[viewertype][index].viewportSettings.rotation
   },
   // tools
-  toolsInitialized (state) {
-    return state.toolsInitialized
-  },
+  // toolsInitialized (state) {
+  //   return state.toolsInitialized
+  // },
   // tools avaiblable
   viewerSettingToolsMousekeys () {
     return tools.toolsMousekeys.viewerSetting
@@ -155,6 +153,12 @@ const getters = {
 }
 
 const mutations = {
+  reset (state) {
+    state.refviewers = []
+    state.viewers = []
+    // workaround to get rid of warnings
+    // state.toolsInitialized = false
+  },
   // viewer
   initViewer (state, payload) {
     const viewer = new Viewer()
@@ -222,9 +226,9 @@ const mutations = {
     viewportSettings.rotation = payload.viewport.rotation
   },
   // tools
-  toolsInitialized (state, value) {
-    state.toolsInitialized = value
-  },
+  // toolsInitialized (state, value) {
+  //   state.toolsInitialized = value
+  // },
   // viewer tool state
   addAnnotation (state, payload) {
     var viewer = state[payload.viewertype][payload.index]

@@ -1,6 +1,6 @@
 <template>
     <!-- tool select menus -->
-    <div class="input-group mx-auto" data-toggle="tooltip" data-placement="left"
+    <div v-if="this.toolsParticipant.length > 0" class="input-group mx-auto" data-toggle="tooltip" data-placement="left"
         title="Use the select menus to activate image handling tools for the left, middle and right mouse key.">
         <label class="input-group-text">Active Tool Left Mouse Key</label>
         <select class='form-select' v-model="toolActiveLeft">
@@ -116,20 +116,23 @@ export default {
       cornerstoneTools.init({
         globalToolSyncEnabled: true
       })
+      const toolsAlreadyAdded = Object.keys(cornerstoneTools.store.state.globalTools)
       this.toolsParticipant.forEach(tool => {
-        const toolCornerStone = cornerstoneTools[tool.cs_name + 'Tool']
-        if (tool.settings.labels) {
-          tool.settings.labels.forEach(label => {
-            const toolConfig = {
-              name: tool.cs_name + '-' + label
-            }
-            cornerstoneTools.addTool(toolCornerStone, toolConfig)
-          })
-        } else {
-          cornerstoneTools.addTool(toolCornerStone)
+        if (!toolsAlreadyAdded.includes(tool.cs_name)) {
+          const toolCornerStone = cornerstoneTools[tool.cs_name + 'Tool']
+          if (tool.settings.labels) {
+            tool.settings.labels.forEach(label => {
+              const toolConfig = {
+                name: tool.cs_name + '-' + label
+              }
+              cornerstoneTools.addTool(toolCornerStone, toolConfig)
+            })
+          } else {
+            cornerstoneTools.addTool(toolCornerStone)
+          }
         }
       })
-      this.$store.commit('imageViewers/toolsInitialized', true)
+      // this.$store.commit('imageViewers/toolsInitialized', true)
     }
   }
 }

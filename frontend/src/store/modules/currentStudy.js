@@ -243,17 +243,24 @@ const mutations = {
     state.imageSets = study.imgsets
     state.instructions = study.instructions
     state.usersStudyProgress = study.user_study_progress
+    state.imgsetDisplayed = null
     state.resultsCurrentUser = []
+    state.scalesInput = []
   },
-  closeStudy () {
+  closeStudy (state) {
+    state.id = Number
     state.title = String
     state.password = String
     state.description = String
     state.design = Object
-    state.images = Array
-    state.stacks = Array
-    state.imageSets = Array
+    state.images = []
+    state.stacks = []
+    state.imageSets = []
     state.instructions = String
+    state.usersStudyProgress = []
+    state.imgsetDisplayed = null
+    state.resultsCurrentUser = []
+    state.scalesInput = []
   },
   // meta data
   updateStudyTitle (state, studyTitle) {
@@ -453,8 +460,9 @@ const actions = {
       })
   },
   closeStudy (context) {
-    store.commit('loadingState/startLoading', { title: 'Close Study' })
     context.commit('closeStudy')
+    store.commit('imageViewers/reset')
+    store.commit('loadingState/startLoading', { title: 'Close Study' })
     store.commit('loadingState/finishLoading', { errorOccured: false, errorMsg: '' })
     router.push('/study-management/study-overview')
   },

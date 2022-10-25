@@ -131,7 +131,7 @@ export default {
   watch: {
     stackDisplayed: {
       handler (newStack) {
-        if (newStack.csStack.imageIds.length > 0) {
+        if (newStack && newStack.csStack.imageIds.length > 0) {
           const stackToDisplay = {
             currentImageIdIndex: newStack.csStack.currentImageIdIndex,
             imageIds: newStack.csStack.imageIds
@@ -178,6 +178,7 @@ export default {
   },
   beforeUnmount () {
     this.$store.commit('imageViewers/removeCornerstoneViewer', this.$refs.viewer)
+    cornerstone.disable(this.$refs.viewer)
   },
   methods: {
     initViewer () {
@@ -235,7 +236,6 @@ export default {
     // when no image selected load a black blank screen
     resetViewer () {
       cornerstone.disable(this.$refs.viewer)
-      console.log('disable')
       this.initViewer()
     },
     displayStackIndex (event) {

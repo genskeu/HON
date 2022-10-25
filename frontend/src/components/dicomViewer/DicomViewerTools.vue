@@ -51,10 +51,8 @@ export default {
     }
   },
   mounted () {
-    var toolsInitialized = this.$store.getters['imageViewers/toolsInitialized']
-    if (!toolsInitialized) {
-      this.initCornerstoneTools()
-    }
+    // var toolsInitialized = this.$store.getters['imageViewers/toolsInitialized']
+    this.initCornerstoneTools()
   },
   computed: {
     activeToolLeft () {
@@ -104,19 +102,28 @@ export default {
       cornerstoneTools.init({
         globalToolSyncEnabled: true
       })
+      const toolsAlreadyAdded = Object.keys(cornerstoneTools.store.state.globalTools)
       Object.keys(this.viewerSettingToolsMousekeys).forEach(tool => {
-        cornerstoneTools.addTool(cornerstoneTools[tool + 'Tool'])
+        if (!toolsAlreadyAdded.includes(tool)) {
+          cornerstoneTools.addTool(cornerstoneTools[tool + 'Tool'])
+        }
       })
       Object.keys(this.annotationToolsMousekeys).forEach(tool => {
-        cornerstoneTools.addTool(cornerstoneTools[tool + 'Tool'])
+        if (!toolsAlreadyAdded.includes(tool)) {
+          cornerstoneTools.addTool(cornerstoneTools[tool + 'Tool'])
+        }
       })
       Object.keys(this.segmentationToolsMousekeys).forEach(tool => {
-        cornerstoneTools.addTool(cornerstoneTools[tool + 'Tool'])
+        if (!toolsAlreadyAdded.includes(tool)) {
+          cornerstoneTools.addTool(cornerstoneTools[tool + 'Tool'])
+        }
       })
       Object.keys(this.viewerSettingToolsMousewheel).forEach(tool => {
-        cornerstoneTools.addTool(cornerstoneTools[tool + 'Tool'])
+        if (!toolsAlreadyAdded.includes(tool)) {
+          cornerstoneTools.addTool(cornerstoneTools[tool + 'Tool'])
+        }
       })
-      this.$store.commit('imageViewers/toolsInitialized', true)
+      // this.$store.commit('imageViewers/toolsInitialized', true)
     }
   }
 }
