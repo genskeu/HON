@@ -27,7 +27,6 @@ import GeneralSettings from '@/components/studyDesign/designOptions/GeneralSetti
 import Scales from '@/components/studyDesign/designOptions/Scales.vue'
 import Instructions from '@/components/studyDesign/designOptions/Instructions.vue'
 import Tools from '@/components/studyDesign/designOptions/Tools.vue'
-import { updateStudyDesign } from '@/api'
 
 export default {
   name: 'DesignOptions',
@@ -48,9 +47,8 @@ export default {
   },
   methods: {
     saveDesign () {
-      const design = this.$store.getters['currentStudy/design']
       const studyId = this.$route.params.id
-      updateStudyDesign(studyId, design)
+      this.$store.dispatch('currentStudy/updateDesign', studyId)
     }
   }
 }

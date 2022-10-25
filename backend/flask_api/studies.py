@@ -183,6 +183,10 @@ def design(study_id):
     study.design.img_height_auto = design["img_height_auto"]
     study.design.img_per_row = design["img_per_row"]
     study.design.numb_rois = design["numb_rois"]
+    
+    # delete old tools
+    for tool in study.design.tools:
+        db.session.delete(tool)
     for toolData in design["tools"]:
         tool = Tool.query.filter_by(
             cs_name=toolData["cs_name"], design_id=study.design.id).first()

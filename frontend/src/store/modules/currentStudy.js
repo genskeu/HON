@@ -1,5 +1,5 @@
 import router from '@/router'
-import { createStudy, updateStudy, deleteFiles, createImgset, createImgsets, deleteImgsets, saveResultDb, getResultsCurrentUser, deleteResultUserDb, fetchStudy, studyLoginParticipant } from '@/api'
+import { createStudy, updateStudy, updateStudyDesign, deleteFiles, createImgset, createImgsets, deleteImgsets, saveResultDb, getResultsCurrentUser, deleteResultUserDb, fetchStudy, studyLoginParticipant } from '@/api'
 import store from '@/store'
 import { tools } from '@/store/modules/currentStudy/tools'
 
@@ -49,6 +49,9 @@ class ScaleInput {
 
 const getters = {
   // meta data
+  id (state) {
+    return state.id
+  },
   studyTitle (state) {
     return state.title
   },
@@ -460,11 +463,23 @@ const actions = {
       })
   },
   closeStudy (context) {
+    store.commit('loadingState/startLoading', { title: 'Close Study' })
     context.commit('closeStudy')
     store.commit('imageViewers/reset')
-    store.commit('loadingState/startLoading', { title: 'Close Study' })
     store.commit('loadingState/finishLoading', { errorOccured: false, errorMsg: '' })
     router.push('/study-management/study-overview')
+  },
+  // update study design
+  updateDesign ({ state }, studyId) {
+    store.commit('loadingState/startLoading', { title: 'Saving Design' })
+    const design = state.design
+    updateStudyDesign(studyId, design)
+      .then(() => {
+        store.commit('loadingState/finishLoading', { errorOccured: false, errorMsg: '' })
+      })
+      .catch((response) => {
+        store.commit('loadingState/finishLoading', { errorOccured: true, errorMsg: response.data.error })
+      })
   },
   studyLogin (context, payload) {
     studyLoginParticipant(payload)
@@ -496,8 +511,8 @@ const actions = {
           router.push(route)
         }, 500)
       })
-      .catch(error => {
-        console.log(error)
+      .catch(response => {
+        store.commit('loadingState/finishLoading', { errorOccured: true, errorMsg: response.data.error })
       })
       .finally(() => {})
   },
