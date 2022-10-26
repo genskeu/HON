@@ -7,7 +7,7 @@
           <router-link :to="{ name: 'StudyMetainfos', params: { id: studyId }}" class="nav-link">Metainfos</router-link>
           <router-link :to="{ name: 'StudyFiles', params: { id: studyId }}" class="nav-link">Files</router-link>
           <router-link :to="{ name: 'StudyDesign', params: { id: studyId }}" class="nav-link">Design</router-link>
-          <router-link :to="{ name: 'StudyParticipation', params: { id: studyId }}" class="nav-link">Participant Preview</router-link>
+          <router-link :to="{ name: 'StudyParticipationPreview', params: { id: studyId }}" class="nav-link">Participant Preview</router-link>
           <router-link :to="{ name: 'StudyResults', params: { id: studyId }}" class="nav-link">Results</router-link>
         </div>
           <div class="container mx-auto" v-else id="">

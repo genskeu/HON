@@ -539,29 +539,28 @@ def del_all_imgsets(study_id):
 @jwt_required()
 @access_level_required(["study_participant"])
 def study_login():
-    if request.method == 'POST':
-        data = request.get_json()
-        study_id = data['study_id']
-        password = data['password']
-        error = None
-        response = {}
-        study = Study.query.filter_by(id=study_id).first()
-        user_id = get_jwt_identity()
-        results = Result.query.filter_by(study_id=study_id, user_id=user_id).all()
-        
-        if study is None:
-            error = 'Study not found.'
-        # password hack for testing purposes and debugging
-        elif not check_password_hash(study.password, password):
-            error = 'Incorrect password.'
+    data = request.get_json()
+    study_id = data['study_id']
+    password = data['password']
+    error = None
+    response = {}
+    study = Study.query.filter_by(id=study_id).first()
+    user_id = get_jwt_identity()
+    results = Result.query.filter_by(
+        study_id=study_id, user_id=user_id).all()
 
-        if error is None:
-            response["study"] = study.to_dict(include_imagesets=True)
-            response["results"] = [result.to_dict() for result in results]
-            return response
-        else:
-            response["error"] = error
-            return response, 404
+    if study is None:
+        error = 'Study not found.'
+    elif not check_password_hash(study.password, password):
+        error = 'Incorrect password.'
+
+    if error is None:
+        response["study"] = study.to_dict(include_imagesets=True)
+        response["results"] = [result.to_dict() for result in results]
+        return response
+    else:
+        response["error"] = error
+        return response, 404
 
 
 

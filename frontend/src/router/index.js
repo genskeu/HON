@@ -5,12 +5,13 @@ import StudyMetainfo from '@/views/studyAdmin/studyManagement/StudyMetainfo'
 import FileManagement from '@/views/studyAdmin/studyManagement/FileManagement'
 import StudyDesign from '@/views/studyAdmin/studyManagement/StudyDesign'
 import ResultsOverview from '@/views/studyAdmin/studyManagement/ResultsOverview'
-import StudyParticipation from '@/views/studyParticipant/participation.vue'
+import Participation from '@/views/studyParticipant/studyParticipation/participation.vue'
 import UserOverview from '@/views/userAdmin/userOverview.vue'
 import UserProfile from '@/views/userAdmin/userProfile.vue'
 import Tutorials from '@/views/tutorials.vue'
 import Login from '@/views/login.vue'
-import studyLogin from '@/views/studyParticipant/studyLogin.vue'
+import studyParticipation from '@/views/studyParticipant/studyParticipation.vue'
+import StudyLogin from '@/views/studyParticipant/studyParticipation/login.vue'
 
 import store from '@/store'
 
@@ -84,9 +85,9 @@ const routes = [
       },
       {
         path: ':id/participation',
-        name: 'StudyParticipation',
+        name: 'StudyParticipationPreview',
         components: {
-          helper: StudyParticipation
+          helper: Participation
         }
       },
       {
@@ -99,10 +100,26 @@ const routes = [
     ]
   },
   {
-    path: '/study-login',
-    name: 'studyLogin',
-    component: studyLogin,
-    meta: { requireAuth: true }
+    path: '/study',
+    name: 'studyParticipation',
+    component: studyParticipation,
+    meta: { requireAuth: true },
+    children: [
+      {
+        path: 'login',
+        name: 'StudyLogin',
+        components: {
+          helper: StudyLogin
+        }
+      },
+      {
+        path: ':id/participation',
+        name: 'StudyParticipation',
+        components: {
+          helper: Participation
+        }
+      }
+    ]
   }
 ]
 

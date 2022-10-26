@@ -16,6 +16,9 @@
             <li v-if="isStudyAdmin" class="nav-item">
               <router-link to="/study-management/study-overview" class="nav-link">Studies Overview</router-link>
             </li>
+            <li v-if="isStudyParticipant" class="nav-item">
+              <router-link to="/study/login" class="nav-link">Study Login</router-link>
+            </li>
             <li v-if="loggedIn" class="nav-item">
               <router-link to="/user-profile/1" class="nav-link">User Profile</router-link>
             </li>
@@ -60,6 +63,12 @@ export default {
     isUserAdmin () {
       if (this.currentUser && this.currentUser.role) {
         return this.currentUser.role === 'user_admin'
+      }
+      return false
+    },
+    isStudyParticipant () {
+      if (this.currentUser && this.currentUser.role) {
+        return this.currentUser.role === 'study_participant'
       }
       return false
     }

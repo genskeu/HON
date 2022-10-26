@@ -496,6 +496,7 @@ const actions = {
         for (let i = 0; i < refviewerNumber; i++) {
           store.commit('imageViewers/initViewer', { viewertype: 'refviewers' })
         }
+        router.push(study.id + '/participation')
       })
   },
   createNewStudy ({ commit }) {

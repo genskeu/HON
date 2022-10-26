@@ -1,8 +1,21 @@
 <template>
-    <div>
-        <div id="nav" class="navbar bg-dark p-0" style="height: 50px;">
-            <div v-if="!studyOpened" class="container">
-                <div class="row">
+  <div class="container" style="height:90%">
+    <div class="row justify-content-center align-items-center h-100">
+      <form class="form-horizontal mx-auto my-auto col-3" @submit.prevent="studyLogin">
+        <div class="form-group mb-1">
+          <input v-model="studyId" class="form-control form-control-lg" placeholder="StudyId" type="number">
+        </div>
+        <div class="form-group mb-1">
+          <input v-model="studyPassword" class="form-control form-control-lg" type="password" name="password"
+            id="password" placeholder="Password" required>
+        </div>
+        <div class="form-group">
+          <input type="submit" value="Login to study" class="bg-success btn btn-success btn-lg btn-block w-100">
+        </div>
+      </form>
+    </div>
+  </div>
+                <!-- <div class="row">
                     <div class="input-group mx-auto">
                         <label class="input-group-text">Study ID</label>
                         <input class="form-control" type="number" v-model="studyId">
@@ -10,29 +23,15 @@
                         <input class="form-control" type="password" v-model="studyPassword">
                         <button type="form-control" class="btn btn-success btn-block" @click="studyLogin">Login</button>
                     </div>
-                </div>
-            </div>
-        </div>
-        <participation v-if="studyOpened">
-        </participation>
-    </div>
+                </div> -->
 </template>
 
 <script>
-import participation from '@/views/studyParticipant/participation'
 export default {
-  components: {
-    participation
-  },
   data: () => ({
     studyId: null,
     studyPassword: null
   }),
-  computed: {
-    studyOpened () {
-      return this.$store.getters['currentStudy/studyTitle'] !== String
-    }
-  },
   methods: {
     studyLogin () {
       // get study data from backend

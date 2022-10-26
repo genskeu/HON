@@ -73,6 +73,7 @@ def delete_result(study_id,user_id):
 
     response = {}
     response["user_study_progress"] = User_study_progress.query.filter_by(study_id=study_id).all()
+    response["user_study_progress"] = [usp.to_dict() for usp in response["user_study_progress"]]
     return jsonify(response)
 
 
