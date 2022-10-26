@@ -20,10 +20,10 @@ const actions = {
       .then((response) => {
         const studies = response.data.studies
         commit('initStudies', studies)
-        store.commit('loadingState/finishLoading', { errorOccured: false, errorMsg: '' })
+        store.commit('loadingState/finishLoading')
       })
       .catch((response) => {
-        store.commit('loadingState/finishLoading', { errorOccured: true, errorMsg: response.data.error })
+        store.commit('loadingState/errorOccured', { errorData: response })
       })
     // }
   },
@@ -32,10 +32,10 @@ const actions = {
     delStudy(payload.studyId, payload.loadingComp)
       .then(() => {
         commit('deleteStudy', payload.studyId)
-        store.commit('loadingState/finishLoading', { errorOccured: false, errorMsg: '' })
+        store.commit('loadingState/finishLoading')
       })
       .catch((response) => {
-        store.commit('loadingState/finishLoading', { errorOccured: true, errorMsg: response.data.error })
+        store.commit('loadingState/errorOccured', { errorData: response })
       })
   }
 }

@@ -2,6 +2,7 @@
   <div class="container" style="height:90%">
     <div class="row justify-content-center align-items-center h-100">
       <form class="form-horizontal mx-auto my-auto col-3" @submit.prevent="handleLogin">
+        <div>{{this.loginError}}</div>
         <div class="form-group mb-1">
           <input v-model="user.username" class="form-control form-control-lg" name="username" id="username"
             placeholder="Username">
@@ -30,11 +31,13 @@ export default {
   computed: {
     loggedIn () {
       return this.$store.state.auth.status.loggedIn
+    },
+    loginError () {
+      return this.$store.getters['auth/loginError']
     }
   },
   methods: {
     handleLogin () {
-      this.loading = true
       this.$store.dispatch('auth/login', this.user)
     }
   }

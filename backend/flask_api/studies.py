@@ -522,9 +522,9 @@ def del_all_imgsets(study_id):
     study = Study.query.filter_by(id=study_id).options(joinedload('imgsets')).first()
 
     if Result.query.filter_by(study_id=study_id).first():
-        error = "Results are present for this study! First delete results, then delete imgsets."
+        error = "Results are present for this study! First delete results, then delete image sets."
         status_code = 409
-        response["error_msg"] = error
+        response = error
     else:
         status_code = 200
         for imgset in study.imgsets:

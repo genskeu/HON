@@ -456,17 +456,17 @@ const actions = {
         for (let i = 0; i < refviewerNumber; i++) {
           store.commit('imageViewers/initViewer', { viewertype: 'refviewers' })
         }
-        store.commit('loadingState/finishLoading', { errorOccured: false, errorMsg: '' })
+        store.commit('loadingState/finishLoading')
       })
       .catch((response) => {
-        store.commit('loadingState/finishLoading', { errorOccured: true, errorMsg: response.data.error })
+        store.commit('loadingState/errorOccured', { errorData: response })
       })
   },
   closeStudy (context) {
     store.commit('loadingState/startLoading', { title: 'Close Study' })
     context.commit('closeStudy')
     store.commit('imageViewers/reset')
-    store.commit('loadingState/finishLoading', { errorOccured: false, errorMsg: '' })
+    store.commit('loadingState/finishLoading')
     router.push('/study-management/study-overview')
   },
   // update study design
@@ -475,10 +475,10 @@ const actions = {
     const design = state.design
     updateStudyDesign(studyId, design)
       .then(() => {
-        store.commit('loadingState/finishLoading', { errorOccured: false, errorMsg: '' })
+        store.commit('loadingState/finishLoading')
       })
       .catch((response) => {
-        store.commit('loadingState/finishLoading', { errorOccured: true, errorMsg: response.data.error })
+        store.commit('loadingState/errorOccured', { errorData: response })
       })
   },
   studyLogin (context, payload) {
@@ -506,14 +506,14 @@ const actions = {
         const study = response.data.study
         commit('openStudy', study)
         store.commit('studies/addStudy', study)
-        store.commit('loadingState/finishLoading', { errorOccured: false, errorMsg: '' })
+        store.commit('loadingState/finishLoading')
         const route = '/study-management/' + study.id + '/metainfos'
         setTimeout(function () {
           router.push(route)
         }, 500)
       })
       .catch(response => {
-        store.commit('loadingState/finishLoading', { errorOccured: true, errorMsg: response.data.error })
+        store.commit('loadingState/errorOccured', { errorData: response })
       })
       .finally(() => {})
   },
@@ -522,20 +522,20 @@ const actions = {
     deleteFiles(payload.studyId, payload.files)
       .then(() => {
         commit('deleteStacks', payload.files)
-        store.commit('loadingState/finishLoading', { errorOccured: false, errorMsg: '' })
+        store.commit('loadingState/finishLoading')
       })
       .catch((response) => {
-        store.commit('loadingState/finishLoading', { errorOccured: true, errorMsg: response.data.error })
+        store.commit('loadingState/errorOccured', { errorData: response })
       })
   },
   updateStudyMetainfos ({ commit }, { studyId, data }) {
     store.commit('loadingState/startLoading', { title: 'Saving updated Metainfos' })
     updateStudy(studyId, data)
       .then(() => {
-        store.commit('loadingState/finishLoading', { errorOccured: false, errorMsg: '' })
+        store.commit('loadingState/finishLoading')
       })
       .catch((response) => {
-        store.commit('loadingState/finishLoading', { errorOccured: true, errorMsg: response.data.error })
+        store.commit('loadingState/errorOccured', { errorData: response })
       })
   },
   // imgsets
@@ -545,10 +545,10 @@ const actions = {
       .then(response => {
         commit('addImgset', response.data.imgset)
         commit('imgsetDisplayed', response.data.imgset)
-        store.commit('loadingState/finishLoading', { errorOccured: false, errorMsg: '' })
+        store.commit('loadingState/finishLoading')
       })
       .catch((response) => {
-        store.commit('loadingState/finishLoading', { errorOccured: true, errorMsg: response.data.error })
+        store.commit('loadingState/errorOccured', { errorData: response })
       })
   },
   // imgsets
@@ -584,11 +584,11 @@ const actions = {
         response.data.imgsets.forEach(imgset => {
           commit('addImgset', imgset)
           commit('imgsetDisplayed', imgset)
-          store.commit('loadingState/finishLoading', { errorOccured: false, errorMsg: '' })
+          store.commit('loadingState/finishLoading')
         })
       })
       .catch((response) => {
-        store.commit('loadingState/finishLoading', { errorOccured: true, errorMsg: response.data.error })
+        store.commit('loadingState/errorOccured', { errorData: response })
       })
   },
   deleteAllImgsets ({ commit }, studyId) {
@@ -596,10 +596,10 @@ const actions = {
     deleteImgsets(studyId)
       .then(response => {
         commit('deleteAllImgsets')
-        store.commit('loadingState/finishLoading', { errorOccured: false, errorMsg: '' })
+        store.commit('loadingState/finishLoading')
       })
       .catch((response) => {
-        store.commit('loadingState/finishLoading', { errorOccured: true, errorMsg: response.data.error })
+        store.commit('loadingState/errorOccured', { errorData: response })
       })
   },
   saveResult ({ commit }, payload) {
@@ -611,10 +611,10 @@ const actions = {
         commit('addResultCurrentUser', result)
         commit('userStudyProgress', usp)
         commit('resetScalesInput')
-        store.commit('loadingState/finishLoading', { errorOccured: false, errorMsg: '' })
+        store.commit('loadingState/finishLoading')
       })
       .catch((response) => {
-        store.commit('loadingState/finishLoading', { errorOccured: true, errorMsg: response.data.error })
+        store.commit('loadingState/errorOccured', { errorData: response })
       })
   },
   resultsCurrentUser ({ commit }) {
@@ -630,10 +630,10 @@ const actions = {
         const usersStudyProgress = response.data.user_study_progress
         commit('usersStudyProgress', usersStudyProgress)
         commit('removeResultsCurrentUser')
-        store.commit('loadingState/finishLoading', { errorOccured: false, errorMsg: '' })
+        store.commit('loadingState/finishLoading')
       })
       .catch((response) => {
-        store.commit('loadingState/finishLoading', { errorOccured: true, errorMsg: response.data.error })
+        store.commit('loadingState/errorOccured', { errorData: response })
       })
   }
 }

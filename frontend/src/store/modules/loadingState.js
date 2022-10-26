@@ -2,7 +2,7 @@ const state = {
   isLoading: false,
   title: '',
   errorOccured: false,
-  errorMsg: ''
+  errorData: null
 }
 
 const getters = {
@@ -12,18 +12,21 @@ const getters = {
 }
 
 const mutations = {
-  // loading state
   startLoading (state, { title }) {
     state.isLoading = true
     state.title = title
     state.errorOccured = false
-    state.errorMsg = ''
+    state.errorData = null
   },
-  // loading state
-  finishLoading (state, { errorOccured, errorMsg }) {
+  errorOccured (state, { errorData }) {
+    state.isLoading = true
+    state.errorOccured = true
+    state.errorData = errorData
+  },
+  finishLoading (state) {
     state.isLoading = false
-    state.errorOccured = errorOccured
-    state.errorMsg = errorMsg
+    state.errorOccured = false
+    state.errorData = null
   }
 }
 

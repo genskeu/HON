@@ -67,9 +67,7 @@ export default {
     editStudy (studyId) {
       this.$store.dispatch('currentStudy/openStudy', studyId)
         .then(() => {
-          setTimeout(function () {
-            router.push(studyId + '/metainfos')
-          }, 500)
+          router.push(studyId + '/metainfos')
         })
     },
     setStudyDelete (study) {

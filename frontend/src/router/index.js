@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import StudyManagement from '@/views/studyAdmin/StudyManagement.vue'
-import StudyOverview from '@/views/studyAdmin/StudyOverview.vue'
+import StudyOverview from '@/views/studyAdmin/studyManagement/StudyOverview.vue'
 import StudyMetainfo from '@/views/studyAdmin/studyManagement/StudyMetainfo'
 import FileManagement from '@/views/studyAdmin/studyManagement/FileManagement'
 import StudyDesign from '@/views/studyAdmin/studyManagement/StudyDesign'
