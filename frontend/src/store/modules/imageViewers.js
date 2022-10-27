@@ -3,10 +3,14 @@ import cornerstone from 'cornerstone-core'
 import cornerstoneTools from 'cornerstone-tools'
 import { tools } from '@/store/modules/currentStudy/tools'
 
-const state = {
-  refviewers: [],
-  viewers: []
+const getDefaultState = () => {
+  return {
+    refviewers: [],
+    viewers: []
+  }
 }
+
+const state = getDefaultState()
 
 // interface class to hold data from cornerstone image viewers and tools
 class Viewer {
@@ -154,10 +158,7 @@ const getters = {
 
 const mutations = {
   reset (state) {
-    state.refviewers = []
-    state.viewers = []
-    // workaround to get rid of warnings
-    // state.toolsInitialized = false
+    Object.assign(state, getDefaultState())
   },
   // viewer
   initViewer (state, payload) {
@@ -249,6 +250,9 @@ const mutations = {
 }
 
 const actions = {
+  reset ({ commit }) {
+    commit('reset')
+  }
 }
 
 export default {

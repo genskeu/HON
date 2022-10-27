@@ -5,21 +5,25 @@ import { tools } from '@/store/modules/currentStudy/tools'
 
 // import cornerstoneTools from 'cornerstone-tools'
 
-const state = {
-  id: Number,
-  title: String,
-  password: String,
-  description: String,
-  design: Object,
-  images: [],
-  stacks: [],
-  imageSets: [],
-  instructions: String,
-  usersStudyProgress: [],
-  imgsetDisplayed: null,
-  resultsCurrentUser: [],
-  scalesInput: []
+const getDefaultState = () => {
+  return {
+    id: Number,
+    title: String,
+    password: String,
+    description: String,
+    design: Object,
+    images: [],
+    stacks: [],
+    imageSets: [],
+    instructions: String,
+    usersStudyProgress: [],
+    imgsetDisplayed: null,
+    resultsCurrentUser: [],
+    scalesInput: []
+  }
 }
+
+const state = getDefaultState()
 
 // class Design {
 //   constructor () {
@@ -251,19 +255,7 @@ const mutations = {
     state.scalesInput = []
   },
   closeStudy (state) {
-    state.id = Number
-    state.title = String
-    state.password = String
-    state.description = String
-    state.design = Object
-    state.images = []
-    state.stacks = []
-    state.imageSets = []
-    state.instructions = String
-    state.usersStudyProgress = []
-    state.imgsetDisplayed = null
-    state.resultsCurrentUser = []
-    state.scalesInput = []
+    Object.assign(state, getDefaultState())
   },
   // meta data
   updateStudyTitle (state, studyTitle) {

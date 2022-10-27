@@ -12,6 +12,9 @@ COPY public /home/frontend/public
 # build project
 RUN npm run build
 
+RUN rm -r /home/frontend/src
+RUN rm -r /home/frontend/public
+
 # install ngnix
 RUN apk --no-cache update \
 && apk --no-cache upgrade \

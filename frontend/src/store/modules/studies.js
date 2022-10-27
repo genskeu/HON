@@ -2,14 +2,15 @@
 import { fetchStudies, delStudy } from '@/api'
 import store from '@/store'
 
-const state = {
-  studies: []
+const getDefaultState = () => {
+  return {
+    studies: []
+  }
 }
 
+const state = getDefaultState()
+
 const getters = {
-  loadingState (state) {
-    return state.loadingState
-  }
 }
 
 const actions = {
@@ -37,10 +38,16 @@ const actions = {
       .catch((response) => {
         store.commit('loadingState/errorOccured', { errorData: response })
       })
+  },
+  reset ({ commit }) {
+    commit('reset')
   }
 }
 
 const mutations = {
+  reset (state) {
+    Object.assign(state, getDefaultState())
+  },
   initStudies (state, studies) {
     state.studies = studies
   },

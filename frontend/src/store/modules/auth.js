@@ -22,7 +22,11 @@ const actions = {
       }
     )
   },
-  logout ({ commit }) {
+  logout ({ commit, dispatch }) {
+    dispatch('currentStudy/closeStudy', null, { root: true })
+    dispatch('imageViewers/reset', null, { root: true })
+    dispatch('studies/reset', null, { root: true })
+
     authService.logout()
     commit('logout')
   },
