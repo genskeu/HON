@@ -899,9 +899,9 @@ class Output:
                     ov_gt = np.zeros(shape=(len(rois_gt),len(rois_input)))
                     ov_input = np.zeros(shape=(len(rois_input),len(rois_gt)))
                     for i, roi_gt in enumerate(rois_gt):
-                        roi_gt = eval(roi_type + "(roi_gt)" )
+                        roi_gt = getRoiObject(roi_type, roi_gt) 
                         for j, roi_input in enumerate(rois_input):
-                            roi_input = eval(roi_type + "(roi_input)" )
+                            roi_input = getRoiObject(roi_type, roi_input)
                             overlap = roi_gt.calc_seq_metric(roi_input, metric)
                             ov_gt[i][j] = overlap
                             ov_input[j][i] = overlap
@@ -974,7 +974,7 @@ class Output:
                 area_img, mean_HU_img, sd_HU_img, start_img, end_img = [], [], [],[], []
                 if rois:
                     for roi in rois:
-                        roi = eval(roi_type + "(roi)")
+                        roi = getRoiObject(roi_type, roi)
                         area, mean_HU, sd_HU = roi.get_stats()                            
                         start, end = roi.get_coords()   
                         area_img.append(area), mean_HU_img.append(mean_HU), sd_HU_img.append(sd_HU)
@@ -1048,6 +1048,23 @@ class Output:
         # sort cols 
         # self.df = self.df.reindex(sorted(self.df.columns), axis=1)
 
+
+def getRoiObject(roi_type, roi_data):
+    """
+    Args:
+       roi_type roi_data
+
+    """
+    if "EllipticalRoi" in roi_type:
+        roi = EllipticalRoi(roi_data)
+    elif "CircleRoi" in  roi_type:
+        roi = CircleRoi(roi_data)
+    elif "RectangleRoi" in  roi_type:
+        roi = RectangleRoi(roi_data)
+    elif "FreehandRoi" in  roi_type:
+        roi = FreehandRoi(roi_data)
+
+    return roi
 
 class Annotation:
     """
@@ -1127,6 +1144,24 @@ class EllipticalRoi(Rois):
         
         self.polygon = ellipsis
         
+class CircleRoi(Rois):
+    def set_polygon(self):
+        """
+            generate shapley polygons from annotation data and store them
+        """
+        width = abs(self.end_x - self.start_x)
+        height = abs(self.end_y - self.start_y)
+        center_x = (self.end_x  + self.start_x)/2
+        center_y = (self.end_y + self.start_y)/2
+        
+        #Generate an ellipse using shapely. For more information see:
+        #https://gis.stackexchange.com/questions/243459/drawing-ellipse-with-shapely
+        center = Point((center_x,center_y))
+        circle = center.buffer(1)
+        circle = scale(circle,(width/2),(height/2))
+        
+        self.polygon = circle
+
 
 class RectangleRoi(Rois):
      def set_polygon(self):
