@@ -5,8 +5,8 @@ from flask import (
     Blueprint, flash, g, redirect, request, session, url_for, jsonify
 )
 from werkzeug.security import check_password_hash, generate_password_hash
-from flask_jwt_extended import JWTManager, create_access_token, create_refresh_token, get_jwt, unset_jwt_cookies
-from .DBmodel import User, db
+from flask_jwt_extended import JWTManager, create_access_token, create_refresh_token, get_jwt, unset_jwt_cookies, get_jwt_identity
+from .DBmodel import Study, User, db
 
 jwt = JWTManager()
 
@@ -75,7 +75,7 @@ def login():
             role = "study_admin"
         elif user.access_level == 3:
             role = "user_admin"
-        access_token = create_access_token(identity=user.id,additional_claims = {"role":role})
+        access_token = create_access_token(identity=user.id, additional_claims = {"role":role})
         refresh_token = create_refresh_token(identity=user.id)
         response = jsonify(accessToken=access_token, refreshToken=refresh_token, role=role)
         return response, 201
@@ -107,38 +107,59 @@ def access_level_required(access_level):
             user_access_level = claims["role"]
             if user_access_level not in access_level:
                 return jsonify(errorMessage="User rights insufficient."), 401
-            return view(**kwargs)
+            else:
+                return view(**kwargs)
         return wrapped_view
     return decorator
 
-# @bp.before_app_request
-# def load_logged_in_user():
-#     """
-#         load the data of the currently logged in user into the g object
-#         Args:
 
-#         Returns:
-#     """
-#     user_id = session.get("user_id")
-#     if user_id is None:
-#         g.user = None
-#     else:
-#         g.user = User.query.filter_by(id=user_id).first()
+def study_owner_required():
+    """
+        check if a user has sufficient user rights to access a certain view
+        Args:
+            access_level
 
+        Returns:
+            decorator
+    """
+    def decorator(view):
+        @functools.wraps(view)
+        def wrapped_view(**kwargs):
+            study_id = kwargs["study_id"]
+            current_user_id = get_jwt_identity()
+            study = Study.query.filter_by(id=study_id, user_id=current_user_id).first()
+            if study is None:
+                return jsonify(errorMessage="User rights insufficient. You are not the study creater."), 401
+            else:
+                return view(study)
+        return wrapped_view
+    return decorator
 
-# def not_logged_in(view):
-#     @functools.wraps(view)
-#     def wrapped_view(**kwargs):
-#         if g.user is not None:
-#             error = (f"You are already logged in as {g.user.username}."
-#                      "You can't be logged in with multiple accounts using the same computer and browser or register a new user while logged in."
-#                      "Please logout before logging in with another account or registering a new account.")
-#             flash(error)
-#             if g.user.access_level == 1:
-#                 return redirect(url_for('studies.study_login'))
-#             elif g.user.access_level == 2:
-#                 return redirect(url_for('studies.overview'))
-#             elif g.user.access_level == 3:
-#                 return redirect(url_for('users.overview'))
-#         return view(**kwargs)
-#     return wrapped_view
+def study_login_or_owner_required():
+    """
+        check if a user has sufficient user rights to access a certain view
+        Args:
+            access_level
+
+        Returns:
+            decorator
+    """
+    def decorator(view):
+        @functools.wraps(view)
+        def wrapped_view(**kwargs):
+            study_id = kwargs["study_id"]
+            current_user_id = get_jwt_identity()
+            claims = get_jwt()
+            if "study_loggedin" in claims.keys() and study_id==claims["study_loggedin"]:
+                study = Study.query.filter_by(id=claims["study_loggedin"]).first()
+                errorMessage = "Your not logged into the study."
+            else:
+                study = Study.query.filter_by(id=study_id, user_id=current_user_id).first()
+                errorMessage = "User rights insufficient. You are not the study creater."
+            
+            if study is None:
+                return jsonify(errorMessage=errorMessage), 401
+            else:
+                return view(study)
+        return wrapped_view
+    return decorator

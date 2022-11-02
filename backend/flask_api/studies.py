@@ -6,11 +6,11 @@ from flask import (
     Blueprint, render_template, request, jsonify, current_app
 )
 from werkzeug.security import check_password_hash, generate_password_hash
-from .auth import access_level_required
+from .auth import access_level_required, study_login_or_owner_required, study_owner_required
 from .DBmodel import Study, Design, Imgset, db, Result, Scale, Tool, Image_stack, User_study_progress, Image
 from sqlalchemy.orm import joinedload
 from flask import send_from_directory
-from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt, create_access_token, create_refresh_token
 
 
 bp = Blueprint("studies", __name__)
@@ -35,15 +35,14 @@ def get_studies():
     response["studies"] = studies
     return response
 
-@bp.route('/study/<int:id>', methods=['GET'])
+@bp.route('/study/<int:study_id>', methods=['GET'])
 @jwt_required()
 @access_level_required(["study_participant","study_admin"])
-def get_study(id):
-    study = Study.query.filter_by(id=id).first()
+@study_login_or_owner_required()
+def get_study(study):
     response = {}
     response["study"] = study.to_dict(include_images=True,include_imagesets=True)
     return response    
-
 
 @bp.route('/study', methods=['POST'])
 @jwt_required()
@@ -79,10 +78,11 @@ def create_study():
     return jsonify(response), status_code
 
     
-@bp.route('/study/<int:id>', methods=['PUT'])
+@bp.route('/study/<int:study_id>', methods=['PUT'])
 @jwt_required()
 @access_level_required(["study_admin"])
-def update_study(id):
+@study_owner_required()
+def update_study(study):
     """
         create/modify study
         Args:
@@ -117,10 +117,11 @@ def update_study(id):
     return jsonify(response), status_code
 
 
-@bp.route('/study/<int:id>', methods=['DELETE'])
+@bp.route('/study/<int:study_id>', methods=['DELETE'])
 @jwt_required()
 @access_level_required(["study_admin"])
-def delete_study(id):
+@study_owner_required()
+def delete_study(study):
     """
         retrieve or delte study
         Args:
@@ -128,43 +129,32 @@ def delete_study(id):
         Returns:
             json object
     """
-    study = Study.query.filter_by(id=id).first()
     response = {}
     error = None
     status_code = 200
 
-    if request.method == "DELETE":
-        for image in study.images:
-            db.session.delete(image)
-        db.session.delete(study)
-        db.session.commit()
+    for image in study.images:
+        db.session.delete(image)
+    db.session.delete(study)
+    db.session.commit()
 
-        dir = os.path.join(current_app.config['IMAGE_PATH'],str(study.user_id), str(study.id))
-        # remove image folder
-        try:
-            shutil.rmtree(dir)
-        except:
-            error = f"Error removing folder: {dir}"
-            response["error"] = error
-            status_code = 400
-        return jsonify(response), status_code
+    dir = os.path.join(current_app.config['IMAGE_PATH'],str(study.user_id), str(study.id))
+    # remove image folder
+    try:
+        shutil.rmtree(dir)
+    except:
+        error = f"Error removing folder: {dir}"
+        response["error"] = error
+        status_code = 400
+    return jsonify(response), status_code
 
-
-
-#render html file upload page
-@bp.route('/study/files/<int:study_id>', methods=['GET'])
-@jwt_required()
-@access_level_required([2])
-def image_upload(study_id):
-    study = Study.query.filter_by(id=study_id).first()
-    return render_template("studies/image_upload.html", study=study)
 
 
 
 @bp.route('/study/design/<int:study_id>', methods=['PUT'])
 @jwt_required()
-def design(study_id):
-    study = Study.query.filter_by(id=study_id).first()
+@study_owner_required()
+def design(study):
     error = None
     design = request.get_json()
 
@@ -216,14 +206,14 @@ def design(study_id):
     return jsonify(response)
 
 #get image stack in cornerstone format
-@bp.route('/study/cs_stack/<int:study_id>/<image_ids>', methods=['GET'])
-@jwt_required()
-@access_level_required([2])
-def get_cs_stack(study_id,image_ids):
-    image_ids = [int(image_id) for image_id in image_ids.split("-")]
-    study = Study.query.filter_by(id=study_id).first()
-    cs_stack = study.get_cs_stack_by_imageIds(image_ids)
-    return cs_stack
+# @bp.route('/study/cs_stack/<int:study_id>/<image_ids>', methods=['GET'])
+# @jwt_required()
+# @access_level_required([2])
+# def get_cs_stack(study_id,image_ids):
+#     image_ids = [int(image_id) for image_id in image_ids.split("-")]
+#     study = Study.query.filter_by(id=study_id).first()
+#     cs_stack = study.get_cs_stack_by_imageIds(image_ids)
+#     return cs_stack
 
 #update select menus
 # @bp.route('/study/get_cs_stacks/<int:study_id>/<group_info>', methods=['GET'])
@@ -261,20 +251,20 @@ def get_imgset(study_id, position):
 @bp.route('/study/imgset/<int:study_id>', methods=['POST'])
 @jwt_required()
 @access_level_required(["study_admin"])
-def add_imgset(study_id):
+@study_owner_required()
+def add_imgset(study):
     """
         add imageset
         Args:
             id: study_id
         Returns:
     """
-    study = Study.query.filter_by(id=study_id).first()
     image_error = ""
     data = request.get_json()
     imgset_dict = data
     response = {}
 
-    imgset = Imgset(study_id=study_id,position=imgset_dict["position"])
+    imgset = Imgset(study_id=study.id,position=imgset_dict["position"])
     if int(imgset_dict["position"]) <= len(study.imgsets):
         study.insert_imgset(imgset,imgset_dict["position"])
 
@@ -434,8 +424,8 @@ def delete_imgset(study_id, position):
 @bp.route('/study/imgsets/<int:study_id>', methods=['GET'])
 @jwt_required()
 @access_level_required(["study_admin"])
-def get_all_imgsets(study_id):
-    study = Study.query.filter_by(id=study_id).options(joinedload('imgsets')).first()
+@study_owner_required()
+def get_all_imgsets(study):
     #response
     response = {}
     imgsets = []
@@ -447,8 +437,8 @@ def get_all_imgsets(study_id):
 @bp.route('/study/imgsets/<int:study_id>', methods=['POST'])
 @jwt_required()
 @access_level_required(["study_admin"])
-def imgsets(study_id):
-    study = Study.query.filter_by(id=study_id).options(joinedload('imgsets')).first()
+@study_owner_required()
+def imgsets(study):
     image_error = ""
     #response
     response = {"imgsets":[]}
@@ -485,7 +475,8 @@ def imgsets(study_id):
 @bp.route('/study/imgsets/<int:study_id>', methods=['PUT'])
 @jwt_required()
 @access_level_required(["study_admin"])
-def upd_all_imgsets(study_id):
+@study_owner_required()
+def upd_all_imgsets(study):
     study = Study.query.filter_by(id=study_id).options(joinedload('imgsets')).first()
 
     viewport_settings = request.get_json()
@@ -517,11 +508,12 @@ def upd_all_imgsets(study_id):
 @bp.route('/study/imgsets/<int:study_id>', methods=['DELETE'])
 @jwt_required()
 @access_level_required(["study_admin"])
-def del_all_imgsets(study_id):
+@study_owner_required()
+def del_all_imgsets(study):
     response = {}
-    study = Study.query.filter_by(id=study_id).options(joinedload('imgsets')).first()
+    study = Study.query.filter_by(id=study.id).options(joinedload('imgsets')).first()
 
-    if Result.query.filter_by(study_id=study_id).first():
+    if Result.query.filter_by(study_id=study.id).first():
         error = "Results are present for this study! First delete results, then delete image sets."
         status_code = 409
         response = error
@@ -555,67 +547,30 @@ def study_login():
         error = 'Incorrect password.'
 
     if error is None:
-        response["study"] = study.to_dict(include_imagesets=True)
-        response["results"] = [result.to_dict() for result in results]
-        return response
+        claims = get_jwt()
+        role = claims["role"]
+        access_token = create_access_token(identity=user_id, additional_claims = {"role":role, "study_loggedin": study_id})
+        refresh_token = create_refresh_token(identity=user_id)
+        response = jsonify(accessToken=access_token, refreshToken=refresh_token, role=role, study_loggedin=study_id)
+        return response, 201        
+        # response["study"] = study.to_dict(include_imagesets=True)
+        # response["results"] = [result.to_dict() for result in results]
+        # return response
     else:
         response["error"] = error
         return response, 404
 
 
 
-# run study
-""" @bp.route('/study/run/<int:study_id>', methods=['GET'])
-@jwt_required()
-@access_level_required(["study_participant","study_admin"])
-def study_run(study_id):
-    if study_id != session.get("study_id"):
-        return redirect(url_for('studies.study_login'))
-
-    user_id = g.user.id
-    study = Study.query.filter_by(id=study_id).first()
-    user_study_progress = User_study_progress.query.filter_by(
-        study_id=study_id,user_id=user_id).first()
-    error = None
-
-    # check if study has already been started by user
-    if user_study_progress is None and study.imgsets:
-        imgset = study.imgsets[0]
-    elif user_study_progress is None and not study.imgsets:
-        error = "Study is empty."
-    elif user_study_progress.imgsets_finished == len(study.imgsets):
-        error = "Error. You already participated and finished this study."
-    elif user_study_progress and study.imgsets:
-        # check for imgsets without result for this user
-        results_user = Result.query.filter_by(study_id=study_id,user_id=user_id).all()
-        results_user_imgset_ids = set([result.imgset.position for result in results_user])
-        study_imgset_ids = set([imgset.position for imgset in study.imgsets])
-        imgsets_left_ids = study_imgset_ids.difference(results_user_imgset_ids)
-        imgsets_left_ids = list(imgsets_left_ids)
-        imgsets_left_ids.sort()
-        imgset = Imgset.query.filter_by(study_id=study_id,position=imgsets_left_ids[0]).first()
-
-    if error is not None:
-        flash(error)
-        return redirect(url_for('studies.study_login'))
-
-    study.view="participant"
-    return render_template('studies/design.html',
-                           imgset=imgset,
-                           study=study,
-                           user_study_progress=user_study_progress,
-                           study_length=len(study.imgsets)) """
-
-
 # select stack, save selection and load next set
 @bp.route('/study/result/<int:study_id>',  methods=['POST'])
 @jwt_required()
 @access_level_required(["study_participant","study_admin"])
-def save_result(study_id):
+@study_login_or_owner_required()
+def save_result(study):
     error = None
     result_dict = request.get_json()
     imgset_id = result_dict["imgset_id"]
-    study = Study.query.filter_by(id=study_id).first()
     current_user_id = get_jwt_identity()
     user_id = current_user_id
     result = Result.query.filter_by(imgset_id=imgset_id,
@@ -623,7 +578,7 @@ def save_result(study_id):
 
     if result is None:
         result = Result(user_id=user_id,
-                        study_id=study_id,
+                        study_id=study.id,
                         imgset_id=imgset_id)
         if result_dict["scale_input"]:
             result.scale_input= json.dumps(result_dict["scale_input"])
@@ -645,13 +600,13 @@ def save_result(study_id):
         #     else:
         #         picked_stack.images.append(image)
 
-        study_progress = User_study_progress.query.filter_by(study_id=study_id,
+        study_progress = User_study_progress.query.filter_by(study_id=study.id,
                                                              user_id=user_id).first()
 
-        results_user = Result.query.filter_by(study_id=study_id,user_id=user_id).all()
+        results_user = Result.query.filter_by(study_id=study.id,user_id=user_id).all()
         imgsets_finished = len(results_user)
         if study_progress is None:
-            study_progress=User_study_progress(study_id=study_id,user_id=user_id,imgsets_finished=imgsets_finished)
+            study_progress=User_study_progress(study_id=study.id,user_id=user_id,imgsets_finished=imgsets_finished)
             db.session.add(study_progress)
         else:
             study_progress.imgsets_finished=imgsets_finished

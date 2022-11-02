@@ -488,19 +488,9 @@ const actions = {
   studyLogin (context, payload) {
     studyLoginParticipant(payload)
       .then((response) => {
-        const study = response.data.study
-        context.commit('openStudy', study)
-        const results = response.data.results
-        context.commit('addResultsCurrentUser', results)
-        const viewerNumber = context.getters.viewerNumb
-        const refviewerNumber = context.getters.refviewerNumb
-        for (let i = 0; i < viewerNumber; i++) {
-          store.commit('imageViewers/initViewer', { viewertype: 'viewers' })
-        }
-        for (let i = 0; i < refviewerNumber; i++) {
-          store.commit('imageViewers/initViewer', { viewertype: 'refviewers' })
-        }
-        router.push(study.id + '/participation')
+        localStorage.setItem('user', JSON.stringify(response.data))
+        const studyId = response.data.study_loggedin
+        context.dispatch('openStudy', studyId).then(() => router.push(studyId + '/participation'))
       })
   },
   createNewStudy ({ commit }) {

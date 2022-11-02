@@ -1,10 +1,9 @@
 from crypt import methods
-from flask import Blueprint, g, render_template, jsonify, request, url_for, current_app, send_file, after_this_request
+from flask import Blueprint, jsonify, request, current_app, send_file, after_this_request
 from .auth import access_level_required
 import os
 from .DBmodel import Result, Study, User, db, User_study_progress, Output
-from sqlalchemy import func
-from sqlalchemy.orm import lazyload, joinedload
+from sqlalchemy.orm import joinedload
 import tarfile
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
@@ -45,17 +44,6 @@ def get_result_current_user(study_id):
     response = {}
     response["results"] = [result.to_dict() for result in results]
     return response
-
-# # results overview
-# @bp.route('/results/overview')
-# @jwt_required()
-# @access_level_required(["study_admin"])
-# def overview():
-#     studies = Study.query.filter_by(user_id=g.user.id).options(joinedload('user_study_progress',User_study_progress.user),
-#                                                                lazyload('imgsets'),
-#                                                                lazyload('imgsets.image_stacks')).all()
-
-#     return render_template("results/overview.html", studies=studies)
 
 
 # delete results for user from study
