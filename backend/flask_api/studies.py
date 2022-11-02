@@ -10,7 +10,7 @@ from .auth import access_level_required
 from .DBmodel import Study, Design, Imgset, db, Result, Scale, Tool, Image_stack, User_study_progress, Image
 from sqlalchemy.orm import joinedload
 from flask import send_from_directory
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 
 
 bp = Blueprint("studies", __name__)

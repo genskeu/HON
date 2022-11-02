@@ -1,9 +1,9 @@
 <template>
-  <div>
+  <div id="study_participation">
     <loadingModal id="globalLoadingState" :isLoading="loadingState.isLoading" :title="loadingState.title" :errorOccured="loadingState.errorOccured" :errorData="loadingState.errorData"></loadingModal>
     <div id="nav" class="navbar bg-dark p-0" style="height: 50px;">
       <div class="container mx-auto" v-if="studyOpened">
-        <div>{{studyTitle}}</div>
+        <div class="text-white">{{studyTitle}}</div>
       </div>
     </div>
     <router-view v-if="studyOpened | this.$route.name === 'StudyLogin'" v-slot="{ Component }" name="helper" id="router_helper_view">
@@ -41,5 +41,7 @@ export default {
 </script>
 
 <style>
-
+#study_participation {
+  height: calc(100% - 60px);
+}
 </style>

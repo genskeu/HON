@@ -37,7 +37,7 @@ def get_result(id):
 # get results by study for logged in user
 @bp.route('/results/current_user/<study_id>', methods=["GET"])
 @jwt_required()
-@access_level_required(["study_admin"])
+@access_level_required(["study_participant","study_admin"])
 def get_result_current_user(study_id):
     current_user_id = get_jwt_identity()
     user_id = current_user_id

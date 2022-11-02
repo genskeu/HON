@@ -10,7 +10,7 @@
             id="password" placeholder="Password" required>
         </div>
         <div class="form-group">
-          <input type="submit" value="Login to study" class="bg-success btn btn-success btn-lg btn-block w-100">
+          <input type="submit" value="Login to study" class="bg-primary btn btn-primary btn-lg btn-block w-100">
         </div>
       </form>
     </div>
