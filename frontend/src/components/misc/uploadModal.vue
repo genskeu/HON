@@ -161,6 +161,9 @@ export default {
         this.fileFolders[index].size += newFile.size
         this.fileFolders[index].slices += 1
       })
+      // sort list
+      this.fileFolders.sort((a, b) => (a.foldername > b.foldername) ? 1 : -1)
+      console.log(this.fileFolders)
     },
     uploadProgressOverall () {
       var sum = 0

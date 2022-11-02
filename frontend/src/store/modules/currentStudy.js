@@ -340,8 +340,20 @@ const mutations = {
     const scale = new ScaleInput(scaleName, scaleValue)
     state.scalesInput[index] = scale
   },
+  resetScales (state) {
+    var scalesDefault = []
+    state.design.scales.forEach((scale) => {
+      if (!scale.isRepeated) {
+        scalesDefault.push(scale)
+      }
+    })
+    Object.assign(state.design.scales, scalesDefault)
+  },
   resetScalesInput (state) {
-    state.scalesInput = []
+    state.scalesInput.forEach((scale) => {
+      scale.value = null
+      scale.uuid = null
+    })
   },
   // tools available and tool settings
   tools (state, tools) {
@@ -602,6 +614,7 @@ const actions = {
         const usp = response.data.study_progress
         commit('addResultCurrentUser', result)
         commit('userStudyProgress', usp)
+        commit('resetScales')
         commit('resetScalesInput')
         store.commit('loadingState/finishLoading')
       })

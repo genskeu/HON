@@ -15,6 +15,9 @@ export default {
     buttonLabel () {
       return this.$store.getters['currentStudy/buttonLabels']
     },
+    scalesInput () {
+      return this.$store.getters['currentStudy/scalesInput']
+    },
     scalesInputDB () {
       return this.$store.getters['currentStudy/scalesInputDB']
     },
@@ -43,6 +46,13 @@ export default {
         stacks_displayed: imgset.stacks,
         scale_input: this.scalesInputDB
       }
+      // check all scales are filled in
+      var emptyScale = this.scalesInput.find(scaleInput => scaleInput.value === null)
+      if (emptyScale) {
+        alert('Scales empty: ' + emptyScale.name)
+        return
+      }
+
       this.$store.dispatch('currentStudy/saveResult', payload)
     }
   }

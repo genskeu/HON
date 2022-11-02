@@ -66,6 +66,19 @@ export default {
           })
       }
     }
+  },
+  watch: {
+    scaleText () {
+      console.log('test')
+    }
+  },
+  mounted () {
+    this.$store.commit('currentStudy/scaleInput',
+      {
+        index: this.scaleIndex,
+        scaleName: this.scaleText,
+        scaleValue: null
+      })
   }
 }
 </script>
