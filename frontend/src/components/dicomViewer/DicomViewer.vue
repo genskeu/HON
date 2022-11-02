@@ -281,14 +281,21 @@ export default {
         }
         const uuid = e.detail.measurementData.uuid
         const toolType = e.detail.toolType.split('-')[0]
-        e.detail.toolType = toolType
-        this.$store.commit('imageViewers/addAnnotation', {
-          annotation: annotation,
-          type: toolType,
-          uuid: uuid,
-          index: this.viewerIndex,
-          viewertype: this.viewerType
-        })
+        const element = this.$refs.viewer
+        const isLabeledTool = e.detail.toolType.split('-').length > 1
+        const lengthToolState = cornerstoneTools.getToolState(element, toolName).data.length
+        if (lengthToolState > 1 & isLabeledTool) {
+          cornerstoneTools.removeToolState(element, toolName, e.detail.measurementData)
+        } else {
+          e.detail.toolType = toolType
+          this.$store.commit('imageViewers/addAnnotation', {
+            annotation: annotation,
+            type: toolType,
+            uuid: uuid,
+            index: this.viewerIndex,
+            viewertype: this.viewerType
+          })
+        }
       }
     },
     // will be called when measurment modified (update exisiting)
@@ -301,14 +308,21 @@ export default {
       }
       const uuid = e.detail.measurementData.uuid
       const toolType = e.detail.toolType.split('-')[0]
-      e.detail.toolType = toolType
-      this.$store.commit('imageViewers/updateAnnotation', {
-        annotation: annotation,
-        type: toolType,
-        uuid: uuid,
-        index: this.viewerIndex,
-        viewertype: this.viewerType
-      })
+      const element = this.$refs.viewer
+      const isLabeledTool = e.detail.toolType.split('-').length > 1
+      const lengthToolState = cornerstoneTools.getToolState(element, toolName).data.length
+      if (lengthToolState > 1 & isLabeledTool) {
+        // cornerstoneTools.removeToolState(element, toolName, e.detail.measurementData)
+      } else {
+        e.detail.toolType = toolType
+        this.$store.commit('imageViewers/updateAnnotation', {
+          annotation: annotation,
+          type: toolType,
+          uuid: uuid,
+          index: this.viewerIndex,
+          viewertype: this.viewerType
+        })
+      }
     },
     // will be called when measurment deleted (update exisiting)
     removeAnnotation (e) {
@@ -318,7 +332,7 @@ export default {
         measurementData: e.detail.measurementData
       }
       const uuid = e.detail.measurementData.uuid
-      const toolType = e.detail.toolType
+      const toolType = e.detail.toolType.split('-')[0]
       this.$store.commit('imageViewers/removeAnnotation', { annotation: annotation, type: toolType, uuid: uuid, index: this.viewerIndex, viewertype: this.viewerType })
     }
   }

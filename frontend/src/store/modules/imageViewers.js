@@ -244,7 +244,6 @@ const mutations = {
   },
   removeAnnotation (state, payload) {
     var viewer = state[payload.viewertype][payload.index]
-    // debugger // eslint-disable-line
     delete viewer.toolState.annotations[payload.type][payload.uuid]
   }
 }
