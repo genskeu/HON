@@ -13,20 +13,20 @@
             <li v-if="isUserAdmin" class="nav-item">
               <router-link to="/user-overview" class="nav-link">Users Overview</router-link>
             </li>
-            <li v-if="isStudyAdmin" class="nav-item">
+            <li v-if="isStudyAdmin & !studyOpened" class="nav-item">
               <router-link to="/study-management/study-overview" class="nav-link">Studies Overview</router-link>
             </li>
-            <li v-if="isStudyParticipant" class="nav-item">
+            <li v-if="isStudyParticipant & !studyOpened" class="nav-item">
               <router-link to="/study/login" class="nav-link">Study Login</router-link>
             </li>
-            <li v-if="loggedIn" class="nav-item">
+            <!-- <li v-if="loggedIn" class="nav-item">
               <router-link to="/user-profile/1" class="nav-link">User Profile</router-link>
-            </li>
+            </li> -->
             <li v-if="isStudyAdmin" class="nav-item">
               <router-link to="/tutorials" class="nav-link">Tutorials</router-link>
             </li>
-            <li v-if="loggedIn" @click="handleLogout" class="nav-item">
-              <router-link to="/login" class="nav-link">Logout</router-link>
+            <li v-if="loggedIn" @click.prevent="handleLogout" class="nav-item">
+              <a class="btn nav-link">Logout</a>
             </li>
             <li v-if="!loggedIn" class="nav-item">
               <router-link to="/login" class="nav-link">Login</router-link>
@@ -71,6 +71,9 @@ export default {
         return this.currentUser.role === 'study_participant'
       }
       return false
+    },
+    studyOpened () {
+      return this.$store.getters['currentStudy/studyTitle'] !== String
     }
   },
   methods: {

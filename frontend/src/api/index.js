@@ -106,9 +106,9 @@ class AuthService {
         if (response.data.accessToken) {
           localStorage.setItem('user', JSON.stringify(response.data))
           if (response.data.role === 'study_participant') {
-            router.push('/study-login')
+            router.push('/study/login')
           } else if (response.data.role === 'study_admin') {
-            router.push('/study-management')
+            router.push('/study-management/study-overview')
           } else if (response.data.role === 'user_admin') {
             router.push('/user-overview')
           } else {

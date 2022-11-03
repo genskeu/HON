@@ -26,9 +26,8 @@ const actions = {
     dispatch('currentStudy/closeStudy', null, { root: true })
     dispatch('imageViewers/reset', null, { root: true })
     dispatch('studies/reset', null, { root: true })
-
-    authService.logout()
     commit('logout')
+    authService.logout()
   },
   register ({ commit }, user) {
     return authService.register(user).then(

@@ -67,7 +67,7 @@ def create_study():
     image_dir = study.get_image_dir()
     try:
         os.makedirs(image_dir)
-        response["study"] = study.to_dict()
+        response["study"] = study.to_dict(include_images=True,include_imagesets=True)
     except:
         error = f"Error creating: {image_dir}"        
         status_code = 400
@@ -443,7 +443,7 @@ def imgsets(study):
     response = {"imgsets":[]}
     imgsets_dict = request.get_json()
     for imgset_dict in imgsets_dict:
-        imgset = Imgset(study_id=study_id,position=imgset_dict["position"])
+        imgset = Imgset(study_id=study.id,position=imgset_dict["position"])
         study.insert_imgset(imgset,imgset_dict["position"])
 
         # add stacks to imgset

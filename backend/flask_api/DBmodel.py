@@ -836,7 +836,7 @@ class Output:
                 # stack tools state is list of cornerstone tool states
                 # each entry corresponds to an image within the stack
                 # each image tool state can consist of multiple tool input
-                for img in range(len(stack.images)):
+                for img in range(len(stack.get_images())):
                     tool_state = stack_tool_states[img]
                     if tool_state:
                         for tool in tool_state:
@@ -857,7 +857,7 @@ class Output:
             # stack tools state is list of cornerstone tool states
             # each entry corresponds to an image within the stack
             # each image tool state can consist of multiple tool inputs
-            for i in range(len(result.stack_picked.images)):
+            for i in range(len(result.stack_picked.get_images())):
                 tool_state = stack_tool_states[i]
                 if tool_state:
                     for tool in tool_state:

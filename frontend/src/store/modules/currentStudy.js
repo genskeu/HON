@@ -481,11 +481,18 @@ const actions = {
       })
   },
   closeStudy (context) {
-    store.commit('loadingState/startLoading', { title: 'Close Study' })
+    // store.commit('loadingState/startLoading', { title: 'Close Study' })
+    // store.commit('loadingState/finishLoading')
+    router.push('/study-management/study-overview').then(() => {
+      context.commit('closeStudy')
+      store.commit('imageViewers/reset')
+    })
+  },
+  logoutStudy (context) {
     context.commit('closeStudy')
     store.commit('imageViewers/reset')
-    store.commit('loadingState/finishLoading')
-    router.push('/study-management/study-overview')
+    router.push({ name: 'StudyLogin' }).then(() => {
+    })
   },
   // update study design
   updateDesign ({ state }, studyId) {

@@ -134,9 +134,9 @@ router.beforeEach(async (to, from) => {
     if (!store.state.auth.user) {
       router.push('/login')
     } else if (store.state.auth.user.role === 'study_participant') {
-      router.push('/study-login')
+      router.push('/study/login')
     } else if (store.state.auth.user.role === 'study_admin') {
-      router.push('/study-management')
+      router.push('/study-management/study-overview')
     } else if (store.state.auth.user.role === 'user_admin') {
       router.push('/user-overview')
     } else {
@@ -148,12 +148,21 @@ router.beforeEach(async (to, from) => {
 router.beforeEach(async (to, from) => {
   if (to.name === 'Login' && store.state.auth.user) {
     if (store.state.auth.user.role === 'study_participant') {
-      router.push('/study-login')
+      router.push('/study/login')
     } else if (store.state.auth.user.role === 'study_admin') {
-      router.push('/study-management')
+      router.push('/study-management/study-overview')
     } else if (store.state.auth.user.role === 'user_admin') {
       router.push('/user-overview')
     } else {
+    }
+  }
+})
+
+// prevent double login study
+router.beforeEach(async (to, from) => {
+  if (to.name === 'StudyLogin' && store.state.auth.user && store.state.currentStudy.title !== String) {
+    if (store.state.auth.user.role === 'study_participant') {
+      router.push('/study/' + store.state.currentStudy.id + '/participation')
     }
   }
 })

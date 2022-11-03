@@ -1,5 +1,5 @@
 <template>
-    <div id="sclae_temp" class="mt-1 scale_template">
+    <div class="mt-1 scale_template">
         <!-- <span class="badge badge-light w-100 mt-1">
             <h6 id="scale_heading_" class="mt-1 scale_heading">Scale {{this.scaleIndex + 1}}</h6>
         </span> -->
@@ -65,11 +65,6 @@ export default {
             scaleValue: value
           })
       }
-    }
-  },
-  watch: {
-    scaleText () {
-      console.log('test')
     }
   },
   mounted () {
