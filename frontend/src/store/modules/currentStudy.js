@@ -1,5 +1,10 @@
 import router from '@/router'
-import { createStudy, updateStudy, updateStudyDesign, deleteFiles, createImgset, createImgsets, deleteImgsets, saveResultDb, getResultsCurrentUser, deleteResultUserDb, fetchStudy, studyLoginParticipant } from '@/api'
+import {
+  createStudy, updateStudy, fetchStudy, updateStudyDesign, deleteFiles,
+  createImgset, updateImgset, deleteImgset, createImgsets, deleteImgsets,
+  saveResultDb, getResultsCurrentUser, deleteResultUserDb,
+  studyLoginParticipant
+} from '@/api'
 import store from '@/store'
 import { tools } from '@/store/modules/currentStudy/tools'
 
@@ -393,6 +398,15 @@ const mutations = {
       set.position = index
     })
   },
+  updImgset (state, imgset) {
+    state.imageSets[imgset.position] = imgset
+  },
+  delImgset (state, imgset) {
+    state.imageSets.splice(imgset.position, 1)
+    state.imageSets.forEach((set, index) => {
+      set.position = index
+    })
+  },
   imgsetDisplayed (state, imgset) {
     state.imgsetDisplayed = imgset
   },
@@ -539,6 +553,30 @@ const actions = {
       .then(response => {
         commit('addImgset', response.data.imgset)
         commit('imgsetDisplayed', response.data.imgset)
+        store.commit('loadingState/finishLoading')
+      })
+      .catch((response) => {
+        store.commit('loadingState/errorOccured', { errorData: response })
+      })
+  },
+  updImgset ({ commit }, payload) {
+    store.commit('loadingState/startLoading', { title: 'updating Imageset' })
+    updateImgset(payload.studyId, payload.imgset.position, payload.imgset)
+      .then(response => {
+        commit('updImgset', response.data.imgset)
+        commit('imgsetDisplayed', response.data.imgset)
+        store.commit('loadingState/finishLoading')
+      })
+      .catch((response) => {
+        store.commit('loadingState/errorOccured', { errorData: response })
+      })
+  },
+  delImgset ({ commit }, payload) {
+    store.commit('loadingState/startLoading', { title: 'Deleting Imageset' })
+    deleteImgset(payload.studyId, payload.imgset.position)
+      .then(response => {
+        commit('delImgset', payload.imgset)
+        commit('imgsetDisplayed', null)
         store.commit('loadingState/finishLoading')
       })
       .catch((response) => {

@@ -3,7 +3,7 @@ import shutil
 import json
 from datetime import datetime
 from flask import (
-    Blueprint, render_template, request, jsonify, current_app
+    Blueprint, request, jsonify, current_app
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 from .auth import access_level_required, study_login_or_owner_required, study_owner_required
@@ -248,6 +248,7 @@ def get_imgset(study_id, position):
 
     return jsonify(response), status_code
 
+
 @bp.route('/study/imgset/<int:study_id>', methods=['POST'])
 @jwt_required()
 @access_level_required(["study_admin"])
@@ -301,16 +302,13 @@ def update_imgset(study_id, position):
     study = Study.query.filter_by(id=study_id).first()
     imgset = Imgset.query.filter_by(study_id=study_id,position=position).first()
     error = None
-    image_error = ""
     data = request.get_json()
-    imgset_dict = data["imgset"]
+    imgset_dict = data
     response = {}
     if imgset is None:
         error = "Imgset with position %s not found in study %s"%(position,study.title)
 
     if error is None:
-        data = request.get_json()
-        imgset_dict = data["imgset"]
         # delete old images
         for stack_old in imgset.image_stacks:
             db.session.delete(stack_old)
@@ -335,7 +333,8 @@ def update_imgset(study_id, position):
             #         image_stack.images.append(image)
             db.session.add(image_stack)
         db.session.commit()
-        response["error_msg"] = image_error
+        response["error_msg"] = error
+        response["imgset"] = imgset.to_dict()
         status_code = 200
     else:
         status_code = 404

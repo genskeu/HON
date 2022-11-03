@@ -88,19 +88,19 @@
         <div class="row mb-1">
           <div class="input-group">
             <button class="btn-success btn col-9" title="add image-set to the end of the study"
-            @click="addImgset">add image set at position
+            @click.prevent="addImgset">add image set at position
             </button>
             <input class="form-control" type="Number" min="1" :max="imgsets.length + 1" step="1" id="numb_refimg" v-model="imagesetAddPosition"/>
           </div>
         </div>
         <div v-if="imgsetDisplayed" class="row mx-auto">
           <button value="update loaded imgset" class="imgset_btn btn-light btn mb-1" id="upd_imgset"
-            title="update currently selected image-set">update loaded imgset
+            title="update currently selected image-set" @click.prevent="updateImgset">update loaded imgset
           </button>
         </div>
         <div v-if="imgsetDisplayed" class="row mx-auto">
           <button value="delete loaded imgset" class="imgset_btn btn-danger btn mb-1" id="del_imgset"
-            title="delete currently selected image-set">delete loaded imgset
+            title="delete currently selected image-set" @click.prevent="deleteImgset">delete loaded imgset
           </button>
         </div>
         <div v-if="imgsets.length" class="row mx-auto">
@@ -259,10 +259,24 @@ export default {
       this.$store.dispatch('currentStudy/addImgset', payload)
     },
     updateImgset () {
-
+      const studyId = this.$route.params.id
+      const imgset = this.$store.getters['imageViewers/getImgset']
+      imgset.position = this.imgsetDisplayed.position
+      const payload = {
+        studyId: studyId,
+        imgset: imgset
+      }
+      this.$store.dispatch('currentStudy/updImgset', payload)
     },
     deleteImgset () {
-
+      const studyId = this.$route.params.id
+      const imgset = this.$store.getters['imageViewers/getImgset']
+      imgset.position = this.imgsetDisplayed.position
+      const payload = {
+        studyId: studyId,
+        imgset: imgset
+      }
+      this.$store.dispatch('currentStudy/delImgset', payload)
     },
     deleteAllImgsets () {
       const studyId = this.$route.params.id

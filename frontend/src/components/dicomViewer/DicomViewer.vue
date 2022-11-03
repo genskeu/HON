@@ -21,6 +21,11 @@
           </li>
         </ul>
       </div>
+      <div v-if="loading" tabindex="-1">
+        <div class="h-10 w-10 mx-auto spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
       <div class='absolute bottom-0 left-0 p-4 text-white'>
         <ul id='viewer_bl' class='list-none text-left'>
           <li ref='slice_index'></li>
@@ -66,6 +71,7 @@ export default {
     return {
       // replace all by computed properties?
       activeImage: undefined,
+      loading: false,
       metaDataTL: ['x00100010', 'x00100020', 'x00081030', 'x0008103e'],
       metaDataTR: ['x00080080', 'x00081090', 'x00080090'],
       metaDataBL: ['x00200011', 'x00180050', 'x00201041'],
@@ -207,6 +213,8 @@ export default {
     },
     loadDisplayCornerstone (stack, viewportSaved = null, toolStateSaved = null, segDataSaved = null) {
       // load images and set the stack
+      this.loading = true
+      stack.imageIds.forEach((imageId) => cornerstone.loadAndCacheImage(imageId))
       cornerstone.loadAndCacheImage(stack.imageIds[0])
         .then((image) => {
           this.activeImage = image
@@ -231,6 +239,9 @@ export default {
               }
             })
           }
+        })
+        .finally(() => {
+          this.loading = false
         })
     },
     // when no image selected load a black blank screen
