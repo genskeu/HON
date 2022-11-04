@@ -233,6 +233,7 @@ export default {
             var viewertype = this.refimageViewers.includes(viewer) ? 'refviewers' : 'viewers'
             var viewerindex = this.refimageViewers.includes(viewer) ? index : index - this.refimageViewers.length
             const stackData = {
+              stack_id: stack.stack_id,
               name: stack.name,
               stackDisplayed: stack.cs_stack,
               savedViewport: stack.viewport,

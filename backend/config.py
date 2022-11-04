@@ -10,9 +10,9 @@ class DevelopmentConfig(Config):
     SECRET_KEY = "dev-key"
     JWT_SECRET_KEY = "dev-key"
     #IMAGE_PATH = "/home/HON/instance/images_dev"
-    #SQLALCHEMY_DATABASE_URI = "sqlite://////home/HON/instance/dev.db"
-    IMAGE_PATH = "/home/backend/instance/images_prod"
-    SQLALCHEMY_DATABASE_URI = "mysql://genskeu:zxmdv21@host.docker.internal/phantomx"
+    SQLALCHEMY_DATABASE_URI = "sqlite://////home/backend/instance/dev_2.db"
+    IMAGE_PATH = "/home/backend/instance/images_dev_2"
+    #SQLALCHEMY_DATABASE_URI = "mysql://genskeu:zxmdv21@host.docker.internal/phantomx"
     DEBUG = True
 
 class ProductionConfig(Config):

@@ -91,7 +91,7 @@ def download_csv(study_id):
 @study_owner_required()
 def create_csv(study):    
     results = Result.query.filter_by(study_id=study.id).options(joinedload('imgset'),
-                                                                joinedload('imgset.image_stacks')).all()
+                                                                joinedload('imgset.study_stacks')).all()
     users = User.query.all()
     inc_raw = "short"
     if request.args.get("include_raw_data"):
@@ -141,7 +141,7 @@ def get_seg_data(study_id):
 
     # ground truth
     for imgset in study.imgsets:
-        for stack in imgset.image_stacks:
+        for stack in imgset.study_stacks:
             if stack.seg_data:
                 file_name = "%s_%s_%s_gt.nii.gz"%(study.title,imgset.position,stack.name)
                 file_path = os.path.join(study.get_image_dir(), file_name)

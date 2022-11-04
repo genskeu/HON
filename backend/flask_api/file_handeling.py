@@ -1,8 +1,8 @@
 import os
-from flask import request, current_app, send_file, Blueprint,abort, jsonify, g
+from flask import request, current_app, send_file, Blueprint, jsonify
 from werkzeug.utils import secure_filename
 import zipfile
-from .DBmodel import Image, db
+from .DBmodel import Image, Stack, db
 from .auth import access_level_required, study_login_or_owner_required, study_owner_required
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import shutil
@@ -19,7 +19,10 @@ def get_file(user_id,study,stack_name,image_name):
     if os.path.isfile(file_path):
         return send_file(file_path)
     else:
-        abort(404, description="Resource not found")
+        response = {
+            "error_msg": "Image not found"
+        }
+        return jsonify(response), 404
 
 
 # helper functions fpr file upload
@@ -39,7 +42,6 @@ def allowed_file(filename):
 def upload_files(study):
     user_id = get_jwt_identity()
     image_dir = study.get_image_dir()
-    image_urls_study = [image.base_url + image.name for image in study.images]
     files = request.files
     filenames_saved = []
     filenames_not_saved = []
@@ -53,89 +55,81 @@ def upload_files(study):
             folder, filename = path[-1].split(".")[0], path[-1]
         filename = secure_filename(filename)
         folder = secure_filename(folder)
-        base_url = f"flask-api/get_file/{user_id}/{study.id}/{folder}/"
-        if base_url + filename not in image_urls_study and allowed_file(filename):
+        stack_base_url = f"flask-api/get_file/{user_id}/{study.id}/{folder}/"
+        stack = Stack.query.filter_by(base_url=stack_base_url).first()
+        # stack not part of study yet
+        if stack is None:
+            # create stack directory
             stack_dir = os.path.join(image_dir, folder)
-            if not os.path.isdir(stack_dir):
-                os.mkdir(os.path.join(image_dir, folder))
+            try:
+                os.mkdir(stack_dir)
+            except:
+                print(f"Error creating {stack_dir}.")
+            # save stack to db
+            stack = Stack(name=folder,
+                          base_url=stack_base_url)
+            study.stacks.append(stack)
+        if allowed_file(filename): 
+            # save image    
             try:
                 f.save(os.path.join(stack_dir, filename))
+                filenames_saved.append(filename)
             except:
                 print("Error saving {}.".format(filename))
-            else:
-                filenames_saved.append(filename)
+                filenames_not_saved.append(filename)
+
+            # save image infos to db
+            if filename not in [image.name for image in stack.images]:
+                image = Image(name=filename)
+                try:
+                    stack.images.append(image)
+                except:
+                    print("Error saving image {} to database for study {} {}.".format(filename,study.title, study.id))
+                    os.remove(os.path.join(image_dir, filename))
+                    filenames_saved.remove(filename)
+                    filenames_not_saved.append(filename)            
+    db.session.commit()
+
+    response = {}
+    response["filenames_not_saved"] = filenames_not_saved
+    response["filenames_saved"] = filenames_saved
+    response["stack"] = stack.get_frontend_stack()
+    return jsonify(response)
+
+
+# unzip fct
+# def unzip_images(image_zip,image_dir, study):
+#     with zipfile.ZipFile(os.path.join(image_dir, image_zip), 'r') as zip_ref:
+#         zip_infolist = zip_ref.infolist()
+#         filenames_unzipped = []
+#         filenames_not_unzipped = []
+#         for zip_info in zip_infolist:
+#             # skip directories
+#             filename = os.path.basename(zip_info.filename)
+#             if filename not in [image.name for image in study.images] and allowed_file(filename):
+#                 try:
+#                     zip_info.filename = filename
+#                     zip_ref.extract(zip_info, image_dir)
+#                 except:
+#                     print("Error unzipping {}.".format(filename))
+#                 else:
+#                     filenames_unzipped.append(filename)
+#             else:
+#                 filenames_not_unzipped.append(filename)
+#     zip_ref.close
+#     try:
+#         os.remove(os.path.join(image_dir, image_zip)) 
+#     except:
+#         print("Error removing {}.".format(image_zip))
+
+#     return filenames_unzipped, filenames_not_unzipped
+
             # not working
             # if "zip" == filename[-3:]:
             #     filenames_saved.remove(f.filename)
             #     filenames_unzipped, filenames_not_unzipped = unzip_images(filename, image_dir, study)
             #     filenames_saved += filenames_unzipped
             #     filenames_not_saved += filenames_not_unzipped
-        else:
-            filenames_not_saved.append(filename)
-
-    # save image infos to db
-    for filename in filenames_saved:
-        image = Image(name=filename,base_url=base_url)
-        try:
-            study.images.append(image)
-        except:
-            print("Error saving image {} to database for study {} {}.".format(filename,study.title, study.id))
-            os.remove(os.path.join(image_dir, filename))
-            filenames_saved.remove(filename)
-            filenames_not_saved.append(filename)            
-    db.session.commit()
-
-    stack = study.get_stack(stack_dir)
-    response = {}
-    response["filenames_db"] = [image.name for image in study.images]
-    response["filenames_not_saved"] = filenames_not_saved
-    response["filenames_saved"] = filenames_saved
-    response["stack"] = stack
-    return jsonify(response)
-
-
-# unzip fct
-def unzip_images(image_zip,image_dir, study):
-    with zipfile.ZipFile(os.path.join(image_dir, image_zip), 'r') as zip_ref:
-        zip_infolist = zip_ref.infolist()
-        filenames_unzipped = []
-        filenames_not_unzipped = []
-        for zip_info in zip_infolist:
-            # skip directories
-            filename = os.path.basename(zip_info.filename)
-            if filename not in [image.name for image in study.images] and allowed_file(filename):
-                try:
-                    zip_info.filename = filename
-                    zip_ref.extract(zip_info, image_dir)
-                except:
-                    print("Error unzipping {}.".format(filename))
-                else:
-                    filenames_unzipped.append(filename)
-            else:
-                filenames_not_unzipped.append(filename)
-    zip_ref.close
-    try:
-        os.remove(os.path.join(image_dir, image_zip)) 
-    except:
-        print("Error removing {}.".format(image_zip))
-
-    return filenames_unzipped, filenames_not_unzipped
-
-
-
-# get filenames of files attached to a study
-# @bp.route('/get_filenames/<int:study_id>', methods=['GET'])
-# @jwt_required()
-# @access_level_required(["study_admin"])
-# def get_filenames(study_id):
-#     study = Study.query.filter_by(id=study_id).first()
-#     response = {}    
-   
-#     image_names_db = [image.name for image in study.images]
-#     response["filenames_db"] = image_names_db
-
-#     return jsonify(response)
-
 
 # delete files
 @bp.route('/delete_files/<int:study_id>', methods=['DELETE'])

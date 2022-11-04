@@ -81,7 +81,7 @@ class Study(db.Model):
     user_id = db.Column(db.Integer(), db.ForeignKey("user.id"), nullable=False)
     design = db.relationship("Design", backref="study", lazy=True, uselist=False,
                              cascade="all, delete-orphan")
-    images = db.relationship("Image",secondary=study_images, backref=db.backref("studies", lazy=True),lazy='subquery')
+    stacks = db.relationship("Stack", backref="study", lazy=True, cascade="all, delete-orphan")
     imgsets = db.relationship("Imgset", backref="study", lazy=True, order_by="Imgset.position",
                               cascade="all, delete-orphan")
     results = db.relationship("Result", backref="study", lazy=True, cascade="all, delete-orphan")
@@ -100,80 +100,20 @@ class Study(db.Model):
             study_dict["design"] = self.design.to_dict()
             if include_images:
                 # study_dict["images"] = [image.to_dict() for image in self.images]
-                study_dict["stacks"] = self.get_stacks()
+                study_dict["stacks"] = self.get_frontend_stacks()
             if include_imagesets:
                 study_dict["imgsets"] = [imgset.to_dict() for imgset in self.imgsets]
             study_dict["user_study_progress"] = [usp.to_dict() for usp in self.user_study_progress]
 
             return study_dict
 
-
-    # def get_cs_stack_by_imageIds(self, image_ids):
-    #     cs_stack = {"imageIds":[],
-    #                 "currentImageIdIndex":0}
-    #     images = [image for image in self.images if image.id in image_ids]
-    #     images.sort(key=lambda image: image.name)
-    #     for image in images:
-    #         url = os.path.join(image.base_url,image.name)
-    #         if ".dcm" in image.name:
-    #             url = "wadouri:" + url
-    #         cs_stack["imageIds"].append(url)
-    #     return cs_stack
-
-    # def images_to_cs_stacks(self,group_info="group"):
-    #     cs_stacks = {}
-    #     self.images.sort(key=lambda image: image.name)
-    #     for image in self.images:
-    #         url = os.path.join(image.base_url,image.name)
-    #         if ".dcm" in image.name:
-    #             url = "wadouri:" + url
-
-    #         if group_info != "single_images":
-    #             stack_name = "_".join(image.name.split("_")[0:3])
-    #         else:
-    #             stack_name = image.name
-
-    #         if stack_name in cs_stacks:
-    #             cs_stacks[stack_name]["imageIds"].append(url)
-    #         else:
-    #             cs_stacks[stack_name] = {"name":stack_name,
-    #                                      "imageIds":[url],
-    #                                      "currentImageIdIndex":0}
-
-    #     cs_stacks = [cs_stacks[cs_stack] for cs_stack in cs_stacks]
-    #     return cs_stacks
-
-    def get_stacks(self):
+    def get_frontend_stacks(self):
         stacks = []
-        image_dir = self.get_image_dir()
-        stack_folders = os.listdir(image_dir)
-        stack_folders.sort()
-        for stack_folder in stack_folders:
-            stack_path = os.path.join(image_dir,stack_folder)
-            stack = self.get_stack(stack_path)
-            stacks.append(stack)
+        for stack in self.stacks:
+            stacks.append(stack.get_frontend_stack())
 
         return stacks
 
-    def get_stack(self, stack_path):
-        stack_files = os.listdir(stack_path)
-        stack = {}
-        stack_folder = os.path.normpath(stack_path).split(os.sep)[-1]
-        stack["name"] = stack_folder
-        stack["size"] = sum( [os.path.getsize(os.path.join(stack_path, stack_file)) for stack_file in stack_files] ) 
-        stack["slices"] = len(stack_files)
-        stack["files"] = stack_files
-        stack["files"].sort()
-        stack["cs_stack"] = {"imageIds":[], "currentImageIdIndex":0}
-        images = [image for image in self.images if image.base_url.split(os.sep)[-2] == stack_folder]
-        for image in images:
-            url = os.path.join(image.base_url,image.name)
-            if ".dcm" in image.name.lower():
-                url = "wadouri:" + url                
-            stack["cs_stack"]["imageIds"].append(url)
-        stack["cs_stack"]["imageIds"]
-        stack["cs_stack"]["imageIds"].sort()
-        return stack
 
     def insert_imgset(self,imgset,position):
         # add to db
@@ -198,7 +138,7 @@ class Study(db.Model):
             imgset_new = Imgset(study_id=imgset["study_id"],
                                 position=i)
             for image in imgset["images"]:
-                image = Image_stack(div_id=image["div_id"],
+                image = Study_stack(div_id=image["div_id"],
                             url=json.dumps(image["url"]),
                             viewport=json.dumps(image["viewport"]))
                 imgset_new.images.append(image)
@@ -215,124 +155,6 @@ class Study(db.Model):
         for imgset in self.imgsets:
             imgset.position = self.imgsets.index(imgset)
         db.session.commit()
-
-    # to do fix and transfer code from studie.py
-    def auto_create_imgsets(self, imgset_config):
-        image_stacks, ref_stack, error_image_stacks = self.get_image_stacks(imgset_config)
-
-        # create imgsets
-        if imgset_config.imgset_type == "afc":
-            imgsets,error_imgsets  = self.auto_create_AFC_imgsets(image_stacks,imgset_config)
-        elif imgset_config.imgset_type == "standard":
-            imgsets,error_imgsets = self.auto_create_ROClike_imgsets(image_stacks, imgset_config)
-
-        return imgsets, ref_stack, error_image_stacks, error_imgsets
-
-    # def get_image_stacks(self,imgset_config):
-    #     # build stacks from images
-    #     image_stacks = {}
-    #     ref_stack = {}
-    #     error = None
-
-    #     self.images.sort(key=lambda image: image.name)
-    #     for image in self.images:
-    #         if imgset_config.stackmode == "single_images":
-    #             stack_name = image.name
-    #         else:
-    #             stack_name = "_".join(image.name.split("_")[0:3])
-
-    #         if stack_name in image_stacks:
-    #             image_stacks[stack_name]["images"].append(image)
-    #         else:
-    #             image_stacks[stack_name] = {}
-    #             image_stacks[stack_name]["name"] = stack_name
-    #             image_stacks[stack_name]["viewport"] = imgset_config.viewport
-    #             image_stacks[stack_name]["images"] = [image]
-        
-    #     if imgset_config.ref_stack_name in image_stacks.keys():
-    #         ref_stack = image_stacks[imgset_config.ref_stack_name]
-    #     elif imgset_config.ref_stack_name != "" and imgset_config.ref_stack_name not in image_stacks.keys():
-    #         error = "Error creating the reference stack: " + imgset_config.ref_stack_name + "."
-    #     elif imgset_config.ref_stack_name == "" and imgset_config.div_ids_ref:
-    #         error = "No reference stack specified, but the number of reference images (general settings) is not 0."
-    #     image_stacks = [image_stacks[stack_name] for stack_name in image_stacks if stack_name != imgset_config.ref_stack_name]
-        
-    #     return image_stacks, ref_stack, error
-
-    # def auto_create_AFC_imgsets(self, image_stacks, config):
-    #     #auto create imgsets
-    #     imgset_size = len(config.div_ids)
-    #     error = ""
-    #     pos_stacks = []
-    #     neg_stacks = []
-    #     for stack in image_stacks:
-    #         stack_info = stack["name"].split("_")
-    #         if len(stack_info) < 3:
-    #             error += stack["name"] + ": wrong naming scheme." + "\n"
-    #         elif config.pos_pattern == stack_info[1]:
-    #             pos_stacks.append(stack)
-    #         elif config.neg_pattern == stack_info[1]:
-    #             neg_stacks.append(stack)
-    #         else:
-    #             error += stack["name"] + ": group info not found." + "\n"
-    #     if config.order == "ordered":
-    #         pos_stacks.sort(key=lambda pos_stack: int(pos_stack["name"].split("_")[0]))
-    #     else:
-    #         random.shuffle(pos_stacks)
-    #     imgsets = []
-    #     for pos_stack in pos_stacks:
-    #         imgset = []
-    #         pos_stack_info = pos_stack["name"].split("_")
-    #         group_info = pos_stack_info[2]
-    #         neg_stacks_group = [neg_stack for neg_stack in neg_stacks if group_info == neg_stack["name"].split("_")[2]]
-    #         if len(neg_stacks_group) < (imgset_size-1):
-    #             error += "Not enough negative images found for " + pos_stack["name"] + "\n"
-    #             continue
-    #         # pick neg images
-    #         for rand_int in random.sample(range(len(neg_stacks_group)), imgset_size-1):
-    #             imgset.append(copy.copy(neg_stacks_group[rand_int]))
-    #         # add pos stack
-    #         imgset.insert(random.randint(0,imgset_size),pos_stack)
-    #         for i in range(imgset_size):
-    #             imgset[i]["div_id"] = config.div_ids[i]
-    #         imgsets.append(imgset)
-            
-    #     return imgsets,error
-
-
-    # def auto_create_ROClike_imgsets(self, image_stacks, config):
-    #     imgset_size = len(config.div_ids)
-    #     if config.order == "random":
-    #         random.shuffle(image_stacks)
-    #     else:
-    #         image_stacks.sort(key=lambda stack: stack["name"].split("_")[0])
-    #     imgsets = []
-    #     error = None
-    #     for i in range(0,len(image_stacks) - imgset_size + 1, imgset_size):
-    #         imgset = image_stacks[i:i+imgset_size]
-    #         for i, stack in enumerate(imgset):
-    #             stack["div_id"] = config.div_ids[i]
-    #         imgsets.append(imgset)
-
-    #     if config.order == "random":
-    #         random.shuffle(imgsets)
-
-    #     return imgsets,error
-        
-# class Imgset_config:
-#     def __init__(self,config_dict):
-#         self.pos_pattern = config_dict["pos_pattern"] 
-#         self.neg_pattern = config_dict["neg_pattern"]
-#         self.stackmode = config_dict["stackmode"]  
-#         self.ref_stack_name = config_dict["ref_stack_name"] 
-#         self.div_ids = config_dict["div_ids"] 
-#         self.div_ids_ref = config_dict["div_ids_ref"] 
-#         self.viewport = config_dict["viewport"] 
-#         self.viewport_ref = config_dict["viewport_ref"] 
-#         self.imgset_type = config_dict["imgset_type"] 
-#         self.order = config_dict["order"] 
-#         self.stackmode = config_dict["stackmode"]
-
 
 
 class Design(db.Model):
@@ -496,7 +318,7 @@ class Result(db.Model):
     user_id = db.Column(db.Integer(), db.ForeignKey("user.id"), nullable=False)
     study_id = db.Column(db.Integer(), db.ForeignKey("study.id"), nullable=False)
     imgset_id = db.Column(db.Integer(),db.ForeignKey("imgset.id"), nullable=False)
-    stack_picked = db.relationship("Image_stack", backref="result", lazy=False,
+    stack_picked = db.relationship("Study_stack", backref="result", lazy=False,
                                    cascade="all, delete-orphan", uselist=False)
     imgset = db.relationship("Imgset", backref="result", lazy=False, uselist=False)
     created = db.Column(db.DateTime(), server_default=db.func.now())
@@ -551,17 +373,17 @@ class Imgset(db.Model):
 
     Attributes:
        position:
-       image_stacks:
+       study_stacks:
        results:
     """
     #__table_args__ = (db.UniqueConstraint("study_id","position", name = "imgset_id"),)
     id = db.Column(db.Integer(), primary_key=True)
     study_id = db.Column(db.Integer(), db.ForeignKey("study.id"), nullable=False)
     position = db.Column(db.Integer(), nullable=False)
-    image_stacks = db.relationship("Image_stack",backref="imgset", lazy=False, cascade="all, delete-orphan")
+    study_stacks = db.relationship("Study_stack",backref="imgset", lazy=False, cascade="all, delete-orphan")
 
     def get_stack_by_div_id(self,div_id):
-        stack = [stack for stack in self.image_stacks if stack.div_id == div_id]
+        stack = [stack for stack in self.study_stacks if stack.div_id == div_id]
         if len(stack) == 1:
             stack = stack[0]
         else:
@@ -574,8 +396,9 @@ class Imgset(db.Model):
         dict["id"] = self.id
         dict["study_id"] = self.study_id
         dict["position"] = self.position
+        # to do change image stack in frontend to study stack
         dict["image_stacks"] = []
-        for stack in self.image_stacks:
+        for stack in self.study_stacks:
             dict["image_stacks"].append(stack.to_dict())
 
         return dict
@@ -589,29 +412,66 @@ class Image(db.Model):
        url:
     """
     id = db.Column(db.Integer(), primary_key=True)
+    stack_id = db.Column(db.Integer(), db.ForeignKey("stack.id"), nullable=False)
     base_url = db.Column(db.String(1000))
     name = db.Column(db.String(120))
 
     def to_dict(self):
         dict = {}
         dict["id"] = self.id
-        dict["base_url"] = self.base_url
         dict["name"] = self.name
     
         return dict
 
 
-#table for m to n relationships (image_stacks - images)
-# stack_images = db.Table("stack_images",
-#     db.Column("image_stack_id",db.Integer, db.ForeignKey("image_stack.id"), primary_key=True),
-#     db.Column("image_id",db.Integer, db.ForeignKey("image.id"), primary_key=True)
-# )
-    
-
-
-class Image_stack(db.Model):
+class Stack(db.Model):
     """
-    Class to save image configurations used by HON
+    Class to keep track of stacks associated with a study
+
+    Attributes:
+       base_url:
+       name:
+    """
+    id = db.Column(db.Integer(), primary_key=True)
+    study_id = db.Column(db.Integer(), db.ForeignKey("study.id"), nullable=False)
+    study_stacks = db.relationship("Study_stack", backref=db.backref("stack", lazy=True),lazy='subquery')
+    images = db.relationship("Image", backref=db.backref("stack", lazy=True),lazy='subquery', cascade="all, delete-orphan")
+    base_url = db.Column(db.String(1000))
+    name = db.Column(db.String(120))
+
+    def to_dict(self):
+        dict = {}
+        dict["stack_id"] = self.id
+        dict["base_url"] = self.base_url
+        dict["images"] = [image.to_dict for image in self.images]
+        dict["name"] = self.name
+    
+        return dict
+
+    def get_frontend_stack(self):
+        stack_path = os.path.join(self.study.get_image_dir(), self.name)
+        stack = {}
+        stack["stack_id"] = self.id
+        stack["name"] = self.name
+        stack["size"] = sum( [os.path.getsize(os.path.join(stack_path, image.name)) for image in self.images] ) 
+        stack["slices"] = len(self.images)
+        stack["files"] = [image.name for image in self.images]
+        stack["files"].sort()
+        stack["cs_stack"] = {"imageIds":[], "currentImageIdIndex":0}
+        for image in self.images:
+            url = os.path.join(self.base_url,image.name)
+            if ".dcm" in image.name.lower():
+                url = "wadouri:" + url                
+            stack["cs_stack"]["imageIds"].append(url)
+        stack["cs_stack"]["imageIds"]
+        stack["cs_stack"]["imageIds"].sort()
+        return stack
+
+
+
+class Study_stack(db.Model):
+    """
+    Class to save image configurations used by frontend
     linked to imgset
 
     Attributes:
@@ -619,48 +479,48 @@ class Image_stack(db.Model):
        url:
        viewport:
        tool_state:
+       seg_data:
     """
     __table_args__ = (db.UniqueConstraint("imgset_id","result_id","div_id"),
                       db.CheckConstraint('(imgset_id IS NULL) <> (result_id IS NULL)'),)
     id = db.Column(db.Integer(), primary_key=True)
-    # image either belongs to a result or an imgset
+    stack_id = db.Column(db.Integer(), db.ForeignKey("stack.id"), nullable=False)
+    # stack either belongs to a result or an imgset
     imgset_id = db.Column(db.Integer(), db.ForeignKey("imgset.id"))
     result_id = db.Column(db.Integer(), db.ForeignKey("result.id"))
     div_id = db.Column(db.String(120))
     name = db.Column(db.String(120))
-    # images = db.relationship("Image",secondary=stack_images, backref=db.backref("image_stacks", lazy=True),lazy='subquery', order_by='Image.name')
+    
     viewport = db.Column(db.String(1000))
     tool_state = db.Column(db.Text(1000000))
     seg_data = db.Column(db.Text(100000000))
 
     def to_dict(self):
-        image_stack_dict = {}
-        image_stack_dict["div_id"] = self.div_id
-        image_stack_dict["name"] = self.name
-        image_stack_dict["cs_stack"] = {"imageIds":[],
+        study_stack_dict = {}
+        study_stack_dict["stack_id"] = self.stack_id
+        study_stack_dict["div_id"] = self.div_id
+        study_stack_dict["name"] = self.name
+        study_stack_dict["cs_stack"] = {"imageIds":[],
                                         "currentImageIdIndex":0}
         images = self.get_images()
         for image in images:
-            url = os.path.join(image.base_url,image.name)
+            url = os.path.join(self.stack.base_url,image.name)
             if ".dcm" in image.name.lower():
                 url = "wadouri:" + url                
-            image_stack_dict["cs_stack"]["imageIds"].append(url)
-        image_stack_dict["cs_stack"]["imageIds"]
-        image_stack_dict["cs_stack"]["imageIds"].sort()
+            study_stack_dict["cs_stack"]["imageIds"].append(url)
+        study_stack_dict["cs_stack"]["imageIds"]
+        study_stack_dict["cs_stack"]["imageIds"].sort()
         if self.viewport:
-            image_stack_dict["viewport"] = json.loads(self.viewport)
+            study_stack_dict["viewport"] = json.loads(self.viewport)
         if self.tool_state:
-            image_stack_dict["tool_state"] = json.loads(self.tool_state)
+            study_stack_dict["tool_state"] = json.loads(self.tool_state)
         
-        image_stack_dict["seg_data"] = self.seg_data
+        study_stack_dict["seg_data"] = self.seg_data
         
-        return image_stack_dict
+        return study_stack_dict
 
     def get_images(self):
-        if self.imgset:
-            images = [image for image in self.imgset.study.images if image.base_url.split(os.sep)[-2] == self.name]
-        else:
-            images = [image for image in self.result.study.images if image.base_url.split(os.sep)[-2] == self.name]
+        images = [image for image in self.stack.images]
         return images
 
     def save_seg_data(self,file_path):

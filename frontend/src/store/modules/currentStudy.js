@@ -606,9 +606,8 @@ const actions = {
         var stackIndex = imgsetIndex * viewerNumber + i
         const imageIds = state.stacks[stackIndex].cs_stack.imageIds
         var stack = {
+          id: state.stacks[stackIndex].id,
           div_id: 'dicom_img_' + i,
-          image_names: imageIds.map((id) => id.split('/').pop()),
-          base_url: imageIds[0].substring(0, imageIds[0].lastIndexOf('/')).replace('wadouri:', '') + '/',
           name: state.stacks[stackIndex].name,
           segmentation_data: '',
           tool_state: imageIds.map((id) => null),

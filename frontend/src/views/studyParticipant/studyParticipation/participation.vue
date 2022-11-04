@@ -136,6 +136,7 @@ export default {
 
             const stackData = {
               name: stack.name,
+              stack_id: stack.stack_id,
               stackDisplayed: stack.cs_stack,
               savedViewport: stack.viewport,
               savedToolstate: stack.tool_state,

@@ -141,9 +141,8 @@ const getters = {
       if (viewport) {
         const imageIds = viewer.stackDisplayed.csStack.imageIds
         var stack = {
+          stack_id: viewer.stackDisplayed.stack_id,
           div_id: 'dicom_img_' + index,
-          image_names: imageIds.map((id) => id.split('/').pop()),
-          base_url: imageIds[0].substring(0, imageIds[0].lastIndexOf('/')).replace('wadouri:', '') + '/',
           name: viewer.stackDisplayed.name,
           segmentation_data: '',
           tool_state: imageIds.map((id) => cornerstoneTools.globalImageIdSpecificToolStateManager.saveImageIdToolState(id)),
@@ -178,6 +177,7 @@ const mutations = {
     if (viewer) {
       viewer.stackDisplayed =
       {
+        stack_id: payload.stack_id,
         name: payload.name,
         csStack: {
           currentImageIdIndex: payload.stackDisplayed.currentImageIdIndex,

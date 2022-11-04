@@ -40,6 +40,7 @@ export default {
       // sent data to backend via axios
       const stackIndex = this.refimageViewers.length + this.viewerIndex
       const stackPicked = imgset.stacks[stackIndex]
+      console.log(stackPicked)
       const payload = {
         imgset_id: this.imgsetDisplayed.id,
         picked_stack: stackPicked,
