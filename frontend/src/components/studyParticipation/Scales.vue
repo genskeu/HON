@@ -8,7 +8,7 @@
       </button>
     </div>
     <div id="scales_container" class="collapse show">
-      <div id="scales" class="mt-1">
+      <div id="scales" class="mt-1 mb-1">
           <Scale v-for="(scale, index) in scales" :key="index" :scale-index="index"></Scale>
       </div>
     </div>

@@ -128,10 +128,12 @@ def study_owner_required():
             study_id = kwargs["study_id"]
             current_user_id = get_jwt_identity()
             study = Study.query.filter_by(id=study_id, user_id=current_user_id).first()
+            del kwargs["study_id"]
+            kwargs["study"] = study
             if study is None:
                 return jsonify(errorMessage="User rights insufficient. You are not the study creater."), 401
             else:
-                return view(study)
+                return view(**kwargs)
         return wrapped_view
     return decorator
 
@@ -160,6 +162,8 @@ def study_login_or_owner_required():
             if study is None:
                 return jsonify(errorMessage=errorMessage), 401
             else:
-                return view(study)
+                del kwargs["study_id"]
+                kwargs["study"] = study
+                return view(**kwargs)
         return wrapped_view
     return decorator

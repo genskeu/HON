@@ -1,6 +1,6 @@
 from crypt import methods
 from flask import Blueprint, jsonify, request, current_app, send_file, after_this_request
-from .auth import access_level_required
+from .auth import access_level_required, study_owner_required, study_login_or_owner_required
 import os
 from .DBmodel import Result, Study, User, db, User_study_progress, Output
 from sqlalchemy.orm import joinedload
@@ -10,37 +10,38 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 bp = Blueprint("results", __name__)
 
 # get result by imgset_id
-@bp.route('/get_results_by_imgset_id/<imgset_id>')
-@jwt_required()
-@access_level_required(["study_admin"])
-def get_results_by_imgset_id(imgset_id):
-    results = Result.query.filter_by(imgset_id=imgset_id).join(User).add_column(User.username).add_column(Result.id).all()
-    response = {}
-    if results is None:
-        response["results"] = results
-    else:
-        response["results"] = [{"username" : result.username, "id":result.id} for result in results]
-    return response
+# @bp.route('/get_results_by_imgset_id/<imgset_id>')
+# @jwt_required()
+# @access_level_required(["study_admin"])
+# def get_results_by_imgset_id(imgset_id):
+#     results = Result.query.filter_by(imgset_id=imgset_id).join(User).add_column(User.username).add_column(Result.id).all()
+#     response = {}
+#     if results is None:
+#         response["results"] = results
+#     else:
+#         response["results"] = [{"username" : result.username, "id":result.id} for result in results]
+#     return response
 
-# get result by id
-@bp.route('/result/<id>', methods=["GET"])
-@jwt_required()
-@access_level_required(["study_admin"])
-def get_result(id):
-    result = Result.query.filter_by(id=id).first()
-    response = {}
-    response["result"] = result.to_dict()
-    return response
+# # get result by id
+# @bp.route('/result/<id>', methods=["GET"])
+# @jwt_required()
+# @access_level_required(["study_admin"])
+# def get_result(id):
+#     result = Result.query.filter_by(id=id).first()
+#     response = {}
+#     response["result"] = result.to_dict()
+#     return response
 
 
 # get results by study for logged in user
 @bp.route('/results/current_user/<study_id>', methods=["GET"])
 @jwt_required()
 @access_level_required(["study_participant","study_admin"])
-def get_result_current_user(study_id):
+@study_login_or_owner_required()
+def get_result_current_user(study):
     current_user_id = get_jwt_identity()
     user_id = current_user_id
-    results = Result.query.filter_by(study_id=study_id, user_id=user_id).all()
+    results = Result.query.filter_by(study_id=study.id, user_id=user_id).all()
     response = {}
     response["results"] = [result.to_dict() for result in results]
     return response
@@ -50,23 +51,24 @@ def get_result_current_user(study_id):
 @bp.route('/result/<study_id>/<user_id>', methods=['DELETE'])
 @jwt_required()
 @access_level_required(["study_admin"])
-def delete_result(study_id,user_id):
-    results = Result.query.filter_by(study_id=study_id,user_id=user_id).all()
+@study_owner_required()
+def delete_result(study,user_id):
+    results = Result.query.filter_by(study_id=study.id,user_id=user_id).all()
     for result in results:
         db.session.delete(result)
 
-    user_study_progress = User_study_progress.query.filter_by(study_id=study_id,user_id=user_id).first()
+    user_study_progress = User_study_progress.query.filter_by(study_id=study.id,user_id=user_id).first()
     db.session.delete(user_study_progress)
     db.session.commit()
 
     response = {}
-    response["user_study_progress"] = User_study_progress.query.filter_by(study_id=study_id).all()
+    response["user_study_progress"] = User_study_progress.query.filter_by(study_id=study.id).all()
     response["user_study_progress"] = [usp.to_dict() for usp in response["user_study_progress"]]
     return jsonify(response)
 
 
 # download csv file 
-@bp.route('/results/<study_id>/download',methods=["GET"])
+@bp.route('/results/<int:study_id>/download',methods=["GET"])
 #@jwt_required()
 #@access_level_required(["study_admin"])
 def download_csv(study_id):
@@ -83,13 +85,12 @@ def download_csv(study_id):
 
 
 # create csv file 
-@bp.route('/results/<study_id>',methods=["GET"])
+@bp.route('/results/<int:study_id>',methods=["GET"])
 @jwt_required()
 @access_level_required(["study_admin"])
-def create_csv(study_id):
-    study = Study.query.filter_by(id=study_id).first()
-    
-    results = Result.query.filter_by(study_id=study_id).options(joinedload('imgset'),
+@study_owner_required()
+def create_csv(study):    
+    results = Result.query.filter_by(study_id=study.id).options(joinedload('imgset'),
                                                                 joinedload('imgset.image_stacks')).all()
     users = User.query.all()
     inc_raw = "short"

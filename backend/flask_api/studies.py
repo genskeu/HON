@@ -225,10 +225,10 @@ def design(study):
 
 @bp.route('/study/imgset/<int:study_id>/<int:position>', methods=['GET'])
 @jwt_required()
+@study_login_or_owner_required()
 @access_level_required(["study_participant","study_admin"])
-def get_imgset(study_id, position):
-    imgset = Imgset.query.filter_by(study_id=study_id,position=position).first()
-    study = Study.query.filter_by(id=study_id).first()
+def get_imgset(study, position):
+    imgset = Imgset.query.filter_by(study_id=study.id,position=position).first()
     error = None
     response = {}
     
@@ -295,9 +295,9 @@ def add_imgset(study):
 @bp.route('/study/imgset/<int:study_id>/<int:position>', methods=['PUT'])
 @jwt_required()
 @access_level_required(["study_admin"])
-def update_imgset(study_id, position):
-    study = Study.query.filter_by(id=study_id).first()
-    imgset = Imgset.query.filter_by(study_id=study_id,position=position).first()
+@study_owner_required()
+def update_imgset(study, position):
+    imgset = Imgset.query.filter_by(study_id=study.id,position=position).first()
     error = None
     data = request.get_json()
     imgset_dict = data
@@ -342,10 +342,10 @@ def update_imgset(study_id, position):
 @bp.route('/study/imgset/<int:study_id>/<int:position>', methods=['DELETE'])
 @jwt_required()
 @access_level_required(["study_admin"])
-def delete_imgset(study_id, position):
+@study_owner_required()
+def delete_imgset(study, position):
     response = {}
-    study = Study.query.filter_by(id=study_id).first()
-    imgset = Imgset.query.filter_by(study_id=study_id,position=position).first()
+    imgset = Imgset.query.filter_by(study_id=study.id,position=position).first()
     if imgset is None:
         error = "Imgset with position %s not found in study %s"%(position,study.title)
         status_code = 404
@@ -534,8 +534,6 @@ def study_login():
     response = {}
     study = Study.query.filter_by(id=study_id).first()
     user_id = get_jwt_identity()
-    results = Result.query.filter_by(
-        study_id=study_id, user_id=user_id).all()
 
     if study is None:
         error = 'Study not found.'

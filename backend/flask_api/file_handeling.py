@@ -2,8 +2,8 @@ import os
 from flask import request, current_app, send_file, Blueprint,abort, jsonify, g
 from werkzeug.utils import secure_filename
 import zipfile
-from .DBmodel import Study, Image, db
-from .auth import access_level_required
+from .DBmodel import Image, db
+from .auth import access_level_required, study_login_or_owner_required, study_owner_required
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import shutil
 
@@ -13,8 +13,9 @@ bp = Blueprint("file_handeling", __name__)
 @bp.route("/get_file/<int:user_id>/<int:study_id>/<stack_name>/<image_name>",methods=['GET'])
 @jwt_required()
 @access_level_required(["study_participant","study_admin"])
-def get_file(user_id,study_id,stack_name,image_name):
-    file_path = os.path.join(current_app.config['IMAGE_PATH'],str(user_id),str(study_id),stack_name,image_name)
+@study_login_or_owner_required()
+def get_file(user_id,study,stack_name,image_name):
+    file_path = os.path.join(current_app.config['IMAGE_PATH'],str(user_id),str(study.id),stack_name,image_name)
     if os.path.isfile(file_path):
         return send_file(file_path)
     else:
@@ -34,8 +35,8 @@ def allowed_file(filename):
 @bp.route('/upload_files/<int:study_id>', methods=['POST'])
 @jwt_required()
 @access_level_required(["study_admin"])
-def upload_files(study_id):
-    study = Study.query.filter_by(id=study_id).first()
+@study_owner_required()
+def upload_files(study):
     user_id = get_jwt_identity()
     image_dir = study.get_image_dir()
     image_urls_study = [image.base_url + image.name for image in study.images]
@@ -123,25 +124,25 @@ def unzip_images(image_zip,image_dir, study):
 
 
 # get filenames of files attached to a study
-@bp.route('/get_filenames/<int:study_id>', methods=['GET'])
-@jwt_required()
-@access_level_required(["study_admin"])
-def get_filenames(study_id):
-    study = Study.query.filter_by(id=study_id).first()
-    response = {}    
+# @bp.route('/get_filenames/<int:study_id>', methods=['GET'])
+# @jwt_required()
+# @access_level_required(["study_admin"])
+# def get_filenames(study_id):
+#     study = Study.query.filter_by(id=study_id).first()
+#     response = {}    
    
-    image_names_db = [image.name for image in study.images]
-    response["filenames_db"] = image_names_db
+#     image_names_db = [image.name for image in study.images]
+#     response["filenames_db"] = image_names_db
 
-    return jsonify(response)
+#     return jsonify(response)
 
 
 # delete files
 @bp.route('/delete_files/<int:study_id>', methods=['DELETE'])
 @jwt_required()
 @access_level_required(["study_admin"])
-def delete_files(study_id):
-    study = Study.query.filter_by(id=study_id).first()
+@study_owner_required()
+def delete_files(study):
     image_dir = study.get_image_dir()
     user_id = get_jwt_identity()
     stacks = request.get_json()
