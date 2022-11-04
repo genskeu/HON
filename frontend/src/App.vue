@@ -16,6 +16,9 @@
             <li v-if="isStudyAdmin & !studyOpened" class="nav-item">
               <router-link to="/study-management/study-overview" class="nav-link">Studies Overview</router-link>
             </li>
+            <li v-if="isStudyAdmin & studyOpened" class="nav-item">
+              <router-link to="/study-management/" class="nav-link">Studies Management</router-link>
+            </li>
             <li v-if="isStudyParticipant & !studyOpened" class="nav-item">
               <router-link to="/study/login" class="nav-link">Study Login</router-link>
             </li>

@@ -21,7 +21,7 @@ at the beginning of the study and should include
 basic information about the study
 e.g. how many images have to be evaluated.">
           <label class="input-group-text w-40">Study Description</label>
-          <textarea v-model="studyDesc" class="form-control" name="description" id="description" rows="20"></textarea>
+          <textarea v-model="studyDesc" class="form-control" name="description" id="description" rows="25"></textarea>
         </div>
       </div>
       <div class="row mx-auto mt-1">

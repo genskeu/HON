@@ -1,21 +1,14 @@
 <template>
     <div class="container mt-4">
         <uploadModal id="uploadModal"></uploadModal>
-        <div class="row mx-auto">
-            <button class="btn btn-dark btn-block" data-bs-toggle="collapse" data-bs-target="#naming"
+<!--         <div class="row mx-auto">
+            <button class="btn btn-secondary btn-block" data-bs-toggle="collapse" data-bs-target="#naming"
                 aria-expanded="false" aria-controls="naming">
-                <h5 class="">Rules and Naming conventions for File Upload &#9776;</h5>
+                <h5 class="">Instructions File Upload &#9776;</h5>
             </button>
-            <div id="naming" class="collapse">
-                <h3>General Information</h3>
-                <div class="row mx-auto">
-                    <ul class="mt-3">
-                        <!-- <li>images can be uploaded as .zip files</li> -->
-                        <li>supported formats: dicom, jpeg, png</li>
-                        <li>don't upload more than 10000 files in one upload</li>
-                    </ul>
-                </div>
-                <br>
+            <div id="naming" class="collapse show">
+
+                 <br>
                 <h3>AFC Information</h3>
                 <br>
                 <p>To use HON feature to automatically create AFC studies the
@@ -39,8 +32,7 @@
                     the 14th set of images shown during the study.
                 </p>
             </div>
-        </div>
-
+        </div> -->
         <div class="row pt-1">
             <div class="" id="uploaded_files">
                 <div class="row mx-auto mt-1">
@@ -48,7 +40,7 @@
                     <div id="loader_text_del" class="mt-3" style="display: none;">Please wait</div>
                 </div>
                 <div class="w-100 mt-2">
-                    <div style="height:70vh;" class="overflow-auto mb-4">
+                    <div style="height:75vh;" class="overflow-auto mb-4">
                         <table class="table table-hover text-middle">
                             <thead class="thead sticky-top bg-white">
                                 <tr>
@@ -67,13 +59,13 @@
                                     <th>{{stack.name}}</th>
                                     <th>{{stack.slices}}</th>
                                     <th>{{Number(stack.size/(1024*1024)).toFixed(2) }}</th>
-                                    <th data-bs-toggle="collapse" :data-bs-target="'#' + stack.name"><button class="btn-light btn">Show Files</button></th>
+                                    <th data-bs-toggle="collapse" :data-bs-target="'#A' + stack.name"><button class="btn-light btn">Show Files</button></th>
                                     <th class="align-middle mx-auto"><input name="filesToDelete" v-model="filesToDelete" type='checkbox' :value="stack" class="mt-1"></th>
                                 </tr>
-                                <tr :id="stack.name" class="collapse">
+                                <tr :id="'A' + stack.name" class="collapse">
                                     <td colspan="5">
                                         <div class="overflow-auto" style="max-height:200px;">
-                                        <table class="table table-dark table-borderless">
+                                        <table class="table table-secondary table-borderless">
                                             <thead class="">
                                                 <tr colspan="6">
                                                     <th colspan="2">Filename</th>
@@ -103,7 +95,7 @@
 </template>
 
 <script>
-import uploadModal from '@/components/misc/uploadModal'
+import uploadModal from '@/components/studyDesign/uploadModal'
 
 export default {
   name: 'FileUpload',

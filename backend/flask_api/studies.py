@@ -96,11 +96,8 @@ def update_study(study):
     title = data["title"]
     password = data["password"]
     study_description = data["description"]    
-    study = Study.query.filter_by(id=id).first()
-    current_user_id = get_jwt_identity()
-    user_id = current_user_id
-    if Study.query.filter(Study.id!=id,Study.title==title,Study.user_id==user_id).first() is not None:
-        error = "Titel already used for a different study. Please choose a different study title."
+    if study is None:
+        error = "Study not found."
 
     if error is None:
         study.title = title
@@ -112,7 +109,7 @@ def update_study(study):
         status_code = 200
     else:
         response["error"] = error
-        status_code = 400
+        status_code = 404
 
     return jsonify(response), status_code
 

@@ -6,7 +6,16 @@
                     <div class="modal-title h4">File Upload</div>
                     <button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body overflow-auto" style="height:75vh;" @drop="addF">
+                <div class="row mx-auto">
+                  <ul class="text-left">
+                        <!-- <li>images can be uploaded as .zip files</li> -->
+                        <li>Supported file formats: dicom, jpeg, png.</li>
+                        <li>Don't upload more than 10000 files in one upload.</li>
+                        <li>Use the Select Files button to upload multiple files. Each file will be treated as a stack. The stackname will equal the filename without the ending.</li>
+                        <li>Use the Select Folder button to upload a folder containing multiple files. The files will be combined into a stack. The stack name will equal the foldername. To upload multiple folders/stacks select a folder containing subdirectories.</li>
+                </ul>
+              </div>
+                <div class="modal-body overflow-auto" style="height:62vh;" @drop="addF">
                     <table class="table table-hover">
                         <thead class="thead-light">
                             <tr>
@@ -27,13 +36,13 @@
                                     <td colspan="1" class="align-middle">{{Number(folder.size/(1024*1024)).toFixed(2) }}</td>
                                     <td colspan="1" class="align-middle">{{folder.progress.toFixed(2)}}</td>
                                     <td colspan="1" class="align-middle">{{folder.status}}</td>
-                                    <td colspan="1" class="align-middle" data-bs-toggle="collapse" :data-bs-target="'#' + folder.foldername"><button class="btn btn-primary">show files</button></td>
-                                    <td colspan="1" class="align-middle"><button class="btn btn-danger">remove</button></td>
+                                    <td colspan="1" class="align-middle" data-bs-toggle="collapse" :data-bs-target="'#A' + folder.foldername"><button class="btn btn-primary">show files</button></td>
+                                    <!-- <td colspan="1" class="align-middle"><button class="btn btn-danger">remove</button></td> -->
                                 </tr>
-                                <tr class="collapse" :id="folder.foldername">
+                                <tr class="collapse" :id="'A' + folder.foldername">
                                     <td colspan="7">
                                       <div class="overflow-auto" style="max-height:200px;">
-                                        <table class="table table-dark table-borderless">
+                                        <table class="table table-secondary table-borderless">
                                             <thead class="">
                                                 <tr colspan="6">
                                                     <th colspan="2">Filename</th>
@@ -73,21 +82,18 @@
                         </div>
                     </div>
                     <div class="example-btn">
-                        <label class="btn btn-primary ml-1">Select Files
+                        <label class="btn btn-primary ml-auto">Select Files
                           <input @change="addFolder" type="file" name="file" class="d-none" id="file" multiple/>
                         </label>
                         <label class="btn btn-primary ml-1">Select Folder
                           <input @change="addFolder" type="file" name="folder" class="d-none" id="folder" ref="folder" webkitdirectory multiple/>
                         </label>
-                        <label class="ml-1">
-                          Files selected: {{fileNumber()}}
-                        </label>
-                        <button @click="uploadFolders" class="btn btn-success ml-1">
-                            Start Upload
+                        <button v-if="uploadPaused" @click.prevent="this.startUpload" class="btn btn-success ml-1">
+                            Start Upload (files left {{this.fileNumber()}})
                         </button>
-<!--                         <button class="btn btn-danger" v-else @click.prevent="this.$refs.upload.active = false">
-                            Stop Upload
-                        </button> -->
+                        <button class="btn btn-danger ml-1" v-else @click.prevent="this.uploadPaused = true">
+                            Stop Upload (files left {{this.fileNumber()}})
+                        </button>
                     </div>
                 </div>
             </div>
@@ -104,7 +110,7 @@ export default {
   data () {
     return {
       fileFolders: [],
-      filesUploaded: []
+      uploadPaused: true
     }
   },
   computed: {
@@ -114,14 +120,17 @@ export default {
   mounted () {
   },
   methods: {
-    inputFilter (newFile, oldFile, prevent) {
+    inputFilter (files) {
+      const allowedFileEndings = ['dcm', 'png', 'jpg', 'jpeg']
+      const filteredFiles = files.filter(file => allowedFileEndings.includes(file.name.toLowerCase().split('.').at(-1)))
+      return filteredFiles
     },
     addFolder (e) {
-      if (!e.target.files.length > 0) {
+      const files = this.inputFilter(Array.from(e.target.files))
+      if (!(files.length > 0)) {
         return false
       }
-
-      Array.from(e.target.files).forEach(newFile => {
+      Array.from(files).forEach(newFile => {
         var paths = ''
         if (newFile.webkitRelativePath) {
           paths = newFile.webkitRelativePath.split('/')
@@ -163,21 +172,26 @@ export default {
       })
       // sort list
       this.fileFolders.sort((a, b) => (a.foldername > b.foldername) ? 1 : -1)
-      console.log(this.fileFolders)
+      // filter files finished
+      this.fileFolders = this.fileFolders.filter(fileFolder => fileFolder.progress < 100)
     },
     uploadProgressOverall () {
       var sum = 0
       this.fileFolders.forEach(function (folder) { sum += Number(folder.progress) })
-      if (this.fileFolders.length) {
-        const average = sum / this.fileFolders.length
-        return average.toFixed(2)
-      } else {
-        const average = 0
-        return average.toFixed(2)
+      const average = this.fileFolders.length ? sum / this.fileFolders.length : 0
+      if (average >= 100) {
+        this.uploadPaused = true
       }
+      return average.toFixed(2)
+    },
+    startUpload () {
+      if (this.fileNumber() === 0) { return }
+      this.uploadPaused = false
+      this.uploadFolders()
     },
     // working
     async uploadFolders () {
+      if (this.uploadPaused) { return }
       // find folder that is currently uploading or that has not uploaded yet
       var folderToUpload
       for (var folder of this.fileFolders) {
@@ -223,16 +237,24 @@ export default {
           filesUploading.forEach((file) => {
             file.status = 'uploaded successfully'
           })
-          if (folder.files.every((file) => file.status === 'uploaded successfully')) {
+          const allUploadedSuccessfull = folder.files.every((file) => file.status === 'uploaded successfully')
+          const allUploadedWithError = folder.files.every((file) => file.status === 'uploaded successfully' | file.status === 'error')
+          if (allUploadedSuccessfull) {
             folder.status = 'upload finished'
             const stack = response.data.stack
             this.$store.commit('currentStudy/addStack', stack)
+          } else if (allUploadedWithError) {
+            folder.status = 'upload finished with errors'
           }
         })
         .catch(() => {
           filesUploading.forEach((file) => {
             file.status = 'error'
           })
+          const allUploadedWithError = folder.files.every((file) => file.status === 'uploaded successfully' | file.status === 'error')
+          if (allUploadedWithError) {
+            folder.status = 'upload finished with errors'
+          }
         })
         .finally(() => {
           this.uploadFolders()
@@ -241,10 +263,7 @@ export default {
     },
     fileNumber () {
       var fileNumb = 0
-      var selectedFiles = document.getElementById('folder')
-      if (selectedFiles) {
-        fileNumb += selectedFiles.files.length
-      }
+      this.fileFolders.forEach((folder) => { fileNumb += !folder.status.includes('upload finished') ? folder.files.length : 0 })
       return fileNumb
     }
     // not used
