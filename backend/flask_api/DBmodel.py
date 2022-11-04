@@ -18,16 +18,16 @@ db = SQLAlchemy()
 
 class User(db.Model):
     """
-    Class to handle users and user associated data
+    Class to handle user and user associated data
 
     Attributes:
        username
        password
        email (not used in right now)
-       access_level: controls which parts of the APP the user can access
+       access_level controls which parts of the APP the user can access
        created
-       studies: links to all studies the user created
-       results: links to results the user produced
+       studies links to all studies the user created
+       results links to results the user produced
     """
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
@@ -40,21 +40,6 @@ class User(db.Model):
     results = db.relationship("Result", backref="user", lazy=True,
                               cascade="all, delete-orphan")
 
-    def is_user(self):
-        return self.access_level == 1
-
-    def is_study_admin(self):
-        return self.access_level == 2
-
-    def is_user_admin(self):
-        return self.access_level == 3
-
-#tables for m to n relationships (study - images)
-#to do: to enable image sharing between studies => feature never finished
-study_images = db.Table("study_images",
-    db.Column("study_id",db.Integer, db.ForeignKey("study.id"), primary_key=True),
-    db.Column("image_id",db.Integer, db.ForeignKey("image.id"), primary_key=True)
-)
 
 class Study(db.Model):
     """
@@ -68,6 +53,7 @@ class Study(db.Model):
        created
        description
        design: links to the design used
+       stacks: links to the stacks used in this study
        imgsets: links to the associated sets of images
     """
     __table_args__ = (db.UniqueConstraint("title","user_id", name = "title_id"),)
@@ -116,9 +102,7 @@ class Study(db.Model):
 
 
     def insert_imgset(self,imgset,position):
-        # add to db
-        # db.session.add(imgset)
-        # db.session.commit()    
+        # add to db  
         self.imgsets.insert(position,imgset)
         # updating position
         for imgset in self.imgsets:
@@ -126,26 +110,26 @@ class Study(db.Model):
         db.session.commit()    
 
 
-    def shuffle_imgsets(self):
-        # copy to dict otherwise constraint issues
-        imgsets = []
-        for imgset in self.imgsets:
-            imgsets.append(imgset.to_dict())
-            db.session.delete(imgset)
-        db.session.commit()
-        random.shuffle(imgsets)
-        for i, imgset in enumerate(imgsets):
-            imgset_new = Imgset(study_id=imgset["study_id"],
-                                position=i)
-            for image in imgset["images"]:
-                image = Study_stack(div_id=image["div_id"],
-                            url=json.dumps(image["url"]),
-                            viewport=json.dumps(image["viewport"]))
-                imgset_new.images.append(image)
+    # def shuffle_imgsets(self):
+    #     # copy to dict otherwise constraint issues
+    #     imgsets = []
+    #     for imgset in self.imgsets:
+    #         imgsets.append(imgset.to_dict())
+    #         db.session.delete(imgset)
+    #     db.session.commit()
+    #     random.shuffle(imgsets)
+    #     for i, imgset in enumerate(imgsets):
+    #         imgset_new = Imgset(study_id=imgset["study_id"],
+    #                             position=i)
+    #         for image in imgset["images"]:
+    #             image = Study_stack(div_id=image["div_id"],
+    #                         url=json.dumps(image["url"]),
+    #                         viewport=json.dumps(image["viewport"]))
+    #             imgset_new.images.append(image)
 
-            db.session.add(imgset_new)
+    #         db.session.add(imgset_new)
 
-        db.session.commit()
+    #     db.session.commit()
 
     def get_image_dir(self):
         path = os.path.join(current_app.config["IMAGE_PATH"],str(self.user_id),str(self.id))
@@ -246,6 +230,8 @@ class Scale(db.Model):
        min: smallest number of the scale
        max: largest number of the scale
        text: description of scale
+       labels
+       type
     """
     id = db.Column(db.Integer(), primary_key=True)
     design_id = db.Column(db.Integer(), db.ForeignKey("design.id"), nullable=False)
@@ -253,7 +239,6 @@ class Scale(db.Model):
     max = db.Column(db.Integer())
     labels = db.Column(db.String(1000))
     text = db.Column(db.String(1000))
-    labels = db.Column(db.String(1000))
     type = db.Column(db.String(20))
 
     def to_dict(self):
@@ -406,7 +391,7 @@ class Imgset(db.Model):
 
 class Image(db.Model):
     """
-    Class to keep track of image files associated with a study
+    Class to keep track of image files associated with a stack
 
     Attributes:
        url:
@@ -472,7 +457,7 @@ class Stack(db.Model):
 class Study_stack(db.Model):
     """
     Class to save image configurations used by frontend
-    linked to imgset
+    linked to stack
 
     Attributes:
        div_id:
@@ -490,7 +475,6 @@ class Study_stack(db.Model):
     result_id = db.Column(db.Integer(), db.ForeignKey("result.id"))
     div_id = db.Column(db.String(120))
     name = db.Column(db.String(120))
-    
     viewport = db.Column(db.String(1000))
     tool_state = db.Column(db.Text(1000000))
     seg_data = db.Column(db.Text(100000000))
