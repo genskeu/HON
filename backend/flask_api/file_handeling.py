@@ -57,10 +57,10 @@ def upload_files(study):
         folder = secure_filename(folder)
         stack_base_url = f"flask-api/get_file/{user_id}/{study.id}/{folder}/"
         stack = Stack.query.filter_by(base_url=stack_base_url).first()
+        stack_dir = os.path.join(image_dir, folder)
         # stack not part of study yet
         if stack is None:
             # create stack directory
-            stack_dir = os.path.join(image_dir, folder)
             try:
                 os.mkdir(stack_dir)
             except:
@@ -75,7 +75,7 @@ def upload_files(study):
                 f.save(os.path.join(stack_dir, filename))
                 filenames_saved.append(filename)
             except:
-                print("Error saving {}.".format(filename))
+                print(f"Error saving {filename} in {os.path.join(stack_dir, filename)}.")
                 filenames_not_saved.append(filename)
 
             # save image infos to db
@@ -137,44 +137,26 @@ def upload_files(study):
 @access_level_required(["study_admin"])
 @study_owner_required()
 def delete_files(study):
+    response = {}
     image_dir = study.get_image_dir()
     user_id = get_jwt_identity()
     stacks = request.get_json()
-    stacks_del = []
-    stacks_not_del = []
 
     # delete from db
     for stack in stacks:
         base_url = f"flask-api/get_file/{user_id}/{study.id}/{stack['name']}/"
-        for filename in stack["files"]:
-            image = Image.query.filter_by(name = filename, base_url=base_url).first()
-            try:
-                db.session.delete(image)
-            except:
-                print(f"Error deleting image {filename} from database for study {study.title} {study.id}.")
-                stacks_not_del.append(filename)
-            else:
-                stacks_del.append(filename)
-        db.session.commit()
+        stack = Stack.query.filter_by(base_url=base_url).first()
+        try:
+            db.session.delete(stack)
+        except:
+            print(f"Error deleting image {stack['name']} from database for study {study.title} {study.id}.")
 
-        # delete from dir
-        image_names_dir = os.listdir(os.path.join(image_dir,stack["name"]))
-        for filename in stack["files"]:
-            if filename in image_names_dir:    
-                try:
-                    image_path = os.path.join(image_dir,stack["name"],filename)
-                    os.remove(image_path)
-                except:
-                    print("Error deleting image {} from dir for study {} {}.".format(image_path,study.title, study.id))
+    db.session.commit()
 
-        if len(os.listdir(os.path.join(image_dir,stack["name"]))) == 0:
-            shutil.rmtree(os.path.join(image_dir,stack["name"]))
-    
-    response = {}     
-    image_names_db = [image.name for image in study.images]
-    response["filenames_db"] = image_names_db
-    response["files_del"] = stacks_del
-    response["files_not_del"] = stacks_not_del
+    # delete stack dir
+    stack_dir = os.path.join(image_dir, stack.name)
+    shutil.rmtree(stack_dir)    
+
     return jsonify(response)
 
 

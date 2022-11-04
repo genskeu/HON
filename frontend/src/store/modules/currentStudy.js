@@ -606,7 +606,7 @@ const actions = {
         var stackIndex = imgsetIndex * viewerNumber + i
         const imageIds = state.stacks[stackIndex].cs_stack.imageIds
         var stack = {
-          id: state.stacks[stackIndex].id,
+          stack_id: state.stacks[stackIndex].stack_id,
           div_id: 'dicom_img_' + i,
           name: state.stacks[stackIndex].name,
           segmentation_data: '',

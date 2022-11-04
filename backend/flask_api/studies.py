@@ -271,7 +271,7 @@ def add_imgset(study):
 
         # add stacks to imgset
         for stack in imgset_dict["stacks"]:
-            study_stack = Study_stack(stack_id=stack["id"],
+            study_stack = Study_stack(stack_id=stack["stack_id"],
                                       imgset_id=imgset.id,
                                       div_id=stack["div_id"],
                                       name=stack["name"],
@@ -311,7 +311,7 @@ def update_imgset(study, position):
 
         # add images
         for stack in imgset_dict["stacks"]:
-            study_stack = Study_stack(stack_id=stack["id"],
+            study_stack = Study_stack(stack_id=stack["stack_id"],
                                       imgset_id=imgset.id,
                                       div_id=stack["div_id"],
                                       name=stack["name"],
@@ -384,7 +384,7 @@ def imgsets(study):
 
         # add stacks to imgset
         for stack in imgset_dict["stacks"]:
-            study_stack = Study_stack(stack_id=stack["id"],
+            study_stack = Study_stack(stack_id=stack["stack_id"],
                                       imgset_id=imgset.id,
                                       div_id=stack["div_id"],
                                       name=stack["name"],

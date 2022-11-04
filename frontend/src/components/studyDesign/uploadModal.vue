@@ -15,7 +15,7 @@
                         <li>Use the Select Folder button to upload a folder containing multiple files. The files will be combined into a stack. The stack name will equal the foldername. To upload multiple folders/stacks select a folder containing subdirectories.</li>
                 </ul>
               </div>
-                <div class="modal-body overflow-auto" style="height:62vh;" @drop="addF">
+                <div class="modal-body overflow-auto" style="height:62vh;">
                     <table class="table table-hover">
                         <thead class="thead-light">
                             <tr>
