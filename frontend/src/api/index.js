@@ -1,7 +1,7 @@
 // api/index.js
 import axios from 'axios'
-import router from '@/router'
-import store from '@/store'
+// import router from '@/router'
+// import store from '@/store'
 import cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader'
 
 // production backend reached via nginx proxy (nginx.conf)
@@ -102,25 +102,11 @@ class AuthService {
         username: user.username,
         password: user.password
       })
-      .then(response => {
-        if (response.data.accessToken) {
-          localStorage.setItem('user', JSON.stringify(response.data))
-          if (response.data.role === 'study_participant') {
-            router.push('/study/login')
-          } else if (response.data.role === 'study_admin') {
-            router.push('/study-management/study-overview')
-          } else if (response.data.role === 'user_admin') {
-            router.push('/user-overview')
-          } else {
-          }
-        }
-        return response.data
-      }).catch(error => console.log(error))
   }
 
   logout () {
-    localStorage.removeItem('user')
-    router.push('/login')
+    return axios
+      .post(`${API_URL}/auth/logout`)
   }
 
   register (user) {
@@ -143,17 +129,19 @@ function authHeader () {
   }
 }
 
-axios.interceptors.response.use(
-  response => {
-    return response
-  },
-  function (error) {
-    if (
-      error.response.status === 401
-    ) {
-      store.dispatch('auth/logout')
-      router.push('/login')
-    }
-    return Promise.reject(error)
-  }
-)
+// to do use inceptors for jwt refresh
+// axios.interceptors.response.use(
+//   response => {
+//     return response
+//   },
+//   function (error) {
+//     console.log(error)
+//     if (
+//       error.response.status === 401
+//     ) {
+//       store.dispatch('auth/logout')
+//       router.push('/login')
+//     }
+//     return Promise.reject(error)
+//   }
+// )

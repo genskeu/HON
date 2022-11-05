@@ -28,14 +28,14 @@
             <li v-if="isStudyAdmin" class="nav-item">
               <router-link to="/tutorials" class="nav-link">Tutorials</router-link>
             </li>
-            <li v-if="loggedIn" @click.prevent="handleLogout" class="nav-item">
+            <li v-if="loggedIn" @click="handleLogout" class="nav-item">
               <a class="btn nav-link">Logout</a>
             </li>
             <li v-if="!loggedIn" class="nav-item">
               <router-link to="/login" class="nav-link">Login</router-link>
             </li>
             <li v-if="!loggedIn" class="nav-item">
-               <a class="nav-link" href="">Register</a>
+              <router-link to="/register" class="nav-link">Register</router-link>
             </li>
           </ul>
         </div>

@@ -1,8 +1,8 @@
 <template>
   <div class="container" style="height:90%">
     <div class="row justify-content-center align-items-center h-100">
-      <form class="form-horizontal mx-auto my-auto col-3" @submit.prevent="handleLogin">
-        <div>{{this.loginError}}</div>
+      <form class="form-horizontal mx-auto my-auto col-3" @submit.prevent="handleRegister">
+        <div>{{this.registerError}}</div>
         <div class="form-group mb-1">
           <input v-model="user.username" class="form-control form-control-lg" name="username" id="username"
             placeholder="Username">
@@ -12,7 +12,7 @@
             id="password" placeholder="Password" required>
         </div>
         <div class="form-group">
-          <input type="submit" value="Login" class="bg-success btn btn-success btn-lg btn-block w-100">
+          <input type="submit" value="Register" class="bg-primary btn btn-primary btn-lg btn-block w-100">
         </div>
       </form>
     </div>
@@ -29,11 +29,8 @@ export default {
     }
   }),
   computed: {
-    loggedIn () {
-      return this.$store.state.auth.status.loggedIn
-    },
-    loginError () {
-      const error = this.$store.getters['auth/errorLogin']
+    registerError () {
+      const error = this.$store.getters['auth/errorRegister']
       if (error) {
         return error.data.error_msg
       } else {
@@ -42,8 +39,8 @@ export default {
     }
   },
   methods: {
-    handleLogin () {
-      this.$store.dispatch('auth/login', this.user)
+    handleRegister () {
+      this.$store.dispatch('auth/register', this.user)
     }
   }
 }

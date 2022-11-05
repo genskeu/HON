@@ -34,7 +34,7 @@ bp = Blueprint("results", __name__)
 
 
 # get results by study for logged in user
-@bp.route('/results/current_user/<study_id>', methods=["GET"])
+@bp.route('/results/current_user/<int:study_id>', methods=["GET"])
 @jwt_required()
 @access_level_required(["study_participant","study_admin"])
 @study_login_or_owner_required()

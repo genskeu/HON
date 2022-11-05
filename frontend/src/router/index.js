@@ -10,6 +10,7 @@ import UserOverview from '@/views/userAdmin/userOverview.vue'
 import UserProfile from '@/views/userAdmin/userProfile.vue'
 import Tutorials from '@/views/tutorials.vue'
 import Login from '@/views/login.vue'
+import Register from '@/views/register.vue'
 import studyParticipation from '@/views/studyParticipant/studyParticipation.vue'
 import StudyLogin from '@/views/studyParticipant/studyParticipation/login.vue'
 
@@ -24,7 +25,7 @@ const routes = [
   {
     path: '/register',
     name: 'Register',
-    component: Login
+    component: Register
   },
   {
     path: '/logout',

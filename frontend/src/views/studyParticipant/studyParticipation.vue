@@ -3,7 +3,7 @@
     <loadingModal id="globalLoadingState" :isLoading="loadingState.isLoading" :title="loadingState.title" :errorOccured="loadingState.errorOccured" :errorData="loadingState.errorData"></loadingModal>
     <div id="nav" class="navbar bg-dark p-0" style="height: 50px;">
       <div class="container-fluid mx-auto" v-if="studyOpened">
-        <div class="btn btn-danger ml-3" @click="studyLogout">Pause {{studyTitle}} (Logout from study)</div>
+        <div class="btn btn-danger col-2 ms-auto" @click="studyLogout">Pause {{studyTitle}} (Logout from study)</div>
       </div>
     </div>
     <router-view v-if="studyOpened | this.$route.name === 'StudyLogin'" v-slot="{ Component }" name="helper" id="router_helper_view">
