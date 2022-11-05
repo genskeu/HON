@@ -40,6 +40,15 @@ class User(db.Model):
     results = db.relationship("Result", backref="user", lazy=True,
                               cascade="all, delete-orphan")
 
+    def to_dict(self):
+        user = {}
+        user["id"] = self.id
+        user["username"] = self.username
+        user["access_level"] = self.access_level
+        user["created"] = self.created
+        return user
+
+
 
 class Study(db.Model):
     """

@@ -6,8 +6,9 @@ import FileManagement from '@/views/studyAdmin/studyManagement/FileManagement'
 import StudyDesign from '@/views/studyAdmin/studyManagement/StudyDesign'
 import ResultsOverview from '@/views/studyAdmin/studyManagement/ResultsOverview'
 import Participation from '@/views/studyParticipant/studyParticipation/participation.vue'
-import UserOverview from '@/views/userAdmin/userOverview.vue'
-import UserProfile from '@/views/userAdmin/userProfile.vue'
+import UserManagement from '@/views/userAdmin/userManagement.vue'
+import UserOverview from '@/views/userAdmin/userManagement/userOverview.vue'
+import UserProfile from '@/views/userAdmin/userManagement/userProfile.vue'
 import Tutorials from '@/views/tutorials.vue'
 import Login from '@/views/login.vue'
 import Register from '@/views/register.vue'
@@ -31,12 +32,6 @@ const routes = [
     path: '/logout',
     name: 'Logout',
     meta: { requireAuth: true }
-  },
-  {
-    path: '/user-overview',
-    name: 'UserOverview',
-    component: UserOverview,
-    meta: { requireAuth: true, requireUserAdmin: true }
   },
   {
     path: '/user-profile/:id',
@@ -118,6 +113,21 @@ const routes = [
         name: 'StudyParticipation',
         components: {
           helper: Participation
+        }
+      }
+    ]
+  },
+  {
+    path: '/user-management',
+    name: 'UserManagement',
+    component: UserManagement,
+    meta: { requireAuth: true, requireUserAdmin: true },
+    children: [
+      {
+        path: 'user-overview',
+        name: 'userOverview',
+        components: {
+          helper: UserOverview
         }
       }
     ]

@@ -11,7 +11,7 @@
         <div class="collapse navbar-collapse text-right ms-auto bg-dark" id="navbarResponsive">
           <ul class="navbar-nav ms-auto" id="navlinks">
             <li v-if="isUserAdmin" class="nav-item">
-              <router-link to="/user-overview" class="nav-link">Users Overview</router-link>
+              <router-link to="/user-management/user-overview" class="nav-link">Users Overview</router-link>
             </li>
             <li v-if="isStudyAdmin & !studyOpened" class="nav-item">
               <router-link to="/study-management/study-overview" class="nav-link">Studies Overview</router-link>

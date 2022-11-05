@@ -17,6 +17,26 @@ cornerstoneWADOImageLoader.configure({
   }
 })
 
+export function fetchUsers () {
+  return axios.get(`${API_URL}/users`, { headers: authHeader() })
+}
+
+export function fetchUser (userId) {
+  return axios.get(`${API_URL}/user/${userId}`, { headers: authHeader() })
+}
+
+export function createUser (payload = {}) {
+  return axios.post(`${API_URL}/user`, payload, { headers: authHeader() })
+}
+
+export function updateUser (userId, payload) {
+  return axios.put(`${API_URL}/user/${userId}`, payload, { headers: authHeader() })
+}
+
+export function delelteUser (userId) {
+  return axios.delete(`${API_URL}/user/${userId}`, { headers: authHeader() })
+}
+
 export function fetchStudies () {
   return axios.get(`${API_URL}/studies`, { headers: authHeader() })
 }
