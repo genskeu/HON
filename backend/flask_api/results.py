@@ -34,17 +34,17 @@ bp = Blueprint("results", __name__)
 
 
 # get results by study for logged in user
-@bp.route('/results/current_user/<int:study_id>', methods=["GET"])
-@jwt_required()
-@access_level_required(["study_participant","study_admin"])
-@study_login_or_owner_required()
-def get_result_current_user(study):
-    current_user_id = get_jwt_identity()
-    user_id = current_user_id
-    results = Result.query.filter_by(study_id=study.id, user_id=user_id).all()
-    response = {}
-    response["results"] = [result.to_dict() for result in results]
-    return response
+# @bp.route('/results/current_user/<int:study_id>', methods=["GET"])
+# @jwt_required()
+# @access_level_required(["study_participant","study_admin"])
+# @study_login_or_owner_required()
+# def get_result_current_user(study):
+#     current_user_id = get_jwt_identity()
+#     user_id = current_user_id
+#     results = Result.query.filter_by(study_id=study.id, user_id=user_id).all()
+#     response = {}
+#     response["results"] = [result.to_dict() for result in results]
+#     return response
 
 
 # delete results for user from study

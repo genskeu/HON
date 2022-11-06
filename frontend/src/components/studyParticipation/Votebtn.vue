@@ -1,7 +1,7 @@
 <template>
     <div class="row mx-auto">
         <h4 class="mx-auto" style="text-align:center;">
-            <button  class="btn btn-success vote_button mx-auto" @click="saveResult">{{this.buttonLabel}}</button>
+            <button class="btn btn-success vote_button mx-auto" @click="saveResult">{{this.buttonLabel}}</button>
         </h4>
     </div>
 </template>
@@ -40,7 +40,6 @@ export default {
       // sent data to backend via axios
       const stackIndex = this.refimageViewers.length + this.viewerIndex
       const stackPicked = imgset.stacks[stackIndex]
-      console.log(stackPicked)
       const payload = {
         imgset_id: this.imgsetDisplayed.id,
         picked_stack: stackPicked,
@@ -56,6 +55,24 @@ export default {
 
       this.$store.dispatch('currentStudy/saveResult', payload)
     }
+  },
+  mounted () {
+    // document.addEventListener('keydown', (e) => {
+    //   if (e.code === 'Space') {
+    //     this.saveResult()
+    //   } else if (!isNaN(Number(e.key))) {
+    //     var emptyScale = this.scalesInput.findIndex(scaleInput => scaleInput.value === null)
+    //     if (emptyScale > -1) {
+    //       var scaleInput = this.$store.getters['currentStudy/scaleInput'](emptyScale)
+    //       this.$store.commit('currentStudy/scaleInput',
+    //         {
+    //           index: emptyScale,
+    //           scaleName: scaleInput.name,
+    //           scaleValue: Number(e.key)
+    //         })
+    //     }
+    //   }
+    // })
   }
 }
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="this.instructions !== undefined && this.instructions.length > 0">
     <div class="row mx-auto"
       title="Instructions can be customized and are displayed to participants throughout studies.">
       <!-- instructions -->

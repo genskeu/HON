@@ -41,7 +41,11 @@ def get_studies():
 @study_login_or_owner_required()
 def get_study(study):
     response = {}
-    response["study"] = study.to_dict(include_images=True,include_imagesets=True)
+    current_user_id = get_jwt_identity()
+    results = Result.query.filter_by(study_id=study.id, user_id=current_user_id).all()
+    study = study.to_dict(include_images=True,include_imagesets=True)
+    study["results_current_user"] = [result.to_dict() for result in results]
+    response["study"] = study
     return response    
 
 @bp.route('/study', methods=['POST'])

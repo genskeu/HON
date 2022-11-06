@@ -2,7 +2,7 @@ import router from '@/router'
 import {
   createStudy, updateStudy, fetchStudy, updateStudyDesign, deleteFiles,
   createImgset, updateImgset, deleteImgset, createImgsets, deleteImgsets,
-  saveResultDb, getResultsCurrentUser, deleteResultUserDb,
+  saveResultDb, deleteResultUserDb,
   studyLoginParticipant
 } from '@/api'
 import store from '@/store'
@@ -256,7 +256,7 @@ const mutations = {
     state.instructions = study.instructions
     state.usersStudyProgress = study.user_study_progress
     state.imgsetDisplayed = null
-    state.resultsCurrentUser = []
+    state.resultsCurrentUser = study.results_current_user
     state.scalesInput = []
   },
   closeStudy (state) {
@@ -426,9 +426,6 @@ const mutations = {
   addResultCurrentUser (state, result) {
     state.resultsCurrentUser.push(result)
   },
-  addResultsCurrentUser (state, results) {
-    state.resultsCurrentUser = results
-  },
   removeResultsCurrentUser (state) {
     state.resultsCurrentUser = []
   },
@@ -465,7 +462,6 @@ const actions = {
       .then((response) => {
         const data = response.data
         context.commit('openStudy', data.study)
-        context.dispatch('resultsCurrentUser')
         const viewerNumber = context.getters.viewerNumb
         const refviewerNumber = context.getters.refviewerNumb
         for (let i = 0; i < viewerNumber; i++) {
@@ -598,12 +594,16 @@ const actions = {
     const numberImgsets = state.stacks.length / viewerNumber
     const imgsetStartPosition = state.imageSets.length
     for (var imgsetIndex = 0; imgsetIndex < numberImgsets; imgsetIndex++) {
+      console.log(imgsetIndex)
       var imgset = {
         stacks: [],
         position: imgsetStartPosition + imgsetIndex
       }
       for (var i = 0; i < viewerNumber; i++) {
         var stackIndex = imgsetIndex * viewerNumber + i
+        if (stackIndex >= state.stacks.length) {
+          continue
+        }
         const imageIds = state.stacks[stackIndex].cs_stack.imageIds
         var stack = {
           stack_id: state.stacks[stackIndex].stack_id,
@@ -655,12 +655,6 @@ const actions = {
       .catch((response) => {
         store.commit('loadingState/errorOccured', { errorData: response })
       })
-  },
-  resultsCurrentUser ({ commit }) {
-    getResultsCurrentUser(state.id).then((response) => {
-      const results = response.data.results
-      commit('addResultsCurrentUser', results)
-    })
   },
   delResultsUser ({ commit }, userId) {
     store.commit('loadingState/startLoading', { title: 'Deleting Results' })

@@ -1,6 +1,8 @@
 <template>
   <div class="container-fluid pt-4" id="content" :style="cssStyle">
-    <div class="row mx-auto">
+      <div v-if="studyFinished">Finished with Study.</div>
+      <Description v-if="studyDescription" id="studyDescription"></Description>
+      <div v-if="!studyFinished" class="row mx-auto">
       <!-- Imgsets -->
       <div class="col-lg-10 pt-1" id="imgset_creation">
         <!-- Create Image Sets -->
@@ -28,11 +30,13 @@
       </div>
       <!-- sidebar for design, viewport settings, scales etc (rigth) -->
       <div class="col-lg-2 pt-1 overflow-auto sticky-top" id="sidebar">
+        <button v-if="studyDescription" class="btn-secondary btn w-100 mb-1" data-bs-toggle="modal" data-bs-target="#studyDescription">Show Description
+        </button>
         <Instructions></Instructions>
         <Scales></Scales>
       </div>
-    </div>
-    <Progressbar></Progressbar>
+      </div>
+      <Progressbar></Progressbar>
   </div>
 </template>
 
@@ -43,6 +47,7 @@ import Instructions from '@/components/studyParticipation/Instructions.vue'
 import Scales from '@/components/studyParticipation/Scales.vue'
 import Progressbar from '@/components/studyParticipation/progressBar.vue'
 import Votebtn from '@/components/studyParticipation/Votebtn.vue'
+import Description from '@/components/studyParticipation/Description.vue'
 
 export default {
   name: 'participation',
@@ -52,7 +57,8 @@ export default {
     Instructions,
     Scales,
     Progressbar,
-    Votebtn
+    Votebtn,
+    Description
   },
   data () {
     return {
@@ -124,6 +130,12 @@ export default {
     },
     toolsParticipant () {
       return this.$store.getters['currentStudy/tools']
+    },
+    studyDescription () {
+      return this.$store.getters['currentStudy/studyDescription'].length > 0
+    },
+    studyFinished () {
+      return this.resultsCurrentUser.length === this.imgsets.length
     }
   },
   watch: {
