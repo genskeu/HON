@@ -38,11 +38,6 @@ export default {
   },
   data () {
     return {
-      loadingText: String,
-      loading: Boolean,
-      error: false,
-      errorTitle: String,
-      errorMsg: String
     }
   },
   methods: {

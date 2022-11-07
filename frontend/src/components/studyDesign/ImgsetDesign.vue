@@ -1,14 +1,26 @@
 <template>
   <div>
     <div class="row mx-auto mt-2" id="imgset_settings_title">
-      <button class="btn btn-dark col-12 mb-1" data-bs-toggle="collapse" data-bs-target="#imgset_settings"
+      <button class="btn btn-dark col-12" data-bs-toggle="collapse" data-bs-target="#imgset_settings"
         aria-expanded="true">
-        <h4 class="w-100 mt-1">Image Sets &#9776;</h4>
+        <h4 class="w-100">Image-Sets &#9776;</h4>
       </button>
     </div>
-    <div id="imgset_settings" class="collapse show">
+    <button class="btn btn-secondary col-12" data-bs-toggle="collapse" data-bs-target="#imgset_settings_explanation"
+        aria-expanded="true">
+        <h4 class="w-100">&#9432; Section Info</h4>
+      </button>
+      <div id="imgset_settings_explanation" class="row mx-auto text-dark bg-white text-left collapse">
+        <div>
+          <p class="mb-1">This section controls the images displayed to users during a study.</p>
+          <p class="mb-1">Image-Sets can be created manually (one by one) using the "Images displayed" select menu and the "add image-set at position btn".</p>
+          <p class="mb-1">To automatically add all uploaded images to image-sets use the Auto-Creation Menu.</p>
+          <p class="mb-1">Settings such as image position, windowing and zoom level can be controlled via the Viewer Settings Menus.</p>
+        </div>
+      </div>
+    <div id="imgset_settings" class="collapse show mt-1">
       <div class="input-group mx-auto" data-toggle="tooltip" data-placement="left"
-        title="Use the select menus to activate image handling tools for the left, middle and right mouse key.">
+        title="">
         <label class="input-group-text">Set Displayed</label>
         <select class='form-select' v-model="imgsetDisplayed">
           <option :value="undefined"></option>
@@ -19,7 +31,7 @@
       <div class="row mx-auto mt-1" id="general_settings_title">
         <button class="btn-secondary btn col-12" data-bs-toggle="collapse" data-bs-target="#images_displayed"
           aria-expanded="true" aria-controls="images_displayed"
-          title="General settings include options to control the study layout and to customize the number and size of images displayed simultaneously.">
+          title="">
           <h5 class="mt-1">Images displayed</h5>
         </button>
       </div>
@@ -39,16 +51,16 @@
         </div>
       </div>
       <!-- viewport settings -->
-      <div id="viewport_settings_container" class="w-100 mt-1" title="Image Viewer settings control display options (zoom, position, window) for the uploaded study images.
-                        Each viewport can be controlled individually.
-                        To globally control viewport settings use the defaults submenu.">
+      <div id="viewport_settings_container" class="w-100 mt-1"
+      title="Image Viewer settings control display options (zoom, position, window) for the uploaded study images.
+      Each viewport can be controlled individually.">
         <div class="row mt-1 mx-auto">
           <button class="btn btn-secondary col-12" data-bs-toggle="collapse" data-bs-target="#viewport_settings"
             aria-expanded="true" aria-controls="viewport_settings">
             <h4 class="w-100 mt-1" id="imgset_btn">Viewer Settings</h4>
           </button>
         </div>
-        <div id="viewport_settings" class="collapse">
+        <div id="viewport_settings" class="collapse show">
           <div v-if="refviewerNumb" class="input-group-text">
             <h5 class="mx-auto">Reference-Images</h5>
           </div>
@@ -63,7 +75,7 @@
           </div>
         </div>
       </div>
-      <div id="annotations_settings_container" class="w-100 mt-1" title="">
+      <div v-if="false" id="annotations_settings_container" class="w-100 mt-1" title="">
         <div class="row mt-1 mx-auto">
           <button class="btn btn-secondary col-12" data-bs-toggle="collapse" data-bs-target="#annotation_settings"
             aria-expanded="true" aria-controls="viewport_settings">
@@ -78,17 +90,12 @@
       </div>
 
       <div class="row mx-auto mt-1" id="general_settings_title">
-        <!-- <button class="btn-secondary btn col-12" data-bs-toggle="collapse" data-bs-target="#images_create_man"
-          aria-expanded="true" aria-controls="images_create_man"
-          title="General settings include options to control the study layout and to customize the number and size of images displayed simultaneously.">
-          <h5 class="mt-1">Creation (manual)</h5>
-        </button> -->
       </div>
       <div id="images_create_man" class="collapse show">
         <div class="row mb-1">
           <div class="input-group">
             <button class="btn-success btn col-9" title="add image-set to the end of the study"
-            @click.prevent="addImgset">add image set at position
+            @click.prevent="addImgset">add image-set at position
             </button>
             <input class="form-control" type="Number" min="1" :max="imgsets.length + 1" step="1" id="numb_refimg" v-model="imagesetAddPosition"/>
           </div>
@@ -110,20 +117,20 @@
         </div>
       </div>
 
-      <div class="row mx-auto mt-1" id="general_settings_title">
+      <div class="row mx-auto" id="general_settings_title">
         <button class="btn-secondary btn col-12" data-bs-toggle="collapse" data-bs-target="#images_create_auto"
           aria-expanded="true" aria-controls="images_create_auto"
-          title="General settings include options to control the study layout and to customize the number and size of images displayed simultaneously.">
-          <h5 class="mt-1">Creation (auto)</h5>
+          title="">
+          <h5 class="mt-1">Auto-Creation</h5>
         </button>
       </div>
-      <div id="images_create_auto" class="collapse">
+      <div id="images_create_auto" class="collapse show">
         <!-- study type -->
         <div class="input-group w-100">
           <label class="input-group-text w-50">Imgset Type</label>
           <select class="form-select" ref="imgsetType">
             <option value="standard">standard</option>
-            <option value="afc">alternative forced choice</option>
+            <!-- <option value="afc">alternative forced choice</option> -->
           </select>
         </div>
         <!-- order -->
@@ -131,7 +138,7 @@
           <label class="input-group-text w-50">Imgset Order</label>
           <select class="form-select" ref="imgsetOrder">
             <option value="ordered">ordered</option>
-            <option value="random">random</option>
+            <!-- <option value="random">random</option> -->
           </select>
         </div>
         <!-- signal info -->
@@ -244,6 +251,28 @@ export default {
             }
             this.$store.commit('imageViewers/stackDisplayed', stackData)
           })
+        } else {
+          const emptyStack = {
+            cs_stack: {
+              currentImageIdIndex: Number,
+              imageIds: []
+            },
+            name: String
+          }
+          const viewers = this.refimageViewers.concat(this.imageViewers)
+          // itterate over viewers and display stack according to div_id
+          // if no stack found reset stack to trigger viewer reset
+          viewers.forEach((viewer, index) => {
+            var viewertype = this.refimageViewers.includes(viewer) ? 'refviewers' : 'viewers'
+            var viewerindex = this.refimageViewers.includes(viewer) ? index : index - this.refimageViewers.length
+            const stackData = {
+              name: emptyStack.name,
+              stackDisplayed: emptyStack.cs_stack,
+              index: viewerindex,
+              viewertype: viewertype
+            }
+            this.$store.commit('imageViewers/stackDisplayed', stackData)
+          })
         }
       }
     }
@@ -285,7 +314,12 @@ export default {
     },
     createImgsetsAuto () {
       const studyId = this.$route.params.id
-      this.$store.dispatch('currentStudy/createImgsetsAuto', studyId)
+      const viewports = this.$store.getters['imageViewers/viewports']
+      this.$store.dispatch('currentStudy/createImgsetsAuto',
+        {
+          studyId: studyId,
+          viewports: viewports
+        })
     }
   }
 }

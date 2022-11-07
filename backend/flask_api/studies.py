@@ -7,7 +7,7 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 from .auth import access_level_required, study_login_or_owner_required, study_owner_required
-from .DBmodel import Study, Design, Imgset, db, Result, Scale, Tool, Study_stack, User_study_progress, Image
+from .DBmodel import Study, Design, Imgset, db, Result, Scale, Tool, Study_stack, User_study_progress
 from sqlalchemy.orm import joinedload
 from flask import send_from_directory
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt, create_access_token, create_refresh_token
@@ -54,7 +54,6 @@ def get_study(study):
 def create_study():
     response = {}
     error = None
-    status_code = 200
     current_user_id = get_jwt_identity()
 
     study = Study()
@@ -79,6 +78,8 @@ def create_study():
 
     if error is None:
         response["study"] = study.to_dict(include_images=True,include_imagesets=True)
+        results = Result.query.filter_by(study_id=study.id, user_id=current_user_id).all()
+        response["study"]["results_current_user"] = [result.to_dict() for result in results]
         return jsonify(response), 200
     else:
         return jsonify(response), 400
@@ -285,7 +286,7 @@ def add_imgset(study):
             if stack["segmentation_data"]:
                 study_stack.seg_data = stack["segmentation_data"]
 
-            db.session.add(study_stack)
+            imgset.study_stacks.append(study_stack)
         db.session.commit()
 
     response["error_msg"] = image_error
@@ -389,7 +390,6 @@ def imgsets(study):
         # add stacks to imgset
         for stack in imgset_dict["stacks"]:
             study_stack = Study_stack(stack_id=stack["stack_id"],
-                                      imgset_id=imgset.id,
                                       div_id=stack["div_id"],
                                       name=stack["name"],
                                       viewport=json.dumps(stack["viewport"]))
@@ -398,10 +398,10 @@ def imgsets(study):
             if stack["segmentation_data"]:
                 study_stack.seg_data = stack["segmentation_data"]
 
-            db.session.add(study_stack)
-        db.session.commit()
-        response["imgsets"].append(imgset.to_dict())
-
+            imgset.study_stacks.append(study_stack)
+        response["imgsets"].append(imgset)
+    db.session.commit()
+    response["imgsets"] = [imgset.to_dict() for imgset in response["imgsets"]]
     response["error_msg"] = image_error
 
     return jsonify(response)
@@ -451,7 +451,7 @@ def del_all_imgsets(study):
     if Result.query.filter_by(study_id=study.id).first():
         error = "Results are present for this study! First delete results, then delete image sets."
         status_code = 409
-        response = error
+        response["error_msg"] = error
     else:
         status_code = 200
         for imgset in study.imgsets:

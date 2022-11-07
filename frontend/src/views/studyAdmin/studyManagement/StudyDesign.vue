@@ -121,13 +121,10 @@ export default {
   watch: {
   },
   mounted () {
-    // bug fix for switching between design and participation interface
-    // set active imgset to undefined when mounting => find more elegant solution later
   },
   activated () {
   },
   deactivated () {
-    this.$store.commit('currentStudy/imgsetDisplayed', undefined)
   },
   methods: {
   }

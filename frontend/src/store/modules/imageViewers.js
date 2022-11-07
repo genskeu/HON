@@ -57,6 +57,17 @@ const getters = {
   viewer: (state) => (index, viewertype) => {
     return state[viewertype][index]
   },
+  viewports (state) {
+    const viewports = state.viewers.map(viewer => {
+      const csviewport = cornerstone.getViewport(viewer.element)
+      if (csviewport) {
+        return csviewport
+      } else {
+        return null
+      }
+    })
+    return viewports
+  },
   stackDisplayed: (state) => (index, viewertype) => {
     const viewer = state[viewertype][index]
     if (viewer && viewer.stackDisplayed) {
@@ -124,6 +135,8 @@ const getters = {
     } else {
       return {}
     }
+  },
+  RoisPresent () {
   },
   Roi: (state) => (index, viewertype, uuid, roiType) => {
     return state[viewertype][index].toolState.annotations[roiType][uuid]
@@ -213,9 +226,6 @@ const mutations = {
   cornerstoneViewerRotation: (state, payload) => {
     var viewer = state[payload.viewertype][payload.viewer]
     viewer.viewportSettings.rotation = Number(payload.rotation).toFixed(2)
-  },
-  cornerstoneViewportAdd (state, viewport) {
-    state.viewports.push(viewport)
   },
   cornerstoneViewportUpdate (state, payload) {
     var viewportSettings = state[payload.viewertype][payload.index].viewportSettings

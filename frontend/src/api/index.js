@@ -81,12 +81,6 @@ export function getResults (studyId) {
     .catch(() => {})
     .finally(() => {})
 }
-
-export function getResultsCurrentUser (studyId) {
-  return axios
-    .get(`${API_URL}/results/current_user/${studyId}`, { headers: authHeader() })
-}
-
 export function createImgset (studyId, payload) {
   return axios.post(`${API_URL}/study/imgset/${studyId}`, payload, { headers: authHeader() })
 }

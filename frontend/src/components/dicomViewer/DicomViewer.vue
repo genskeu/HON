@@ -177,10 +177,12 @@ export default {
   },
   mounted () {
     this.initViewer()
+    this.updateStore()
     this.updateViewerHeight()
   },
   activated () {
     this.updateViewerHeight()
+    this.updateStore()
   },
   beforeUnmount () {
     this.$store.commit('imageViewers/removeCornerstoneViewer', this.$refs.viewer)
@@ -200,6 +202,8 @@ export default {
         },
         false
       )
+    },
+    updateStore () {
       // update vuex store
       const viewer = this.$store.getters['imageViewers/viewer'](this.viewerIndex, this.viewerType)
       if (viewer === undefined) {

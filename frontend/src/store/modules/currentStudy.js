@@ -587,14 +587,13 @@ const actions = {
       })
   },
   // imgsets
-  createImgsetsAuto ({ state, commit }, studyId) {
+  createImgsetsAuto ({ state, commit }, { studyId, viewports }) {
     store.commit('loadingState/startLoading', { title: 'Creating Imagesets' })
     var imgsets = []
     const viewerNumber = state.design.numb_img
     const numberImgsets = state.stacks.length / viewerNumber
     const imgsetStartPosition = state.imageSets.length
     for (var imgsetIndex = 0; imgsetIndex < numberImgsets; imgsetIndex++) {
-      console.log(imgsetIndex)
       var imgset = {
         stacks: [],
         position: imgsetStartPosition + imgsetIndex
@@ -611,7 +610,7 @@ const actions = {
           name: state.stacks[stackIndex].name,
           segmentation_data: '',
           tool_state: imageIds.map((id) => null),
-          viewport: null
+          viewport: viewports[i]
         }
         imgset.stacks.push(stack)
       }

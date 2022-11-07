@@ -76,7 +76,6 @@ export default {
     this.$store.commit('currentStudy/imgsetDisplayed', imgsetDisplayed)
   },
   deactivated () {
-    this.$store.commit('currentStudy/imgsetDisplayed', undefined)
   },
   computed: {
     viewerNumb () {
@@ -132,23 +131,50 @@ export default {
       return this.$store.getters['currentStudy/tools']
     },
     studyDescription () {
-      return this.$store.getters['currentStudy/studyDescription'].length > 0
+      const description = this.$store.getters['currentStudy/studyDescription']
+      if (description) {
+        return description.length > 0
+      } else {
+        return 0
+      }
     },
     studyFinished () {
       return this.resultsCurrentUser.length === this.imgsets.length
+    },
+    imageViewers () {
+      return this.$store.getters['imageViewers/viewers']
+    },
+    refimageViewers () {
+      return this.$store.getters['imageViewers/refviewers']
     }
   },
   watch: {
     imgsetDisplayed: {
       handler (newImgset) {
+        // code could be moved to store to avoid duplication?
         if (newImgset) {
-          newImgset.image_stacks.forEach((stack, index) => {
-            var viewertype = this.refviewerNumb > index ? 'refviewers' : 'viewers'
-            var viewerindex = this.refviewerNumb > index ? index : index - this.refviewerNumb
-
+          const viewers = this.refimageViewers.concat(this.imageViewers)
+          // itterate over viewers and display stack according to div_id
+          // if no stack found reset stack to trigger viewer reset
+          viewers.forEach((viewer, index) => {
+            var stack = newImgset.image_stacks.find(stack => stack.div_id === 'dicom_img_' + index)
+            if (stack === undefined) {
+              stack = {
+                cs_stack: {
+                  imageIds: [],
+                  currentImageIdIndex: Number
+                },
+                name: String,
+                savedSegmentation: undefined,
+                savedToolstate: undefined,
+                savedViewport: undefined
+              }
+            }
+            var viewertype = this.refimageViewers.includes(viewer) ? 'refviewers' : 'viewers'
+            var viewerindex = this.refimageViewers.includes(viewer) ? index : index - this.refimageViewers.length
             const stackData = {
-              name: stack.name,
               stack_id: stack.stack_id,
+              name: stack.name,
               stackDisplayed: stack.cs_stack,
               savedViewport: stack.viewport,
               savedToolstate: stack.tool_state,
@@ -156,7 +182,28 @@ export default {
               index: viewerindex,
               viewertype: viewertype
             }
-
+            this.$store.commit('imageViewers/stackDisplayed', stackData)
+          })
+        } else {
+          const emptyStack = {
+            cs_stack: {
+              currentImageIdIndex: Number,
+              imageIds: []
+            },
+            name: String
+          }
+          const viewers = this.refimageViewers.concat(this.imageViewers)
+          // itterate over viewers and display stack according to div_id
+          // if no stack found reset stack to trigger viewer reset
+          viewers.forEach((viewer, index) => {
+            var viewertype = this.refimageViewers.includes(viewer) ? 'refviewers' : 'viewers'
+            var viewerindex = this.refimageViewers.includes(viewer) ? index : index - this.refimageViewers.length
+            const stackData = {
+              name: emptyStack.name,
+              stackDisplayed: emptyStack.cs_stack,
+              index: viewerindex,
+              viewertype: viewertype
+            }
             this.$store.commit('imageViewers/stackDisplayed', stackData)
           })
         }

@@ -59,9 +59,8 @@ export default {
     },
     errorOccured (newState) {
       if (newState === true) {
-        console.log(this.errorData)
-        if (this.errorData !== null && this.errorData.response && this.errorData.response.data) {
-          this.errorMsg = this.errorData.response.data
+        if (this.errorData !== null && this.errorData.response && this.errorData.response.data && this.errorData.response.data.error_msg) {
+          this.errorMsg = this.errorData.response.data.error_msg
         } else {
           this.errorMsg = 'An unkown server error occured. Please try again.'
         }

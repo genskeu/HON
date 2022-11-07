@@ -114,9 +114,9 @@ class Study(db.Model):
         # add to db  
         self.imgsets.insert(position,imgset)
         # updating position
-        for imgset in self.imgsets:
-            imgset.position = self.imgsets.index(imgset)
-        db.session.commit()    
+        if position != len(self.imgsets) - 1:
+            for imgset in self.imgsets:
+                imgset.position = self.imgsets.index(imgset)
 
 
     # def shuffle_imgsets(self):
