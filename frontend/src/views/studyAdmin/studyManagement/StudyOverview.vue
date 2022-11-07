@@ -25,9 +25,7 @@
                           <button @click="editStudy(study.id)" class="btn-success btn">edit</button>
                         </td>
                         <td>
-                            <router-link :to="{ name: 'StudyResults', params: { id: study.id }}">
-                                <button class="btn-primary btn">results</button>
-                            </router-link>
+                          <button @click="showResults(study.id)" class="btn-primary btn">results</button>
                         </td>
                         <td>
                             <button class="btn-danger btn" data-bs-toggle="modal" data-bs-target="#deleteStudy" @click="setStudyDelete(study)">delete
@@ -68,6 +66,12 @@ export default {
       this.$store.dispatch('currentStudy/openStudy', studyId)
         .then(() => {
           router.push(studyId + '/metainfos')
+        })
+    },
+    showResults (studyId) {
+      this.$store.dispatch('currentStudy/openStudy', studyId)
+        .then(() => {
+          router.push(studyId + '/results')
         })
     },
     setStudyDelete (study) {

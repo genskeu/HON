@@ -1,22 +1,22 @@
 <template>
   <div>
     <div class="row mx-auto mt-2" id="imgset_settings_title">
-      <button class="btn btn-dark col-12" data-bs-toggle="collapse" data-bs-target="#imgset_settings"
+      <button class="btn btn-dark btn-lg col-12" data-bs-toggle="collapse" data-bs-target="#imgset_settings"
         aria-expanded="true">
         <h4 class="w-100">Image-Sets &#9776;</h4>
       </button>
     </div>
-    <button class="btn btn-secondary col-12" data-bs-toggle="collapse" data-bs-target="#imgset_settings_explanation"
+      <button class="btn btn-secondary col-12" data-bs-toggle="collapse" data-bs-target="#imgset_settings_explanation"
         aria-expanded="true">
         <h4 class="w-100">&#9432; Section Info</h4>
       </button>
       <div id="imgset_settings_explanation" class="row mx-auto text-dark bg-white text-left collapse">
-        <div>
-          <p class="mb-1">This section controls the images displayed to users during a study.</p>
-          <p class="mb-1">Image-Sets can be created manually (one by one) using the "Images displayed" select menu and the "add image-set at position btn".</p>
-          <p class="mb-1">To automatically add all uploaded images to image-sets use the Auto-Creation Menu.</p>
-          <p class="mb-1">Settings such as image position, windowing and zoom level can be controlled via the Viewer Settings Menus.</p>
-        </div>
+        <ul class="list-group mx-0 px-0">
+          <li class="list-group-item">This section controls the images displayed to users during a study.</li>
+          <li class="list-group-item">Image-Sets can be created manually (one by one) using the "Images displayed" select menu and the Manual-Creation buttons.</li>
+          <li class="list-group-item">To automatically add all uploaded images to image-sets use the Auto-Creation Menu.</li>
+          <li class="list-group-item">Settings such as image position, windowing and zoom level can be controlled via the Viewer Settings Menus.</li>
+        </ul>
       </div>
     <div id="imgset_settings" class="collapse show mt-1">
       <div class="input-group mx-auto" data-toggle="tooltip" data-placement="left"
@@ -88,35 +88,37 @@
           </div>
         </div>
       </div>
-
-      <div class="row mx-auto mt-1" id="general_settings_title">
-      </div>
-      <div id="images_create_man" class="collapse show">
-        <div class="row mb-1">
-          <div class="input-group">
-            <button class="btn-success btn col-9" title="add image-set to the end of the study"
-            @click.prevent="addImgset">add image-set at position
+      <div class="mb-1">
+        <button class="btn-secondary btn col-12 mt-1" data-bs-toggle="collapse" data-bs-target="#images_create_man"
+            aria-expanded="true" aria-controls="images_create_auto"
+            title="">
+            <h5 class="mt-1">Manual-Creation</h5>
+          </button>
+        <div id="images_create_man" class="collapse show">
+          <div class="row">
+            <div class="input-group">
+              <button class="btn-success btn col-9" title="add image-set to the end of the study"
+              @click.prevent="addImgset">Add Image-Set at Pos
+              </button>
+              <input class="form-control" type="Number" min="1" :max="imgsets.length + 1" step="1" id="numb_refimg" v-model="imagesetAddPosition"/>
+            </div>
+          </div>
+          <div v-if="imgsetDisplayed" class="row mx-auto">
+            <button value="update loaded imgset" class="imgset_btn btn-light btn" id="upd_imgset"
+              title="update currently selected image-set" @click.prevent="updateImgset">Update Image-Set
             </button>
-            <input class="form-control" type="Number" min="1" :max="imgsets.length + 1" step="1" id="numb_refimg" v-model="imagesetAddPosition"/>
+          </div>
+          <div v-if="imgsetDisplayed" class="row mx-auto">
+            <button value="Delete Image-Set" class="imgset_btn btn-danger btn" id="del_imgset"
+              title="delete currently selected image-set" @click.prevent="deleteImgset">Delete Image-Set
+            </button>
+          </div>
+          <div v-if="imgsets.length" class="row mx-auto">
+            <button class="btn-danger btn" @click="deleteAllImgsets">Delete all Image-Sets
+            </button>
           </div>
         </div>
-        <div v-if="imgsetDisplayed" class="row mx-auto">
-          <button value="update loaded imgset" class="imgset_btn btn-light btn mb-1" id="upd_imgset"
-            title="update currently selected image-set" @click.prevent="updateImgset">update loaded imgset
-          </button>
-        </div>
-        <div v-if="imgsetDisplayed" class="row mx-auto">
-          <button value="delete loaded imgset" class="imgset_btn btn-danger btn mb-1" id="del_imgset"
-            title="delete currently selected image-set" @click.prevent="deleteImgset">delete loaded imgset
-          </button>
-        </div>
-        <div v-if="imgsets.length" class="row mx-auto">
-          <button class="btn-danger btn mb-1" @click="deleteAllImgsets">delete all
-            imgsets
-          </button>
-        </div>
       </div>
-
       <div class="row mx-auto" id="general_settings_title">
         <button class="btn-secondary btn col-12" data-bs-toggle="collapse" data-bs-target="#images_create_auto"
           aria-expanded="true" aria-controls="images_create_auto"
@@ -156,7 +158,7 @@
         </div>
         <div class="mt-1">
         <button @click="createImgsetsAuto" class="w-100 btn btn-success imgset_btn" value="generate imgsets" id="btn_auto_imgset">
-          Create Imgsets
+          Create Image-Sets
         </button>
       </div>
     </div>

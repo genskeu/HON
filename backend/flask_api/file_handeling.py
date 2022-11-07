@@ -138,6 +138,7 @@ def upload_files(study):
 @study_owner_required()
 def delete_files(study):
     response = {}
+    error = None
     image_dir = study.get_image_dir()
     user_id = get_jwt_identity()
     stacks = request.get_json()
@@ -145,18 +146,35 @@ def delete_files(study):
     # delete from db
     for stack in stacks:
         base_url = f"flask-api/get_file/{user_id}/{study.id}/{stack['name']}/"
-        stack = Stack.query.filter_by(base_url=base_url).first()
+        stackDB = Stack.query.filter_by(base_url=base_url).first()
+
+        if stack is None:
+            error = f"Stack {stack['name']} not found."
+
+        if len(stackDB.study_stacks) > 0:
+            error = f"Can not delete Stack {stackDB.name}, because it is used in an Image-Set. Delete all Image-Sets connected to this Stack to delete it."
+            response["error_msg"] = error
+
+        if error is None:
+            try:
+                db.session.delete(stackDB)
+            except:
+                error = f"Error deleting image {stackDB.name} from database."
+                response["error_msg"] = error
+                return jsonify(response), 400
+        else:
+            return jsonify(response), 403
+
+        # delete stack dir
+        stack_dir = os.path.join(image_dir, stack['name'])
         try:
-            db.session.delete(stack)
+            shutil.rmtree(stack_dir)
         except:
-            print(f"Error deleting image {stack['name']} from database for study {study.title} {study.id}.")
-
+            error = f"Error deleting files for stack {stack['name']}."
+            response["error_msg"] = error
+            return jsonify(response), 400
+               
     db.session.commit()
-
-    # delete stack dir
-    stack_dir = os.path.join(image_dir, stack.name)
-    shutil.rmtree(stack_dir)    
-
-    return jsonify(response)
+    return jsonify(response), 200
 
 

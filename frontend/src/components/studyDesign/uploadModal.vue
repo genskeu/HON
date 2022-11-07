@@ -212,21 +212,23 @@ export default {
       var formData = new FormData()
       var filesUploading = []
       folder.files.forEach((file) => {
-        if (filesUploading.length < chuncksize && file.status === '') {
+        if (filesUploading.length < chuncksize & file.status === '') {
           formData.append('file', file.file)
           filesUploading.push(file)
-          file.status = ' uploading'
+          file.status = 'uploading'
         }
       })
       // config request
       const config = {
         headers: { 'Content-Type': 'multipart/form-data' },
-        onUploadProgress: progressEvent => {
+        onUploadProgress: (progressEvent) => {
           var progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-          var folderProgress = progress * (filesUploading.length / folder.files.length)
-          folder.progress += folderProgress
+          folder.progress += progress * (filesUploading.length / folder.files.length)
+          // temp fix for bug where upload progress goes over 100%
+          folder.progress = folder.progress > 100 ? 100 : folder.progress
           filesUploading.forEach((file) => {
             file.progress += progress
+            file.progress = file.progress > 100 ? 100 : file.progress
           })
         }
       }
