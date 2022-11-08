@@ -179,7 +179,7 @@ export default {
       var sum = 0
       this.fileFolders.forEach(function (folder) { sum += Number(folder.progress) })
       const average = this.fileFolders.length ? sum / this.fileFolders.length : 0
-      if (average >= 100) {
+      if (this.fileNumber === 0) {
         this.uploadPaused = true
       }
       return average.toFixed(2)
@@ -222,13 +222,10 @@ export default {
       const config = {
         headers: { 'Content-Type': 'multipart/form-data' },
         onUploadProgress: (progressEvent) => {
-          var progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
           folder.progress += progress * (filesUploading.length / folder.files.length)
-          // temp fix for bug where upload progress goes over 100%
-          folder.progress = folder.progress > 100 ? 100 : folder.progress
           filesUploading.forEach((file) => {
             file.progress += progress
-            file.progress = file.progress > 100 ? 100 : file.progress
           })
         }
       }
