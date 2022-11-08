@@ -179,7 +179,7 @@ export default {
       var sum = 0
       this.fileFolders.forEach(function (folder) { sum += Number(folder.progress) })
       const average = this.fileFolders.length ? sum / this.fileFolders.length : 0
-      if (this.fileNumber === 0) {
+      if (average >= 100) {
         this.uploadPaused = true
       }
       return average.toFixed(2)
@@ -204,11 +204,10 @@ export default {
         }
       }
       if (folderToUpload) {
-        this.uploadFolderChunkWise(folderToUpload, 5)
+        this.uploadFolderChunkWise(folderToUpload, 10)
       }
     },
     uploadFolderChunkWise (folder, chuncksize) {
-      var promises = []
       var formData = new FormData()
       var filesUploading = []
       folder.files.forEach((file) => {
@@ -222,16 +221,20 @@ export default {
       const config = {
         headers: { 'Content-Type': 'multipart/form-data' },
         onUploadProgress: (progressEvent) => {
-          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-          folder.progress += progress * (filesUploading.length / folder.files.length)
+          const loaded = progressEvent.loaded
+          const total = progressEvent.loaded
+          const progress = (loaded * 100) / total
           filesUploading.forEach((file) => {
-            file.progress += progress
+            file.progress = progress
           })
+          var folderProgress = 0
+          folder.files.forEach((file) => { folderProgress += Number(file.progress) })
+          folder.progress = folderProgress / folder.files.length
         }
       }
 
       // request
-      const promise = uploadFiles(this.$route.params.id, formData, config)
+      uploadFiles(this.$route.params.id, formData, config)
         .then((response) => {
           filesUploading.forEach((file) => {
             file.status = 'uploaded successfully'
@@ -258,104 +261,12 @@ export default {
         .finally(() => {
           this.uploadFolders()
         })
-      promises.push(promise)
     },
     fileNumber () {
       var fileNumb = 0
       this.fileFolders.forEach((folder) => { fileNumb += !folder.status.includes('upload finished') ? folder.files.length : 0 })
       return fileNumb
     }
-    // not used
-    /*     async uploadFiles () {
-      // find folder that is not uploaded yet and check the number of active uploads
-      var fileNotActive
-      // var activeUploads = 0
-      // var maxSimUp = 1
-      for (var folder of this.fileFolders) {
-        for (var file of folder.files) {
-          if (file.status === '' && fileNotActive === undefined) {
-            fileNotActive = file
-            fileNotActive.status = 'uploading'
-          }
-          // if (folder.status === 'uploading') {
-          //   activeUploads += 1
-          // }
-        }
-      }
-      if (fileNotActive) {
-        var formData = new FormData()
-        formData.append('file', fileNotActive.file)
-
-        // // start more uploads until max upload number eached
-        // if (activeUploads < maxSimUp) {
-        //   for (var i = 0; i < maxSimUp - activeUploads; i++) {
-        //     this.uploadFiles()
-        //   }
-        // }
-
-        // config request
-        const config = {
-          headers: { 'Content-Type': 'multipart/form-data' },
-          onUploadProgress: progressEvent => {
-            var progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-            fileNotActive.progress = progress
-            folder.progress += progress / folder.files.length
-          }
-        }
-
-        // request
-        axios
-          .post('http://localhost:5000/upload_files/' + this.$route.params.id,
-            formData,
-            config)
-          .then(() => {
-            fileNotActive.status = 'uploaded successfully'
-          })
-          .catch(() => {
-            fileNotActive.status = 'error'
-          })
-          .then(() => {
-            this.uploadFiles()
-          })
-      }
-    },
-    // not used
-    async uploadFolders2 () {
-      // find folder that is not uploaded yet and check the number of active uploads
-      this.fileFolders.forEach((folder) => {
-        folder.status = 'uploading'
-
-        var formData = new FormData()
-        folder.files.forEach((file, index) => {
-          if (index < 15) {
-            formData.append('file', file)
-          }
-        })
-
-        // config request
-        const config = {
-          headers: { 'Content-Type': 'multipart/form-data' },
-          onUploadProgress: progressEvent => {
-            var progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-            folder.progress = progress
-          }
-        }
-
-        // request
-        axios
-          .post('http://localhost:5000/upload_files/' + this.$route.params.id,
-            formData,
-            config)
-          .then(() => {
-            folder.status = 'uploaded successfully'
-          })
-          .catch(() => {
-            folder.status = 'error'
-          })
-          .then(() => {
-          })
-      })
-    } */
   }
 }
 </script>
