@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="row mx-auto" id="design_options_title">
+        <div class="row mx-auto mb-1" id="design_options_title">
             <button class="btn btn-dark btn-lg col-12" data-bs-toggle="collapse" data-bs-target="#design_options_content"
                 title="Click on the sections to expand the sub-menus.
                     Study design options were divided into general settings, tools, instructions and scales.
@@ -9,7 +9,7 @@
                 <h4 class="w-100">Design Options &#9776;</h4>
             </button>
         </div>
-        <button class="btn btn-secondary col-12" data-bs-toggle="collapse" data-bs-target="#design_settings_explanation"
+            <!-- <button class="btn btn-secondary col-12" data-bs-toggle="collapse" data-bs-target="#design_settings_explanation"
               aria-expanded="true">
               <h4 class="w-100">&#9432; Section Info</h4>
             </button>
@@ -17,13 +17,13 @@
               <ul class="list-group mx-0 px-0">
                 <li class="list-group-item">This section controls the study design.</li>
               </ul>
-            </div>
+            </div> -->
         <div id="design_options_content" class="collapse show">
             <GeneralSettings></GeneralSettings>
             <Instructions></Instructions>
             <Scales></Scales>
             <Tools></Tools>
-            <button @click="saveDesign" class="mt-1 btn btn-lg btn-success w-100">
+            <button @click="saveDesign" class="btn btn-lg btn-success w-100">
                 Save Design
             </button>
         </div>
@@ -32,6 +32,8 @@
 </template>
 
 <script>
+import { Popover } from 'bootstrap'
+
 import GeneralSettings from '@/components/studyDesign/designOptions/GeneralSettings.vue'
 import Scales from '@/components/studyDesign/designOptions/Scales.vue'
 import Instructions from '@/components/studyDesign/designOptions/Instructions.vue'
@@ -54,10 +56,17 @@ export default {
       const studyId = this.$route.params.id
       this.$store.dispatch('currentStudy/updateDesign', studyId)
     }
+  },
+  mounted () {
+    const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
+    const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new Popover(popoverTriggerEl))
+    console.log(popoverList)
   }
 }
 </script>
 
 <style>
-
+.accordion-body {
+  background-color: white;
+}
 </style>

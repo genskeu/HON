@@ -2,23 +2,25 @@
   <div id="general_settings" class="accordion">
     <!-- General Settings -->
     <div class="accordion-item">
-      <!-- <div class="row mx-auto mt-1" id="general_settings_title">
-        <button class="btn-secondary btn col-12" data-bs-toggle="collapse" data-bs-target="#general_settings_content"
-          aria-expanded="true" aria-controls="general_settings_content"
-          title="General settings include options to control the study layout and to customize the number and size of images displayed simultaneously.">
-          <h5 class="mt-1">General Settings</h5>
-        </button>
-      </div> -->
-      <h3 class="accordion-header" id="general_settings_title">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#general_settings_content" aria-expanded="true" aria-controls="general_settings_content">
-          General Settings
-        </button>
-      </h3>
+      <div class="row">
+        <div class="col-2 my-auto mx-auto">
+          <button class="btn btn-secondary btn-lg" data-bs-toggle="popover" :data-bs-title="this.popoverTitle" :data-bs-content="this.popoverText" data-bs-placement="left">&#9432;
+          </button>
+        </div>
+
+        <div class="col-10">
+          <h2 class="accordion-header" id="general_settings_title">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#general_settings_content" aria-expanded="true" aria-controls="general_settings_content">
+              General Settings
+            </button>
+          </h2>
+        </div>
+      </div>
 
       <div id="general_settings_content" class="accordion-collapse collapse" aria-labelledby="general_settings_title">
-        <div class="mx-auto accordion-body px-0 py-0">
+        <div class="mx-auto accordion-body p-1">
           <div class="input-group mx-auto" title="Controls max number of reference images">
-            <label for="numb_refimg" class="input-group-text col-7"># RefImg Viewer</label>
+            <span for="numb_refimg" class="input-group-text col-7"># RefImg Viewer</span>
             <input class="form-control" type="Number" min="0" max="5" id="numb_refimg" v-model="refviewerNumb"/>
           </div>
 
@@ -87,6 +89,12 @@
 
 <script>
 export default {
+  data () {
+    return {
+      popoverTitle: 'Section Info',
+      popoverText: 'General settings include options to control the study layout and to customize the number and size of images displayed simultaneously.'
+    }
+  },
   computed: {
     refviewerNumb: {
       get () {
@@ -196,8 +204,6 @@ export default {
     }
   },
   methods: {
-  },
-  mounted () {
   }
 }
 </script>

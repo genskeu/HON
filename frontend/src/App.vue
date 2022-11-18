@@ -119,4 +119,9 @@ body {
   height: 100%;
   /*both html and body*/
 }
+
+.accordion-header .accordion-button {
+  font-size: 1.25rem;
+}
+
 </style>
