@@ -297,12 +297,11 @@ export default {
         const uuid = e.detail.measurementData.uuid
         const toolType = e.detail.toolType.split('-')[0]
         const element = this.$refs.viewer
-        const isLabeledTool = e.detail.toolType.split('-').length > 1
-        const lengthToolState = cornerstoneTools.getToolState(element, toolName).data.length
-        if (lengthToolState > 1 & isLabeledTool) {
+        e.detail.toolType = toolType
+
+        if (this.isLabeled(e) & this.numbAnns(e, element) > 1) {
           cornerstoneTools.removeToolState(element, toolName, e.detail.measurementData)
         } else {
-          e.detail.toolType = toolType
           this.$store.commit('imageViewers/addAnnotation', {
             annotation: annotation,
             type: toolType,
@@ -323,23 +322,17 @@ export default {
       }
       const uuid = e.detail.measurementData.uuid
       const toolType = e.detail.toolType.split('-')[0]
-      const element = this.$refs.viewer
-      const isLabeledTool = e.detail.toolType.split('-').length > 1
-      const lengthToolState = cornerstoneTools.getToolState(element, toolName).data.length
-      if (lengthToolState > 1 & isLabeledTool) {
-        // cornerstoneTools.removeToolState(element, toolName, e.detail.measurementData)
-      } else {
-        e.detail.toolType = toolType
-        this.$store.commit('imageViewers/updateAnnotation', {
-          annotation: annotation,
-          type: toolType,
-          uuid: uuid,
-          index: this.viewerIndex,
-          viewertype: this.viewerType
-        })
-      }
+      e.detail.toolType = toolType
+
+      this.$store.commit('imageViewers/updateAnnotation', {
+        annotation: annotation,
+        type: toolType,
+        uuid: uuid,
+        index: this.viewerIndex,
+        viewertype: this.viewerType
+      })
     },
-    // will be called when measurment deleted (update exisiting)
+    // will be called when measurment deleted
     removeAnnotation (e) {
       const toolName = e.detail.toolName
       const annotation = {
@@ -348,8 +341,32 @@ export default {
       }
       const uuid = e.detail.measurementData.uuid
       const toolType = e.detail.toolType.split('-')[0]
-      this.$store.commit('imageViewers/removeAnnotation', { annotation: annotation, type: toolType, uuid: uuid, index: this.viewerIndex, viewertype: this.viewerType })
+      this.$store.commit('imageViewers/removeAnnotation', {
+        annotation: annotation,
+        type: toolType,
+        uuid: uuid,
+        index: this.viewerIndex,
+        viewertype: this.viewerType
+      })
+    },
+    // helper to prevent double measurments for labeled tools
+    isLabeled (event) {
+      return event.detail.toolName.split('-').length > 1
+    },
+    numbAnns (event, element) {
+      const imageIds = cornerstoneTools.getToolState(element, 'stack').data[0].imageIds
+      const toolState = imageIds.map((id) => {
+        return cornerstoneTools.globalImageIdSpecificToolStateManager.getImageIdToolState(id, event.detail.toolName)
+      })
+      const toolStateFiltered = toolState.filter((state) => state !== undefined)
+      const lengthToolState = toolStateFiltered.reduce((length, state) => {
+        return length + state.data.length
+      }, 0)
+      return lengthToolState
     }
+    // e.detail.measurementData.handles.textBox.x += 200
+    // e.detail.measurementData.handles.textBox.hasMoved = true
+    // console.log(e.detail.measurementData.handles.textBox)
   }
 }
 </script>

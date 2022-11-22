@@ -223,6 +223,7 @@ export default {
     applySize (event) {
       var handles = event.detail.measurementData.handles
       const toolname = event.detail.toolName
+      if (toolname === undefined) { return false }
       const tool = this.toolsParticipant.find(tool => toolname.includes(tool.cs_name))
       if (tool && tool.settings && tool.settings.size) {
         const size = Number(tool.settings.size)

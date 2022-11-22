@@ -7,6 +7,8 @@
 </template>
 
 <script>
+import cornerstoneTools from 'cornerstone-tools'
+
 export default {
   props: {
     viewerIndex: Number
@@ -29,6 +31,12 @@ export default {
     },
     refimageViewers () {
       return this.$store.getters['imageViewers/refviewers']
+    },
+    toolsParticipant () {
+      return this.$store.getters['currentStudy/tools']
+    },
+    imageViewers () {
+      return this.$store.getters['imageViewers/viewers']
     }
   },
   methods: {
@@ -52,8 +60,46 @@ export default {
         alert('Scales empty: ' + emptyScale.name)
         return
       }
-
+      if (!this.checkLabeledAnnsPresent()) {
+        return
+      }
       this.$store.dispatch('currentStudy/saveResult', payload)
+    },
+    // helper function to check if labeled tools are used in this study
+    // ensure for all labeled tools measurments were taken
+    labeledTools () {
+      const toolsLabeld = this.toolsParticipant.filter(tool => tool.settings.labels !== undefined)
+      var toolCsNames = []
+      toolsLabeld.forEach((tool) => {
+        tool.settings.labels.forEach(label => {
+          toolCsNames.push(tool.cs_name + '-' + label)
+        })
+      })
+      return toolCsNames
+    },
+    numbAnnsStack (element, toolName) {
+      const imageIds = cornerstoneTools.getToolState(element, 'stack').data[0].imageIds
+      const toolState = imageIds.map((id) => {
+        return cornerstoneTools.globalImageIdSpecificToolStateManager.getImageIdToolState(id, toolName)
+      })
+      const toolStateFiltered = toolState.filter((state) => state !== undefined)
+      const lengthToolState = toolStateFiltered.reduce((length, state) => {
+        return length + state.data.length
+      }, 0)
+      return lengthToolState
+    },
+    checkLabeledAnnsPresent () {
+      var allLabelsPresent = true
+      this.labeledTools().forEach((labeldTool) => {
+        this.imageViewers.forEach((viewer) => {
+          const numbAnn = this.numbAnnsStack(viewer.element, labeldTool)
+          if (numbAnn === 0) {
+            alert('Missing Measurement ' + labeldTool)
+            allLabelsPresent = false
+          }
+        })
+      })
+      return allLabelsPresent
     }
   },
   mounted () {

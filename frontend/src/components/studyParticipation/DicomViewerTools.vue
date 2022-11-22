@@ -61,8 +61,12 @@ export default {
     }
   },
   mounted () {
-    // var toolsInitialized = this.$store.getters['imageViewers/toolsInitialized']
-    // console.log(cornerstoneTools.store.state)
+    cornerstoneTools.init({
+      globalToolSyncEnabled: true
+    })
+    this.initCornerstoneTools()
+  },
+  activated () {
     this.initCornerstoneTools()
   },
   computed: {
@@ -113,26 +117,25 @@ export default {
   },
   methods: {
     initCornerstoneTools () {
-      cornerstoneTools.init({
-        globalToolSyncEnabled: true
-      })
       const toolsAlreadyAdded = Object.keys(cornerstoneTools.store.state.globalTools)
       this.toolsParticipant.forEach(tool => {
+        const toolCornerStone = cornerstoneTools[tool.cs_name + 'Tool']
+        // add regular tools
         if (!toolsAlreadyAdded.includes(tool.cs_name)) {
-          const toolCornerStone = cornerstoneTools[tool.cs_name + 'Tool']
-          if (tool.settings.labels) {
-            tool.settings.labels.forEach(label => {
-              const toolConfig = {
-                name: tool.cs_name + '-' + label
-              }
+          cornerstoneTools.addTool(toolCornerStone)
+        }
+        // add labeled tools
+        if (tool.settings.labels) {
+          tool.settings.labels.forEach(label => {
+            const toolConfig = {
+              name: tool.cs_name + '-' + label
+            }
+            if (!toolsAlreadyAdded.includes(toolConfig.name)) {
               cornerstoneTools.addTool(toolCornerStone, toolConfig)
-            })
-          } else {
-            cornerstoneTools.addTool(toolCornerStone)
-          }
+            }
+          })
         }
       })
-      // this.$store.commit('imageViewers/toolsInitialized', true)
     }
   }
 }

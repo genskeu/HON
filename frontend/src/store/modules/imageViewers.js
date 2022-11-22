@@ -250,7 +250,9 @@ const mutations = {
     var viewer = state[payload.viewertype][payload.index]
     var annotations = viewer.toolState.annotations[payload.type]
     // to do: only update the values that changed
-    annotations[payload.uuid] = payload.annotation
+    if (annotations[payload.uuid] !== undefined) {
+      annotations[payload.uuid] = payload.annotation
+    }
   },
   removeAnnotation (state, payload) {
     var viewer = state[payload.viewertype][payload.index]

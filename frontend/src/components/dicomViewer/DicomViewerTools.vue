@@ -51,7 +51,12 @@ export default {
     }
   },
   mounted () {
-    // var toolsInitialized = this.$store.getters['imageViewers/toolsInitialized']
+    cornerstoneTools.init({
+      globalToolSyncEnabled: true
+    })
+    this.initCornerstoneTools()
+  },
+  activated () {
     this.initCornerstoneTools()
   },
   computed: {
@@ -99,9 +104,6 @@ export default {
   },
   methods: {
     initCornerstoneTools () {
-      cornerstoneTools.init({
-        globalToolSyncEnabled: true
-      })
       const toolsAlreadyAdded = Object.keys(cornerstoneTools.store.state.globalTools)
       Object.keys(this.viewerSettingToolsMousekeys).forEach(tool => {
         if (!toolsAlreadyAdded.includes(tool)) {
