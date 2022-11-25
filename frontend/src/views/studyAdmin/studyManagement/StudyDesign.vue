@@ -135,5 +135,20 @@ export default {
 #sidebar {
   height: 85vh;
 }
+.primary-accordion {
+  background: #212529 !important;
+  color: white !important;
+}
 
+.primary-accordion.collapsed::after {
+  background-image: url("");
+}
+
+.primary-accordion:not(.collapsed)::after {
+  background-image: url("") !important;
+}
+
+.bg-gray-300 {
+  background: #adb5bd;
+}
 </style>

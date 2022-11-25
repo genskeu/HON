@@ -19,9 +19,9 @@
         </div>
       </div>
     <!-- tool settings -->
-    <div id="tools_container" class="collapse mt-1">
+    <div id="tools_container" class="collapse">
       <div class="mx-auto accordion-body px-0 py-0">
-        <div class="bg-secondary w-100">
+        <div class="input-group-text bg-gray-300 w-100">
           Viewer Settings Mousekeys
         </div>
         <div v-for="(label, tool) in viewerSettingToolsMousekeys" :key="tool" class="input-group text-center mx-auto">
@@ -32,7 +32,7 @@
             </div>
           </div>
         </div>
-        <div class="bg-secondary w-100 mt-1">
+        <div class="input-group-text bg-gray-300 w-100">
           Annotations Mousekeys
         </div>
         <div v-for="(label, tool) in annotationToolsMousekeys" :key="tool" class="input-group text-center mx-auto">
@@ -48,12 +48,12 @@
           <!-- tool setting, only implemented interface for annotaton tools -->
           <div v-if="label.cs_name !== 'Eraser'" class="mx-auto collapse" :id="label.cs_name + 'Settings'">
             <div class="input-group mx-auto">
-              <label class="input-group-text w-35">Length/ Diameter</label>
+              <label class="input-group-text w-35 bg-light">Length/ Diameter</label>
               <input :value="label.settings.size" @change="(event) => updateToolSettings(event, label.cs_name, 'size')"
                 type="Number" step="any" min="0" class="form-control" placeholder="size in px" />
             </div>
             <div class="input-group mx-auto">
-              <label class="input-group-text w-35">Number</label>
+              <label class="input-group-text bg-light w-35">Number</label>
               <input :value="label.settings.minNumber"
                 @change="(event) => updateToolSettings(event, label.cs_name, 'minNumber')" type="Number" step="any"
                 min="0" class="form-control" placeholder="min" />
@@ -64,14 +64,14 @@
             </div>
             <div v-if="label.settings.maxNumber && label.settings.maxNumber > label.settings.minNumber">
               <div  class="row mx-auto">
-              <button class="input-group-text " data-bs-toggle="collapse" :data-bs-target="'#labels_' + label.cs_name"
+              <button class="input-group-text bg-light" data-bs-toggle="collapse" :data-bs-target="'#labels_' + label.cs_name"
                 aria-expanded="true" :aria-controls="'#labels_' + label.cs_name">
                 <h5 class="mx-auto">Annotation Names</h5>
               </button>
             </div>
             <div :id="'labels_' + label.cs_name" class="collapse show">
               <div v-for="i in Number(label.settings.maxNumber)" :key="i" class="input-group mx-auto">
-                <label class="input-group-text w-25">{{i}}</label>
+                <label class="input-group-text bg-light w-25">{{i}}</label>
                 <input :value="label.settings.labels[i-1]" @change="(event) => updateToolLabel(event, label.cs_name, i-1)" class="form-control" type="text" />
               </div>
             </div>
@@ -79,7 +79,7 @@
           </div>
         </div>
 
-        <div class="bg-secondary w-100 mt-1">
+        <div class="input-group-text bg-gray-300 w-100">
           Segmentations Mousekeys
         </div>
         <div v-for="(label, tool) in segmentationToolsMousekeys" :key="tool" class="input-group text-center mx-auto">
@@ -91,7 +91,7 @@
           </div>
         </div>
 
-        <div class="bg-secondary w-100 mt-1">
+        <div class="input-group-text bg-gray-300 w-100">
           <h4 class="">Viewer Settings Mousewheel</h4>
         </div>
         <div v-for="(label, tool) in viewerToolsMousewheelSettings" :key="tool" class="input-group text-center mx-auto">

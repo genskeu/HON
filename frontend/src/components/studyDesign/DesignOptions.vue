@@ -1,13 +1,20 @@
 <template>
-    <div>
-        <div class="row mx-auto mb-1" id="design_options_title">
-            <button class="btn btn-dark btn-lg col-12" data-bs-toggle="collapse" data-bs-target="#design_options_content"
-                title="Click on the sections to expand the sub-menus.
-                    Study design options were divided into general settings, tools, instructions and scales.
-                    After changing any design options dont forget to press the Save Design button.
-                              " aria-expanded="true" aria-controls="design_settings_content">
-                <h4 class="w-100">Design Options &#9776;</h4>
+    <div class="accordion">
+
+      <div class="accordion-item bg-dark">
+        <div class="row">
+          <div class="col-2 my-auto mx-auto">
+            <button class="btn btn-lg btn-dark" data-bs-toggle="popover" :data-bs-title="this.popoverTitle" :data-bs-content="this.popoverText" data-bs-placement="left">&#9432;
             </button>
+          </div>
+
+          <div class="col-10 my-auto">
+            <h1 class="accordion-header" id="design_options_title">
+              <button class="primary-accordion accordion-button pr-0" type="button" data-bs-toggle="collapse" data-bs-target="#design_options_content" aria-expanded="true" aria-controls="design_options_content">
+                <strong>Design Options &#9776;</strong>
+              </button>
+            </h1>
+          </div>
         </div>
             <!-- <button class="btn btn-secondary col-12" data-bs-toggle="collapse" data-bs-target="#design_settings_explanation"
               aria-expanded="true">
@@ -18,22 +25,20 @@
                 <li class="list-group-item">This section controls the study design.</li>
               </ul>
             </div> -->
-        <div id="design_options_content" class="collapse show">
-            <GeneralSettings></GeneralSettings>
-            <Instructions></Instructions>
-            <Scales></Scales>
-            <Tools></Tools>
+        <div id="design_options_content" class="accordion-collapse show" aria-labelledby="design_options_title">
+            <GeneralSettings class="mb-1"></GeneralSettings>
+            <Instructions class="mb-1"></Instructions>
+            <Scales class="mb-1"></Scales>
+            <Tools class="mb-1"></Tools>
             <button @click="saveDesign" class="btn btn-lg btn-success w-100">
                 Save Design
             </button>
         </div>
-
+      </div>
     </div>
 </template>
 
 <script>
-import { Popover } from 'bootstrap'
-
 import GeneralSettings from '@/components/studyDesign/designOptions/GeneralSettings.vue'
 import Scales from '@/components/studyDesign/designOptions/Scales.vue'
 import Instructions from '@/components/studyDesign/designOptions/Instructions.vue'
@@ -49,6 +54,8 @@ export default {
   },
   data () {
     return {
+      popoverTitle: 'Section Info',
+      popoverText: 'Click on the sections to expand the sub-menus. Study design options were divided into general settings, tools, instructions and scales. After changing any design options dont forget to press the Save Design button.'
     }
   },
   methods: {
@@ -56,17 +63,9 @@ export default {
       const studyId = this.$route.params.id
       this.$store.dispatch('currentStudy/updateDesign', studyId)
     }
-  },
-  mounted () {
-    const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
-    const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new Popover(popoverTriggerEl))
-    console.log(popoverList)
   }
 }
 </script>
 
 <style>
-.accordion-body {
-  background-color: white;
-}
 </style>

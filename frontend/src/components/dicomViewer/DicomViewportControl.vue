@@ -8,7 +8,7 @@
       </button>
     </div>
 
-    <div :id="id" class="collapse">
+    <div :id="id" class="collapse show">
       <!-- windowing -->
       <div class="mx-auto">
         <div class="input-group mx-auto">

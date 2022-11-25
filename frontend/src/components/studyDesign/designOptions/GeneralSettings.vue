@@ -18,7 +18,7 @@
       </div>
 
       <div id="general_settings_content" class="accordion-collapse collapse" aria-labelledby="general_settings_title">
-        <div class="mx-auto accordion-body p-1">
+        <div class="mx-auto accordion-body p-0">
           <div class="input-group mx-auto" title="Controls max number of reference images">
             <span for="numb_refimg" class="input-group-text col-7"># RefImg Viewer</span>
             <input class="form-control" type="Number" min="0" max="5" id="numb_refimg" v-model="refviewerNumb"/>
@@ -88,6 +88,8 @@
 </template>
 
 <script>
+import { Popover } from 'bootstrap'
+
 export default {
   data () {
     return {
@@ -202,6 +204,11 @@ export default {
         this.$store.commit('currentStudy/buttonLabels', value)
       }
     }
+  },
+  mounted () {
+    const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
+    const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new Popover(popoverTriggerEl))
+    console.log(popoverList)
   },
   methods: {
   }
