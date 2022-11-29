@@ -1,40 +1,40 @@
 <template>
-  <div class="container-fluid pt-4" id="content" :style="cssStyle">
+  <div class="container-fluid" id="content" :style="cssStyle">
       <div v-if="studyFinished">Finished with Study.</div>
       <Description v-if="studyDescription" id="studyDescription"></Description>
-      <div v-if="!studyFinished" class="row mx-auto">
-      <!-- Imgsets -->
-      <div class="col-lg-10 pt-1" id="imgset_creation">
-        <!-- Create Image Sets -->
-        <!-- Display warning if the study already started (results are present)
-                                 User can still modify design but should be aware that this can cause bugs
-                                -->
-        <div id="imgset" class="mx-auto px-0 w-100">
-          <!--Images -->
-          <DicomViewerTools class="sticky-top"></DicomViewerTools>
-          <div id="ref-stacks" :class="refviewerLayout">
-            <div v-for="index in refviewerNumb" :key="index">
-                <dicom-viewer viewer-type="refviewers" :viewer-index="index-1"></dicom-viewer>
+      <div v-if="!studyFinished" class="row mx-auto h-100">
+        <!-- Imgsets -->
+        <div class="col-lg-10 overflow-auto h-100" id="imgset_creation">
+          <!-- Create Image Sets -->
+          <!-- Display warning if the study already started (results are present)
+                                  User can still modify design but should be aware that this can cause bugs
+                                  -->
+          <div id="imgset" class="mx-auto px-0 w-100">
+            <!--Images -->
+            <DicomViewerTools class="sticky-top"></DicomViewerTools>
+            <div id="ref-stacks" :class="refviewerLayout">
+              <div v-for="index in refviewerNumb" :key="index">
+                  <dicom-viewer viewer-type="refviewers" :viewer-index="index-1"></dicom-viewer>
+              </div>
             </div>
-          </div>
-          <div id="stacks" :class="viewerLayout">
-            <div v-for="index in viewerNumb" :key="index">
-              <dicom-viewer @cornerstonetoolsmeasurementmodified="(event) => applySize(event)" viewer-type="viewers" :viewer-index="index - 1">
-              </dicom-viewer>
-              <Votebtn :viewer-index="index-1" class="my-2"></Votebtn>
+            <div id="stacks" :class="viewerLayout">
+              <div v-for="index in viewerNumb" :key="index">
+                <dicom-viewer @cornerstonetoolsmeasurementmodified="(event) => applySize(event)" viewer-type="viewers" :viewer-index="index - 1">
+                </dicom-viewer>
+                <Votebtn :viewer-index="index-1" class="my-2"></Votebtn>
+              </div>
             </div>
-          </div>
-          <div>
+            <div>
+            </div>
           </div>
         </div>
-      </div>
-      <!-- sidebar for design, viewport settings, scales etc (rigth) -->
-      <div class="col-lg-2 pt-1 overflow-auto sticky-top" id="sidebar">
-        <button v-if="studyDescription" class="btn-secondary btn w-100 mb-1" data-bs-toggle="modal" data-bs-target="#studyDescription">Show Description
-        </button>
-        <Instructions></Instructions>
-        <Scales></Scales>
-      </div>
+        <!-- sidebar for design, viewport settings, scales etc (rigth) -->
+        <div class="col-lg-2 overflow-auto sticky-top h-100" id="sidebar">
+          <button v-if="studyDescription" class="btn-secondary btn w-100 mb-1" data-bs-toggle="modal" data-bs-target="#studyDescription">Show Description
+          </button>
+          <Instructions></Instructions>
+          <Scales></Scales>
+        </div>
       </div>
       <Progressbar></Progressbar>
   </div>
@@ -86,14 +86,14 @@ export default {
       // var rowClass = 'grid-rows-' + this.$store.getters.viewerLayoutRows
       var gridClass = {
         'mb-4': true,
-        flex: true,
-        relative: true,
-        grid: true,
-        'grid-cols-5': this.$store.getters['currentStudy/viewerLayoutCols'] === 5,
-        'grid-cols-4': this.$store.getters['currentStudy/viewerLayoutCols'] === 4,
-        'grid-cols-3': this.$store.getters['currentStudy/viewerLayoutCols'] === 3,
-        'grid-cols-2': this.$store.getters['currentStudy/viewerLayoutCols'] === 2,
-        'grid-cols-1': this.$store.getters['currentStudy/viewerLayoutCols'] === 1
+        'tw-flex': true,
+        'tw-relative': true,
+        'tw-grid': true,
+        'tw-grid-cols-5': this.$store.getters['currentStudy/viewerLayoutCols'] === 5,
+        'tw-grid-cols-4': this.$store.getters['currentStudy/viewerLayoutCols'] === 4,
+        'tw-grid-cols-3': this.$store.getters['currentStudy/viewerLayoutCols'] === 3,
+        'tw-grid-cols-2': this.$store.getters['currentStudy/viewerLayoutCols'] === 2,
+        'tw-grid-cols-1': this.$store.getters['currentStudy/viewerLayoutCols'] === 1
       }
       return gridClass
     },
@@ -102,13 +102,16 @@ export default {
     },
     refviewerLayout () {
       var gridClass = {
-        flex: true,
-        relative: true,
-        grid: true,
-        'gap-2': true,
-        'grid-cols-1': this.$store.getters['currentStudy/refviewerNumb'] === 1,
-        'grid-cols-2': this.$store.getters['currentStudy/refviewerNumb'] === 2,
-        'grid-rows-1': true
+        'tw-flex': true,
+        'tw-relative': true,
+        'tw-grid': true,
+        'tw-gap-2': true,
+        'tw-grid-cols-1': this.$store.getters['currentStudy/refviewerNumb'] === 1,
+        'tw-grid-cols-2': this.$store.getters['currentStudy/refviewerNumb'] === 2,
+        'tw-grid-cols-3': this.$store.getters['currentStudy/refviewerNumb'] === 3,
+        'tw-grid-cols-4': this.$store.getters['currentStudy/refviewerNumb'] === 4,
+        'tw-grid-cols-5': this.$store.getters['currentStudy/refviewerNumb'] === 5,
+        'tw-grid-rows-1': true
       }
       return gridClass
     },
@@ -246,7 +249,4 @@ export default {
 </script>
 
 <style>
-#sidebar {
-  height: 85vh;
-}
 </style>

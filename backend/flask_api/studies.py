@@ -407,37 +407,37 @@ def imgsets(study):
     return jsonify(response)
 
 # to do update function frontend and backend
-# @bp.route('/study/imgsets/<int:study_id>', methods=['PUT'])
-# @jwt_required()
-# @access_level_required(["study_admin"])
-# @study_owner_required()
-# def upd_all_imgsets(study):
-#     study = Study.query.filter_by(id=study_id).options(joinedload('imgsets')).first()
+@bp.route('/study/imgsets/<int:study_id>', methods=['PUT'])
+@jwt_required()
+@access_level_required(["study_admin"])
+@study_owner_required()
+def upd_all_imgsets(study):
+    viewport_settings = request.get_json()
+    for imgset in study.imgsets:
+        for stack in imgset.study_stacks:
+            viewport_settings_old = json.loads(stack.viewport)
+            if viewport_settings["scale"]:
+                viewport_settings_old["scale"] = float(viewport_settings["scale"])
+            if viewport_settings["posX"] or viewport_settings["posX"] is 0:
+                viewport_settings_old["translation"]["x"] = int(viewport_settings["posX"])
+            if viewport_settings["posY"] or viewport_settings["posY"] is 0:
+                viewport_settings_old["translation"]["y"] = int(viewport_settings["posY"])
+            if viewport_settings["windowWidth"]:
+                viewport_settings_old["voi"]["windowWidth"] = int(viewport_settings["windowWidth"])
+            if viewport_settings["windowCenter"]:
+                viewport_settings_old["voi"]["windowCenter"] = int(viewport_settings["windowCenter"])
+            if viewport_settings["rotation"] or viewport_settings["rotation"] is 0:
+                viewport_settings_old["rotation"] = int(viewport_settings["rotation"])
+            stack.viewport = json.dumps(viewport_settings_old)
+    db.session.commit()
 
-#     viewport_settings = request.get_json()
-#     for imgset in study.imgsets:
-#         for stack in imgset.study_stacks:
-#             viewport_settings_old = json.loads(stack.viewport)
-#             if viewport_settings["zoom"]:
-#                 viewport_settings_old["scale"] = float(viewport_settings["zoom"])
-#             if viewport_settings["pos_x"]:
-#                 viewport_settings_old["translation"]["x"] = int(viewport_settings["pos_x"])
-#             if viewport_settings["pos_y"]:
-#                 viewport_settings_old["translation"]["y"] = int(viewport_settings["pos_y"])
-#             if viewport_settings["ww"]:
-#                 viewport_settings_old["voi"]["windowWidth"] = int(viewport_settings["ww"])
-#             if viewport_settings["wc"]:
-#                 viewport_settings_old["voi"]["windowCenter"] = int(viewport_settings["wc"])
-#             stack.viewport = json.dumps(viewport_settings_old)
-#     db.session.commit()
-
-#     #response
-#     response = {}
-#     imgsets = []
-#     for imgset in study.imgsets:
-#         imgsets.append(imgset.to_dict())
-#     response["imgsets"] = imgsets
-#     return jsonify(response)
+    #response
+    response = {}
+    imgsets = []
+    for imgset in study.imgsets:
+        imgsets.append(imgset.to_dict())
+    response["imgsets"] = imgsets
+    return jsonify(response)
 
 
 @bp.route('/study/imgsets/<int:study_id>', methods=['DELETE'])

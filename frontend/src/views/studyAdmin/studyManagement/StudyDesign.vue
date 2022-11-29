@@ -1,8 +1,8 @@
 <template>
-  <div class="container-fluid pt-4" id="content" :style="cssStyle">
-    <div class="row mx-auto">
+  <div class="container-fluid" id="content" :style="cssStyle">
+    <div class="row mx-auto h-100">
       <!-- Imgsets -->
-      <div class="col-lg-10 pt-1" id="imgset_creation">
+      <div class="col-lg-10 overflow-auto h-100" id="imgset_creation">
         <!-- <div class="row w-100 mx-auto pb-2" id = "imgset_creation_title">
           <button
             class="btn btn-dark"
@@ -22,20 +22,20 @@
             <!--Images -->
               <DicomViewerTools class="sticky-top mb-2"></DicomViewerTools>
               <div v-if="refviewerNumb" class="badge bg-secondary mx-auto w-100">
-                <h4 class="">Reference-Image-Stack(s)</h4>
+                <h6 class="">Reference-Image-Stack(s)</h6>
               </div>
               <div id="ref-stacks" :class="refviewerLayout">
                 <div v-for="index in refviewerNumb" :key="index">
-                  <h4>Reference Image Viewer {{index}}</h4>
+                  <h6>Reference Image Viewer {{index}}</h6>
                 <dicom-viewer viewer-type="refviewers" :viewer-index="index-1"></dicom-viewer>
                 </div>
               </div>
               <div v-if="refviewerNumb"  class="badge bg-secondary w-100 mb-2">
-                <h4 class="">Image-Stack(s)</h4>
+                <h6 class="">Image-Stack(s)</h6>
               </div>
               <div id="stacks" :class="viewerLayout">
                 <div v-for="index in viewerNumb" :key="index">
-                  <h4>Image Viewer {{index}}</h4>
+                  <h6>Image Viewer {{index}}</h6>
                   <dicom-viewer viewer-type="viewers" :viewer-index="index-1"></dicom-viewer>
                 </div>
               </div>
@@ -45,10 +45,10 @@
         </div>
       </div>
       <!-- sidebar for design, viewport settings, scales etc (rigth) -->
-      <div class="col-lg-2 pt-1 overflow-auto sticky-top" id="sidebar">
+      <div class="col-lg-2 overflow-auto sticky-top h-100" id="sidebar">
         <!-- Design Settings -->
         <DesignOptions></DesignOptions>
-        <ImgsetDesign class="w-100 mb-2"></ImgsetDesign>
+        <ImgsetDesign class="w-100"></ImgsetDesign>
       </div>
     </div>
   </div>
@@ -76,14 +76,14 @@ export default {
       // var colClass = 'grid-cols-' + this.$store.getters.viewerLayoutCols
       // var rowClass = 'grid-rows-' + this.$store.getters.viewerLayoutRows
       var gridClass = {
-        flex: true,
-        relative: true,
-        grid: true,
-        'grid-cols-5': this.$store.getters['currentStudy/viewerLayoutCols'] === 5,
-        'grid-cols-4': this.$store.getters['currentStudy/viewerLayoutCols'] === 4,
-        'grid-cols-3': this.$store.getters['currentStudy/viewerLayoutCols'] === 3,
-        'grid-cols-2': this.$store.getters['currentStudy/viewerLayoutCols'] === 2,
-        'grid-cols-1': this.$store.getters['currentStudy/viewerLayoutCols'] === 1
+        'tw-flex': true,
+        'tw-relative': true,
+        'tw-grid': true,
+        'tw-grid-cols-5': this.$store.getters['currentStudy/viewerLayoutCols'] === 5,
+        'tw-grid-cols-4': this.$store.getters['currentStudy/viewerLayoutCols'] === 4,
+        'tw-grid-cols-3': this.$store.getters['currentStudy/viewerLayoutCols'] === 3,
+        'tw-grid-cols-2': this.$store.getters['currentStudy/viewerLayoutCols'] === 2,
+        'tw-grid-cols-1': this.$store.getters['currentStudy/viewerLayoutCols'] === 1
       }
       return gridClass
     },
@@ -92,16 +92,16 @@ export default {
     },
     refviewerLayout () {
       var gridClass = {
-        flex: true,
-        relative: true,
-        grid: true,
-        'gap-2': true,
-        'grid-cols-1': this.$store.getters['currentStudy/refviewerNumb'] === 1,
-        'grid-cols-2': this.$store.getters['currentStudy/refviewerNumb'] === 2,
-        'grid-cols-3': this.$store.getters['currentStudy/refviewerNumb'] === 3,
-        'grid-cols-4': this.$store.getters['currentStudy/refviewerNumb'] === 4,
-        'grid-cols-5': this.$store.getters['currentStudy/refviewerNumb'] === 5,
-        'grid-rows-1': true
+        'tw-flex': true,
+        'tw-relative': true,
+        'tw-grid': true,
+        'tw-gap-2': true,
+        'tw-grid-cols-1': this.$store.getters['currentStudy/refviewerNumb'] === 1,
+        'tw-grid-cols-2': this.$store.getters['currentStudy/refviewerNumb'] === 2,
+        'tw-grid-cols-3': this.$store.getters['currentStudy/refviewerNumb'] === 3,
+        'tw-grid-cols-4': this.$store.getters['currentStudy/refviewerNumb'] === 4,
+        'tw-grid-cols-5': this.$store.getters['currentStudy/refviewerNumb'] === 5,
+        'tw-grid-rows-1': true
       }
       return gridClass
     },
@@ -132,8 +132,20 @@ export default {
 </script>
 
 <style>
-#sidebar {
-  height: 85vh;
+.primary-accordion {
+  background: #212529 !important;
+  color: white !important;
 }
 
+.primary-accordion.collapsed::after {
+  background-image: url("");
+}
+
+.primary-accordion:not(.collapsed)::after {
+  background-image: url("") !important;
+}
+
+.bg-gray-300 {
+  background: #adb5bd !important;
+}
 </style>

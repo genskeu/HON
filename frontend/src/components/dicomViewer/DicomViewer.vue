@@ -1,41 +1,42 @@
 <template>
-  <div class='relative grid grid-cols-1' @cornerstoneimagerendered.capture='(event) => displayStackIndex(event)'>
+  <div class='tw-relative tw-grid tw-grid-cols-1' @cornerstoneimagerendered.capture='(event) => displayStackIndex(event)'>
     <!-- image viewer :style='viewerSizeCSS' -->
-    <div ref='viewer' class='dicom_viewer col-span-1 relative'
+    <div ref='viewer' class='dicom_viewer tw-col-span-1 tw-relative'
     @cornerstoneimagerendered="updateViewportSettings"
     @cornerstonetoolsmeasurementcompleted="addAnnotation"
     @cornerstonetoolsmeasurementmodified="updateAnnotation"
     @cornerstonetoolsmeasurementremoved="removeAnnotation">
       <!-- metadata viewer -->
-      <div class='absolute top-0 left-0 p-4 text-white'>
-        <ul class='list-none text-left'>
+      <div class='tw-absolute tw-top-0 tw-left-0 p-4 text-white'>
+        <ul class='tw-list-none tw-text-left'>
           <li v-for='(metadata, index) in stackMetadataTL' :key='index'>
             {{ metadata.tag }} {{ metadata.value }}
           </li>
         </ul>
       </div>
-      <div class='absolute top-0 right-0 p-4 text-white'>
-        <ul class='list-none text-right'>
+      <div class='tw-absolute tw-top-0 tw-right-0 p-4 text-white'>
+        <ul class='tw-list-none tw-text-right'>
           <li v-for='(metadata, index) in stackMetadataTR' :key='index'>
             {{ metadata.tag }} {{ metadata.value }}
           </li>
         </ul>
       </div>
       <div v-if="loading" tabindex="-1">
-        <div class="h-10 w-10 mx-auto spinner-border text-primary" role="status">
+        <div class="tw-h-10 tw-w-10 mx-auto spinner-border text-primary" role="status">
             <span class="visually-hidden">Loading...</span>
         </div>
       </div>
-      <div class='absolute bottom-0 left-0 p-4 text-white'>
-        <ul id='viewer_bl' class='list-none text-left'>
+      <div class='tw-absolute tw-bottom-0 tw-left-0 p-4 text-white'>
+        <ul id='viewer_bl' class='tw-list-none tw-text-left'>
+          <li ref='windowSettings'>{{this.windowSettings}}</li>
           <li ref='slice_index'></li>
           <li v-for='(metadata, index) in stackMetadataBL' :key='index'>
             {{ metadata.tag }} {{ metadata.value }}
           </li>
         </ul>
       </div>
-      <div class='absolute bottom-0 right-0 p-4 text-white'>
-        <ul class='list-none text-right'>
+      <div class='tw-absolute tw-bottom-0 tw-right-0 p-4 text-white'>
+        <ul class='tw-list-none tw-text-right'>
           <li v-for='(metadata, index) in stackMetadataBR' :key='index'>
             {{ metadata.tag }} {{ metadata.value }}
           </li>
@@ -132,6 +133,15 @@ export default {
     },
     viewerLayout () {
       return this.$store.getters['currentStudy/viewerLayoutCols']
+    },
+    windowSettings () {
+      if (this.stackDisplayed && this.stackDisplayed.csStack.imageIds.length) {
+        const ww = this.$store.getters['imageViewers/cornerstoneViewerWindowWidth'](this.viewerIndex, this.viewerType)
+        const wc = this.$store.getters['imageViewers/cornerstoneViewerWindowCenter'](this.viewerIndex, this.viewerType)
+        return 'WW: ' + Math.round(ww) + ' WC: ' + Math.round(wc)
+      } else {
+        return ''
+      }
     }
   },
   watch: {
@@ -277,7 +287,7 @@ export default {
       const element = this.$refs.viewer
       var heigth = this.viewerHeight
       if (this.$store.getters['currentStudy/viewerHeightAuto']) {
-        heigth = Math.min(Number(element.clientWidth), Number(window.innerHeight - 250))
+        heigth = Math.min(Number(element.clientWidth), Number(window.innerHeight - 260))
       }
       element.style.height = heigth + 'px'
       cornerstone.resize(element)

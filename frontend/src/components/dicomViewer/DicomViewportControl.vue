@@ -2,17 +2,17 @@
   <!-- viewport info -->
   <div>
     <div class="row mx-auto">
-      <button class="input-group-text " data-bs-toggle="collapse" :data-bs-target= "'#' + id"
+      <button class="text-start input-group-text" data-bs-toggle="collapse" :data-bs-target= "'#' + id"
         aria-expanded="true" :aria-controls="id">
-        <h5 class="mx-auto">{{heading}}</h5>
+        <div class="mr-auto">{{heading}}</div>
       </button>
     </div>
 
-    <div :id="id" class="collapse">
+    <div :id="id" class="collapse show">
       <!-- windowing -->
       <div class="mx-auto">
         <div class="input-group mx-auto">
-          <label class="input-group-text w-20">WW/WC</label>
+          <label class="input-group-text tw-w-20">WW/WC</label>
           <input type="Number" step="any" min="0" class="form-control ww viewport_prop" placeholder="WW"
             v-model="windowWidth" />
           <input type="Number" step="any" class="form-control wc viewport_prop" placeholder="WC"
@@ -23,7 +23,7 @@
       <!-- window zoom -->
       <div class="mx-auto">
         <div class="input-group">
-          <label class="input-group-text w-20">Zoom</label>
+          <label class="input-group-text tw-w-20">Zoom</label>
           <input type="Number" step="0.1" min="0.1" class="form-control zoom viewport_prop"
             placeholder="Zoom" v-model="scale"/>
         </div>
@@ -32,7 +32,7 @@
       <!-- window position -->
       <div class="mx-auto">
         <div class="input-group">
-          <label class="input-group-text w-20">Pos</label>
+          <label class="input-group-text tw-w-20">Pos</label>
           <input type="Number" step="any" class="form-control pos_x viewport_prop" placeholder="x" v-model="posX"/>
           <input type="Number" step="any" class="form-control pos_y viewport_prop" placeholder="y" v-model="posY"/>
         </div>
@@ -41,7 +41,7 @@
       <!-- rotation -->
       <div class="mx-auto">
         <div class="input-group">
-          <label class="input-group-text w-20">Rotation</label>
+          <label class="input-group-text tw-w-20">Rotation</label>
           <input type="Number" step="1" class="form-control pos_y viewport_prop" placeholder="rotation" v-model="rotation"/>
         </div>
       </div>

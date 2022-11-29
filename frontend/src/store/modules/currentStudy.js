@@ -1,7 +1,8 @@
 import router from '@/router'
 import {
   createStudy, updateStudy, fetchStudy, updateStudyDesign, deleteFiles,
-  createImgset, updateImgset, deleteImgset, createImgsets, deleteImgsets,
+  createImgset, updateImgset, deleteImgset,
+  createImgsets, updateImgsets, deleteImgsets,
   saveResultDb, deleteResultUserDb,
   studyLoginParticipant
 } from '@/api'
@@ -410,6 +411,8 @@ const mutations = {
   imgsetDisplayed (state, imgset) {
     state.imgsetDisplayed = imgset
   },
+  updateImgsets (state, viewport) {
+  },
   deleteAllImgsets (state) {
     state.imageSets = []
     state.imgsetDisplayed = undefined
@@ -587,8 +590,8 @@ const actions = {
       })
   },
   // imgsets
-  createImgsetsAuto ({ state, commit }, { studyId, viewports }) {
-    store.commit('loadingState/startLoading', { title: 'Creating Imagesets' })
+  createImgsetsAuto ({ state, commit }, { studyId, viewport }) {
+    store.commit('loadingState/startLoading', { title: 'Creating Image-Sets' })
     var imgsets = []
     const viewerNumber = state.design.numb_img
     const numberImgsets = state.stacks.length / viewerNumber
@@ -610,7 +613,7 @@ const actions = {
           name: state.stacks[stackIndex].name,
           segmentation_data: '',
           tool_state: imageIds.map((id) => null),
-          viewport: viewports[i]
+          viewport: viewport
         }
         imgset.stacks.push(stack)
       }
@@ -621,15 +624,30 @@ const actions = {
         response.data.imgsets.forEach(imgset => {
           commit('addImgset', imgset)
           commit('imgsetDisplayed', imgset)
-          store.commit('loadingState/finishLoading')
         })
+        store.commit('loadingState/finishLoading')
+      })
+      .catch((response) => {
+        store.commit('loadingState/errorOccured', { errorData: response })
+      })
+  },
+  updateAllImgsets ({ commit }, { studyId, viewport }) {
+    store.commit('loadingState/startLoading', { title: 'Updating Image-Sets' })
+    updateImgsets(studyId, viewport)
+      .then(response => {
+        commit('deleteAllImgsets')
+        response.data.imgsets.forEach(imgset => {
+          commit('addImgset', imgset)
+          commit('imgsetDisplayed', imgset)
+        })
+        store.commit('loadingState/finishLoading')
       })
       .catch((response) => {
         store.commit('loadingState/errorOccured', { errorData: response })
       })
   },
   deleteAllImgsets ({ commit }, studyId) {
-    store.commit('loadingState/startLoading', { title: 'Deleting all Imagesets' })
+    store.commit('loadingState/startLoading', { title: 'Deleting all Image-Sets' })
     deleteImgsets(studyId)
       .then(response => {
         commit('deleteAllImgsets')

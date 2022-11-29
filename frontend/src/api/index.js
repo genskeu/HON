@@ -97,6 +97,10 @@ export function createImgsets (studyId, payload) {
   return axios.post(`${API_URL}/study/imgsets/${studyId}`, payload, { headers: authHeader() })
 }
 
+export function updateImgsets (studyId, payload) {
+  return axios.put(`${API_URL}/study/imgsets/${studyId}`, payload, { headers: authHeader() })
+}
+
 export function deleteImgsets (studyId) {
   return axios.delete(`${API_URL}/study/imgsets/${studyId}`, { headers: authHeader() })
 }

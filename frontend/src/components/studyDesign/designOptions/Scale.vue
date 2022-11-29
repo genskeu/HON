@@ -1,6 +1,6 @@
 <template>
-    <div class="mt-1 scale_template">
-        <h6 class="my-1 scale_heading">Scale {{this.scaleIndex + 1}}</h6>
+    <div class="p-0">
+        <h5 class="input-group-text bg-gray-300 mb-0">Scale {{this.scaleIndex + 1}}</h5>
         <!-- admin view to define scale -->
         <div class="mx-auto scale_view_admin">
                 <div class="input-group mx-auto">
@@ -16,9 +16,9 @@
                         placeholder="max"  v-model="scaleMax" />
                 </div>
                 <div class="row mx-auto">
-                  <button class="input-group-text " data-bs-toggle="collapse" :data-bs-target= "'#labels_scale_' + this.scaleIndex"
+                  <button class="input-group-text text-start btn btn-light bg-gray-300" data-bs-toggle="collapse" :data-bs-target= "'#labels_scale_' + this.scaleIndex"
                           aria-expanded="true" :aria-controls="'#labels_scale_' + this.scaleIndex">
-                    <h5 class="mx-auto">Labels</h5>
+                    <div class="mr-auto">Labels</div>
                   </button>
                 </div>
                 <div :id="'labels_scale_' + this.scaleIndex" class="collapse">
@@ -36,7 +36,7 @@
                     </select>
                 </div> -->
             <button class="btn btn-danger btn-block scale_rm w-100" @click="deleteScale">
-                delete scale
+              &#8722; delete scale
             </button>
         </div>
     </div>
@@ -106,5 +106,4 @@ export default {
 </script>
 
 <style>
-
 </style>

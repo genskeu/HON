@@ -17,7 +17,7 @@
                             <td class="align-middle">{{usp.updated}}</td>
                             <td class="align-middle">{{Math.round(usp.imgsets_finished/studyLength * 10000)/100 + '%'}}</td>
                             <td class="align-middle">
-                                <button class="btn-danger btn-sm" @click="delResultsUser(usp.user_id)">delete
+                                <button class="btn-danger btn" @click="delResultsUser(usp.user_id)">delete
                                 </button>
                             </td>
                         </tr>

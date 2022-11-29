@@ -1,7 +1,7 @@
 <template>
   <div id="study_management" class="">
     <loadingModal id="globalLoadingState" :isLoading="loadingState.isLoading" :title="loadingState.title" :errorOccured="loadingState.errorOccured" :errorData="loadingState.errorData"></loadingModal>
-    <div id="nav" class="navbar bg-dark p-0" style="height: 50px;">
+    <div id="nav" class="navbar bg-dark p-0 pb-4" style="height: 50px;">
       <div class="container mx-auto" v-if="studyOpened">
           <a @click="closeStudy" class="btn router-link">&times; Close {{studyTitle}}</a>
           <router-link :to="{ name: 'StudyMetainfos', params: { id: studyId }}" class="nav-link">Metainfos</router-link>
@@ -15,7 +15,7 @@
         </router-link>
       </div>
     </div>
-    <router-view v-if="studyOpened | this.$route.name === 'StudyOverview'" v-slot="{ Component }" name="helper" id="router_helper_view">
+    <router-view class="pt-4" v-if="studyOpened | this.$route.name === 'StudyOverview'" v-slot="{ Component }" name="helper" id="router_helper_view">
       <!-- only keep comp alive aslong as study is opened -->
       <keep-alive v-if="studyOpened">
         <component :is="Component" />
@@ -72,11 +72,7 @@ export default {
 </script>
 
 <style>
-#study_management {
-  height: calc(100% - 60px);
-}
-
 #router_helper_view {
-  min-height: calc(100% - 75px);
+  height: calc(100% - 50px);
 }
 </style>

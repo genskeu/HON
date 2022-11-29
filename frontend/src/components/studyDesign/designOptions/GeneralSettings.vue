@@ -1,77 +1,86 @@
 <template>
   <div id="general_settings">
     <!-- General Settings -->
-    <div class="row mx-auto mt-1" id="general_settings_title">
-      <button class="btn-secondary btn col-12" data-bs-toggle="collapse" data-bs-target="#general_settings_content"
-        aria-expanded="true" aria-controls="general_settings_content"
-        title="General settings include options to control the study layout and to customize the number and size of images displayed simultaneously.">
-        <h5 class="mt-1">General Settings</h5>
-      </button>
-    </div>
-    <div id="general_settings_content" class="collapse">
-      <div class="mx-auto">
-        <div class="input-group mx-auto" title="Controls max number of reference images">
-          <label for="numb_refimg" class="input-group-text w-50"># RefImg Viewer</label>
-          <input class="form-control" type="Number" min="0" max="5" id="numb_refimg" v-model="refviewerNumb"/>
+    <div>
+      <div class="row">
+        <div class="col-2 my-auto mx-auto">
+          <button class="btn btn-secondary btn-lg" data-bs-toggle="popover" :data-bs-title="this.popoverTitle" :data-bs-content="this.popoverText" data-bs-placement="left">&#9432;
+          </button>
         </div>
 
-        <div class="input-group mx-auto" title="Controls max number of images">
-          <label for="numb_img" class="input-group-text w-50"> # Img Viewer</label>
-          <input class="form-control" type="Number" min="1" max="50" id="numb_img" v-model="viewerNumb"/>
+        <div class="col-10">
+          <h2 class="accordion-header" id="general_settings_title">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#general_settings_content" aria-expanded="true" aria-controls="general_settings_content">
+              General Settings
+            </button>
+          </h2>
         </div>
+      </div>
 
-        <div class="input-group mx-auto my-auto" title="Controls max number of images">
-          <label for="numb_img" class="input-group-text w-50">Viewers per Row</label>
-          <input type="number" min="1" max="5" class="form-control" id="numb_img_cols" v-model="viewerLayoutCols"/>
-        </div>
-
-        <!-- window size -->
-        <div class="input-group mx-auto"
-          title="Controls the size (width, height) of the screen section used for displaying images.">
-          <label class="input-group-text w-50">Set Viewer Size</label>
-          <div class="form-check form-switch form-control mb-0">
-            <input class="form-check-input" type="checkbox" id="viewerHeightAuto" v-model="viewerHeightAuto">
-            <label class="form-check-label" for="viewerHeightAuto">{{viewerHeightAutoText}}</label>
+      <div id="general_settings_content" class="accordion-collapse collapse" aria-labelledby="general_settings_title">
+        <div class="mx-auto accordion-body p-0">
+          <div class="input-group mx-auto" title="Controls max number of reference images">
+            <span for="numb_refimg" class="input-group-text col-7"># RefImg Viewer</span>
+            <input class="form-control" type="Number" min="0" max="5" id="numb_refimg" v-model="refviewerNumb"/>
           </div>
-        </div>
 
-        <div v-if="!viewerHeightAuto" class="input-group mx-auto"
-          title="Controls the size (width, height) of the screen section used for displaying images.">
-          <label class="input-group-text w-50">Size in px</label>
-          <!-- <button :class='viewerHeightAutoBtnDesign' @click='setViewerHeightAuto'>{{viewerHeightAuto}}</button> -->
-          <input id="img_height" type="Number" step="any" min="1" class="image_size form-control" placeholder="height" v-model="viewerHeight"/>
-        </div>
-
-        <div class="input-group row mx-auto"
-          title="Controls if image settings such as windowing or zoom level are displayed.">
-          <label class="input-group-text w-50">Viewer Metadata</label>
-          <div class="form-check form-switch form-control mb-0">
-            <input class="form-check-input" type="checkbox" id="viewerHeightAuto" v-model="viewerMetainfo">
-            <label class="form-check-label" for="viewerHeightAuto">{{viewerMetainfoText}}</label>
+          <div class="input-group mx-auto" title="Controls max number of images">
+            <label for="numb_img" class="input-group-text col-7"> # Img Viewer</label>
+            <input class="form-control" type="Number" min="1" max="50" id="numb_img" v-model="viewerNumb"/>
           </div>
-        </div>
 
-        <div class="input-group mx-auto">
-          <label class="input-group-text w-50">Text Color</label>
-          <input class="form-control" type="text" id="text_color" placeholder="Text-Color (Hex or Name)" v-model="textColor" />
-        </div>
+          <div class="input-group mx-auto my-auto" title="Controls max number of images">
+            <label for="numb_img" class="input-group-text col-7">Viewers per Row</label>
+            <input type="number" min="1" max="5" class="form-control" id="numb_img_cols" v-model="viewerLayoutCols"/>
+          </div>
 
-        <div class="input-group mx-auto">
-          <label class="input-group-text w-50">BG Color</label>
-          <input class="form-control" type="text" id="background_color" placeholder="Background-Color (Hex or Name)"
-            v-model="backgroundColor" />
-        </div>
+          <!-- window size -->
+          <div class="input-group mx-auto"
+            title="Controls the size (width, height) of the screen section used for displaying images.">
+            <label class="input-group-text col-7">Set Viewer Size</label>
+            <div class="form-switch form-control mb-0">
+              <input class="form-check-input mr-2" type="checkbox" id="viewerHeightAuto" v-model="viewerHeightAuto">
+              <label class="form-check-label" for="viewerHeightAuto">{{viewerHeightAutoText}}</label>
+            </div>
+          </div>
 
-        <div class="input-group mx-auto" title="Time (sec) the screen will be blank between two image-sets.">
-          <label class="input-group-text w-50">Transition Time</label>
-          <input class="form-control" type="number" min="0" name="instructions" id="transition_time" placeholder="sec"
-            v-model="transitionTime" />
-        </div>
+          <div v-if="!viewerHeightAuto" class="input-group mx-auto"
+            title="Controls the size (width, height) of the screen section used for displaying images.">
+            <label class="input-group-text col-7">Size in px</label>
+            <input id="img_height" type="Number" step="any" min="1" class="image_size form-control" placeholder="height" v-model="viewerHeight"/>
+          </div>
 
-        <div class="row input-group mx-auto"
-          title="Controls the text of the buttons displayed beneath each image to continue to the next image-set.">
-          <label class="input-group-text w-50">Button Label</label>
-          <input class="form-control" type="text" name="buttonLabels" id="button_labels" placeholder="Btn Label" v-model="buttonLabels" />
+          <div class="input-group row mx-auto"
+            title="Controls if image settings such as windowing or zoom level are displayed.">
+            <label class="input-group-text col-7">Viewer Metadata</label>
+            <div class="form-switch form-control mb-0">
+              <input class="form-check-input mr-2" type="checkbox" id="viewerHeightAuto" v-model="viewerMetainfo">
+              <label class="form-check-label" for="viewerHeightAuto">{{viewerMetainfoText}}</label>
+            </div>
+          </div>
+
+          <div class="input-group mx-auto">
+            <label class="input-group-text col-7">Text Color</label>
+            <input class="form-control" type="text" id="text_color" placeholder="Text-Color (Hex or Name)" v-model="textColor" />
+          </div>
+
+          <div class="input-group mx-auto">
+            <label class="input-group-text col-7">BG Color</label>
+            <input class="form-control" type="text" id="background_color" placeholder="Background-Color (Hex or Name)"
+              v-model="backgroundColor" />
+          </div>
+
+          <div class="input-group mx-auto" title="Time (sec) the screen will be blank between two image-sets.">
+            <label class="input-group-text col-7">Transition Time</label>
+            <input class="form-control" type="number" min="0" name="instructions" id="transition_time" placeholder="sec"
+              v-model="transitionTime" />
+          </div>
+
+          <div class="row input-group mx-auto"
+            title="Controls the text of the buttons displayed beneath each image to continue to the next image-set.">
+            <label class="input-group-text col-7">Button Label</label>
+            <input class="form-control" type="text" name="buttonLabels" id="button_labels" placeholder="Btn Label" v-model="buttonLabels" />
+          </div>
         </div>
       </div>
     </div>
@@ -80,6 +89,12 @@
 
 <script>
 export default {
+  data () {
+    return {
+      popoverTitle: 'Section Info',
+      popoverText: 'General settings include options to control the study layout and to customize the number and size of images displayed simultaneously.'
+    }
+  },
   computed: {
     refviewerNumb: {
       get () {
@@ -124,7 +139,7 @@ export default {
     viewerHeightAutoText: {
       get () {
         if (this.$store.getters['currentStudy/viewerHeightAuto']) {
-          return 'automatically'
+          return 'auto'
         } else {
           return 'manual'
         }
@@ -151,7 +166,7 @@ export default {
         if (this.$store.getters['currentStudy/viewerMetainfo']) {
           return 'show'
         } else {
-          return 'hidden'
+          return 'hide'
         }
       }
     },
