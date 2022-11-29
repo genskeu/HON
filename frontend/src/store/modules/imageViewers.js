@@ -158,14 +158,23 @@ const getters = {
           div_id: 'dicom_img_' + index,
           name: viewer.stackDisplayed.name,
           segmentation_data: '',
-          tool_state: imageIds.map((id) => cornerstoneTools.globalImageIdSpecificToolStateManager.saveImageIdToolState(id)),
-          viewport: viewport
+          tool_state: imageIds.map(id => getImageIdToolState(id)),
+          viewport: viewport,
+          imageIds: imageIds
         }
         imgset.stacks.push(stack)
       }
     })
     return imgset
   }
+}
+
+function getImageIdToolState (id) {
+  var toolState = cornerstoneTools.globalImageIdSpecificToolStateManager.saveImageIdToolState(id)
+  if (toolState) {
+    toolState.imageId = id
+  }
+  return toolState
 }
 
 const mutations = {

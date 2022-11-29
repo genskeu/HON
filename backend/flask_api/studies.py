@@ -418,15 +418,15 @@ def upd_all_imgsets(study):
             viewport_settings_old = json.loads(stack.viewport)
             if viewport_settings["scale"]:
                 viewport_settings_old["scale"] = float(viewport_settings["scale"])
-            if viewport_settings["posX"] or viewport_settings["posX"] is 0:
+            if viewport_settings["posX"] or viewport_settings["posX"] == 0:
                 viewport_settings_old["translation"]["x"] = int(viewport_settings["posX"])
-            if viewport_settings["posY"] or viewport_settings["posY"] is 0:
+            if viewport_settings["posY"] or viewport_settings["posY"] == 0:
                 viewport_settings_old["translation"]["y"] = int(viewport_settings["posY"])
             if viewport_settings["windowWidth"]:
                 viewport_settings_old["voi"]["windowWidth"] = int(viewport_settings["windowWidth"])
             if viewport_settings["windowCenter"]:
                 viewport_settings_old["voi"]["windowCenter"] = int(viewport_settings["windowCenter"])
-            if viewport_settings["rotation"] or viewport_settings["rotation"] is 0:
+            if viewport_settings["rotation"] or viewport_settings["rotation"] == 0:
                 viewport_settings_old["rotation"] = int(viewport_settings["rotation"])
             stack.viewport = json.dumps(viewport_settings_old)
     db.session.commit()

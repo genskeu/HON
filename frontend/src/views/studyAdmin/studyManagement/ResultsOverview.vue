@@ -23,10 +23,10 @@
                         </tr>
                     </tbody>
                 </table>
-                <div class="row mb-3">
+                <div class="row">
                     <div class="col-4">
                         <button class="btn btn-success btn-block" @click="downloadResults()">
-                            <h6 class="">download results (xlsx)</h6>
+                            <h6 class="my-1">download results (xlsx)</h6>
                         </button>
                     </div>
                     <!-- <div class="col-4">

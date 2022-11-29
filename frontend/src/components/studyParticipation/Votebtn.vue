@@ -60,7 +60,7 @@ export default {
         alert('Scales empty: ' + emptyScale.name)
         return
       }
-      if (!this.checkLabeledAnnsPresent()) {
+      if (!this.checkLabeledAnnsPresent(stackPicked)) {
         return
       }
       this.$store.dispatch('currentStudy/saveResult', payload)
@@ -77,8 +77,8 @@ export default {
       })
       return toolCsNames
     },
-    numbAnnsStack (element, toolName) {
-      const imageIds = cornerstoneTools.getToolState(element, 'stack').data[0].imageIds
+    numbAnnsStack (stack, toolName) {
+      const imageIds = stack.imageIds
       const toolState = imageIds.map((id) => {
         return cornerstoneTools.globalImageIdSpecificToolStateManager.getImageIdToolState(id, toolName)
       })
@@ -88,16 +88,14 @@ export default {
       }, 0)
       return lengthToolState
     },
-    checkLabeledAnnsPresent () {
+    checkLabeledAnnsPresent (stack) {
       var allLabelsPresent = true
       this.labeledTools().forEach((labeldTool) => {
-        this.imageViewers.forEach((viewer) => {
-          const numbAnn = this.numbAnnsStack(viewer.element, labeldTool)
-          if (numbAnn === 0) {
-            alert('Missing Measurement ' + labeldTool)
-            allLabelsPresent = false
-          }
-        })
+        const numbAnn = this.numbAnnsStack(stack, labeldTool)
+        if (numbAnn === 0) {
+          alert('Missing Measurement ' + labeldTool)
+          allLabelsPresent = false
+        }
       })
       return allLabelsPresent
     }

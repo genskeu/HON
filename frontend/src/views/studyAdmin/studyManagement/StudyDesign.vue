@@ -123,6 +123,7 @@ export default {
   mounted () {
   },
   activated () {
+    this.$store.commit('currentStudy/imgsetDisplayed', undefined)
   },
   deactivated () {
   },

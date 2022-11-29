@@ -514,6 +514,7 @@ class Study_stack(db.Model):
 
     def get_images(self):
         images = [image for image in self.stack.images]
+        images.sort(key=lambda x: x.name)
         return images
 
     def save_seg_data(self,file_path):
@@ -710,11 +711,19 @@ class Output:
             # stack tools state is list of cornerstone tool states
             # each entry corresponds to an image within the stack
             # each image tool state can consist of multiple tool inputs
-            for i in range(len(result.stack_picked.get_images())):
+            stack_images = result.stack_picked.get_images()
+            for i in range(len(stack_images)):
                 tool_state = stack_tool_states[i]
                 if tool_state:
                     for tool in tool_state:
-                        col_name = "stack-user-pos-%s-%s"%(i+1,tool)
+                        if tool == 'imageId':
+                            continue
+                        col_name = tool
+                        tool_state_data = tool_state[tool]["data"]
+                        for i in range(len(tool_state_data)):
+                            tool_state_data[i]["image_name"] = stack_images[i]
+                            tool_state_data[i]["image_index"] = i
+                            tool_state_data[i]["imageId"] = tool_state['imageId']
                         # col already exists
                         if col_name in self.tool_input.keys():
                             self.tool_input[col_name].append(tool_state[tool]["data"])
@@ -737,7 +746,7 @@ class Output:
             stack_name_user = self.stack_user["stack-user"][row]
             gt_ind= int([k.split("-")[1] for k,v in self.stacks_disp.items() if v[row] == stack_name_user][0]) 
             for k_input, v_input in rois_cols_input.items():
-                roi_type = k_input.split("-")[4]
+                roi_type = k_input.split("-")[0]
                 stack_pos_input = k_input.split("-")[3]
                 col_name_gt = "stack-%s-pos-%s-%s"%(str(gt_ind),stack_pos_input,roi_type)
                 
@@ -794,11 +803,11 @@ class Output:
         # add formatting e.g. col names, col splitting ....
         self.format_tool_data(include_raw_tool_data)
 
-        if include_ov:
+        #if include_ov:
             # calc metrics (e.g. dice, iou)
-            self.calc_overlap_data()
-            for k,v in self.overlap_data.items():
-                self.df[k] = v
+            #self.calc_overlap_data()
+            #for k,v in self.overlap_data.items():
+            #    self.df[k] = v
 
         # to do, add sepecial case for max stack size = 1
         self.format_simplify()        
@@ -820,7 +829,7 @@ class Output:
     def format_roi_data(self,include_raw_tool_data):
         rois_cols = [column for column in self.df if "Roi" in column and not "dice" in column]
         for roi_col in rois_cols:
-            roi_type = roi_col.split("-")[4]
+            roi_type = roi_col.split("-")[0]
             area_col, mean_HU_col, sd_HU_col, start_col, end_col = [], [], [], [], []
             for imgset in range(self.row_numb):
                 rois = self.df[roi_col][imgset]
@@ -935,14 +944,14 @@ class Annotation:
         self.start_y = tool_state_raw["handles"]["start"]["y"]
         self.end_x = tool_state_raw["handles"]["end"]["x"]
         self.end_y = tool_state_raw["handles"]["end"]["y"]
-
+        self.image_name = os.path.basename(tool_state_raw["imageId"])
 
     def get_tool_state_string(self):
         return(json.dumps(self.annotations))
 
     def get_coords(self):
-        return (round(self.start_x,2),round(self.start_y,2)),\
-               (round(self.end_x,2),round(self.end_y,2))
+        return (round(self.start_x,2),round(self.start_y,2), self.image_name),\
+               (round(self.end_x,2),round(self.end_y,2), self.image_name)
 
 class Length(Annotation):
     def __init__(self, tool_state_raw):
