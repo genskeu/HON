@@ -1,6 +1,6 @@
 <template>
     <div class="p-0">
-        <h5 class="input-group-text scale_heading bg-gray-300">Scale {{this.scaleIndex + 1}}</h5>
+        <h5 class="input-group-text bg-gray-300 mb-0">Scale {{this.scaleIndex + 1}}</h5>
         <!-- admin view to define scale -->
         <div class="mx-auto scale_view_admin">
                 <div class="input-group mx-auto">
@@ -16,7 +16,7 @@
                         placeholder="max"  v-model="scaleMax" />
                 </div>
                 <div class="row mx-auto">
-                  <button class="input-group-text " data-bs-toggle="collapse" :data-bs-target= "'#labels_scale_' + this.scaleIndex"
+                  <button class="input-group-text text-start btn btn-light bg-gray-300" data-bs-toggle="collapse" :data-bs-target= "'#labels_scale_' + this.scaleIndex"
                           aria-expanded="true" :aria-controls="'#labels_scale_' + this.scaleIndex">
                     <div class="mr-auto">Labels</div>
                   </button>

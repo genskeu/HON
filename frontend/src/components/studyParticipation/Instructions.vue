@@ -5,7 +5,7 @@
       <!-- instructions -->
       <button class="btn-secondary btn col-12" data-bs-toggle="collapse" data-bs-target="#instructions_container"
         aria-expanded="true" aria-controls="instructions_container">
-        <h5 class="mt-1 col-12">Instructions</h5>
+        <h5 class="my-auto col-12">Instructions</h5>
       </button>
       <div id="instructions_container" class="w-100 collapse show">
         {{this.instructions}}

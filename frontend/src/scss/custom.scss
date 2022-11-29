@@ -22,7 +22,7 @@ $accordion-button-color:                  $accordion-color;
 $accordion-button-bg:                     var(--#{$prefix}accordion-bg);
 $accordion-transition:                    $btn-transition, border-radius .15s ease;
 $accordion-button-active-bg:              tint-color($component-active-bg, 90%);
-$accordion-button-active-color:           shade-color($gray-600, 10%);
+$accordion-button-active-color:           shade-color($primary, 10%);
 
 $accordion-button-focus-border-color:     $input-focus-border-color;
 $accordion-button-focus-box-shadow:       0 0 0 0;

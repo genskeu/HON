@@ -1,5 +1,5 @@
 <template >
-  <div class="h-full">
+  <div class="h-100">
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark ms-auto mb-2 mb-lg-0" id="navbar">
       <div class="container-fluid">
@@ -123,5 +123,4 @@ body {
 .accordion-header .accordion-button {
   font-size: 1.25rem;
 }
-
 </style>

@@ -1,7 +1,7 @@
 <template>
-<div id="study_overview" class="">
-  <div class="container">
-        <div class="row mx-auto mt-4" id="studies_ov">
+<div id="study_overview" class="container">
+  <div class="">
+        <div class="row mx-auto" id="studies_ov">
             <delte-modal :title="deleteTitle" :text="deleteText" id="deleteStudy" @deleteComfirmed="deleteStudy(this.deleteIdDb)"></delte-modal>
             <!-- <loadingModal id="loadingModal" ref="loadingScreen"></loadingModal> -->
             <table class="table table-hover">

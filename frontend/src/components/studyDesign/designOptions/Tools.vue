@@ -1,7 +1,7 @@
 <template>
-    <div id="tools" class="accordion">
+    <div id="tools">
     <!-- General Settings -->
-    <div class="accordion-item">
+    <div>
       <div class="row">
         <div class="col-2 my-auto mx-auto">
           <button class="btn btn-secondary btn-lg" data-bs-toggle="popover" :data-bs-title="this.popoverTitle"
@@ -25,28 +25,24 @@
           Viewer Settings Mousekeys
         </div>
         <div v-for="(label, tool) in viewerSettingToolsMousekeys" :key="tool" class="input-group text-center mx-auto">
-          <div class="input-group-prepend text-dark w-100">
-            <div class="input-group-text w-100">
-              <input type="checkbox" class="mr-3" id="" name="toolsCheck" :value="label" v-model="toolsParticipant" />
-              {{tool}}
+            <div class="form-check w-100 input-group-text mb-0">
+              <input type="checkbox" name="toolsCheck" :value="label" v-model="toolsParticipant"/>
+              <label class="ms-2 form-check-label">{{tool}}</label>
             </div>
-          </div>
         </div>
         <div class="input-group-text bg-gray-300 w-100">
           Annotations Mousekeys
         </div>
         <div v-for="(label, tool) in annotationToolsMousekeys" :key="tool" class="input-group text-center mx-auto">
-          <div class="input-group-prepend text-dark w-100">
-            <div class="input-group-text w-100">
+          <div class="form-check w-100 input-group-text mb-0">
               <input type="checkbox" class="mr-3" id="" name="toolsCheck" :value="label" v-model="toolsParticipant" />
-              {{tool}}
-              <button v-if="label.cs_name !== 'Eraser'" class="pull-right ml-auto" data-bs-toggle="collapse"
+              <label class="ms-2 form-check-label">{{tool}}</label>
+              <button v-if="label.cs_name === 'CircleRoi'" class="ms-auto btn btn-light btn-sm" data-bs-toggle="collapse"
                 :data-bs-target="'#' + label.cs_name + 'Settings'" aria-expanded="true"
                 :aria-controls="label.cs_name + 'Settings'">Settings</button>
             </div>
-          </div>
           <!-- tool setting, only implemented interface for annotaton tools -->
-          <div v-if="label.cs_name !== 'Eraser'" class="mx-auto collapse" :id="label.cs_name + 'Settings'">
+          <div v-if="label.cs_name === 'CircleRoi'" class="mx-auto collapse" :id="label.cs_name + 'Settings'">
             <div class="input-group mx-auto">
               <label class="input-group-text w-35 bg-light">Length/ Diameter</label>
               <input :value="label.settings.size" @change="(event) => updateToolSettings(event, label.cs_name, 'size')"
@@ -66,7 +62,7 @@
               <div  class="row mx-auto">
               <button class="input-group-text bg-light" data-bs-toggle="collapse" :data-bs-target="'#labels_' + label.cs_name"
                 aria-expanded="true" :aria-controls="'#labels_' + label.cs_name">
-                <h5 class="mx-auto">Annotation Names</h5>
+                <div class="mr-auto">Labels</div>
               </button>
             </div>
             <div :id="'labels_' + label.cs_name" class="collapse show">
@@ -83,22 +79,20 @@
           Segmentations Mousekeys
         </div>
         <div v-for="(label, tool) in segmentationToolsMousekeys" :key="tool" class="input-group text-center mx-auto">
-          <div class="input-group-prepend text-dark w-100">
-            <div class="input-group-text w-100">
+          <div class="form-check w-100 input-group-text mb-0">
               <input type="checkbox" class="mr-3" id="" name="toolsCheck" :value="label" v-model="toolsParticipant" />
-              {{tool}}
+              <label class="ms-2 form-check-label">{{tool}}</label>
             </div>
-          </div>
         </div>
 
         <div class="input-group-text bg-gray-300 w-100">
-          <h4 class="">Viewer Settings Mousewheel</h4>
+          Viewer Settings Mousewheel
         </div>
         <div v-for="(label, tool) in viewerToolsMousewheelSettings" :key="tool" class="input-group text-center mx-auto">
           <div class="input-group-prepend text-dark w-100">
             <div class="input-group-text w-100">
               <input type="checkbox" class="mr-3" id="" name="toolsCheck" :value="label" v-model="toolsParticipant" />
-              {{tool}}
+              <label class="ms-2 form-check-label">{{tool}}</label>
             </div>
           </div>
         </div>
@@ -113,7 +107,7 @@ export default {
   data () {
     return {
       popoverTitle: 'Section Info',
-      popoverText: 'Tools define DICOM viewer and annotation tools that are made available to participants (e.g., scrolling, windowing, rectangular, elliptical or free-hand ROIs).'
+      popoverText: 'This section controls the tools made available to study participants. They are divided into tools to adjust viewer settings (e.g. scrolling, windowing, zoom), annotation tools (length measurements and ROIs) and segmentation tools.'
     }
   },
   computed: {

@@ -1,7 +1,7 @@
 <template>
-  <div id="general_settings" class="accordion">
+  <div id="general_settings">
     <!-- General Settings -->
-    <div class="accordion-item">
+    <div>
       <div class="row">
         <div class="col-2 my-auto mx-auto">
           <button class="btn btn-secondary btn-lg" data-bs-toggle="popover" :data-bs-title="this.popoverTitle" :data-bs-content="this.popoverText" data-bs-placement="left">&#9432;
@@ -88,8 +88,6 @@
 </template>
 
 <script>
-import { Popover } from 'bootstrap'
-
 export default {
   data () {
     return {
@@ -204,11 +202,6 @@ export default {
         this.$store.commit('currentStudy/buttonLabels', value)
       }
     }
-  },
-  mounted () {
-    const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
-    const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new Popover(popoverTriggerEl))
-    console.log(popoverList)
   },
   methods: {
   }

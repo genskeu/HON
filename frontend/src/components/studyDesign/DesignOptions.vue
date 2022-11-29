@@ -1,6 +1,5 @@
 <template>
     <div class="accordion">
-
       <div class="accordion-item bg-dark">
         <div class="row">
           <div class="col-2 my-auto mx-auto">
@@ -11,7 +10,7 @@
           <div class="col-10 my-auto">
             <h1 class="accordion-header" id="design_options_title">
               <button class="primary-accordion accordion-button pr-0" type="button" data-bs-toggle="collapse" data-bs-target="#design_options_content" aria-expanded="true" aria-controls="design_options_content">
-                <strong>Design Options &#9776;</strong>
+                <strong>Design &#9776;</strong>
               </button>
             </h1>
           </div>
@@ -26,10 +25,10 @@
               </ul>
             </div> -->
         <div id="design_options_content" class="accordion-collapse show" aria-labelledby="design_options_title">
-            <GeneralSettings class="mb-1"></GeneralSettings>
-            <Instructions class="mb-1"></Instructions>
-            <Scales class="mb-1"></Scales>
-            <Tools class="mb-1"></Tools>
+            <GeneralSettings class="accordion-item"></GeneralSettings>
+            <Instructions class="accordion-item"></Instructions>
+            <Scales class="accordion-item"></Scales>
+            <Tools class="accordion-item"></Tools>
             <button @click="saveDesign" class="btn btn-lg btn-success w-100">
                 Save Design
             </button>
@@ -43,6 +42,7 @@ import GeneralSettings from '@/components/studyDesign/designOptions/GeneralSetti
 import Scales from '@/components/studyDesign/designOptions/Scales.vue'
 import Instructions from '@/components/studyDesign/designOptions/Instructions.vue'
 import Tools from '@/components/studyDesign/designOptions/Tools.vue'
+import { Popover } from 'bootstrap'
 
 export default {
   name: 'DesignOptions',
@@ -55,7 +55,7 @@ export default {
   data () {
     return {
       popoverTitle: 'Section Info',
-      popoverText: 'Click on the sections to expand the sub-menus. Study design options were divided into general settings, tools, instructions and scales. After changing any design options dont forget to press the Save Design button.'
+      popoverText: 'Study design options were divided into general settings as well as instructions, scales and tools available to users during the study. Click on the sections to expand the sub-menus.'
     }
   },
   methods: {
@@ -63,9 +63,16 @@ export default {
       const studyId = this.$route.params.id
       this.$store.dispatch('currentStudy/updateDesign', studyId)
     }
+  },
+  mounted () {
+    const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
+    Array.from(popoverTriggerList).map(popoverTriggerEl => new Popover(popoverTriggerEl))
   }
 }
 </script>
 
 <style>
+.bg-gray-300 {
+  background: #adb5bd;
+}
 </style>

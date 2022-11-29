@@ -1,7 +1,7 @@
 <template>
-  <div id="instructions" class="accordion">
+  <div id="instructions">
     <!-- General Settings -->
-    <div class="accordion-item">
+    <div>
       <div class="row">
         <div class="col-2 my-auto mx-auto">
           <button class="btn btn-secondary btn-lg" data-bs-toggle="popover" :data-bs-title="this.popoverTitle" :data-bs-content="this.popoverText" data-bs-placement="left">&#9432;
@@ -19,7 +19,7 @@
       <div id="instructions_container" class="w-100 mx-0 px-0 collapse">
         <div class="mx-auto accordion-body px-0 py-0">
           <div class="input-group" id="instructions_input_field">
-            <textarea rows="3" class="form-control" type="text" name="instructions" id="instructions"
+            <textarea rows="5" class="form-control" type="text" name="instructions" id="instructions"
               placeholder="Instructions" v-model="instructions"></textarea>
           </div>
         </div>
@@ -33,7 +33,7 @@ export default {
   data () {
     return {
       popoverTitle: 'Section Info',
-      popoverText: 'Instructions can be customized and are displayed to participants throughout studies.'
+      popoverText: 'Instructions can be customized and are displayed to participants throughout the study.'
     }
   },
   computed: {

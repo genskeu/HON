@@ -1,7 +1,7 @@
 <template>
-  <div id="scales" class="accordion">
+  <div id="scales">
     <!-- General Settings -->
-    <div class="accordion-item">
+    <div>
       <div class="row">
         <div class="col-2 my-auto mx-auto">
           <button class="btn btn-secondary btn-lg" data-bs-toggle="popover" :data-bs-title="this.popoverTitle"
@@ -44,7 +44,7 @@ export default {
   data () {
     return {
       popoverTitle: 'Section Info',
-      popoverText: 'Scales can be customized and are displayed to participants throughout studies.'
+      popoverText: 'This section allows for the creation and customization of rating scales displayed to participants. Design options include a scale text, the range of numerical values covered by the scale as well as labels for each value.'
     }
   },
   computed: {
