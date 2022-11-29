@@ -6,7 +6,7 @@
         <div class="btn btn-danger ms-auto" @click="studyLogout">Pause {{studyTitle}} (Back to Study Login)</div>
       </div>
     </div>
-    <router-view v-if="studyOpened | this.$route.name === 'StudyLogin'" v-slot="{ Component }" name="helper" id="router_helper_view">
+    <router-view class="pt-4" v-if="studyOpened | this.$route.name === 'StudyLogin'" v-slot="{ Component }" name="helper" id="router_helper_view">
       <component :is="Component" />
     </router-view>
   </div>
@@ -48,5 +48,8 @@ export default {
 <style>
 #study_participation {
   height: calc(100% - 60px);
+}
+#router_helper_view {
+  height: calc(100% - 50px);
 }
 </style>

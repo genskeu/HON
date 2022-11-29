@@ -1,5 +1,5 @@
 <template>
-  <div class="container" style="height:90%">
+  <div class="container">
     <div class="row justify-content-center align-items-center h-100">
       <form class="form-horizontal mx-auto my-auto col-3" @submit.prevent="studyLogin">
         <div class="form-group mb-1">

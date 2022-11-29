@@ -30,7 +30,8 @@
         </div>
         <!-- sidebar for design, viewport settings, scales etc (rigth) -->
         <div class="col-lg-2 overflow-auto sticky-top h-100" id="sidebar">
-          <button v-if="studyDescription" class="btn-secondary btn w-100 mb-1" data-bs-toggle="modal" data-bs-target="#studyDescription">Show Description
+          <button v-if="studyDescription" class="btn-secondary btn w-100 mb-1" data-bs-toggle="modal" data-bs-target="#studyDescription">
+            <h5 class="my-auto col-12">Show Description</h5>
           </button>
           <Instructions></Instructions>
           <Scales></Scales>

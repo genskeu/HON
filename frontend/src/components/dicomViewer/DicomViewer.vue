@@ -228,7 +228,7 @@ export default {
     loadDisplayCornerstone (stack, viewportSaved = null, toolStateSaved = null, segDataSaved = null) {
       // load images and set the stack
       this.loading = true
-      stack.imageIds.forEach((imageId) => cornerstone.loadAndCacheImage(imageId))
+      // bugs with chromium stack.imageIds.forEach((imageId) => cornerstone.loadAndCacheImage(imageId))
       cornerstone.loadAndCacheImage(stack.imageIds[0])
         .then((image) => {
           this.activeImage = image
