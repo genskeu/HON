@@ -225,7 +225,7 @@ export default {
         viewertype: this.viewerType
       })
     },
-    loadDisplayCornerstone (stack, viewportSaved = null, toolStateSaved = null, segDataSaved = null) {
+    loadDisplayCornerstone (stack, viewportSaved = null, toolStateSaved = null) {
       // load images and set the stack
       this.loading = true
       // bugs with chromium stack.imageIds.forEach((imageId) => cornerstone.loadAndCacheImage(imageId))

@@ -22,6 +22,7 @@
 <script>
 
 export default {
+  name: "UserLogin",
   data: () => ({
     user: {
       username: null,

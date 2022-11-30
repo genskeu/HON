@@ -411,8 +411,6 @@ const mutations = {
   imgsetDisplayed (state, imgset) {
     state.imgsetDisplayed = imgset
   },
-  updateImgsets (state, viewport) {
-  },
   deleteAllImgsets (state) {
     state.imageSets = []
     state.imgsetDisplayed = undefined
@@ -542,6 +540,7 @@ const actions = {
         store.commit('loadingState/errorOccured', { errorData: response })
       })
   },
+  /* eslint-disable */
   updateStudyMetainfos ({ commit }, { studyId, data }) {
     store.commit('loadingState/startLoading', { title: 'Saving updated Metainfos' })
     updateStudy(studyId, data)
@@ -552,6 +551,7 @@ const actions = {
         store.commit('loadingState/errorOccured', { errorData: response })
       })
   },
+  /* eslint-enable */
   // imgsets
   addImgset ({ commit }, payload) {
     store.commit('loadingState/startLoading', { title: 'Creating Imageset' })
@@ -580,7 +580,7 @@ const actions = {
   delImgset ({ commit }, payload) {
     store.commit('loadingState/startLoading', { title: 'Deleting Imageset' })
     deleteImgset(payload.studyId, payload.imgset.position)
-      .then(response => {
+      .then(() => {
         commit('delImgset', payload.imgset)
         commit('imgsetDisplayed', null)
         store.commit('loadingState/finishLoading')
@@ -612,7 +612,7 @@ const actions = {
           div_id: 'dicom_img_' + i,
           name: state.stacks[stackIndex].name,
           segmentation_data: '',
-          tool_state: imageIds.map((id) => null),
+          tool_state: imageIds.map(() => null),
           viewport: viewport
         }
         imgset.stacks.push(stack)
@@ -649,7 +649,7 @@ const actions = {
   deleteAllImgsets ({ commit }, studyId) {
     store.commit('loadingState/startLoading', { title: 'Deleting all Image-Sets' })
     deleteImgsets(studyId)
-      .then(response => {
+      .then(() => {
         commit('deleteAllImgsets')
         store.commit('loadingState/finishLoading')
       })

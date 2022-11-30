@@ -104,6 +104,7 @@
 
 <script>
 export default {
+  name: 'ToolsDesign',
   data () {
     return {
       popoverTitle: 'Section Info',
