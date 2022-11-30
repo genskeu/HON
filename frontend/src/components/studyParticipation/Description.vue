@@ -20,6 +20,7 @@
 import { Modal } from 'bootstrap'
 
 export default {
+  name: 'DescriptionParticipation',
   data () {
     return {
       btnText: 'Start Study'

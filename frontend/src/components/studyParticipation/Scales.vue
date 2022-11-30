@@ -19,6 +19,7 @@
 import Scale from '@/components/studyParticipation/Scale.vue'
 
 export default {
+  name: 'ScalesParticipation',
   components: {
     Scale
   },

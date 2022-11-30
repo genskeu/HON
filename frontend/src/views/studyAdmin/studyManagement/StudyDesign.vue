@@ -61,7 +61,7 @@ import DesignOptions from '@/components/studyDesign/DesignOptions.vue'
 import ImgsetDesign from '@/components/studyDesign/ImgsetDesign.vue'
 
 export default {
-  name: 'Design',
+  name: 'StudyDesign',
   components: {
     DicomViewer,
     DicomViewerTools,

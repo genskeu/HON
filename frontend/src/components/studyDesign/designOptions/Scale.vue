@@ -44,6 +44,7 @@
 
 <script>
 export default {
+  name: 'ScaleDesign',
   props: {
     scaleIndex: Number
   },

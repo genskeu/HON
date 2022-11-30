@@ -24,7 +24,6 @@ const actions = {
             router.push('/study-management/study-overview')
           } else if (response.data.role === 'user_admin') {
             router.push('/user-overview')
-          } else {
           }
         }
       }).catch(error => {
@@ -33,7 +32,7 @@ const actions = {
   },
   logout ({ commit, dispatch }) {
     authService.logout()
-      .then(response => {
+      .then(() => {
         dispatch('currentStudy/closeStudy', null, { root: true })
         dispatch('imageViewers/reset', null, { root: true })
         dispatch('studies/reset', null, { root: true })
@@ -45,7 +44,7 @@ const actions = {
   },
   register ({ commit }, user) {
     authService.register(user)
-      .then(response => {
+      .then(() => {
         commit('registerSuccess')
         router.push('/login')
       })

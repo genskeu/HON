@@ -140,7 +140,7 @@ const router = createRouter({
 })
 
 // check usertype and redirect accordingly
-router.beforeEach(async (to, from) => {
+router.beforeEach(async (to) => {
   if (to.path === '/') {
     if (!store.state.auth.user) {
       router.push('/login')
@@ -150,13 +150,12 @@ router.beforeEach(async (to, from) => {
       router.push('/study-management/study-overview')
     } else if (store.state.auth.user.role === 'user_admin') {
       router.push('/user-overview')
-    } else {
     }
   }
 })
 
 // prevent double login
-router.beforeEach(async (to, from) => {
+router.beforeEach(async (to) => {
   if (to.name === 'Login' && store.state.auth.user) {
     if (store.state.auth.user.role === 'study_participant') {
       router.push('/study/login')
@@ -164,13 +163,12 @@ router.beforeEach(async (to, from) => {
       router.push('/study-management/study-overview')
     } else if (store.state.auth.user.role === 'user_admin') {
       router.push('/user-overview')
-    } else {
     }
   }
 })
 
 // prevent double login study
-router.beforeEach(async (to, from) => {
+router.beforeEach(async (to) => {
   if (to.name === 'StudyLogin' && store.state.auth.user && store.state.currentStudy.title !== String) {
     if (store.state.auth.user.role === 'study_participant') {
       router.push('/study/' + store.state.currentStudy.id + '/participation')
@@ -179,6 +177,7 @@ router.beforeEach(async (to, from) => {
 })
 
 // protect routes for logged in users
+/* eslint-disable */
 router.beforeEach((to, from, next) => {
   if (to.meta.requireAuth) {
     if (!localStorage.getItem('user')) {
@@ -190,6 +189,7 @@ router.beforeEach((to, from, next) => {
     next()
   }
 })
+/* eslint-enable */
 
 // protect routes for user types
 router.beforeEach((to, from, next) => {

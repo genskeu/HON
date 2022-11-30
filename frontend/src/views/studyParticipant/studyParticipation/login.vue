@@ -28,6 +28,7 @@
 
 <script>
 export default {
+  name: 'StudyLogin',
   data: () => ({
     studyId: null,
     studyPassword: null

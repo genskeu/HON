@@ -51,7 +51,7 @@ import Votebtn from '@/components/studyParticipation/Votebtn.vue'
 import Description from '@/components/studyParticipation/Description.vue'
 
 export default {
-  name: 'participation',
+  name: 'participationView',
   components: {
     DicomViewer,
     DicomViewerTools,

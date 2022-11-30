@@ -22,6 +22,7 @@
 <script>
 
 export default {
+  name: "UserRegister",
   data: () => ({
     user: {
       username: null,
