@@ -1,0 +1,42 @@
+#Base image
+FROM node:lts-alpine
+LABEL maintainer "Ulrich Genske"
+
+# Set the working directory
+WORKDIR /home/frontend
+
+# Copy the package.json and package-lock.json
+COPY package*.json ./
+COPY postcss.config.js ./
+COPY tailwind.config.js ./
+COPY vue.config.js ./
+
+# install project dependencies
+RUN npm i -g npm@8.5.1
+RUN npm install
+RUN npm remove @vue/cli-plugin-eslint
+
+# install ngnix
+RUN apk --no-cache update \
+&& apk --no-cache upgrade \
+&& apk --no-cache add nginx
+
+# copy ngnix config
+COPY docker/nginx.conf /etc/nginx/nginx.conf
+# test ngnix config, returns error during build but not on up => deactivated for now
+# RUN nginx -t
+
+# Copy the code
+COPY src /home/frontend/src
+COPY public /home/frontend/public
+
+# build project
+RUN npm run build
+
+RUN rm -r /home/frontend/src
+RUN rm -r /home/frontend/public
+
+# start server
+COPY docker/entrypoint_prod.sh /entry.sh
+RUN ["chmod","+x","/entry.sh"]
+CMD /entry.sh

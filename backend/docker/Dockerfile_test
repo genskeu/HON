@@ -1,0 +1,36 @@
+FROM alpine:3.14
+LABEL maintainer "Ulrich Genske <uli.genske@gmail.com>"
+WORKDIR /home/backend
+RUN mkdir /home/backend/instance
+
+# install python req
+RUN  apk --no-cache update \
+  && apk --no-cache upgrade \
+  && apk --no-cache add py3-pip tzdata py3-wheel inotify-tools python3-dev gcc g++ geos-dev mariadb-dev musl-dev py3-pandas
+COPY requirements.txt /home/backend
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir -r requirements.txt
+
+# set time
+RUN cp /usr/share/zoneinfo/Europe/Berlin /etc/localtime \
+ && echo "Europe/Berlin" > /etc/timezone
+
+# copy config
+COPY config.py /home/backend/config.py
+COPY wsgi.py /home/backend/wsgi.py
+
+# install gunicorn 
+RUN  apk --no-cache update \
+  && apk --no-cache upgrade \
+  && apk --no-cache add py3-gunicorn
+
+# setup gunicorn 
+COPY wsgi.py /home/backend/wsgi.py
+
+# copy flask app code
+COPY flask_api /home/backend/flask_api
+
+# start prod server
+COPY docker/entrypoint_test.sh /entry.sh
+RUN ["chmod","+x","/entry.sh"]
+CMD /entry.sh

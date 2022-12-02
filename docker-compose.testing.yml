@@ -1,0 +1,48 @@
+version: '3.9'
+name: 'hon_testing'
+
+services:
+  backend:
+    container_name: hon_flask_api_testing
+    image: hon_flask_api_testing
+    build:
+      context: ./backend
+      dockerfile: ./docker/Dockerfile_test
+    environment:
+      - FLASK_APP=flask_api
+      - FLASK_ENV=testing
+      - FLASK_DEBUG=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+    # only needed if mysql db runs outisde of docker container on host machine
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports:
+      # debug port vscode
+      - 5678:5678
+    volumes:
+      - './logs/test/gunicorn:/var/log/gunicorn'
+      - './instance:/home/backend/instance'
+    stdin_open: true
+    tty: true
+  frontend:
+    container_name: hon_vue_testing
+    image: hon_vue_testing
+    build:
+      context: ./frontend
+      dockerfile: ./docker/Dockerfile_test
+    ports:
+      - 80:80
+    volumes:
+      - './logs/test/nginx:/var/log/nginx'
+  cypress:
+    image: "cypress/included:4.4.0"
+    depends_on:
+      - frontend
+      - backend
+    environment:
+      - CYPRESS_baseUrl=http://frontend:80
+    working_dir: /e2e
+    volumes:
+      - ./e2e-testing:/e2e
+

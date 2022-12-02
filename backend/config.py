@@ -24,6 +24,6 @@ class ProductionConfig(Config):
 class TestingConfig(Config):
     SECRET_KEY = "test-key"
     IMAGE_PATH = "/home/backend/instance/images_test"
-    SQLALCHEMY_DATABASE_URI = "sqlite://////home/HON/instance/test.db"
+    SQLALCHEMY_DATABASE_URI = "sqlite://////home/backend/instance/test.db"
     TESTING = True
 

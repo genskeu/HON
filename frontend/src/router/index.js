@@ -149,7 +149,7 @@ router.beforeEach(async (to, from) => {
     } else if (store.state.auth.user.role === 'study_admin') {
       router.push('/study-management/study-overview')
     } else if (store.state.auth.user.role === 'user_admin') {
-      router.push('/user-overview')
+      router.push('/user-management/user-overview')
     } else {
     }
   }
@@ -163,7 +163,7 @@ router.beforeEach(async (to, from) => {
     } else if (store.state.auth.user.role === 'study_admin') {
       router.push('/study-management/study-overview')
     } else if (store.state.auth.user.role === 'user_admin') {
-      router.push('/user-overview')
+      router.push('/user-management/user-overview')
     } else {
     }
   }

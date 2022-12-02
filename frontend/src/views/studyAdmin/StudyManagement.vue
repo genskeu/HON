@@ -11,7 +11,7 @@
           <router-link :to="{ name: 'StudyResults', params: { id: studyId }}" class="nav-link">Results</router-link>
         </div>
           <div class="container mx-auto" v-else id="">
-        <router-link to="#" @click.prevent="createStudy" class="btn btn-succcess">Create New Study
+        <router-link id="create-study" to="#" @click.prevent="createStudy" class="btn btn-succcess">Create New Study
         </router-link>
       </div>
     </div>

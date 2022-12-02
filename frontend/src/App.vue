@@ -11,31 +11,31 @@
         <div class="collapse navbar-collapse text-right ms-auto bg-dark" id="navbarResponsive">
           <ul class="navbar-nav ms-auto" id="navlinks">
             <li v-if="isUserAdmin" class="nav-item">
-              <router-link to="/user-management/user-overview" class="nav-link">Users Overview</router-link>
+              <router-link to="/user-management/user-overview" id="user-overview" class="nav-link">Users Overview</router-link>
             </li>
             <li v-if="isStudyAdmin & !studyOpened" class="nav-item">
-              <router-link to="/study-management/study-overview" class="nav-link">Studies Overview</router-link>
+              <router-link to="/study-management/study-overview" id="study-overview" class="nav-link">Studies Overview</router-link>
             </li>
             <li v-if="isStudyAdmin & studyOpened" class="nav-item">
-              <router-link to="/study-management/" class="nav-link">Studies Management</router-link>
+              <router-link to="/study-management/" id="study-management" class="nav-link">Studies Management</router-link>
             </li>
             <li v-if="isStudyParticipant & !studyOpened" class="nav-item">
-              <router-link to="/study/login" class="nav-link">Study Login</router-link>
+              <router-link to="/study/login" id="study-login" class="nav-link">Study Login</router-link>
             </li>
             <!-- <li v-if="loggedIn" class="nav-item">
               <router-link to="/user-profile/1" class="nav-link">User Profile</router-link>
             </li> -->
             <li v-if="isStudyAdmin" class="nav-item">
-              <router-link to="/tutorials" class="nav-link">Tutorials</router-link>
+              <router-link to="/tutorials" class="nav-link" id="tutorials">Tutorials</router-link>
             </li>
             <li v-if="loggedIn" @click="handleLogout" class="nav-item">
-              <a class="btn nav-link">Logout</a>
+              <a class="btn nav-link" id="logout">Logout</a>
             </li>
             <li v-if="!loggedIn" class="nav-item">
-              <router-link to="/login" class="nav-link">Login</router-link>
+              <router-link to="/login" class="nav-link" id="login">Login</router-link>
             </li>
             <li v-if="!loggedIn" class="nav-item">
-              <router-link to="/register" class="nav-link">Register</router-link>
+              <router-link to="/register" class="nav-link" id="register">Register</router-link>
             </li>
           </ul>
         </div>

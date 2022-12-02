@@ -5,6 +5,8 @@
 /instance
 .env
 *.log
+*logs
+*app
 /images
 */static/dependencies*
 
