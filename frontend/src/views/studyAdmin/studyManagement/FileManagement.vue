@@ -7,7 +7,7 @@
                     <div id="loader_anim_del" class=""></div>
                     <div id="loader_text_del" class="mt-3" style="display: none;">Please wait</div>
                 </div>
-                <div class="w-100 mb-4" style="height:90%">
+                <div class="w-100 mb-4" style="height:80%">
                     <div class= "overflow-auto" style="height:100%">
                         <table class="table table-hover text-middle">
                             <thead class="thead sticky-top bg-white">
@@ -55,7 +55,7 @@
                 </div>
                 <div class="row mx-auto justify-content-end">
                     <button @click="deleteSelectedFiles()" class="btn-danger btn col-2 mr-1" :disabled="filesToDelete.length === 0">Delete Selected Files</button>
-                    <button class="btn-success btn btn-block col-2" data-bs-toggle="modal" data-bs-target="#uploadModal">Upload Files</button>
+                    <button id="upload-modal" class="btn-success btn btn-block col-2" data-bs-toggle="modal" data-bs-target="#uploadModal">Upload Files</button>
                 </div>
             </div>
         </div>

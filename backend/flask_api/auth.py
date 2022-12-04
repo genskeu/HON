@@ -99,7 +99,7 @@ def access_level_required(access_level):
             claims = get_jwt()
             user_access_level = claims["role"]
             if user_access_level not in access_level:
-                return jsonify(error_msg="User rights insufficient."), 401
+                return jsonify({'error_msg':"User rights insufficient."}), 401
             else:
                 return view(**kwargs)
         return wrapped_view
@@ -122,7 +122,7 @@ def study_owner_required():
             del kwargs["study_id"]
             kwargs["study"] = study
             if study is None:
-                return jsonify(error_msg="User rights insufficient. You are not the study creater."), 401
+                return jsonify({'error_msg':"User rights insufficient. You are not the study creater."}), 401
             else:
                 return view(**kwargs)
         return wrapped_view

@@ -4,11 +4,11 @@
     <div id="nav" class="navbar bg-dark p-0 pb-2" style="height: 50px;">
       <div class="container mx-auto" v-if="studyOpened">
           <a @click="closeStudy" class="btn router-link">&times; Close {{studyTitle}}</a>
-          <router-link :to="{ name: 'StudyMetainfos', params: { id: studyId }}" class="nav-link">Metainfos</router-link>
-          <router-link :to="{ name: 'StudyFiles', params: { id: studyId }}" class="nav-link">Files</router-link>
-          <router-link :to="{ name: 'StudyDesign', params: { id: studyId }}" class="nav-link">Design</router-link>
-          <router-link :to="{ name: 'StudyParticipationPreview', params: { id: studyId }}" class="nav-link">Participant Preview</router-link>
-          <router-link :to="{ name: 'StudyResults', params: { id: studyId }}" class="nav-link">Results</router-link>
+          <router-link id="metainfos" :to="{ name: 'StudyMetainfos', params: { id: studyId }}" class="nav-link">Metainfos</router-link>
+          <router-link id="fileupload" :to="{ name: 'StudyFiles', params: { id: studyId }}" class="nav-link">Files</router-link>
+          <router-link id="design" :to="{ name: 'StudyDesign', params: { id: studyId }}" class="nav-link">Design</router-link>
+          <router-link id="preview" :to="{ name: 'StudyParticipationPreview', params: { id: studyId }}" class="nav-link">Participant Preview</router-link>
+          <router-link id="results" :to="{ name: 'StudyResults', params: { id: studyId }}" class="nav-link">Results</router-link>
         </div>
           <div class="container mx-auto" v-else id="">
         <router-link id="create-study" to="#" @click.prevent="createStudy" class="btn btn-succcess">Create New Study

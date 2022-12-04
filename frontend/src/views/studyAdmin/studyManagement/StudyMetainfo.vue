@@ -1,6 +1,6 @@
 <template>
   <div class="container d-flex">
-    <div class="form-horizontal w-100" id="study_metadata">
+    <div class="form-horizontal w-100 h-100" id="study_metadata">
       <div class="mx-auto">
         <div class="input-group">
           <label class="input-group-text tw-w-40" for="title">Title</label>
@@ -21,11 +21,11 @@ at the beginning of the study and should include
 basic information about the study
 e.g. how many images have to be evaluated.">
           <label class="input-group-text tw-w-40">Study Description</label>
-          <textarea v-model="studyDesc" class="form-control" name="description" id="description" rows="25"></textarea>
+          <textarea v-model="studyDesc" class="form-control" name="description" id="description"></textarea>
         </div>
       </div>
       <div class="row mx-auto mt-1">
-        <button class="btn btn-lg btn-success" @click="saveMetaInfos">Save Metainfos</button>
+        <button id="save-meta" class="btn btn-lg btn-success" @click="saveMetaInfos">Save Metainfos</button>
       </div>
     </div>
   </div>
@@ -77,3 +77,9 @@ export default {
   }
 }
 </script>
+
+<style>
+#description {
+  height: calc(100vh - 320px);
+}
+</style>
