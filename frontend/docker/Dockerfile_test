@@ -14,7 +14,6 @@ COPY vue.config.js ./
 # install project dependencies
 RUN npm i -g npm@8.5.1
 RUN npm install
-RUN npm remove @vue/cli-plugin-eslint
 
 # install ngnix
 RUN apk --no-cache update \

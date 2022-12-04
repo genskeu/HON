@@ -12,7 +12,7 @@
     "autoprefixer": "^10",
     "axios": "^0.27.2",
     "bootstrap": "^5.2",
-    "core-js": "^3.6.5",
+    "core-js": "^3.8.3",
     "cornerstone": "^0.1.1",
     "cornerstone-core": "^2.6.1",
     "cornerstone-math": "^0.1.10",
@@ -29,7 +29,7 @@
   "devDependencies": {
     "@babel/core": "^7.12.16",
     "@babel/eslint-parser": "^7.12.16",
-    "@vue/cli-plugin-babel": "~5.0.4",
+    "@vue/cli-plugin-babel": "~5.0.0",
     "@vue/cli-plugin-eslint": "~5.0.0",
     "@vue/cli-plugin-router": "~5.0.4",
     "@vue/cli-plugin-vuex": "~5.0.4",
@@ -48,7 +48,6 @@
     },
     "extends": [
       "plugin:vue/vue3-essential",
-      "@vue/standard",
       "eslint:recommended"
     ],
     "rules": {},

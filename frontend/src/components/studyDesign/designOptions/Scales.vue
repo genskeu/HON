@@ -38,6 +38,7 @@
 import ScaleAdminView from '@/components/studyDesign/designOptions/Scale.vue'
 
 export default {
+  name: 'SaclesDesign',
   components: {
     ScaleAdminView
   },

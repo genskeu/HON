@@ -10,6 +10,7 @@
 import cornerstoneTools from 'cornerstone-tools'
 
 export default {
+  name: 'VoteBtn',
   props: {
     viewerIndex: Number
   },

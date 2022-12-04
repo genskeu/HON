@@ -22,6 +22,7 @@
 
 <script>
 export default {
+  name: 'ScaleParticipation',
   props: {
     scaleIndex: Number
   },

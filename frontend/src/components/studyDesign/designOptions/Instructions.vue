@@ -30,6 +30,7 @@
 
 <script>
 export default {
+  name: 'InstructionsDesign',
   data () {
     return {
       popoverTitle: 'Section Info',

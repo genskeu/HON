@@ -12,5 +12,7 @@ module.exports = {
         }
       }
     }
-  }
+  },
+
+  transpileDependencies: true
 }
