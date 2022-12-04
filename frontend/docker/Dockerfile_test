@@ -10,6 +10,7 @@ COPY package*.json ./
 COPY postcss.config.js ./
 COPY tailwind.config.js ./
 COPY vue.config.js ./
+COPY babel.config.js ./
 
 # install project dependencies
 RUN npm i -g npm@8.5.1

@@ -1,104 +1,109 @@
 <template>
-    <div class="modal fade" tabindex="-1" data-bs-backdrop="static">
-        <div class="modal-dialog modal-dialog-centered modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <div class="modal-title h4">File Upload</div>
-                    <button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="row mx-auto">
-                  <ul class="text-left">
-                        <!-- <li>images can be uploaded as .zip files</li> -->
-                        <li>Supported file formats: dicom, jpeg, png.</li>
-                        <li>Don't upload more than 10000 files in one upload.</li>
-                        <li>Use the Select Files button to upload multiple files. Each file will be treated as a stack. The stackname will equal the filename without the ending.</li>
-                        <li>Use the Select Folder button to upload a folder containing multiple files. The files will be combined into a stack. The stack name will equal the foldername. To upload multiple folders/stacks select a folder containing subdirectories.</li>
-                </ul>
-              </div>
-                <div class="modal-body overflow-auto" style="height:62vh;">
-                    <table class="table table-hover">
-                        <thead class="thead-light">
-                            <tr>
-                                <th colspan="1">Stackname</th>
-                                <th colspan="1">Slizes</th>
-                                <th colspan="1">Size (Mb)</th>
-                                <th colspan="1">Upload Progress %</th>
-                                <th colspan="1">Status</th>
-                                <th colspan="1"></th>
-                                <th colspan="1"></th>
-                            </tr>
+  <div class="modal fade h-100" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered modal-xl" style="height: 90%;">
+      <div class="modal-content h-100">
+        <div class="modal-header">
+          <div class="modal-title h4">File Upload</div>
+          <button id="close-upload" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+          <ul class="text-start list-group">
+            <!-- <li>images can be uploaded as .zip files</li> -->
+            <li class="list-group-item">Supported file formats: dicom, jpeg, png.</li>
+            <li class="list-group-item">Don't upload more than 10000 files in one upload.</li>
+            <li class="list-group-item">Use the Select Files button to upload multiple files. Each file will be treated as a stack. The
+              stackname will equal the filename without the ending.</li>
+            <li class="list-group-item">Use the Select Folder button to upload a folder containing multiple files. The files will be combined
+              into a stack. The stack name will equal the foldername. To upload multiple folders/stacks select a folder
+              containing subdirectories.</li>
+          </ul>
+        <div class="modal-body overflow-auto" style="height:60%;">
+          <table class="table table-hover">
+            <thead class="thead-light">
+              <tr>
+                <th colspan="1">Stackname</th>
+                <th colspan="1">Slizes</th>
+                <th colspan="1">Size (Mb)</th>
+                <th colspan="1">Upload Progress %</th>
+                <th colspan="1">Status</th>
+                <th colspan="1"></th>
+                <th colspan="1"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <template v-for="folder in fileFolders" :key="folder.foldername">
+                <tr>
+                  <td colspan="1" class="align-middle">{{ folder.foldername }}</td>
+                  <td colspan="1" class="align-middle">{{ folder.slices }}</td>
+                  <td colspan="1" class="align-middle">{{ Number(folder.size / (1024 * 1024)).toFixed(2) }}</td>
+                  <td colspan="1" class="align-middle">{{ folder.progress.toFixed(2) }}</td>
+                  <td colspan="1" class="align-middle">{{ folder.status }}</td>
+                  <td colspan="1" class="align-middle" data-bs-toggle="collapse"
+                    :data-bs-target="'#A' + folder.foldername"><button class="btn btn-primary">show files</button></td>
+                  <!-- <td colspan="1" class="align-middle"><button class="btn btn-danger">remove</button></td> -->
+                </tr>
+                <tr class="collapse" :id="'A' + folder.foldername">
+                  <td colspan="7">
+                    <div class="overflow-auto" style="max-height:200px;">
+                      <table class="table table-secondary table-borderless">
+                        <thead class="">
+                          <tr colspan="6">
+                            <th colspan="2">Filename</th>
+                            <th colspan="1">Size (Kb)</th>
+                            <th colspan="1">Upload Progress %</th>
+                            <th colspan="1">Status</th>
+                            <th colspan="1"></th>
+                          </tr>
                         </thead>
                         <tbody>
-                            <template v-for="folder in fileFolders" :key="folder.foldername">
-                                <tr>
-                                    <td colspan="1" class="align-middle">{{folder.foldername}}</td>
-                                    <td colspan="1" class="align-middle">{{folder.slices}}</td>
-                                    <td colspan="1" class="align-middle">{{Number(folder.size/(1024*1024)).toFixed(2) }}</td>
-                                    <td colspan="1" class="align-middle">{{folder.progress.toFixed(2)}}</td>
-                                    <td colspan="1" class="align-middle">{{folder.status}}</td>
-                                    <td colspan="1" class="align-middle" data-bs-toggle="collapse" :data-bs-target="'#A' + folder.foldername"><button class="btn btn-primary">show files</button></td>
-                                    <!-- <td colspan="1" class="align-middle"><button class="btn btn-danger">remove</button></td> -->
-                                </tr>
-                                <tr class="collapse" :id="'A' + folder.foldername">
-                                    <td colspan="7">
-                                      <div class="overflow-auto" style="max-height:200px;">
-                                        <table class="table table-secondary table-borderless">
-                                            <thead class="">
-                                                <tr colspan="6">
-                                                    <th colspan="2">Filename</th>
-                                                    <th colspan="1">Size (Kb)</th>
-                                                    <th colspan="1">Upload Progress %</th>
-                                                    <th colspan="1">Status</th>
-                                                    <th colspan="1"></th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr v-for="file in folder.files" :key="file.name"  >
-                                                    <td colspan="2" class="align-middle">{{file.name}}</td>
-                                                    <td colspan="1" class="align-middle">{{Number(file.size/1024).toFixed(2)}}</td>
-                                                    <td colspan="1" class="align-middle">{{file.progress.toFixed(2)}}</td>
-                                                    <td colspan="1" class="align-middle">{{file.status}}</td>
-                                                    <td colspan="1" class="align-middle"></td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                      </div>
-
-                                    </td>
-                                </tr>
-                            </template>
+                          <tr v-for="file in folder.files" :key="file.name">
+                            <td colspan="2" class="align-middle">{{ file.name }}</td>
+                            <td colspan="1" class="align-middle">{{ Number(file.size / 1024).toFixed(2) }}</td>
+                            <td colspan="1" class="align-middle">{{ file.progress.toFixed(2) }}</td>
+                            <td colspan="1" class="align-middle">{{ file.status }}</td>
+                            <td colspan="1" class="align-middle"></td>
+                          </tr>
                         </tbody>
-                    </table>
+                      </table>
+                    </div>
 
-                </div>
-                <div class="modal-footer">
-                    <div class="mx-auto w-100">
-                        <div class="progress w-100">
-                            <div id="progressbar" class="progress-bar" role="progressbar" aria-valuemin="0"
-                                aria-valuemax="100" :style="{width: uploadProgressOverall() + '%',
-                                                             color: 'black'}">
-                                {{uploadProgressOverall() + "%"}}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="example-btn">
-                        <label class="btn btn-primary ml-auto">Select Files
-                          <input @change="addFolder" type="file" name="file" class="d-none" id="file" multiple/>
-                        </label>
-                        <label class="btn btn-primary ml-1">Select Folder
-                          <input @change="addFolder" type="file" name="folder" class="d-none" id="folder" ref="folder" webkitdirectory multiple/>
-                        </label>
-                        <button v-if="uploadPaused" @click.prevent="this.startUpload" class="btn btn-success ml-1">
-                            Start Upload (files left {{this.fileNumber()}})
-                        </button>
-                        <button class="btn btn-danger ml-1" v-else @click.prevent="this.uploadPaused = true">
-                            Stop Upload (files left {{this.fileNumber()}})
-                        </button>
-                    </div>
-                </div>
-            </div>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+
         </div>
+        <div class="modal-footer">
+          <div class="mx-auto w-100">
+            <div class="progress w-100">
+              <div id="progressbar" class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"
+                :style="{
+                  width: uploadProgressOverall() + '%',
+                  color: 'black'
+                }">
+                {{ uploadProgressOverall() + "%" }}
+              </div>
+            </div>
+          </div>
+          <div class="example-btn">
+            <label class="btn btn-primary ml-auto">Select Files
+              <input id="file-select" @change="addFolder" type="file" name="file" class="d-none" multiple />
+            </label>
+            <label class="btn btn-primary ml-4">Select Folder
+              <input id="folder-select" @change="addFolder" type="file" name="folder" class="d-none" ref="folder"
+                webkitdirectory multiple />
+            </label>
+            <button v-if="uploadPaused" @click.prevent="this.startUpload" id="start-upload" class="btn btn-success ml-1">
+              Start Upload (files left {{ this.fileNumber() }})
+            </button>
+            <button class="btn btn-danger ml-1" v-else @click.prevent="this.uploadPaused = true">
+              Stop Upload (files left {{ this.fileNumber() }})
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </template>
 
 <script>

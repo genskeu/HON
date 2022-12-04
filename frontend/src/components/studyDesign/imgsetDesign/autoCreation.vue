@@ -10,7 +10,7 @@
 
       <div class="col-10">
         <h2 class="accordion-header">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+          <button id="acc-btn-auto-imgsets" class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
             data-bs-target="#images_create_auto" aria-expanded="true" aria-controls="images_create_auto">
             Auto-Creation
           </button>

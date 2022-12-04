@@ -11,7 +11,7 @@
 
         <div class="col-10">
           <h2 class="accordion-header">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+            <button id="acc-scales-design" class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
               data-bs-target="#scales_container" aria-expanded="true" aria-controls="scales_container">
               Scale(s)
             </button>

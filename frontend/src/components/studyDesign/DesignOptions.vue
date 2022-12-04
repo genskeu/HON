@@ -29,7 +29,7 @@
             <Instructions class="accordion-item"></Instructions>
             <Scales class="accordion-item"></Scales>
             <Tools class="accordion-item"></Tools>
-            <button @click="saveDesign" class="btn btn-lg btn-success w-100">
+            <button id="save-design" @click="saveDesign" class="btn btn-lg btn-success w-100">
                 Save Design
             </button>
         </div>

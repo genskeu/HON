@@ -1,0 +1,2 @@
+describe('Test study participation', () => {
+})

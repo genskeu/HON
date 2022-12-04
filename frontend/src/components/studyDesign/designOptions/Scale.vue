@@ -5,7 +5,7 @@
         <div class="mx-auto scale_view_admin">
                 <div class="input-group mx-auto">
                     <label class="input-group-text w-25">Text</label>
-                    <textarea class="form-control scale_text_input" v-model="scaleText" rows="3"></textarea>
+                    <textarea :id="'scaleText' + this.scaleIndex" class="form-control scale_text_input" v-model="scaleText" rows="3"></textarea>
                 </div>
                 <div class="input-group mx-auto">
                     <label class="input-group-text w-25">Start</label>

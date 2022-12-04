@@ -1,5 +1,6 @@
 {
     "pluginsFile": false,
-    "browser": "FireFox",
-    "supportFile": "cypress/support/saveLocalStorage.js"
+    "supportFile": "cypress/support/saveLocalStorage.js",
+    "viewportWidth": 1920,
+    "viewportHeight": 1200
 }

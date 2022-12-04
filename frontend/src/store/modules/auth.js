@@ -24,7 +24,6 @@ const actions = {
             router.push('/study-management/study-overview')
           } else if (response.data.role === 'user_admin') {
             router.push('/user-management/user-overview')
-          } else {
           }
         }
       }).catch(error => {

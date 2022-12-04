@@ -150,7 +150,6 @@ router.beforeEach(async (to) => {
       router.push('/study-management/study-overview')
     } else if (store.state.auth.user.role === 'user_admin') {
       router.push('/user-management/user-overview')
-    } else {
     }
   }
 })

@@ -516,18 +516,18 @@ const actions = {
     createStudy()
       .then(response => {
         const study = response.data.study
-        commit('openStudy', study)
         store.commit('studies/addStudy', study)
         store.commit('loadingState/finishLoading')
         const route = '/study-management/' + study.id + '/metainfos'
         setTimeout(function () {
-          router.push(route)
+          router.push(route).then(() => {
+            commit('openStudy', study)
+          })
         }, 500)
       })
       .catch(response => {
         store.commit('loadingState/errorOccured', { errorData: response })
       })
-      .finally(() => {})
   },
   deleteSelectedFiles ({ commit }, payload) {
     store.commit('loadingState/startLoading', { title: 'Deleting Files' })

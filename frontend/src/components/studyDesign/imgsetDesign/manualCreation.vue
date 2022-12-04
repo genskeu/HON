@@ -9,7 +9,7 @@
 
             <div class="col-10">
                 <h2 class="accordion-header" id="general_settings_title">
-                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                    <button id="acc-btn-man-imgsets" class="accordion-button" type="button" data-bs-toggle="collapse"
                         data-bs-target="#images_create_man" aria-expanded="true" aria-controls="images_create_man">
                         Manual-Creation
                     </button>

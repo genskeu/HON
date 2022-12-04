@@ -8,7 +8,7 @@
                     <div id="loader_text_del" class="mt-3" style="display: none;">Please wait</div>
                 </div>
                 <div class="w-100 mb-4" style="height:80%">
-                    <div class= "overflow-auto" style="height:100%">
+                    <div class="overflow-auto" style="height:100%">
                         <table class="table table-hover text-middle">
                             <thead class="thead sticky-top bg-white">
                                 <tr>

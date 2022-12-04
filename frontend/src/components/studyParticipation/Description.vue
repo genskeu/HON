@@ -9,7 +9,7 @@
                     <pre class="text-left">{{studyDescription}}</pre>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn mx-auto btn-success" data-bs-dismiss="modal" @click="this.btnText = 'Continue Study'">{{this.btnText}}</button>
+                    <button id="start-study" class="btn mx-auto btn-success" data-bs-dismiss="modal" @click="this.btnText = 'Continue Study'">{{this.btnText}}</button>
                 </div>
             </div>
         </div>
