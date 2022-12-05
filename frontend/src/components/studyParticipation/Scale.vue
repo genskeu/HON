@@ -10,7 +10,7 @@
                     {{this.scaleText}}
                 </div>
             </div>
-            <div class="mx-auto justify-content-center mt-1 scale_values">
+            <div :id="('scale-' + this.scaleIndex)" class="mx-auto justify-content-center mt-1 scale_values">
                 <div v-for="(value, index) in scaleValues" :key="value" class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" :value="value" :name=this.scaleIndex v-model="scaleInput">
                     <label class="form-check-label" for="inlineRadio1">{{scaleLabels[index]}}</label>

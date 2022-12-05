@@ -3,7 +3,7 @@
     <div class="row justify-content-center align-items-center h-100">
       <form class="form-horizontal mx-auto my-auto col-3" @submit.prevent="studyLogin">
         <div class="form-group mb-1">
-          <input v-model="studyId" class="form-control form-control-lg" placeholder="StudyId" type="number">
+          <input id="studyId" v-model="studyId" class="form-control form-control-lg" placeholder="StudyId" type="number">
         </div>
         <div class="form-group mb-1">
           <input v-model="studyPassword" class="form-control form-control-lg" type="password" name="password"

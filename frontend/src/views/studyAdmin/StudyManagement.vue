@@ -3,7 +3,7 @@
     <loadingModal id="globalLoadingState" :isLoading="loadingState.isLoading" :title="loadingState.title" :errorOccured="loadingState.errorOccured" :errorData="loadingState.errorData"></loadingModal>
     <div id="nav" class="navbar bg-dark p-0 pb-2" style="height: 50px;">
       <div class="container mx-auto" v-if="studyOpened">
-          <a @click="closeStudy" class="btn router-link">&times; Close {{studyTitle}}</a>
+          <a id="close-study" @click="closeStudy" class="btn router-link">&times; Close {{studyTitle}}</a>
           <router-link id="metainfos" :to="{ name: 'StudyMetainfos', params: { id: studyId }}" class="nav-link">Metainfos</router-link>
           <router-link id="fileupload" :to="{ name: 'StudyFiles', params: { id: studyId }}" class="nav-link">Files</router-link>
           <router-link id="design" :to="{ name: 'StudyDesign', params: { id: studyId }}" class="nav-link">Design</router-link>

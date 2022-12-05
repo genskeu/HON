@@ -25,7 +25,7 @@
                 </table>
                 <div class="row">
                     <div class="col-4">
-                        <button class="btn btn-success btn-block" @click="downloadResults()">
+                        <button id="download-results" class="btn btn-success btn-block" @click="downloadResults()">
                             <h6 class="my-1">download results (xlsx)</h6>
                         </button>
                     </div>

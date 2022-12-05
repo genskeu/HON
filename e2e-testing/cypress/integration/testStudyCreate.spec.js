@@ -64,5 +64,22 @@ describe('Test create study', () => {
         cy.wait(500)
         cy.get("#start-study").click()
         cy.wait(500)
+        const scale_0_values = [3,7,1,2]
+        const scale_1_values = [6,2,4,5]
+        for (let i=0;i<4;i++) {
+            cy.wait(200)
+            cy.get("#scale-0").find('[type="radio"]').check(String(scale_0_values[i]))
+            cy.get("#scale-1").find('[type="radio"]').check(String(scale_1_values[i]))
+            cy.get("#votebtn-0").click()
+        }
+    }),
+    it("download results", () => {
+        cy.get("#results").click()
+        // cy.get("#download-results").click()
+    }),
+    it("close study and logout", () => {
+        cy.get("#close-study").click()
+        cy.get("#logout").click()
+        cy.url().should('include', '/login')    
     })
 })
