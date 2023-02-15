@@ -222,7 +222,7 @@ export default {
         headers: { 'Content-Type': 'multipart/form-data' },
         onUploadProgress: (progressEvent) => {
           const loaded = progressEvent.loaded
-          const total = progressEvent.loaded
+          const total = progressEvent.total
           const progress = (loaded * 100) / total
           filesUploading.forEach((file) => {
             file.progress = progress

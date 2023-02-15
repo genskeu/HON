@@ -189,6 +189,19 @@ export default {
     this.initViewer()
     this.updateStore()
     this.updateViewerHeight()
+    const fontFamily =
+    'Work Sans, Roboto, OpenSans, HelveticaNeue-Light, Helvetica Neue Light, Helvetica Neue, Helvetica, Arial, Lucida Grande, sans-serif';
+
+    cornerstoneTools.textStyle.setFont(`16px ${fontFamily}`);
+
+    // Set the tool width
+    cornerstoneTools.toolStyle.setToolWidth(2);
+
+    // Set color for inactive tools
+    cornerstoneTools.toolColors.setToolColor('rgb(150, 150, 0)');
+
+    // Set color for active tools
+    cornerstoneTools.toolColors.setActiveColor('rgb(0, 200, 0)');
   },
   activated () {
     this.updateViewerHeight()
@@ -251,6 +264,12 @@ export default {
                 cornerstoneTools.globalImageIdSpecificToolStateManager.restoreImageIdToolState(stack.imageIds[index], state)
                 // $(element).trigger('cornerstonetoolsmeasurementrestored', [stack.imageIds[index], element])
               }
+            })
+          // ensure no toolstate shown for image (might be present from previously loading the same image)
+          } else {
+            const toolNames = Object.keys(cornerstoneTools.store.state.globalTools)
+            toolNames.forEach((toolName) => {
+              cornerstoneTools.clearToolState(this.$refs.viewer, toolName)
             })
           }
         })
