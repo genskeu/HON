@@ -223,23 +223,28 @@ export default {
     }
   },
   methods: {
-    // enforece ann too size limits (settings)
+    // enforce ann too size limits (settings)
+    // code works only for circle roi tool so far
     applySize (event) {
+      const pixelSpacing = event.image.columnPixelSpacing
       var handles = event.detail.measurementData.handles
       const toolname = event.detail.toolName
       if (toolname === undefined) { return false }
       const tool = this.toolsParticipant.find(tool => toolname.includes(tool.cs_name))
       if (tool && tool.settings && tool.settings.size) {
-        const size = Number(tool.settings.size)
+        const sizeMM = Number(tool.settings.size)
+        const sizePX =sizeMM/pixelSpacing
+        // we can use the handles to calc the radius of the circle
         var startX = handles.start.x
         var startY = handles.start.y
         var endX = handles.end.x
         var endY = handles.end.y
-        const distance = Math.sqrt(Math.pow(startX - endX, 2) + Math.pow(startY - endY, 2))
-        if (Math.round(distance) !== size) {
-          var endX2 = Math.sqrt(Math.pow(size, 2) / 2) + startX
-          var endY2 = Math.sqrt(Math.pow(size, 2) / 2) + startY
-          // var distance2 = Math.sqrt(Math.pow(startX - endX2, 2) + Math.pow(startY - endY2, 2))
+        const distancePx = Math.sqrt(Math.pow(startX - endX, 2) + Math.pow(startY - endY, 2)) * 2 
+        const distanceMM = distancePx * pixelSpacing
+        if (Math.round(distanceMM*100)/100 !== Math.round(sizeMM*100)/100) {
+          // calc is circle roi specific
+          var endX2 = sizePX/Math.sqrt(8) + startX
+          var endY2 = sizePX/Math.sqrt(8) + startY
           handles.end.x = endX2
           handles.end.y = endY2
         }

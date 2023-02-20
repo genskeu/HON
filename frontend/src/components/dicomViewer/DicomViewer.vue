@@ -315,6 +315,7 @@ export default {
     },
     // will be called when measurment completed (add new or update form of exisiting roi)
     addAnnotation (e) {
+      e.image = this.activeImage
       this.$emit('cornerstonetoolsmeasurementmodified', e)
       const toolName = e.detail.toolName
       // assumption: toolName only defined when new measurment added
@@ -343,6 +344,7 @@ export default {
     },
     // will be called when measurment modified (update exisiting)
     updateAnnotation (e) {
+      e.image = this.activeImage
       this.$emit('cornerstonetoolsmeasurementmodified', e)
       const toolName = e.detail.toolName
       const annotation = {
