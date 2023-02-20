@@ -41,12 +41,12 @@
                 :data-bs-target="'#' + label.cs_name + 'Settings'" aria-expanded="true"
                 :aria-controls="label.cs_name + 'Settings'">Settings</button>
             </div>
-          <!-- tool setting, only implemented interface for annotaton tools -->
+          <!-- tool setting, only implemented interface for annotaton tools (circle rois) -->
           <div v-if="label.cs_name === 'CircleRoi'" class="mx-auto collapse" :id="label.cs_name + 'Settings'">
             <div class="input-group mx-auto">
-              <label class="input-group-text w-35 bg-light">Length/ Diameter</label>
+              <label class="input-group-text w-35 bg-light">Diameter (mm)</label>
               <input :value="label.settings.size" @change="(event) => updateToolSettings(event, label.cs_name, 'size')"
-                type="Number" step="any" min="0" class="form-control" placeholder="size in px" />
+                type="Number" step="0.01" min="0.1" class="form-control" placeholder="size in px" />
             </div>
             <div class="input-group mx-auto">
               <label class="input-group-text bg-light w-35">Number</label>
