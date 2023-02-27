@@ -728,8 +728,10 @@ class Output:
                         if col_name in self.tool_input.keys():
                             # bug with named annotation data => sometimes empty tool states saved
                             # unclear why so far
-                            if tool_state[tool]["data"] == []:
+                            tool_state_data = list(filter(lambda ts:ts["invalidated"] == False, tool_state_data))
+                            if tool_state_data == []:
                                 continue
+
                             self.tool_input[col_name].append(tool_state_data)
                         # col is new
                         else:
@@ -801,7 +803,6 @@ class Output:
         for k,v in self.tool_gt.items():
             self.df[k] = v
         for k,v in self.tool_input.items():
-            #v = list(filter(lambda l:len(l) > 0, v))
             self.df[k] = v
 
 
