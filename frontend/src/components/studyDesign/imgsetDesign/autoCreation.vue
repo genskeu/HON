@@ -232,7 +232,9 @@ export default {
       const studyId = this.$route.params.id
       const element = cornerstone.getEnabledElements()[0].element
       const imageId = this.stacks[0].cs_stack.imageIds[0]
-      cornerstone.loadImage(imageId)
+
+      if (this.viewerSettings.windowCenter || this.viewerSettings.windowWidth || this.viewerSettings.scale || this.viewerSettings.rotation || this.viewerSettings.posX || this.viewerSettings.posY) {
+        cornerstone.loadImage(imageId)
         .then((image) => {
           var viewport = cornerstone.getDefaultViewportForImage(element, image)
           viewport.voi.windowWidth = this.viewerSettings.windowWidth ? this.viewerSettings.windowWidth : viewport.voi.windowWidth
@@ -247,6 +249,13 @@ export default {
               viewport: viewport
             })
         })
+      } else {
+        this.$store.dispatch('currentStudy/createImgsetsAuto',
+            {
+              studyId: studyId,
+              viewport: null
+            })
+      }
     },
     updateImgsets () {
       const studyId = this.$route.params.id
