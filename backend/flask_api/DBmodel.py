@@ -724,12 +724,13 @@ class Output:
                             tool_state_data[j]["image_name"] = stack_images[i]
                             tool_state_data[j]["image_index"] = i
                             tool_state_data[j]["imageId"] = tool_state['imageId']
+                        # bug with named annotation data => sometimes empty tool states saved
+                        # unclear why so far                        
+                        tool_state_data = list(filter(lambda ts:ts["invalidated"] == False, tool_state_data))
+                        if tool_state_data == []:
+                            continue
                         # col already exists
                         if col_name in self.tool_input.keys():
-                            # bug with named annotation data => sometimes empty tool states saved
-                            # unclear why so far
-                            if tool_state[tool]["data"] == []:
-                                continue
                             self.tool_input[col_name].append(tool_state_data)
                         # col is new
                         else:
