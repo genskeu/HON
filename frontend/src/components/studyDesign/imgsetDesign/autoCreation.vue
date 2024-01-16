@@ -232,7 +232,6 @@ export default {
       const studyId = this.$route.params.id
       const element = cornerstone.getEnabledElements()[0].element
       const imageId = this.stacks[0].cs_stack.imageIds[0]
-      
       if (this.viewerSettings.windowCenter || this.viewerSettings.windowWidth || this.viewerSettings.scale || this.viewerSettings.rotation || this.viewerSettings.posX || this.viewerSettings.posY) {
         cornerstone.loadImage(imageId)
         .then((image) => {
