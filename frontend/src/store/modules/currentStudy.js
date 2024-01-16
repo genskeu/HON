@@ -155,10 +155,11 @@ const getters = {
     // old: multiple values for one scaleInput possible (FROC, LROC)
     // new: each scaleInput has only one value and uuid
     var scalesInputDB = {}
-    state.scalesInput.forEach(scale => {
-      scalesInputDB[scale.name] = {}
-      scalesInputDB[scale.name].values = [scale.value]
-      scalesInputDB[scale.name].uuids = [scale.uuid]
+    state.scalesInput.forEach((scale, index) => {
+      var scaleName = index + 1 + ' ' + scale.name
+      scalesInputDB[scaleName] = {}
+      scalesInputDB[scaleName].values = [scale.value]
+      scalesInputDB[scaleName].uuids = [scale.uuid]
     })
     return scalesInputDB
   },
