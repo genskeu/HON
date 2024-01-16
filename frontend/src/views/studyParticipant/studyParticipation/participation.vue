@@ -239,9 +239,9 @@ export default {
         var startY = handles.start.y
         var endX = handles.end.x
         var endY = handles.end.y
-        const distancePx = Math.sqrt(Math.pow(startX - endX, 2) + Math.pow(startY - endY, 2)) * 2 
-        const distanceMM = distancePx * pixelSpacing
-        if (Math.round(distanceMM*100)/100 !== Math.round(sizeMM*100)/100) {
+        const radiusPx = Math.sqrt(Math.pow(startX - endX, 2) + Math.pow(startY - endY, 2)) 
+        const diameterMM = radiusPx * 2 * pixelSpacing
+        if (Math.round(diameterMM*100)/100 !== Math.round(sizeMM*100)/100) {
           // calc is circle roi specific
           var endX2 = sizePX/Math.sqrt(8) + startX
           var endY2 = sizePX/Math.sqrt(8) + startY

@@ -802,7 +802,6 @@ class Output:
         for k,v in self.tool_gt.items():
             self.df[k] = v
         for k,v in self.tool_input.items():
-            #v = list(filter(lambda l:len(l) > 0, v))
             self.df[k] = v
 
 
