@@ -533,7 +533,7 @@ const actions = {
   },
   deleteSelectedFiles ({ commit }, payload) {
     store.commit('loadingState/startLoading', { title: 'Deleting Files' })
-    deleteFiles(payload.studyId, payload.files)
+    return deleteFiles(payload.studyId, payload.files)
       .then(() => {
         commit('deleteStacks', payload.files)
         store.commit('loadingState/finishLoading')
@@ -542,7 +542,6 @@ const actions = {
         store.commit('loadingState/errorOccured', { errorData: response })
       })
   },
-  /* eslint-disable */
   updateStudyMetainfos ({ commit }, { studyId, data }) {
     store.commit('loadingState/startLoading', { title: 'Saving updated Metainfos' })
     updateStudy(studyId, data)

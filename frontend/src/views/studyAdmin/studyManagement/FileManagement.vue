@@ -125,8 +125,9 @@ export default {
     },
     deleteSelectedFiles () {
       const studyId = this.$route.params.id
-      this.$store.dispatch('currentStudy/deleteSelectedFiles', { studyId: studyId, files: this.filesToDelete })
-      this.filesToDelete = []
+      this.$store.dispatch('currentStudy/deleteSelectedFiles', { studyId: studyId, files: this.filesToDelete }).finally(() => {
+        this.filesToDelete = []
+      })
     }
   }
 }
