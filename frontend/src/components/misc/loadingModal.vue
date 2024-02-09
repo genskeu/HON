@@ -43,9 +43,6 @@ export default {
       errorMsg: 'An error occured. Please try again.'
     }
   },
-  mounted () {
-    this.loadingModal = new Modal(this.$refs.loadingScreen, { fade: true })
-  },
   watch: {
     isLoading (newState) {
       if (newState === true) {
@@ -66,6 +63,9 @@ export default {
         }
       }
     }
+  },
+  mounted () {
+    this.loadingModal = new Modal(this.$refs.loadingScreen, { fade: true })
   },
   methods: {
     finishLoading () {

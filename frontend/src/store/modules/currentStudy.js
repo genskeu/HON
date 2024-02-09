@@ -542,7 +542,7 @@ const actions = {
         store.commit('loadingState/errorOccured', { errorData: response })
       })
   },
-  updateStudyMetainfos ({ commit }, { studyId, data }) {
+  updateStudyMetainfos ( { studyId, data } ) {
     store.commit('loadingState/startLoading', { title: 'Saving updated Metainfos' })
     updateStudy(studyId, data)
       .then(() => {
