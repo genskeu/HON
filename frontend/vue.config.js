@@ -1,5 +1,8 @@
 // vue.config.js
 module.exports = {
+  configureWebpack : {
+    devtool: 'source-map'
+  },
   devServer: {
     allowedHosts: 'all',
     proxy: {
