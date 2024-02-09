@@ -9,3 +9,4 @@
 frontend*
 backend*
 launch.json
+*e2e-testing
