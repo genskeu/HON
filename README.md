@@ -8,7 +8,8 @@ The software was designed as a web application to avoid the need for installatio
   - more freedom regarding images displayed simultaneously and image layout
   - simplified working with stacks 
   - improved performance, stability and maintainability
-- update backend (flask) tests
+- update backend (flask)
+- update testing (tests for frontend, backend and e2e)
 - simplify deployment
   - add traefik to enable HTTPS 
 
