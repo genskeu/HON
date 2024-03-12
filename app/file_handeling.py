@@ -49,9 +49,9 @@ def upload_files(study_id):
             except:
                 print("Error saving {}.".format(filename))
             else:
-                filenames_saved.append(f.filename)
+                filenames_saved.append(filename)
             if "zip" == filename[-3:]:
-                filenames_saved.remove(f.filename)
+                filenames_saved.remove(filename)
                 filenames_unzipped, filenames_not_unzipped = unzip_images(filename, image_dir, study)
                 filenames_saved += filenames_unzipped
                 filenames_not_saved += filenames_not_unzipped
