@@ -4,7 +4,7 @@ HON is a web application to implement human reading experiments in medical imagi
 The software was designed as a web application to avoid the need for installation on diagnostic workstations and enable platform-independence as well as multi-center studies. The code is open-source (MIT licence). The application backend was built using mainly Flask (v2.0.2) and Flask-SQLAlchemy (v2.5.1). To simplify access HON can be installed using docker (for development flasks development server is used, while gunicorn and nginx are used during production). For a full list of dependencies see the requirments.txt. The frontend of the application was developed using bootstrap (v4.1) and jQuery (v3.4.1) in addition to plain HTML, CSS, and JavaScript. The JavaScript library cornerstone (v2.2.7) and cornerstone-tools (v5.1) were used to implement dicom-viewer capabilities, such as the display of files (DICOM ,JPEG, PNG) as single images or scrollable stacks, options for modifying display settings and features to collect annotation data. 
 
 ## Upcoming changes
-- update frontend using vuejs (about 40% finished, update will be available in August), new features will include
+- update frontend using vuejs (about 50% finished), new features will include
   - more freedom regarding images displayed simultaneously and image layout
   - simplified working with stacks 
   - improved performance, stability and maintainability
