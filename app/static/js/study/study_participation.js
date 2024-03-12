@@ -243,8 +243,8 @@ function check_ann_number(stack_tool_state){
 }
 
 
-//input to scale via keyboard + spacebar next image
-document.addEventListener("keydown",function(event){
+//input to scale via keyboard + spacebar next image for single image studies
+function keyboard_input_1(event){
   var key_value = Number(event.key)
   if(isNaN(key_value)){
     //hot keys tools
@@ -266,5 +266,25 @@ document.addEventListener("keydown",function(event){
         // fill scale with key_value
         $(scale_to_fill).find(":radio[value=" +  key_value +"]").prop('checked', true);
     }
+  }
+}
+
+//next image for multy image studies via keyboard numbers
+function keyboard_input_2(event){
+  var key_value = Number(event.key)
+  var numb_buttons = $(".vote_button:visible").length
+  if(!isNaN(key_value) && key_value <= numb_buttons && key_value > 0){
+    //next image in multi image studies
+    $(".vote_button:visible")[key_value-1].click()
+  }
+}
+
+$(document).ready(function () {
+  var scale_numb = $(".scale").length
+  var vote_numb = $(".vote_button").length
+  if(scale_numb > 0){
+    document.addEventListener("keydown", keyboard_input_1);
+  } else if(vote_numb > 1){
+    document.addEventListener("keydown", keyboard_input_2);
   }
 })
