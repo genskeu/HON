@@ -10,7 +10,19 @@ $(document).ready(function () {
         if(old_tool){
             cornerstoneTools.setToolDisabled(old_tool)
         }
-        cornerstoneTools.setToolActive(new_tool, { mouseButtonMask: Number(mouse_btn) })
+
+        if(new_tool == "StackScrollMouseWheel" || new_tool == "StackScroll"){
+            // add sync for stack scrolling
+            var synchronizer = new cornerstoneTools.Synchronizer("cornerstonetoolsstackscroll", cornerstoneTools.stackScrollSynchronizer)
+            cornerstone.getEnabledElements().forEach(function (enabled_element) {
+                if (enabled_element.image) {
+                    synchronizer.add(enabled_element.element);
+                }
+            })
+            cornerstoneTools.setToolActive(new_tool, { mouseButtonMask: Number(mouse_btn), synchronizationContext: synchronizer })
+        } else [
+            cornerstoneTools.setToolActive(new_tool, { mouseButtonMask: Number(mouse_btn) })
+        ]
         //if annotation tool selected show rois menue
         if(new_tool.includes("Roi")){
             $("#roi_settings_container").show()
