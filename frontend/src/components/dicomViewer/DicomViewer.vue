@@ -1,7 +1,7 @@
 <template>
   <div class='tw-relative tw-grid tw-grid-cols-1' @cornerstoneimagerendered.capture='(event) => displayStackIndex(event)'>
     <!-- image viewer :style='viewerSizeCSS' -->
-    <div ref='viewer' class='dicom_viewer tw-col-span-1 tw-relative'
+    <div :id="'dicom-viewer-'+viewerIndex" ref='viewer' class='dicom_viewer tw-col-span-1 tw-relative'
     @cornerstoneimagerendered="updateViewportSettings"
     @cornerstonetoolsmeasurementcompleted="addAnnotation"
     @cornerstonetoolsmeasurementmodified="updateAnnotation"
@@ -92,6 +92,7 @@ export default {
       }
       return metadata
     },
+    
     stackMetadataTR () {
       var metadata = []
       if (this.activeImage && this.viewerMetainfo) {
@@ -214,9 +215,7 @@ export default {
   methods: {
     initViewer () {
       // enable element for cornerstone
-      cornerstone.enable(this.$refs.viewer, {
-        renderer: 'webgl'
-      })
+      cornerstone.enable(this.$refs.viewer)
       // disable right click on image viewer
       this.$refs.viewer.addEventListener(
         'contextmenu',
@@ -275,7 +274,7 @@ export default {
         })
         .finally(() => {
           this.loading = false
-        })
+      })
     },
     // when no image selected load a black blank screen
     resetViewer () {
@@ -296,7 +295,6 @@ export default {
     updateViewportSettings () {
       // bug fix where update Viewport settings is triggered and $refs.viewer returns null
       // open questions, why is event triggered? why is ref.viewer == null?
-      // debugger // eslint-disable-line
       if (this.$refs.viewer !== null) {
         var viewport = cornerstone.getViewport(this.$refs.viewer)
         this.$store.commit('imageViewers/cornerstoneViewportUpdate', { viewport: viewport, index: this.viewerIndex, viewertype: this.viewerType })
