@@ -583,7 +583,11 @@ const actions = {
     deleteImgset(payload.studyId, payload.imgset.position)
       .then(() => {
         commit('delImgset', payload.imgset)
-        commit('imgsetDisplayed', null)
+        if(state.imageSets.length > 1){
+          commit('imgsetDisplayed', state.imageSets[payload.imgset.position-1])
+        } else {
+          commit('imgsetDisplayed', null)
+        }
         store.commit('loadingState/finishLoading')
       })
       .catch((response) => {
