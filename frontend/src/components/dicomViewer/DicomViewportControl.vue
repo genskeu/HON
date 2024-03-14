@@ -2,9 +2,14 @@
   <!-- viewport info -->
   <div>
     <div class="row mx-auto">
-      <button class="text-start input-group-text" data-bs-toggle="collapse" :data-bs-target= "'#' + id"
+      <button class="text-start btn-light btn col-10" data-bs-toggle="collapse" :data-bs-target= "'#' + id"
         aria-expanded="true" :aria-controls="id">
         <div class="mr-auto">{{heading}}</div>
+      </button>
+      <!--reset buttons -->
+      <button class="btn btn-light col-2" @click="resetViewport"
+      title="Reset Viewer to default values.">
+        &#8634;
       </button>
     </div>
 
@@ -45,11 +50,6 @@
           <input type="Number" step="1" class="form-control pos_y viewport_prop" placeholder="rotation" v-model="rotation"/>
         </div>
       </div>
-
-      <!--reset buttons -->
-      <button class="btn btn-block btn-light w-100" @click="resetViewport">
-        reset
-      </button>
     </div>
   </div>
 </template>
