@@ -19,6 +19,27 @@
     </div>
     <!-- content -->
     <div id="images_create_auto" class="collapse">
+        <!-- btns -->
+        <div class="row mx-auto">
+          <div class="col-4 px-0">
+              <button @click="createImgsets" class="text-center btn-success btn imgset_btn w-100" id="btn_auto_imgset"
+              title="Create Image-Sets according to settings definied below.">
+                  <strong>&#43;</strong>
+              </button>
+          </div>
+          <div v-if="imgsets.length" class="col-4 px-0">
+              <button class="text-center btn-light btn imgset_btn w-100" @click="updateImgsets"
+              title="Update all Image-Sets according to viewer settings definied below.">
+                  <strong>&#8635;</strong>
+              </button>
+          </div>
+          <div v-if="imgsets.length" class="col-4 px-0">
+              <button class="text-center btn-danger btn imgset_btn w-100" @click="deleteImgsets"
+              title="Delete all Image-Sets">
+                  <strong>&#128465;</strong>
+              </button>
+          </div>
+      </div>
       <!-- imgset type -->
       <div class="input-group w-100">
         <label class="input-group-text w-50">Img-Set Type</label>
@@ -52,9 +73,9 @@
       <div id="viewport_settings_container_auto" class="w-100 mt-1"
         title="Image Viewer settings control display options (zoom, position, window) for the uploaded study images. Each viewport can be controlled individually.">
         <div class="row mx-auto">
-          <button class="text-start btn btn-light input-group-text bg-gray-300" data-bs-toggle="collapse"
+          <button class="text-start btn btn-secondary input-group-text" data-bs-toggle="collapse"
             data-bs-target="#viewport_settings_auto" aria-expanded="true" aria-controls="viewport_settings_auto">
-            <div class="mr-auto" id="imgset_btn">Viewer Settings</div>
+            <div class="mr-auto" id="imgset_btn">Viewer Settings (global)</div>
           </button>
         </div>
         <div id="viewport_settings_auto" class="collapse show">
@@ -147,21 +168,6 @@
             </div>
           </div>
         </div>
-      </div>
-      <!-- btns -->
-      <div class="mt-1">
-        <button @click="createImgsets" class="text-start w-100 btn btn-success imgset_btn" value="generate imgsets"
-          id="btn_auto_imgset">
-          Create Image-Sets
-        </button>
-        <div v-if="imgsets.length" class="row mx-auto">
-        <button class="text-start btn-light btn" @click="updateImgsets">Update all Image-Sets
-        </button>
-      </div>
-      <div v-if="imgsets.length" class="row mx-auto">
-        <button class="text-start btn-danger btn" @click="deleteImgsets">Delete all Image-Sets
-        </button>
-      </div>
       </div>
     </div>
   </div>
