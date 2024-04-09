@@ -53,7 +53,7 @@
         <label class="input-group-text w-50">Img-Set Order</label>
         <select class="form-select" ref="imgsetOrder">
           <option value="ordered">ordered</option>
-          <!-- <option value="random">random</option> -->
+          <option value="random">random</option>
         </select>
       </div>
       <!-- signal info -->
@@ -251,14 +251,16 @@ export default {
           this.$store.dispatch('currentStudy/createImgsetsAuto',
             {
               studyId: studyId,
-              viewport: viewport
+              viewport: viewport,
+              order: this.$refs.imgsetOrder.value,
             })
         })
       } else {
         this.$store.dispatch('currentStudy/createImgsetsAuto',
             {
               studyId: studyId,
-              viewport: null
+              viewport: null,
+              order: this.$refs.imgsetOrder.value,
             })
       }
     },

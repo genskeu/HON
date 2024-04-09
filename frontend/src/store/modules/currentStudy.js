@@ -595,12 +595,18 @@ const actions = {
       })
   },
   // imgsets
-  createImgsetsAuto ({ state, commit }, { studyId, viewport }) {
+  createImgsetsAuto ({ state, commit }, { studyId, viewport, order }) {
     store.commit('loadingState/startLoading', { title: 'Creating Image-Sets' })
     var imgsets = []
     const viewerNumber = state.design.numb_img
     const numberImgsets = state.stacks.length / viewerNumber
     const imgsetStartPosition = state.imageSets.length
+    var imageStacks = []
+    if (order == "ordered") {
+      imageStacks = state.stacks
+    } else if (order == "random") {
+      imageStacks = state.stacks.sort(() => Math.random() - 0.5)
+    } 
     for (var imgsetIndex = 0; imgsetIndex < numberImgsets; imgsetIndex++) {
       var imgset = {
         stacks: [],
@@ -608,14 +614,14 @@ const actions = {
       }
       for (var i = 0; i < viewerNumber; i++) {
         var stackIndex = imgsetIndex * viewerNumber + i
-        if (stackIndex >= state.stacks.length) {
+        if (stackIndex >= imageStacks.length) {
           continue
         }
-        const imageIds = state.stacks[stackIndex].cs_stack.imageIds
+        const imageIds = imageStacks[stackIndex].cs_stack.imageIds
         var stack = {
-          stack_id: state.stacks[stackIndex].stack_id,
+          stack_id: imageStacks[stackIndex].stack_id,
           div_id: 'dicom_img_' + i,
-          name: state.stacks[stackIndex].name,
+          name: imageStacks[stackIndex].name,
           segmentation_data: '',
           tool_state: imageIds.map(() => null),
           viewport: viewport
