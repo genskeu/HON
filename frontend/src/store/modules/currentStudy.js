@@ -7,7 +7,7 @@ import {
   studyLoginParticipant
 } from '@/api'
 import store from '@/store'
-import { tools } from '@/store/modules/currentStudy/tools'
+import { tools } from '@/components/dicomViewer/tools'
 
 // import cornerstoneTools from 'cornerstone-tools'
 

@@ -1,7 +1,7 @@
 // import cornerstone from 'cornerstone-core'
 import cornerstone from 'cornerstone-core'
 import cornerstoneTools from 'cornerstone-tools'
-import { tools } from '@/store/modules/currentStudy/tools'
+import { tools } from '@/components/dicomViewer/tools'
 
 const getDefaultState = () => {
   return {
