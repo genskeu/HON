@@ -20,7 +20,7 @@
                                 -->
           <div id="imgset" class="mx-auto px-0 w-100">
             <!--Images -->
-              <DicomViewerTools class="sticky-top mb-2"></DicomViewerTools>
+              <DicomViewerTools :toolsMousekeys="toolsMousekeys" :toolsMousewheel="toolsMousewheel" class="sticky-top mb-2"></DicomViewerTools>
               <div v-if="refviewerNumb" class="badge bg-secondary mx-auto w-100">
                 <h6 class="">Reference-Image-Stack(s)</h6>
               </div>
@@ -59,6 +59,7 @@ import DicomViewer from '@/components/dicomViewer/DicomViewer.vue'
 import DicomViewerTools from '@/components/dicomViewer/DicomViewerTools.vue'
 import DesignOptions from '@/components/studyDesign/DesignOptions.vue'
 import ImgsetDesign from '@/components/studyDesign/ImgsetDesign.vue'
+import { tools } from '@/components/dicomViewer/tools'
 
 export default {
   name: 'StudyDesign',
@@ -112,10 +113,10 @@ export default {
       }
     },
     toolsMousekeys () {
-      return this.$store.getters['imageViewers/toolsMousekeys']
+      return tools.toolsMousekeys
     },
     toolsMousewheel () {
-      return this.$store.getters['imageViewers/toolsMousewheel']
+      return tools.toolsMousewheel
     }
   },
   watch: {

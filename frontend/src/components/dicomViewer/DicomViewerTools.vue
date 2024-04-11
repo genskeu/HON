@@ -1,33 +1,12 @@
 <template>
     <!-- tool select menus -->
-    <div class="input-group mx-auto" data-toggle="tooltip" data-placement="left"
-        title="Use the select menus to activate image handling tools for the left, middle and right mouse key.">
-        <label class="input-group-text">Active Tool Left Mouse Key</label>
-        <select class='form-select' v-model="toolActiveLeft">
-            <option></option>
-            <option class="h5" disabled>ViewerSettings</option>
-            <option v-for="(label, tool) in viewerSettingToolsMousekeys" :key="tool" :value="tool">{{label}}</option>
-            <option class="h5" disabled>Annotation</option>
-            <option v-for="(label, tool) in annotationToolsMousekeys" :key="tool" :value="tool">{{label}}</option>
-            <option class="h5" disabled>Segmentation</option>
-            <option v-for="(label, tool) in segmentationToolsMousekeys" :key="tool" :value="tool">{{label}}</option>
-        </select>
-        <label class="input-group-text">Right Mouse Key</label>
-        <select class='form-select' v-model="toolActiveRight">
-            <option></option>
-            <option class="h5" disabled>ViewerSettings</option>
-            <option v-for="(label, tool) in viewerSettingToolsMousekeys" :key="tool" :value="tool">{{label}}</option>
-            <option class="h5" disabled>Annotation</option>
-            <option v-for="(label, tool) in annotationToolsMousekeys" :key="tool" :value="tool">{{label}}</option>
-            <option class="h5" disabled>Segmentation</option>
-            <option v-for="(label, tool) in segmentationToolsMousekeys" :key="tool" :value="tool">{{label}}</option>
-        </select>
-        <label class="input-group-text">Mouse Wheel</label>
-        <select class='form-select' v-model="toolActiveWheel">
-            <option></option>
-            <option class="h5" disabled>ViewerSettings</option>
-            <option v-for="(label, tool) in viewerSettingToolsMousewheel" :key="tool" :value="tool">{{label}}</option>
-        </select>
+    <div class="input-group mx-auto" data-toggle="tooltip" data-placement="left" ref="toolMenu"
+    title="Use the select menus to activate image handling tools for the left, middle and right mouse key.">
+      <div class="row mx-auto">
+        <DicomViewerToolsSelectMenu title="Left Mouse Key" :viewerSettingTools="viewerSettingToolsMousekeys" :annotationTools="annotationToolsMousekeys" :segmentationTools="segmentationToolsMousekeys" :mouseKey="1"></DicomViewerToolsSelectMenu>
+        <DicomViewerToolsSelectMenu title="Right Mouse Key" :viewerSettingTools="viewerSettingToolsMousekeys" :annotationTools="annotationToolsMousekeys" :segmentationTools="segmentationToolsMousekeys" :mouseKey="2"></DicomViewerToolsSelectMenu>
+        <DicomViewerToolsSelectMenu title="Mouse Wheel" :viewerSettingTools="viewerSettingToolsMousewheel" :mouseKey="3"></DicomViewerToolsSelectMenu>
+      </div>
     </div>
 </template>
 
@@ -36,6 +15,7 @@ import Hammer from 'hammerjs'
 import cornerstoneMath from 'cornerstone-math'
 import cornerstone from 'cornerstone-core'
 import cornerstoneTools from 'cornerstone-tools'
+import DicomViewerToolsSelectMenu from '@/components/dicomViewer/DicomViewerToolsSelectMenu.vue'
 
 cornerstoneTools.external.cornerstoneMath = cornerstoneMath
 cornerstoneTools.external.cornerstone = cornerstone
@@ -43,11 +23,31 @@ cornerstoneTools.external.Hammer = Hammer
 
 export default {
   name: 'cornerstoneTools',
+  props: {
+    toolsMousekeys: {},
+    toolsMousewheel: {}
+  },
+  components: {
+    DicomViewerToolsSelectMenu
+  },
   data () {
     return {
-      toolActiveLeft: undefined,
-      toolActiveRight: undefined,
-      toolActiveWheel: undefined
+      activeTool: undefined,
+    }
+  },
+  computed: {
+    annotationToolsMousekeys () {
+      return this.toolsMousekeys.annotation
+    },
+    segmentationToolsMousekeys () {
+      return this.toolsMousekeys.segmentation
+    },
+    viewerSettingToolsMousekeys () {
+      return this.toolsMousekeys.viewerSetting
+    },
+    viewerSettingToolsMousewheel () {
+      return this.toolsMousewheel.viewerSetting
+
     }
   },
   mounted () {
@@ -59,77 +59,46 @@ export default {
   activated () {
     this.initCornerstoneTools()
   },
-  computed: {
-    activeToolLeft () {
-      return this.toolActiveLeft
-    },
-    activeToolRight () {
-      return this.toolActiveRight
-    },
-    activeToolWheel () {
-      return this.toolActiveWheel
-    },
-    annotationToolsMousekeys () {
-      return this.$store.getters['imageViewers/annotationToolsMousekeys']
-    },
-    segmentationToolsMousekeys () {
-      return this.$store.getters['imageViewers/segmentationToolsMousekeys']
-    },
-    viewerSettingToolsMousekeys () {
-      return this.$store.getters['imageViewers/viewerSettingToolsMousekeys']
-    },
-    viewerSettingToolsMousewheel () {
-      return this.$store.getters['imageViewers/viewerSettingToolsMousewheel']
-    }
-  },
-  watch: {
-    activeToolLeft (newTool, oldTool) {
-      if (oldTool !== undefined & oldTool !== this.activeToolRight) {
-        cornerstoneTools.setToolEnabled(oldTool)
-      }
-      cornerstoneTools.setToolActive(newTool, { mouseButtonMask: 1 })
-    },
-    activeToolRight (newTool, oldTool) {
-      if (oldTool !== undefined & oldTool !== this.activeToolLeft) {
-        cornerstoneTools.setToolEnabled(oldTool)
-      }
-      cornerstoneTools.setToolActive(newTool, { mouseButtonMask: 2 })
-    },
-    activeToolWheel (newTool, oldTool) {
-      if (oldTool !== undefined) {
-        cornerstoneTools.setToolEnabled(oldTool)
-      }
-      cornerstoneTools.setToolActive(newTool, { mouseButtonMask: 3 })
-    }
-  },
   methods: {
     initCornerstoneTools () {
       const toolsAlreadyAdded = Object.keys(cornerstoneTools.store.state.globalTools)
-      Object.keys(this.viewerSettingToolsMousekeys).forEach(tool => {
-        if (!toolsAlreadyAdded.includes(tool)) {
-          cornerstoneTools.addTool(cornerstoneTools[tool + 'Tool'])
+      // merge tools from props
+      const tools = {
+        annotation: this.annotationToolsMousekeys,
+        segmentation: this.segmentationToolsMousekeys,
+        viewerSetting: {...this.viewerSettingToolsMousekeys, ...this.viewerSettingToolsMousewheel}
+      }
+      Object.keys(tools).forEach(toolType => {
+        if (tools[toolType] === undefined) {
+          return
         }
-      })
-      Object.keys(this.annotationToolsMousekeys).forEach(tool => {
-        if (!toolsAlreadyAdded.includes(tool)) {
-          cornerstoneTools.addTool(cornerstoneTools[tool + 'Tool'])
-        }
-      })
-      Object.keys(this.segmentationToolsMousekeys).forEach(tool => {
-        if (!toolsAlreadyAdded.includes(tool)) {
-          cornerstoneTools.addTool(cornerstoneTools[tool + 'Tool'])
-        }
-      })
-      Object.keys(this.viewerSettingToolsMousewheel).forEach(tool => {
-        if (!toolsAlreadyAdded.includes(tool)) {
-          cornerstoneTools.addTool(cornerstoneTools[tool + 'Tool'])
-        }
+        Object.keys(tools[toolType]).forEach(tool => {
+          if (!toolsAlreadyAdded.includes(tool)) {
+            cornerstoneTools.addTool(cornerstoneTools[tool + 'Tool'])
+          }
+          // add labeled tools
+          var toolSettings = tools[toolType][tool].settings
+          if (toolSettings === undefined) {
+            toolSettings = {}
+          }
+          if (Object.keys(toolSettings).includes('labels') ){
+            toolSettings.labels.forEach(label => {
+              const toolConfig = {
+                name: tool + '-' + label
+              }
+              if (!toolsAlreadyAdded.includes(toolConfig.name)) {
+                cornerstoneTools.addTool(cornerstoneTools[tool + 'Tool'], toolConfig)
+              }
+            })
+          }
+        })
       })
       // this.$store.commit('imageViewers/toolsInitialized', true)
-    }
-  }
+      // prevent the context menu from appearing over the toolsMenu
+      this.$refs.toolMenu.addEventListener('contextmenu', (event) => {
+        event.preventDefault()
+      })
+    },
+}
 }
 </script>
-
-<style>
-</style>

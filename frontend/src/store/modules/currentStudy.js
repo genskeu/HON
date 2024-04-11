@@ -187,21 +187,13 @@ const getters = {
     return matchTools(toolsViewerSetting, state.design.tools)
   },
   // list of tools (user interface study participation)
-  annToolsMousekeysParticipant (state) {
-    var toolsAnnotation = tools.toolsMousekeys.annotation
-    return filterTools(toolsAnnotation, state.design.tools)
+  toolsMousekeysParticipant (state) {
+    var toolsMousekeys = tools.toolsMousekeys
+    return filterTools(toolsMousekeys, state.design.tools)
   },
-  viewerToolsMousekeysParticipant (state) {
-    var toolsViewerSetting = tools.toolsMousekeys.viewerSetting
-    return filterTools(toolsViewerSetting, state.design.tools)
-  },
-  segToolsMousekeysParticipant (state) {
-    var toolsSegmentation = tools.toolsMousekeys.segmentation
-    return filterTools(toolsSegmentation, state.design.tools)
-  },
-  viewerToolsMousewheelParticipant (state) {
-    var toolsViewerSetting = tools.toolsMousewheel.viewerSetting
-    return filterTools(toolsViewerSetting, state.design.tools)
+  toolsMousewheelParticipant (state) {
+    var toolsMousewheel = tools.toolsMousewheel
+    return filterTools(toolsMousewheel, state.design.tools)
   },
   // stacks
   stacks (state) {
@@ -224,7 +216,7 @@ function matchTools (toolsAll, toolsSaved) {
   var toolsSettings = {}
   Object.keys(toolsAll).forEach(toolCsname => {
     var toolSetting = toolsSaved.find(tool => tool.cs_name === toolCsname)
-    var label = toolsAll[toolCsname]
+    var label = toolsAll[toolCsname].name
     if (!toolSetting) {
       toolsSettings[label] = { cs_name: toolCsname, key_binding: null, settings: {} }
     } else {
@@ -235,15 +227,22 @@ function matchTools (toolsAll, toolsSaved) {
 }
 
 function filterTools (toolsAll, toolsSaved) {
-  var toolsSettings = {}
-  Object.keys(toolsAll).forEach(toolCsname => {
-    var toolSetting = toolsSaved.find(tool => tool.cs_name === toolCsname)
-    var label = toolsAll[toolCsname]
-    if (toolSetting) {
-      toolsSettings[label] = toolSetting
-    }
+  var toolsFiltered = {}
+  Object.keys(toolsAll).forEach(toolType => {
+    Object.keys(toolsAll[toolType]).forEach(toolCsname => {
+      var toolSaved = toolsSaved.find(tool => tool.cs_name === toolCsname)
+      if (toolSaved) {
+        if (toolType in toolsFiltered) {
+          toolsFiltered[toolType][toolCsname] = toolsAll[toolType][toolCsname]
+        } else {
+          toolsFiltered[toolType] = {}
+          toolsFiltered[toolType][toolCsname] = toolsAll[toolType][toolCsname]
+        }
+      toolsFiltered[toolType][toolCsname]['settings'] = toolSaved.settings
+      }
+    })
   })
-  return toolsSettings
+  return toolsFiltered
 }
 
 const mutations = {

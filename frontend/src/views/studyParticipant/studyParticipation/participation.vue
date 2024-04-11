@@ -11,7 +11,7 @@
                                   -->
           <div id="imgset" class="mx-auto px-0 w-100">
             <!--Images -->
-            <DicomViewerTools class="sticky-top"></DicomViewerTools>
+            <DicomViewerTools :toolsMousekeys="toolsMousekeysParticipant" :toolsMousewheel="toolsMousewheelParticipant" class="sticky-top"></DicomViewerTools>
             <div id="ref-stacks" :class="refviewerLayout">
               <div v-for="index in refviewerNumb" :key="index">
                   <dicom-viewer viewer-type="refviewers" :viewer-index="index-1"></dicom-viewer>
@@ -43,7 +43,7 @@
 
 <script>
 import DicomViewer from '@/components/dicomViewer/DicomViewer.vue'
-import DicomViewerTools from '@/components/studyParticipation/DicomViewerTools.vue'
+import DicomViewerTools from '@/components/dicomViewer/DicomViewerTools.vue'
 import Instructions from '@/components/studyParticipation/Instructions.vue'
 import Scales from '@/components/studyParticipation/Scales.vue'
 import Progressbar from '@/components/studyParticipation/progressBar.vue'
@@ -133,6 +133,12 @@ export default {
     },
     toolsParticipant () {
       return this.$store.getters['currentStudy/tools']
+    },
+    toolsMousekeysParticipant () {
+      return this.$store.getters['currentStudy/toolsMousekeysParticipant']
+    },
+    toolsMousewheelParticipant () {
+      return this.$store.getters['currentStudy/toolsMousewheelParticipant']
     },
     studyDescription () {
       const description = this.$store.getters['currentStudy/studyDescription']
