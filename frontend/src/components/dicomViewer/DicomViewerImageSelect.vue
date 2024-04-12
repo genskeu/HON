@@ -2,7 +2,7 @@
     <!-- image and mask selector -->
     <div class='flex items-center row-span-1 col-span-1 animate-fade-in-up'>
         <div class="input-group mx-auto" data-toggle="tooltip" data-placement="left"
-          title="Use the select menus to activate image handling tools for the left, middle and right mouse key.">
+          title="">
             <label class="input-group-text w-35">Viewer {{this.viewerIndex + 1}}</label>
             <select ref='image_select_id'
                 class='form-select'
