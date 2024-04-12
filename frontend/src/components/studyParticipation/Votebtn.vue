@@ -123,6 +123,10 @@ export default {
     } else if (this.scales.length === 0) {
       document.addEventListener('keydown', this.nextImgsetNumber)
     }
+  },
+  unmounted () {
+    document.removeEventListener('keydown', this.nextImgsetSpace)
+    document.removeEventListener('keydown', this.nextImgsetNumber)
   }
 }
 </script>

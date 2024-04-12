@@ -47,6 +47,9 @@ export default {
     // listen for keydown events and capture scale input
     window.addEventListener('keydown', this.captureScaleInput)
   },
+  unmounted () {
+    window.removeEventListener('keydown', this.captureScaleInput)
+  }
 }
 </script>
 
