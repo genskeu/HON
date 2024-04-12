@@ -18,6 +18,9 @@ export default {
     buttonLabel () {
       return this.$store.getters['currentStudy/buttonLabels']
     },
+    scales () {
+      return this.$store.getters['currentStudy/scales']
+    },
     scalesInput () {
       return this.$store.getters['currentStudy/scalesInput']
     },
@@ -99,25 +102,26 @@ export default {
         }
       })
       return allLabelsPresent
+    },
+    nextImgsetSpace (e) {
+      if (e.code === 'Space') {
+          this.saveResult()
+        }
+    },
+    nextImgsetNumber (e) {
+      const isNumber = /^[0-9]$/.test(e.key)
+      if (e.key - 1 == this.viewerIndex && isNumber ){
+        this.saveResult()
+      }
     }
   },
-  mounted () {
+  created () {
     // add event listener for space key if viewer number is 1
     // add event listener for number key if viewer number is more than 1 and no scales are present
     if (this.imageViewers.length === 1) {
-      document.addEventListener('keydown', (e) => {
-        if (e.code === 'Space') {
-          console.log('Space pressed')
-          this.saveResult()
-        }
-      })
-    } else if (this.scalesInput.length === 0) {
-      document.addEventListener('keydown', (e) => {
-        const isNumber = /^[0-9]$/.test(e.key)
-        if (e.key - 1 == this.viewerIndex && isNumber ){
-          this.saveResult()
-        }
-      })
+      document.addEventListener('keydown', this.nextImgsetSpace)
+    } else if (this.scales.length === 0) {
+      document.addEventListener('keydown', this.nextImgsetNumber)
     }
   }
 }
