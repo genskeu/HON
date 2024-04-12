@@ -3,7 +3,7 @@
     <div class="input-group mx-auto" data-toggle="tooltip" data-placement="left" ref="toolMenu"
     title="Use the select menus to activate image handling tools for the left, middle and right mouse key.">
       <div class="row mx-auto">
-        <DicomViewerToolsSelectMenu title="Left Mouse Key" :viewerSettingTools="viewerSettingToolsMousekeys" :annotationTools="annotationToolsMousekeys" :segmentationTools="segmentationToolsMousekeys" :mouseKey="1"></DicomViewerToolsSelectMenu>
+        <DicomViewerToolsSelectMenu title="Active Tool Left Mouse Key" :viewerSettingTools="viewerSettingToolsMousekeys" :annotationTools="annotationToolsMousekeys" :segmentationTools="segmentationToolsMousekeys" :mouseKey="1"></DicomViewerToolsSelectMenu>
         <DicomViewerToolsSelectMenu title="Right Mouse Key" :viewerSettingTools="viewerSettingToolsMousekeys" :annotationTools="annotationToolsMousekeys" :segmentationTools="segmentationToolsMousekeys" :mouseKey="2"></DicomViewerToolsSelectMenu>
         <DicomViewerToolsSelectMenu title="Mouse Wheel" :viewerSettingTools="viewerSettingToolsMousewheel" :mouseKey="3"></DicomViewerToolsSelectMenu>
       </div>

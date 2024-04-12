@@ -1,11 +1,12 @@
-<template class="col">
-    <label class="col input-group-text" v-html="title" v-if="numberOfTools"></label>
-    <select class='col form-select' @change="(event) => activateTool(event)" v-if="numberOfTools">
+<template class="">
+    <label class="input-group-text col" v-html="title" v-if="numberOfTools"></label>
+    <select class='form-select col' @change="(event) => activateTool(event)" v-if="numberOfTools">
         <option></option>
-        <option v-if="viewerSettingTools" class="btn btn-secondary col" disabled>Image Settings</option>
-        <option class="col" v-for="(toolprops, toolcsname) in viewerSettingTools" :key="toolcsname" :value="toolcsname" v-html="toolprops.name" @change="(event) => activateTool(event, toolcsname)" :title="toolprops.name" ></option>
+        <option v-if="viewerSettingTools" class="btn btn-secondary" disabled>Image Settings</option>
+        <option class="" v-for="(toolprops, toolcsname) in viewerSettingTools" :key="toolcsname" :value="toolcsname" v-html="toolprops.name" @change="(event) => activateTool(event, toolcsname)" :title="toolprops.name" ></option>
         
         <template v-if="annotationTools">
+            <option class="btn btn-secondary" disabled>Annotation</option>
             <template v-for="(toolprops, toolcsname) in annotationTools" :key="toolcsname">
                 <option v-if="!toolprops.settings" :value="toolcsname" v-html="toolprops.name"></option>
                 <option v-else-if="!toolprops.settings.labels" :value="toolcsname" v-html="toolprops.name"></option>
@@ -13,8 +14,8 @@
             </template>
         </template>
         
-        <option v-if="segmentationTools" class="btn btn-secondary col" disabled>Segmentation</option>
-        <option class="col" v-for="(toolprops, toolcsname) in segmentationTools" :key="toolcsname" :value="toolcsname" v-html="toolprops.name" @change="(event) => activateTool(event, toolcsname)" :title="toolprops.name" ></option>
+        <option v-if="segmentationTools" class="btn btn-secondary" disabled>Segmentation</option>
+        <option class="" v-for="(toolprops, toolcsname) in segmentationTools" :key="toolcsname" :value="toolcsname" v-html="toolprops.name" @change="(event) => activateTool(event, toolcsname)" :title="toolprops.name" ></option>
     </select>
 </template>
 
