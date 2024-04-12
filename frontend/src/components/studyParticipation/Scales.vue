@@ -26,10 +26,29 @@ export default {
   computed: {
     scales () {
       return this.$store.getters['currentStudy/scales']
+    },
+    scalesInput () {
+      return this.$store.getters['currentStudy/scalesInput']
     }
   },
   methods: {
-  }
+    captureScaleInput(key) {
+      // find the first scale that has not been answered
+      var scale = this.scalesInput.find(scale => scale.value === null)
+      if (scale) {
+        scale.value = key
+      }
+    }
+  },
+  created () {
+    // listen for keydown events and capture scale input
+    window.addEventListener('keydown', (e) => {
+      const isNumber = /^[0-9]$/.test(e.key)
+      if (e.key >= 0 && e.key <= 9 && isNumber) {
+        this.captureScaleInput(e.key)
+      }
+    })
+  },
 }
 </script>
 

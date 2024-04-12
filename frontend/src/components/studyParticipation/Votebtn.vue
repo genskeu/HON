@@ -102,22 +102,23 @@ export default {
     }
   },
   mounted () {
-    // document.addEventListener('keydown', (e) => {
-    //   if (e.code === 'Space') {
-    //     this.saveResult()
-    //   } else if (!isNaN(Number(e.key))) {
-    //     var emptyScale = this.scalesInput.findIndex(scaleInput => scaleInput.value === null)
-    //     if (emptyScale > -1) {
-    //       var scaleInput = this.$store.getters['currentStudy/scaleInput'](emptyScale)
-    //       this.$store.commit('currentStudy/scaleInput',
-    //         {
-    //           index: emptyScale,
-    //           scaleName: scaleInput.name,
-    //           scaleValue: Number(e.key)
-    //         })
-    //     }
-    //   }
-    // })
+    // add event listener for space key if viewer number is 1
+    // add event listener for number key if viewer number is more than 1 and no scales are present
+    if (this.imageViewers.length === 1) {
+      document.addEventListener('keydown', (e) => {
+        if (e.code === 'Space') {
+          console.log('Space pressed')
+          this.saveResult()
+        }
+      })
+    } else if (this.scalesInput.length === 0) {
+      document.addEventListener('keydown', (e) => {
+        const isNumber = /^[0-9]$/.test(e.key)
+        if (e.key - 1 == this.viewerIndex && isNumber ){
+          this.saveResult()
+        }
+      })
+    }
   }
 }
 </script>
