@@ -1,0 +1,89 @@
+version: '3.9'
+name: 'hon_production'
+
+
+services:
+  reverse-proxy:
+    container_name: hon_traefik_prod
+    # The official v2 Traefik docker image
+    image: traefik:v2.10
+    # Enables the web UI and tells Traefik to listen to docker
+    command: 
+      --accesslog
+      --accesslog.filepath=/var/log/traefik/access.log
+      --log.filePath=/var/log/traefik/traefik.log
+      --providers.docker=true
+      --entrypoints.web.address=:80
+      --entrypoints.websecure.address=:443
+      --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
+      --certificatesresolvers.myresolver.acme.tlschallenge=true
+      --certificatesresolvers.myresolver.acme.email=uli@genske.de
+      --entrypoints.web.http.redirections.entryPoint.to=websecure
+      --entrypoints.web.http.redirections.entryPoint.scheme=https
+      --entrypoints.web.http.redirections.entrypoint.permanent=true
+      --entryPoints.websecure.proxyProtocol.trustedIPs=127.0.0.1/32
+      --entryPoints.websecure.forwardedHeaders.trustedIPs=127.0.0.1/32
+      --providers.file.filename=/config.yml
+      # --certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory
+      # --api.insecure=true 
+    ports:
+      # The HTTP port
+      - "80:80"
+      - "443:443"
+      # The Web UI (enabled by --api.insecure=true)
+      # - "8080:8080"
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
+      - './logs/traefik:/var/log/traefik'
+      - ./traefik/data:/letsencrypt
+      - ./traefik/.htpasswd:/credentials.txt
+      - ./traefik/config.yml:/config.yml
+    labels:
+      traefik.enable: true
+      traefik.http.routers.traefik_https.rule: Host(`traefik.hidingplace.publicvm.com`)
+      traefik.http.routers.traefik_https.entrypoints: websecure
+      traefik.http.routers.traefik_https.tls: true
+      traefik.http.routers.traefik_https.tls.certResolver: myresolver
+      traefik.http.routers.traefik_https.service: api@internal
+      traefik.http.services.traefik.loadbalancer.server.port: 8080
+      traefik.http.routers.traefik_https.middlewares: basic-auth-global
+      traefik.http.middlewares.basic-auth-global.basicauth.usersfile: /credentials.txt
+
+  backend:
+    container_name: hon_flask_api_prod
+    image: hon_flask_api_prod
+    build: 
+      context: ./backend
+      dockerfile: ./docker/Dockerfile_prod
+    environment:
+      - FLASK_ENV=production
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+    # only needed if mysql db runs outisde of docker container on host machine
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    volumes:
+      - './logs/gunicorn:/var/log/gunicorn'
+      - './instance:/home/backend/instance'
+    stdin_open: true
+    tty: true
+  frontend:
+    container_name: hon_vue_prod
+    image: hon_vue_prod
+    build:
+      context: ./frontend
+      dockerfile: ./docker/Dockerfile_prod
+    expose:
+      - 80
+    volumes:
+      - './logs/nginx:/var/log/nginx'
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.profile.rule=Host(`frontend.hidingplace.publicvm.com`)"
+      - "traefik.http.routers.profile.entrypoints=websecure"
+      - "traefik.http.routers.profile.tls.certresolver=myresolver"
+      - "traefik.http.routers.profile.middlewares=secure-headers@file"
+      # - "traefik.http.routers.frontend.rule=Host(`frontend.phantomx.work.gd`)"
+
+
