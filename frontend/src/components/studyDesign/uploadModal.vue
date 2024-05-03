@@ -139,9 +139,9 @@ export default {
         }
         var foldernameNewFile
         if (paths.length > 1) {
-          foldernameNewFile = paths[paths.length - 2].split('.')[0]
+          foldernameNewFile = paths[paths.length - 2].split('.dcm')[0]
         } else {
-          foldernameNewFile = paths[paths.length - 1].split('.')[0]
+          foldernameNewFile = paths[paths.length - 1].split('.dcm')[0]
         }
 
         // check if similar folder already exists
