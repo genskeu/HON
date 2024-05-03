@@ -24,14 +24,14 @@ services:
       --entryPoints.websecure.proxyProtocol.trustedIPs=127.0.0.1/32
       --entryPoints.websecure.forwardedHeaders.trustedIPs=127.0.0.1/32
       --providers.file.filename=/config.yml
+      --api.dashboard=true 
       # --certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory
-      # --api.insecure=true 
     ports:
       # The HTTP port
       - "80:80"
       - "443:443"
       # The Web UI (enabled by --api.insecure=true)
-      # - "8080:8080"
+      - "8080:8080"
     volumes:
       # So that Traefik can listen to the Docker events
       - /var/run/docker.sock:/var/run/docker.sock
@@ -40,16 +40,15 @@ services:
       - ./traefik/.htpasswd:/credentials.txt
       - ./traefik/config.yml:/config.yml
     labels:
-      traefik.enable: true
-      traefik.http.routers.traefik_https.rule: Host(`traefik.hidingplace.publicvm.com`)
-      traefik.http.routers.traefik_https.entrypoints: websecure
-      traefik.http.routers.traefik_https.tls: true
-      traefik.http.routers.traefik_https.tls.certResolver: myresolver
-      traefik.http.routers.traefik_https.service: api@internal
-      traefik.http.services.traefik.loadbalancer.server.port: 8080
-      traefik.http.routers.traefik_https.middlewares: basic-auth-global
-      traefik.http.middlewares.basic-auth-global.basicauth.usersfile: /credentials.txt
-
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik_https.rule=Host(`traefik.phantomx.publicvm.com`)"
+      - "traefik.http.routers.traefik_https.entrypoints=websecure"
+      - "traefik.http.routers.traefik_https.tls=true"
+      - "traefik.http.routers.traefik_https.tls.certResolver=myresolver"
+      - "traefik.http.routers.traefik_https.service=api@internal"
+      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+      - "traefik.http.routers.traefik_https.middlewares=basic-auth-global"
+      - "traefik.http.middlewares.basic-auth-global.basicauth.usersfile=/credentials.txt"
   backend:
     container_name: hon_flask_api_prod
     image: hon_flask_api_prod
@@ -80,10 +79,11 @@ services:
       - './logs/nginx:/var/log/nginx'
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.profile.rule=Host(`frontend.hidingplace.publicvm.com`)"
-      - "traefik.http.routers.profile.entrypoints=websecure"
-      - "traefik.http.routers.profile.tls.certresolver=myresolver"
-      - "traefik.http.routers.profile.middlewares=secure-headers@file"
-      # - "traefik.http.routers.frontend.rule=Host(`frontend.phantomx.work.gd`)"
+      - "traefik.http.routers.frontend.rule=Host(`hon.phantomx.publicvm.com`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls.certresolver=myresolver"
+      # basic auth not used for frontend, since it would interfere with the jwt based auth used by hon right now
+      # - "traefik.http.routers.frontend.middlewares=frontend-auth"
+      # - "traefik.http.middlewares.frontend-auth.basicauth.users=adminStudy:$$2y$$05$$JW9HUMTBYc2XhR0EIfHx4O/wycVMAJEA1m1c1aZHcVlYImcNLMlCi"
 
 
