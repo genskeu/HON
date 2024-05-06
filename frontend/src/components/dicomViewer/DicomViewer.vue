@@ -153,7 +153,7 @@ export default {
             currentImageIdIndex: newStack.csStack.currentImageIdIndex,
             imageIds: newStack.csStack.imageIds
           }
-          this.loadDisplayCornerstone(stackToDisplay, newStack.savedViewport, newStack.savedToolstate, newStack.savedSegmentation)
+          this.loadAndDisplayVolume(stackToDisplay, newStack.savedViewport, newStack.savedToolstate, newStack.savedSegmentation)
         } else {
           this.resetViewer()
         }
@@ -237,10 +237,20 @@ export default {
         viewertype: this.viewerType
       })
     },
-    loadDisplayCornerstone (stack, viewportSaved = null, toolStateSaved = null) {
-      // load images and set the stack
-      this.loading = true
-      // bugs with chromium stack.imageIds.forEach((imageId) => cornerstone.loadAndCacheImage(imageId))
+    loadAndCacheVolume(imageIds, index) {
+      //console.log('loading image ' + index)
+      return new Promise((resolve) => {
+          resolve(cornerstone.loadAndCacheImage(imageIds[index]))
+      }).then(image => {
+        var idx = imageIds.findIndex((imageId) => image.imageId == imageId)
+        if (idx < imageIds.length-1) {
+          return this.loadAndCacheVolume(imageIds, index + 1)
+        } else {
+          return idx
+        } 
+      })
+    },
+    loadAndDisplayImage (stack, viewportSaved = null, toolStateSaved = null) {
       cornerstone.loadAndCacheImage(stack.imageIds[0])
         .then((image) => {
           this.activeImage = image
@@ -275,6 +285,14 @@ export default {
         .finally(() => {
           this.loading = false
       })
+    },
+    loadAndDisplayVolume (stack, viewportSaved = null, toolStateSaved = null) {
+      // load images and set the stack
+      this.loading = true
+      this.loadAndCacheVolume(stack.imageIds, 0).then(() => {
+        this.loadAndDisplayImage(stack, viewportSaved, toolStateSaved)
+      })
+      
     },
     // when no image selected load a black blank screen
     resetViewer () {
