@@ -1,7 +1,7 @@
 <template>
   <div class='tw-relative tw-grid tw-grid-cols-1' @cornerstoneimagerendered.capture='(event) => displayStackIndex(event)'>
     <!-- image viewer :style='viewerSizeCSS' -->
-    <div :id="'dicom-viewer-'+viewerIndex" ref='viewer' class='dicom_viewer tw-col-span-1 tw-relative'
+    <div v-show="!loading" :id="'dicom-viewer-'+viewerIndex" ref='viewer' class='dicom_viewer tw-col-span-1 tw-relative'
     @cornerstoneimagerendered="updateViewportSettings"
     @cornerstonetoolsmeasurementcompleted="addAnnotation"
     @cornerstonetoolsmeasurementmodified="updateAnnotation"
@@ -21,11 +21,6 @@
           </li>
         </ul>
       </div>
-      <div v-if="loading" tabindex="-1">
-        <div class="tw-h-10 tw-w-10 mx-auto spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-      </div>
       <div class='tw-absolute tw-bottom-0 tw-left-0 p-4 text-white'>
         <ul id='viewer_bl' class='tw-list-none tw-text-left'>
           <li ref='windowSettings'>{{this.windowSettings}}</li>
@@ -43,6 +38,11 @@
         </ul>
       </div>
     </div>
+    <div v-if="loading">
+        <div class="tw-h-10 tw-w-10 tw-absolute mx-auto spinner-border tw-relative text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
   </div>
 </template>
 
