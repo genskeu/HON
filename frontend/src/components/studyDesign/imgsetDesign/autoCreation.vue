@@ -42,31 +42,31 @@
       </div>
       <!-- imgset type -->
       <div class="input-group w-100">
-        <label class="input-group-text w-50">Img-Set Type</label>
-        <select class="form-select" ref="imgsetType">
+        <label class="input-group-text w-50">Type</label>
+        <select class="form-select" ref="imgsetType" v-model="type">
           <option value="standard">standard</option>
-          <!-- <option value="afc">alternative forced choice</option> -->
+          <option value="afc">afc</option>
         </select>
       </div>
       <!-- order -->
       <div class="input-group w-100">
-        <label class="input-group-text w-50">Img-Set Order</label>
-        <select class="form-select" ref="imgsetOrder">
+        <label class="input-group-text w-50">Order</label>
+        <select class="form-select" ref="imgsetOrder" v-model="order">
           <option value="ordered">ordered</option>
           <option value="random">random</option>
         </select>
       </div>
       <!-- signal info -->
-      <div v-if="afcCreateAuto" class="input-group w-100">
-        <label class="input-group-text">Signal Present Pattern:</label>
-        <select class="form-select pattern_imgset_auto" id="pos_pattern" placeholder="pattern pos class">
-          <option></option>
+      <div v-if="type=='afc'" class="input-group w-100">
+        <label class="input-group-text w-50">Pos Pattern</label>
+        <select class="form-select" id="pos_pattern" placeholder="pattern pos class" v-model="posPattern">
+          <option v-for="pattern in stackPatterns" :key="pattern" :value="pattern">{{pattern}}</option>
         </select>
       </div>
-      <div v-if="afcCreateAuto" class="input-group w-100">
-        <label class="input-group-text">Signal Absent Pattern:</label>
-        <select class="form-select pattern_imgset_auto" id="neg_pattern" placeholder="pattern neg class">
-          <option></option>
+      <div v-if="type=='afc'" class="input-group w-100">
+        <label class="input-group-text w-50">Neg Pattern</label>
+        <select class="form-select" id="neg_pattern" placeholder="pattern neg class" v-model="negPattern">
+          <option v-for="pattern in stackPatterns" :key="pattern" :value="pattern">{{pattern}}</option>
         </select>
       </div>
       <!-- viewport settings -->
@@ -185,6 +185,10 @@ export default {
       imagesetAddPosition: 1,
       popoverTitle: 'Section Info',
       popoverText: 'This section can be used to automatically add all uploaded images to Image-Sets as well as update or delete all imgsets created so far. Settings such as image position, windowing and zoom level can be controlled via the Viewer Settings Menu.',
+      type:'standard',
+      order:'ordered',
+      posPattern:null,
+      negPattern:null,
       viewerSettings: {
         windowWidth: null,
         windowCenter: null,
@@ -219,14 +223,19 @@ export default {
     refimageViewers () {
       return this.$store.getters['imageViewers/refviewers']
     },
-    afcCreateAuto () {
-      if (this.$refs.imgsetType) {
-        return this.$refs.imgsetType.value === 'afc'
-      }
-      return false
-    },
     stacks () {
       return this.$store.getters['currentStudy/stacks']
+    },
+    stackPatterns () {
+      var patterns = []
+      this.stacks.forEach(stack => {
+        var pattern = stack.name.split('_')[1]
+        if (!patterns.includes(pattern)){
+          patterns.push(pattern)
+        }
+
+      })
+      return patterns
     }
   },
   methods: {
@@ -236,6 +245,8 @@ export default {
     },
     createImgsets () {
       const studyId = this.$route.params.id
+      const order = this.$refs.imgsetOrder.value
+      const type = this.$refs.imgsetType.value
       const element = cornerstone.getEnabledElements()[0].element
       const imageId = this.stacks[0].cs_stack.imageIds[0]
       if (this.viewerSettings.windowCenter || this.viewerSettings.windowWidth || this.viewerSettings.scale || this.viewerSettings.rotation || this.viewerSettings.posX || this.viewerSettings.posY) {
@@ -252,7 +263,10 @@ export default {
             {
               studyId: studyId,
               viewport: viewport,
-              order: this.$refs.imgsetOrder.value,
+              order: order,
+              type: type, 
+              posPattern: this.posPattern,
+              negPattern: this.negPattern
             })
         })
       } else {
@@ -260,7 +274,10 @@ export default {
             {
               studyId: studyId,
               viewport: null,
-              order: this.$refs.imgsetOrder.value,
+              order: order,
+              type: type,
+              posPattern: this.posPattern,
+              negPattern: this.negPattern
             })
       }
     },

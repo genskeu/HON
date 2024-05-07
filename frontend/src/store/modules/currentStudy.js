@@ -593,41 +593,21 @@ const actions = {
         store.commit('loadingState/errorOccured', { errorData: response })
       })
   },
-  // imgsets
-  createImgsetsAuto ({ state, commit }, { studyId, viewport, order }) {
+  createImgsetsAuto ({ state, commit }, { studyId, viewport, order, type, posPattern, negPattern }) {
     store.commit('loadingState/startLoading', { title: 'Creating Image-Sets' })
-    var imgsets = []
     const viewerNumber = state.design.numb_img
-    const numberImgsets = state.stacks.length / viewerNumber
     const imgsetStartPosition = state.imageSets.length
-    var imageStacks = []
-    if (order == "ordered") {
-      imageStacks = state.stacks
-    } else if (order == "random") {
-      imageStacks = state.stacks.sort(() => Math.random() - 0.5)
+    var imageStacks = state.stacks
+    if (order == "random") {
+      imageStacks = imageStacks.sort(() => Math.random() - 0.5)
     } 
-    for (var imgsetIndex = 0; imgsetIndex < numberImgsets; imgsetIndex++) {
-      var imgset = {
-        stacks: [],
-        position: imgsetStartPosition + imgsetIndex
-      }
-      for (var i = 0; i < viewerNumber; i++) {
-        var stackIndex = imgsetIndex * viewerNumber + i
-        if (stackIndex >= imageStacks.length) {
-          continue
-        }
-        const imageIds = imageStacks[stackIndex].cs_stack.imageIds
-        var stack = {
-          stack_id: imageStacks[stackIndex].stack_id,
-          div_id: 'dicom_img_' + i,
-          name: imageStacks[stackIndex].name,
-          segmentation_data: '',
-          tool_state: imageIds.map(() => null),
-          viewport: viewport
-        }
-        imgset.stacks.push(stack)
-      }
-      imgsets.push(imgset)
+    var imgsets = []
+    if (type == 'standard') {
+      imgsets = createStandartImgsets(viewerNumber, imgsetStartPosition, imageStacks, viewport)
+    } else if (type == 'afc') {
+      imgsets = createAfcImgsets(viewerNumber, imgsetStartPosition, imageStacks, viewport, posPattern, negPattern)
+    } else {
+      console.log('Error: unknown type of imgset')
     }
     createImgsets(studyId, imgsets)
       .then(response => {
@@ -705,3 +685,68 @@ export default {
   actions,
   mutations
 }
+
+  // imgsets
+ function createStandartImgsets (viewerNumber, imgsetStartPosition, imageStacks, viewport) {
+    const numberImgsets = state.stacks.length / viewerNumber
+    var imgsets = []
+    for (var imgsetIndex = 0; imgsetIndex < numberImgsets; imgsetIndex++) {
+      var imgset = {
+        stacks: [],
+        position: imgsetStartPosition + imgsetIndex
+      }
+      for (var i = 0; i < viewerNumber; i++) {
+        var stackIndex = imgsetIndex * viewerNumber + i
+        if (stackIndex >= imageStacks.length) {
+          continue
+        }
+        const imageIds = imageStacks[stackIndex].cs_stack.imageIds
+        var stack = {
+          stack_id: imageStacks[stackIndex].stack_id,
+          div_id: 'dicom_img_' + i,
+          name: imageStacks[stackIndex].name,
+          segmentation_data: '',
+          tool_state: imageIds.map(() => null),
+          viewport: viewport
+        }
+        imgset.stacks.push(stack)
+      }
+      imgsets.push(imgset)
+    }
+    return imgsets
+  }
+
+  function createAfcImgsets (viewerNumber, imgsetStartPosition, imageStacks, viewport, pos_pattern, neg_pattern) {
+    var imgsets = []
+    const imgaeStacksPos = imageStacks.filter(stack => stack.name.split('_')[1] == (pos_pattern))
+    const imgaeStacksNeg = imageStacks.filter(stack => stack.name.split('_')[1] == (neg_pattern))
+    imgaeStacksPos.forEach((stack, index) => {
+      var group = stack.name.split('_')[2]
+      var imgaeStacksNegGroup = imgaeStacksNeg.filter(stack => stack.name.split('_')[2] == group)
+      var imgset = {
+        stacks: [],
+        position: imgsetStartPosition + index
+      }
+      // pick viewernumber - 1 random negative stacks, without repitition
+      imgaeStacksNegGroup.sort(() => Math.random() - 0.5)
+      var stacksRaw = imgaeStacksNegGroup.slice(0, viewerNumber - 1)
+      // add positive stack at random position
+      var posStackIndex = Math.floor(Math.random() * viewerNumber)
+      stacksRaw.splice(posStackIndex, 0, stack)
+
+      stacksRaw.forEach((stackRaw, i) => {
+        const imageIds = stackRaw.cs_stack.imageIds
+        var stack = {
+          stack_id: stackRaw.stack_id,
+          div_id: 'dicom_img_' + i,
+          name: stackRaw.name,
+          segmentation_data: '',
+          tool_state: imageIds.map(() => null),
+          viewport: viewport
+        }
+        imgset.stacks.push(stack)
+      })
+      imgsets.push(imgset)
+    })
+    return imgsets
+  }
