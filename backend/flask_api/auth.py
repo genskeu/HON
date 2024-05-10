@@ -69,7 +69,7 @@ def login():
             role = "user_admin"
         access_token = create_access_token(identity=user.id, additional_claims = {"role":role})
         refresh_token = create_refresh_token(identity=user.id)
-        response = jsonify(accessToken=access_token, refreshToken=refresh_token, role=role)
+        response = jsonify(accessToken=access_token, refreshToken=refresh_token, role=role, username=user.username, id=user.id, access_level=user.access_level)
         return response, 201
     else:
         return jsonify({"error_msg": error}), 401

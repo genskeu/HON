@@ -29,6 +29,7 @@ def get_user(id):
         error = f"User with id: {id} not found."
 
     if error is None:
+        user = user.to_dict()
         return jsonify({"user": user}), 200
     else:
         return jsonify({"error_msg": error}), 404
@@ -113,8 +114,7 @@ def modify_user(id):
                 except:
                     print(f"Could not create {path}.")
                     return jsonify({"error_msg":"Could not create {path}."}), 400
-                else:
-                    return jsonify({"user":user.to_dict()}), 200
+            return jsonify({"user":user.to_dict()}), 200
         else:
             error = "Permission denied." 
             return jsonify({"error_msg": error}), 401

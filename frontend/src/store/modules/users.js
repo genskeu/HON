@@ -1,5 +1,5 @@
 /* fetchUser, createUser, updateUser,  */
-import { fetchUsers, deleteUser } from '@/api'
+import { fetchUser, fetchUsers, updateUser, deleteUser } from '@/api'
 import store from '@/store'
 
 const getDefaultState = () => {
@@ -33,6 +33,18 @@ const actions = {
         store.commit('loadingState/errorOccured', { errorData: response })
       })
   },
+  updUser ( {commit, state }, userId ) {
+    store.commit('loadingState/startLoading', { title: 'Updating User' })
+    updateUser(userId, state.currentUser)
+    .then(() => {
+      commit('updCurrentUser', userId, state.currentUser)
+      commit('updUser', state.currentUser)
+      store.commit('loadingState/finishLoading')
+    })
+    .catch((response) => {
+      store.commit('loadingState/errorOccured', { errorData: response })
+    })
+  },
   delUser ({ commit }, userId) {
     store.commit('loadingState/startLoading', { title: 'Deleting User' })
     deleteUser(userId)
@@ -46,7 +58,20 @@ const actions = {
   },
   reset ({ commit }) {
     commit('reset')
-  }
+  },
+  setUser ({ commit }, userId) {
+    store.commit('loadingState/startLoading', { title: 'Loading User' })
+    fetchUser(userId)
+      .then((response) => {
+        var user = response.data.user
+        user["password"] = ""
+        commit('setUser', response.data.user)
+        store.commit('loadingState/finishLoading')
+      })
+      .catch((response) => {
+        store.commit('loadingState/errorOccured', { errorData: response })
+      })
+    }
 }
 
 const mutations = {
@@ -62,6 +87,18 @@ const mutations = {
   deleteStudy (state, userId) {
     const index = state.users.findIndex(user => user.id === userId)
     state.users.splice(index, 1)
+  },
+  setUser (state, user) {
+    state.currentUser = user
+  },
+  updCurrentUser (state, user) {
+    for (const key in user) {
+      state.currentUser[key] = user[key]
+    }
+  },
+  updUser (state, user) {
+    const index = state.users.findIndex(u => u.id === user.id)
+    state.users.splice(index, 1, user)
   }
 }
 

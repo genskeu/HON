@@ -34,7 +34,7 @@ const routes = [
     meta: { requireAuth: true }
   },
   {
-    path: '/user-profile/:id',
+    path: '/user-profile',
     name: 'UserProfile',
     component: UserProfile,
     meta: { requireAuth: true }
@@ -129,6 +129,13 @@ const routes = [
         components: {
           helper: UserOverview
         }
+      },
+      {
+        path: 'edit-user/:id',
+        name: 'editUser',
+        components: {
+          helper: UserProfile
+        }
       }
     ]
   }
@@ -149,7 +156,7 @@ router.beforeEach(async (to) => {
     } else if (store.state.auth.user.role === 'study_admin') {
       router.push('/study-management/study-overview')
     } else if (store.state.auth.user.role === 'user_admin') {
-      router.push('/user-overview')
+      router.push('/user-management/user-overview')
     }
   }
 })
@@ -162,7 +169,7 @@ router.beforeEach(async (to) => {
     } else if (store.state.auth.user.role === 'study_admin') {
       router.push('/study-management/study-overview')
     } else if (store.state.auth.user.role === 'user_admin') {
-      router.push('/user-overview')
+      router.push('/user-management/user-overview')
     }
   }
 })

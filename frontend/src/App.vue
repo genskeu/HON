@@ -22,12 +22,12 @@
             <li v-if="isStudyParticipant & !studyOpened" class="nav-item">
               <router-link to="/study/login" class="nav-link">Study Login</router-link>
             </li>
-            <!-- <li v-if="loggedIn" class="nav-item">
-              <router-link to="/user-profile/1" class="nav-link">User Profile</router-link>
-            </li> -->
             <li v-if="isStudyAdmin" class="nav-item">
               <router-link to="/tutorials" class="nav-link">Tutorials</router-link>
             </li>
+<!--             <li v-if="loggedIn" class="nav-item">
+              <router-link to="/user-profile" class="nav-link">User Profile</router-link>
+            </li> -->
             <li v-if="loggedIn" @click="handleLogout" class="nav-item">
               <a class="btn nav-link">Logout</a>
             </li>

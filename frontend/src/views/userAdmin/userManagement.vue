@@ -24,6 +24,9 @@ export default {
     return {
     }
   },
+  beforeCreate () {
+    return this.$store.dispatch('users/initUsers')
+  },
   methods: {
   },
   computed: {
@@ -31,9 +34,7 @@ export default {
       return this.$store.getters['loadingState/state']
     }
   },
-  mounted () {
-    return this.$store.dispatch('users/initUsers')
-  }
+
 }
 </script>
 
