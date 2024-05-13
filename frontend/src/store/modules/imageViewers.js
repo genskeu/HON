@@ -4,9 +4,11 @@ import cornerstoneTools from 'cornerstone-tools'
 import { tools } from '@/components/dicomViewer/tools'
 
 const getDefaultState = () => {
+  var scrollSynchronizer = new cornerstoneTools.Synchronizer("cornerstonetoolsstackscroll", cornerstoneTools.stackScrollSynchronizer)
   return {
     refviewers: [],
-    viewers: []
+    viewers: [],
+    synchronizers: {"scrollSynchronizer": scrollSynchronizer},
   }
 }
 
@@ -166,6 +168,12 @@ const getters = {
       }
     })
     return imgset
+  },
+  synchronizers (state) {
+    return state.synchronizers
+  },
+  scrollSynchronizer (state) {
+    return state.synchronizers["scrollSynchronizer"]
   }
 }
 
