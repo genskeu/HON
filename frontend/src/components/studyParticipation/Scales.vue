@@ -38,7 +38,9 @@ export default {
         // find the first scale that has not been answered
         var scale = this.scalesInput.find(scale => scale.value === null)
         if (scale) {
-          scale.value = e.key
+          if (e.key >= scale.min & e.key <= scale.max) {
+            scale.value = e.key
+          }
         }
       }
     }

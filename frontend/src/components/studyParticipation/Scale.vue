@@ -59,10 +59,9 @@ export default {
         }
       },
       set (value) {
-        this.$store.commit('currentStudy/scaleInput',
+        this.$store.commit('currentStudy/updScaleInput',
           {
             index: this.scaleIndex,
-            scaleName: this.scaleText,
             scaleValue: value
           })
       }
@@ -73,7 +72,9 @@ export default {
       {
         index: this.scaleIndex,
         scaleName: this.scaleText,
-        scaleValue: null
+        scaleValue: null,
+        scaleMin: this.scaleMin,
+        scaleMax: this.scaleMax
       })
   }
 }

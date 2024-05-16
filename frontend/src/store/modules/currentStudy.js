@@ -50,9 +50,11 @@ const state = getDefaultState()
 // }
 
 class ScaleInput {
-  constructor (scaleName, scaleValue, uuidAnnoation = null) {
+  constructor (scaleName, scaleValue, scaleMin, scaleMax, uuidAnnoation = null) {
     this.name = scaleName
     this.value = scaleValue
+    this.min = scaleMin
+    this.max = scaleMax
     this.uuid = uuidAnnoation
   }
 }
@@ -343,9 +345,12 @@ const mutations = {
   delScale (state, payload) {
     state.design.scales.splice(payload.index)
   },
-  scaleInput (state, { index, scaleName, scaleValue }) {
-    const scale = new ScaleInput(scaleName, scaleValue)
+  scaleInput (state, { index, scaleName, scaleValue, scaleMin, scaleMax}) {
+    const scale = new ScaleInput(scaleName, scaleValue, scaleMin, scaleMax)
     state.scalesInput[index] = scale
+  },
+  updScaleInput (state, { index, scaleValue }) {
+    state.scalesInput[index].scaleValue = scaleValue
   },
   resetScales (state) {
     var scalesDefault = []
