@@ -18,6 +18,9 @@ const mutations = {
     state.errorOccured = false
     state.errorData = null
   },
+  updLoading (state, { title }) {
+    state.title = title
+  },
   errorOccured (state, { errorData }) {
     state.isLoading = true
     state.errorOccured = true

@@ -61,7 +61,7 @@ export default {
       return this.$store.getters['loadingState/state']
     }
   },
-  beforeCreate () {
+  mounted () {
     // get study data from backend
     const id = this.$route.params.id
     if (id) {
