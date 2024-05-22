@@ -30,11 +30,11 @@ export default {
       return this.$store.getters['loadingState/state']
     }
   },
-  beforeCreate () {
+  mounted () {
     // get study data from backend
     const id = this.$route.params.id
     if (id) {
-      this.$store.dispatch('currentStudy/openStudy', id)
+      this.$store.dispatch('currentStudy/openStudy', { id:id, preLoadImages:true } )
     }
   },
   methods: {

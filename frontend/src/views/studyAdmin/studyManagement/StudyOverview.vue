@@ -64,13 +64,13 @@ export default {
   },
   methods: {
     editStudy (studyId) {
-      this.$store.dispatch('currentStudy/openStudy', studyId)
+      this.$store.dispatch('currentStudy/openStudy', { id:studyId, preLoadImages:false })
         .then(() => {
           router.push(studyId + '/metainfos')
         })
     },
     showResults (studyId) {
-      this.$store.dispatch('currentStudy/openStudy', studyId)
+      this.$store.dispatch('currentStudy/openStudy', { id:studyId, preLoadImages:false })
         .then(() => {
           router.push(studyId + '/results')
         })

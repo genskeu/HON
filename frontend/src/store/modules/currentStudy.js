@@ -451,7 +451,7 @@ const mutations = {
 }
 
 const actions = {
-  openStudy (context, id) {
+  openStudy (context, {id, preLoadImages}) {
     store.commit('loadingState/startLoading', { title: 'Opening Study' })
     fetchStudy(id)
       .then((response) => {
@@ -465,10 +465,14 @@ const actions = {
         for (let i = 0; i < refviewerNumber; i++) {
           store.commit('imageViewers/initViewer', { viewertype: 'refviewers' })
         }
-        loadAndCacheVolumes(data.study.stacks, 0)
-          .then(() => {
-            store.commit('loadingState/finishLoading')
-          })
+        if (preLoadImages) {
+          loadAndCacheVolumes(data.study.stacks, 0)
+            .then(() => {
+              store.commit('loadingState/finishLoading')
+            })
+        } else {
+          store.commit('loadingState/finishLoading')
+        }
       })
       .catch((response) => {
         store.commit('loadingState/errorOccured', { errorData: response })
@@ -505,7 +509,7 @@ const actions = {
       .then((response) => {
         localStorage.setItem('user', JSON.stringify(response.data))
         const studyId = response.data.study_loggedin
-        context.dispatch('openStudy', studyId).then(() => router.push(studyId + '/participation'))
+        context.dispatch('openStudy', { id:studyId, preLoadImages:true } ).then(() => router.push(studyId + '/participation'))
       })
   },
   createNewStudy ({ commit }) {
@@ -747,18 +751,15 @@ export default {
     return imgsets
   }
 
-  function loadAndCacheVolume(imageIds, index) {
+  cornerstone.imageCache.setMaximumSizeBytes(4000000000)
+  function loadAndCacheVolume(imageIds) {
     //console.log('loading image ' + index)
-    return new Promise((resolve) => {
-        resolve(cornerstone.loadAndCacheImage(imageIds[index]))
-    }).then(image => {
-      var idx = imageIds.findIndex((imageId) => image.imageId == imageId)
-      if (idx < imageIds.length-1) {
-        return loadAndCacheVolume(imageIds, index + 1)
-      } else {
-        return idx
-      } 
+    var promisis = []
+    imageIds.forEach((imageId) => {
+      var promis = cornerstone.loadAndCacheImage(imageId)
+      promisis.push(promis)
     })
+    return Promise.all(promisis)
   }
 
   function loadAndCacheVolumes(stacks, index) {
