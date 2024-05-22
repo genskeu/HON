@@ -351,7 +351,8 @@ const mutations = {
     state.scalesInput[index] = scale
   },
   updScaleInput (state, { index, scaleValue }) {
-    state.scalesInput[index].scaleValue = scaleValue
+    state.scalesInput[index].value = scaleValue
+    console.log(state.scalesInput[index])
   },
   resetScales (state) {
     var scalesDefault = []
