@@ -8,7 +8,7 @@ export const tools = {
         },
       WwwcRegion: 
         {
-          name:'Windowing (region auto)',
+          name:'Windowing (region)',
           symbol:"&#9632;"
         },      
       Pan: 
@@ -93,11 +93,11 @@ export const tools = {
   toolsMousewheel: {
     viewerSetting: {
       ZoomMouseWheel: {
-        name: 'Zoom image (mouse wheel)',
+        name: 'Zoom image',
         symbol:"&#128269;"
       },   
       StackScrollMouseWheel: {
-        name: 'Stack scroll (mouse wheel)',
+        name: 'Stack scroll',
         symbol:"&#8593;&#8595;"
       }
     }

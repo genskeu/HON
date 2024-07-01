@@ -171,6 +171,25 @@ const getters = {
   tools (state) {
     return state.design.tools
   },
+  toolSettings: (state) => (toolName) => {
+    var tool = state.design.tools.find(tool => tool.cs_name === toolName)
+    if (tool) {
+      return tool.settings
+    } else {
+      return undefined
+    }
+  },
+  synchronizeScroll (state) {
+    var synched = false
+    state.design.tools.forEach((tool) => {
+      if (tool.cs_name.includes("Scroll")) {
+        if (tool.settings) {
+          synched = tool.settings.synched
+        }
+      }
+    })
+    return synched
+  },
   // complete list of tools (user interface study design)
   annToolsMousekeysSettings (state) {
     var toolsAnnotation = tools.toolsMousekeys.annotation
