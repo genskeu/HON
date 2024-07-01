@@ -151,7 +151,7 @@ export default {
       const imgset = this.$store.getters['imageViewers/getImgset']
       if (this.imgsetDisplayed === undefined && this.imgsets.length > 0) {
         imgset.position = this.imgsets[this.imgsets.length - 1].position + 1
-      } else if (this.imgsetDisplayed === null) {
+      } else if (this.imgsetDisplayed === null || this.imgsetDisplayed === undefined) {
         imgset.position = 0
       } else {
         imgset.position = this.imgsetDisplayed.position + 1

@@ -4,16 +4,16 @@
             <h6 id="scale_heading_" class="mt-1 scale_heading">Scale {{this.scaleIndex + 1}}</h6>
         </span> -->
         <!-- participant view of scale -->
-        <div class="mx-auto mb-3 scale_view_user" id="scale_view_user_">
+        <div class="mx-auto mb-3 scale_view_user">
             <div class="row mx-auto justify-content-center">
-                <div id="scale_text_" class="col scale_text" style="white-space: pre-wrap; text-align: center">
+                <div class="col scale_text" style="white-space: pre-wrap; text-align: center">
                     {{this.scaleText}}
                 </div>
             </div>
             <div class="mx-auto justify-content-center mt-1 scale_values">
                 <div v-for="(value, index) in scaleValues" :key="value" class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" :value="value" :name=this.scaleIndex v-model="scaleInput">
-                    <label class="form-check-label" for="inlineRadio1">{{scaleLabels[index]}}</label>
+                    <label class="form-check-label">{{scaleLabels[index]}}</label>
                 </div>
             </div>
         </div>
@@ -64,6 +64,10 @@ export default {
             index: this.scaleIndex,
             scaleValue: value
           })
+        // find radio button that was clicked and blur it
+        var radio = document.querySelector('input[name="' + this.scaleIndex + '"][value="' + value + '"]')
+        radio.blur()
+
       }
     }
   },
