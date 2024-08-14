@@ -14,6 +14,9 @@
         <div class="form-group">
           <input type="submit" value="Login" class="bg-success btn btn-success btn-lg btn-block w-100">
         </div>
+        <div class="mt-3">
+          This software has been developed for Chrome, Firefox, and Edge. It is not guaranteed to work on other browsers such as Safari. Please use one of the supported browsers.
+        </div>
       </form>
     </div>
   </div>
