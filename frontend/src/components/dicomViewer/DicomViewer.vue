@@ -51,6 +51,7 @@ import Hammer from 'hammerjs'
 import dicomParser from 'dicom-parser'
 import cornerstoneMath from 'cornerstone-math'
 import cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader'
+import cornerstoneWebImageLoader from 'cornerstone-web-image-loader'
 import cornerstone from 'cornerstone-core'
 import cornerstoneTools from 'cornerstone-tools'
 // import axios from 'axios'
@@ -61,6 +62,8 @@ cornerstoneWADOImageLoader.external.dicomParser = dicomParser
 cornerstoneTools.external.cornerstoneMath = cornerstoneMath
 cornerstoneTools.external.cornerstone = cornerstone
 cornerstoneTools.external.Hammer = Hammer
+cornerstoneWebImageLoader.external.cornerstone = cornerstone
+
 
 export default {
   name: 'DicomViewer',

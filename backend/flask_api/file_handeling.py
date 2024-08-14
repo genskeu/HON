@@ -55,7 +55,7 @@ def upload_files(study):
             folder, filename = path[-1].split(".")[0], path[-1]
         filename = secure_filename(filename)
         folder = secure_filename(folder)
-        stack_base_url = f"flask-api/get_file/{user_id}/{study.id}/{folder}/"
+        stack_base_url = f"{request.origin}/flask-api/get_file/{user_id}/{study.id}/{folder}/"
         stack = Stack.query.filter_by(base_url=stack_base_url).first()
         stack_dir = os.path.join(image_dir, folder)
         # stack not part of study yet
@@ -145,7 +145,7 @@ def delete_files(study):
 
     # delete from db
     for stack in stacks:
-        base_url = f"flask-api/get_file/{user_id}/{study.id}/{stack['name']}/"
+        base_url = f"{request.origin}/flask-api/get_file/{user_id}/{study.id}/{stack['name']}/"
         stackDB = Stack.query.filter_by(base_url=base_url).first()
 
         if stack is None:

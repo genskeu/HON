@@ -454,8 +454,10 @@ class Stack(db.Model):
         stack["cs_stack"] = {"imageIds":[], "currentImageIdIndex":0}
         for image in self.images:
             url = os.path.join(self.base_url,image.name)
-            if ".dcm" in image.name.lower():
-                url = "wadouri:" + url                
+            # necessary for dicom images (wado image loader)
+            if image.name.lower().endswith(".dcm"):
+                url = "wadouri:" + url   
+
             stack["cs_stack"]["imageIds"].append(url)
         stack["cs_stack"]["imageIds"]
         stack["cs_stack"]["imageIds"].sort()

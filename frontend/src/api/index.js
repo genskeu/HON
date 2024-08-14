@@ -3,6 +3,7 @@ import axios from 'axios'
 // import router from '@/router'
 // import store from '@/store'
 import cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader'
+import cornerstoneWebImageLoader from 'cornerstone-web-image-loader'
 
 // production backend reached via nginx proxy (nginx.conf)
 // development backend reached via vue-cli-service dev server proxy (vue.config.js)
@@ -11,7 +12,13 @@ const API_URL = 'flask-api'
 //
 cornerstoneWADOImageLoader.configure({
   beforeSend: function (xhr) {
-    // debugger // eslint-disable-line no-debugger
+    const user = JSON.parse(localStorage.getItem('user'))
+    xhr.setRequestHeader('Authorization', 'Bearer ' + user.accessToken)
+  }
+})
+
+cornerstoneWebImageLoader.configure({
+  beforeSend: function (xhr) {
     const user = JSON.parse(localStorage.getItem('user'))
     xhr.setRequestHeader('Authorization', 'Bearer ' + user.accessToken)
   }
