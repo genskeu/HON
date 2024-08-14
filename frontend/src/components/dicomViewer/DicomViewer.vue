@@ -150,6 +150,9 @@ export default {
     scrollSynchronizer () {
       return this.$store.getters['imageViewers/scrollSynchronizer']
     },
+    synchronizeScroll () {
+      return this.$store.getters['currentStudy/synchronizeScroll']
+    }
   },
   watch: {
     stackDisplayed: {
@@ -222,7 +225,9 @@ export default {
     initViewer () {
       // enable element for cornerstone
       cornerstone.enable(this.$refs.viewer)
-      this.scrollSynchronizer.add(this.$refs.viewer)
+      if (this.synchronizeScroll) {
+        this.scrollSynchronizer.add(this.$refs.viewer)
+      }
       // disable right click on image viewer
       this.$refs.viewer.addEventListener(
         'contextmenu',

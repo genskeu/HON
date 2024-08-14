@@ -63,16 +63,16 @@ export default {
     },
     methods: {
         activateTool(event) {
-            const tool = event.target.value
+            const toolName = event.target.value
             event.preventDefault()
             var mouseButton = this.mouseKey
-            if (this.activeTool === tool) {
+            if (this.activeTool === toolName) {
                 return
             } else if (this.activeTool) {
                 cornerstoneTools.setToolPassive(this.activeTool, { mouseButtonMask: mouseButton })
             } 
-            cornerstoneTools.setToolActive(tool, { mouseButtonMask: mouseButton })
-            this.activeTool = tool
+            cornerstoneTools.setToolActive(toolName, { mouseButtonMask: mouseButton })
+            this.activeTool = toolName
         }
     }
 }

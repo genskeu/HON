@@ -28,7 +28,22 @@
             <div class="form-check w-100 input-group-text mb-0">
               <input type="checkbox" name="toolsCheck" :value="label" v-model="toolsParticipant"/>
               <label class="ms-2 form-check-label">{{tool}}</label>
+              <button v-if="label.cs_name.includes('Scroll')" class="ms-auto btn btn-light btn-sm" data-bs-toggle="collapse"
+                :data-bs-target="'#' + label.cs_name + 'Settings'" aria-expanded="true"
+                :aria-controls="label.cs_name + 'Settings'">Settings
+              </button>
             </div>
+
+            <div v-if="label.cs_name.includes('Scroll')" class="mx-auto collapse  w-100" :id="label.cs_name + 'Settings'">
+              <div class="input-group mx-auto w-100">
+                <label class="input-group-text w-35 bg-light">Synch Viewers</label>
+                <div class="form-switch form-control mb-0">
+                  <input class="form-check-input mr-2" type="checkbox"
+                  :checked="label.settings.synched" @change="(event) => updateToolSettings(event.target.checked, label.cs_name, 'synched')">
+                </div>
+              </div>            
+            </div>    
+
         </div>
         <div class="input-group-text bg-gray-300 w-100">
           Annotations Mousekeys
@@ -41,21 +56,21 @@
                 :data-bs-target="'#' + label.cs_name + 'Settings'" aria-expanded="true"
                 :aria-controls="label.cs_name + 'Settings'">Settings</button>
             </div>
-          <!-- tool setting, only implemented interface for annotaton tools (circle rois) -->
+          <!-- tool setting, only implemented interface for circle rois and windowing -->
           <div v-if="label.cs_name === 'CircleRoi'" class="mx-auto collapse" :id="label.cs_name + 'Settings'">
             <div class="input-group mx-auto">
               <label class="input-group-text w-35 bg-light">Diameter (mm)</label>
-              <input :value="label.settings.size" @change="(event) => updateToolSettings(event, label.cs_name, 'size')"
+              <input :value="label.settings.size" @change="(event) => updateToolSettings(event.target.value, label.cs_name, 'size')"
                 type="Number" step="0.01" min="0.1" class="form-control" placeholder="size in px" />
             </div>
             <div class="input-group mx-auto">
               <label class="input-group-text bg-light w-35">Number</label>
               <input :value="label.settings.minNumber"
-                @change="(event) => updateToolSettings(event, label.cs_name, 'minNumber')" type="Number" step="any"
+                @change="(event) => updateToolSettings(event.target.value, label.cs_name, 'minNumber')" type="Number" step="any"
                 min="0" class="form-control" placeholder="min" />
                 <label class="input-group-text">-</label>
               <input :value="label.settings.maxNumber"
-                @change="(event) => updateToolSettings(event, label.cs_name, 'maxNumber')" type="Number" step="any"
+                @change="(event) => updateToolSettings(event.target.value, label.cs_name, 'maxNumber')" type="Number" step="any"
                 class="form-control wc " placeholder="max" />
             </div>
             <div v-if="label.settings.maxNumber && label.settings.maxNumber > label.settings.minNumber">
@@ -93,7 +108,19 @@
             <div class="input-group-text w-100">
               <input type="checkbox" class="mr-3" id="" name="toolsCheck" :value="label" v-model="toolsParticipant" />
               <label class="ms-2 form-check-label">{{tool}}</label>
+              <button v-if="label.cs_name.includes('Scroll')" class="ms-auto btn btn-light btn-sm" data-bs-toggle="collapse"
+                :data-bs-target="'#' + label.cs_name + 'Settings'" aria-expanded="true"
+                :aria-controls="label.cs_name + 'Settings'">Settings</button>
             </div>
+            <div v-if="label.cs_name.includes('Scroll')" class="mx-auto collapse  w-100" :id="label.cs_name + 'Settings'">
+              <div class="input-group mx-auto w-100">
+                <label class="input-group-text w-35 bg-light">Synch Viewers</label>
+                <div class="form-switch form-control mb-0">
+                  <input class="form-check-input mr-2" type="checkbox"
+                  :checked="label.settings.synched" @change="(event) => updateToolSettings(event.target.checked, label.cs_name, 'synched')">
+                </div>
+              </div>            
+            </div>   
           </div>
         </div>
       </div>
@@ -142,8 +169,8 @@ export default {
     }
   },
   methods: {
-    updateToolSettings (event, csName, propName) {
-      const payload = { csName: csName, value: event.target.value, propName: propName }
+    updateToolSettings (value, csName, propName) {
+      const payload = { csName: csName, value: value, propName: propName }
       this.$store.commit('currentStudy/toolSettings', payload)
     },
     updateToolLabel (event, csName, labelIndex) {
