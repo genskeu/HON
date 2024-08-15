@@ -5,11 +5,13 @@ LABEL maintainer "Ulrich Genske"
 # Set the working directory
 WORKDIR /home/frontend
 
+RUN rm ./vue.config.js 
 # Copy the code
 COPY src /home/frontend/src
 COPY public /home/frontend/public
 
 # build project
+RUN npx update-browserslist-db@latest
 RUN npm run build
 
 RUN rm -r /home/frontend/src
