@@ -25,9 +25,9 @@
             <li v-if="isStudyAdmin" class="nav-item">
               <router-link to="/tutorials" class="nav-link">Tutorials</router-link>
             </li>
-<!--             <li v-if="loggedIn" class="nav-item">
-              <router-link to="/user-profile" class="nav-link">User Profile</router-link>
-            </li> -->
+            <li v-if="loggedIn" class="nav-item">
+              <router-link to="" class="nav-link">Logged in as {{getUsername}}</router-link>
+            </li>
             <li v-if="loggedIn" @click="handleLogout" class="nav-item">
               <a class="btn nav-link">Logout</a>
             </li>
@@ -50,6 +50,9 @@ export default {
   computed: {
     currentUser () {
       return this.$store.state.auth.user
+    },
+    getUsername () {
+      return this.currentUser.username
     },
     loggedIn () {
       if (this.currentUser) {
