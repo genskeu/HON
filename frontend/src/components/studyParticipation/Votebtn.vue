@@ -1,50 +1,56 @@
 <template>
-    <div class="row mx-auto">
-        <h4 class="mx-auto" style="text-align:center;">
-            <button class="btn btn-success vote_button mx-auto" @click="saveResult">{{this.buttonLabel}}</button>
-        </h4>
-    </div>
+  <div class="row mx-auto">
+      <h4 class="mx-auto" style="text-align:center;">
+          <button class="btn btn-success vote_button mx-auto" @click="saveResult" :disabled="isLoading">{{this.buttonLabel}}</button>
+      </h4>
+  </div>
 </template>
 
 <script>
 import cornerstoneTools from 'cornerstone-tools'
 
 export default {
-  name: 'VoteBtn',
-  props: {
-    viewerIndex: Number
+name: 'VoteBtn',
+props: {
+  viewerIndex: Number
+},
+computed: {
+  buttonLabel () {
+    return this.$store.getters['currentStudy/buttonLabels']
   },
-  computed: {
-    buttonLabel () {
-      return this.$store.getters['currentStudy/buttonLabels']
-    },
-    scales () {
-      return this.$store.getters['currentStudy/scales']
-    },
-    scalesInput () {
-      return this.$store.getters['currentStudy/scalesInput']
-    },
-    scalesInputDB () {
-      return this.$store.getters['currentStudy/scalesInputDB']
-    },
-    imgsetDisplayed () {
-      return this.$store.getters['currentStudy/imgsetDisplayed']
-    },
-    imgsetInput () {
-      return this.$store.getters['imageViewers/getImgset']
-    },
-    refimageViewers () {
-      return this.$store.getters['imageViewers/refviewers']
-    },
-    toolsParticipant () {
-      return this.$store.getters['currentStudy/tools']
-    },
-    imageViewers () {
-      return this.$store.getters['imageViewers/viewers']
-    }
+  scales () {
+    return this.$store.getters['currentStudy/scales']
   },
-  methods: {
-    saveResult () {
+  scalesInput () {
+    return this.$store.getters['currentStudy/scalesInput']
+  },
+  scalesInputDB () {
+    return this.$store.getters['currentStudy/scalesInputDB']
+  },
+  imgsetDisplayed () {
+    return this.$store.getters['currentStudy/imgsetDisplayed']
+  },
+  imgsetInput () {
+    return this.$store.getters['imageViewers/getImgset']
+  },
+  refimageViewers () {
+    return this.$store.getters['imageViewers/refviewers']
+  },
+  toolsParticipant () {
+    return this.$store.getters['currentStudy/tools']
+  },
+  imageViewers () {
+    return this.$store.getters['imageViewers/viewers']
+  },
+  isLoading () {
+    return this.$store.getters['loadingState/isLoading']
+  }
+},
+methods: {
+  saveResult () {
+    if (this.isLoading) {
+      return
+    } else {
       // get viewer id
       // get displayed imagestacks incl viewport settings (ww, wc ...) and tool states from store
       const imgset = this.imgsetInput
@@ -68,66 +74,67 @@ export default {
         return
       }
       this.$store.dispatch('currentStudy/saveResult', payload)
-    },
-    // helper function to check if labeled tools are used in this study
-    // ensure for all labeled tools measurments were taken
-    labeledTools () {
-      const toolsLabeld = this.toolsParticipant.filter(tool => tool.settings.labels !== undefined)
-      var toolCsNames = []
-      toolsLabeld.forEach((tool) => {
-        tool.settings.labels.forEach(label => {
-          toolCsNames.push(tool.cs_name + '-' + label)
-        })
+    }
+  },
+  // helper function to check if labeled tools are used in this study
+  // ensure for all labeled tools measurments were taken
+  labeledTools () {
+    const toolsLabeld = this.toolsParticipant.filter(tool => tool.settings.labels !== undefined)
+    var toolCsNames = []
+    toolsLabeld.forEach((tool) => {
+      tool.settings.labels.forEach(label => {
+        toolCsNames.push(tool.cs_name + '-' + label)
       })
-      return toolCsNames
-    },
-    numbAnnsStack (stack, toolName) {
-      const imageIds = stack.imageIds
-      const toolState = imageIds.map((id) => {
-        return cornerstoneTools.globalImageIdSpecificToolStateManager.getImageIdToolState(id, toolName)
-      })
-      const toolStateFiltered = toolState.filter((state) => state !== undefined)
-      const lengthToolState = toolStateFiltered.reduce((length, state) => {
-        return length + state.data.length
-      }, 0)
-      return lengthToolState
-    },
-    checkLabeledAnnsPresent (stack) {
-      var allLabelsPresent = true
-      this.labeledTools().forEach((labeldTool) => {
-        const numbAnn = this.numbAnnsStack(stack, labeldTool)
-        if (numbAnn === 0) {
-          alert('Missing Measurement ' + labeldTool)
-          allLabelsPresent = false
-        }
-      })
-      return allLabelsPresent
-    },
-    nextImgsetSpace (e) {
-      if (e.code === 'Space') {
-          this.saveResult()
-        }
-    },
-    nextImgsetNumber (e) {
-      const isNumber = /^[0-9]$/.test(e.key)
-      if (e.key - 1 == this.viewerIndex && isNumber ){
+    })
+    return toolCsNames
+  },
+  numbAnnsStack (stack, toolName) {
+    const imageIds = stack.imageIds
+    const toolState = imageIds.map((id) => {
+      return cornerstoneTools.globalImageIdSpecificToolStateManager.getImageIdToolState(id, toolName)
+    })
+    const toolStateFiltered = toolState.filter((state) => state !== undefined)
+    const lengthToolState = toolStateFiltered.reduce((length, state) => {
+      return length + state.data.length
+    }, 0)
+    return lengthToolState
+  },
+  checkLabeledAnnsPresent (stack) {
+    var allLabelsPresent = true
+    this.labeledTools().forEach((labeldTool) => {
+      const numbAnn = this.numbAnnsStack(stack, labeldTool)
+      if (numbAnn === 0) {
+        alert('Missing Measurement ' + labeldTool)
+        allLabelsPresent = false
+      }
+    })
+    return allLabelsPresent
+  },
+  nextImgsetSpace (e) {
+    if (e.code === 'Space') {
         this.saveResult()
       }
-    }
   },
-  created () {
-    // add event listener for space key if viewer number is 1
-    // add event listener for number key if viewer number is more than 1 and no scales are present
-    if (this.imageViewers.length === 1) {
-      document.addEventListener('keydown', this.nextImgsetSpace)
-    } else if (this.scales.length === 0) {
-      document.addEventListener('keydown', this.nextImgsetNumber)
+  nextImgsetNumber (e) {
+    const isNumber = /^[0-9]$/.test(e.key)
+    if (e.key - 1 == this.viewerIndex && isNumber ){
+      this.saveResult()
     }
-  },
-  unmounted () {
-    document.removeEventListener('keydown', this.nextImgsetSpace)
-    document.removeEventListener('keydown', this.nextImgsetNumber)
   }
+},
+created () {
+  // add event listener for space key if viewer number is 1
+  // add event listener for number key if viewer number is more than 1 and no scales are present
+  if (this.imageViewers.length === 1) {
+    document.addEventListener('keydown', this.nextImgsetSpace)
+  } else if (this.scales.length === 0) {
+    document.addEventListener('keydown', this.nextImgsetNumber)
+  }
+},
+unmounted () {
+  document.removeEventListener('keydown', this.nextImgsetSpace)
+  document.removeEventListener('keydown', this.nextImgsetNumber)
+}
 }
 </script>
 

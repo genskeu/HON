@@ -8,6 +8,9 @@ const state = {
 const getters = {
   state (state) {
     return state
+  },
+  isLoading (state) {
+    return state.isLoading
   }
 }
 
