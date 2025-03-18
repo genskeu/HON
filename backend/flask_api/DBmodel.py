@@ -951,6 +951,16 @@ class Annotation:
         self.start_y = tool_state_raw["handles"]["start"]["y"]
         self.end_x = tool_state_raw["handles"]["end"]["x"]
         self.end_y = tool_state_raw["handles"]["end"]["y"]
+
+        if self.start_x == None:
+            self.start_x = 0
+        if self.start_y == None:
+            self.start_y = 0
+        if self.end_x == None:
+            self.end_x = 0
+        if self.end_y == None:
+            self.end_y = 0
+
         self.image_name = os.path.basename(tool_state_raw["imageId"])
 
     def get_tool_state_string(self):
