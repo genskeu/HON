@@ -371,7 +371,6 @@ const mutations = {
   },
   updScaleInput (state, { index, scaleValue }) {
     state.scalesInput[index].value = scaleValue
-    console.log(state.scalesInput[index])
   },
   resetScales (state) {
     var scalesDefault = []
@@ -486,7 +485,18 @@ const actions = {
           store.commit('imageViewers/initViewer', { viewertype: 'refviewers' })
         }
         if (preLoadImages) {
-          loadAndCacheVolumes(data.study.stacks, 0)
+          var imgsets = data.study.imgsets
+          var imgsets_finished = data.study.results_current_user.length
+          var stacks_preloading = []
+          for (var i = imgsets_finished; i < imgsets.length; i++) {
+            imgsets[i].image_stacks.forEach((stack) => {
+              // check if stack is already in list
+              if (stacks_preloading.findIndex(stack_preloading => stack_preloading.stack_id === stack.stack_id) == -1){
+                stacks_preloading.push(stack)
+              }
+            })
+          }
+          loadAndCacheVolumes(stacks_preloading, 0)
             .then(() => {
               store.commit('loadingState/finishLoading')
             })
@@ -774,24 +784,31 @@ export default {
   cornerstone.imageCache.setMaximumSizeBytes(4000000000)
   function loadAndCacheVolume(imageIds) {
     //console.log('loading image ' + index)
-    var promisis = []
+    var promises = []
     imageIds.forEach((imageId) => {
       var promis = cornerstone.loadAndCacheImage(imageId)
-      promisis.push(promis)
+      promises.push(promis)
     })
-    return Promise.all(promisis)
+    return Promise.all(promises)
   }
 
   function loadAndCacheVolumes(stacks, index) {
-    return new Promise((resolve) => {
-      resolve(loadAndCacheVolume(stacks[index].cs_stack.imageIds, 0))
-    }).then(() => {
-      var percLoaded = (index+1)/stacks.length
-      store.commit('loadingState/updLoading', { title: 'Loading Images ' + (percLoaded*100).toFixed(2) + '%'})
-      if (index < stacks.length-1) {
-        return loadAndCacheVolumes(stacks, index + 1)
-      } else {
-        return index
-      } 
-    })
+    if (stacks.length == 0) {
+      return new Promise((resolve) => {
+        resolve(index)
+      })
+    }
+    else {
+      return new Promise((resolve) => {
+        resolve(loadAndCacheVolume(stacks[index].cs_stack.imageIds))
+      }).then(() => {
+        var percLoaded = (index+1)/stacks.length
+        store.commit('loadingState/updLoading', { title: 'Loading Images ' + (percLoaded*100).toFixed(2) + '%'})
+        if (index < stacks.length-1) {
+          return loadAndCacheVolumes(stacks, index + 1)
+        } else {
+          return index
+        } 
+      })
+    }
   }
