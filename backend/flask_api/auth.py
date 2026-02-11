@@ -67,8 +67,8 @@ def login():
             role = "study_admin"
         elif user.access_level == 3:
             role = "user_admin"
-        access_token = create_access_token(identity=user.id, additional_claims = {"role":role})
-        refresh_token = create_refresh_token(identity=user.id)
+        access_token = create_access_token(identity=str(user.id), additional_claims = {"role":role})
+        refresh_token = create_refresh_token(identity=str(user.id))
         response = jsonify(accessToken=access_token, refreshToken=refresh_token, role=role, username=user.username, id=user.id, access_level=user.access_level)
         return response, 201
     else:
