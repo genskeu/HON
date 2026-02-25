@@ -1,9 +1,8 @@
 import pytest
 import sys
-sys.path.append('../HON')
-
-from backend import create_app
-from backend.DBmodel import *
+sys.path.append('/home/')  # Add backend to path for imports
+from backend.flask_api import create_app
+from backend.flask_api.DBmodel import add_default_users, init_db, init_img_dir
 
 # general create test config file (copy config)
 # persistent db might be a better and more realisitc setting?
@@ -13,11 +12,18 @@ from backend.DBmodel import *
 
 # read in SQL for populating test data
 @pytest.fixture
-def app():
+def app(tmp_path):
     """Create and configure a new app instance for each test."""
-    # create the app with common test config
-    app = create_app()        
-    
+    app = create_app(
+        config={
+            "TESTING": True,
+            "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+            "SQLALCHEMY_TRACK_MODIFICATIONS": False,
+            "JWT_SECRET_KEY": "test-key",
+            "IMAGE_PATH": str(tmp_path / "images"),
+        }
+    )
+
     # init db before running tests
     with app.app_context():
         init_db()
@@ -38,19 +44,29 @@ def runner(app):
     return app.test_cli_runner()
 
 
-class AuthActions:
-    def __init__(self, client):
-        self._client = client
-
-    def login(self, username, password):
-        return self._client.post(
-            "/auth/login", data={"username": username, "password": password}
+@pytest.fixture
+def auth_headers(client):
+    def _login(username, password):
+        response = client.post(
+            "/auth/login", json={"username": username, "password": password}
         )
+        assert response.status_code == 201
+        token = response.get_json()["accessToken"]
+        return {"Authorization": f"Bearer {token}"}
 
-    def logout(self):
-        return self._client.get("/auth/logout")
+    return _login
 
 
 @pytest.fixture
-def auth(client):
-    return AuthActions(client)
+def study_admin_headers(auth_headers):
+    return auth_headers("sadmin", "sadmin")
+
+
+@pytest.fixture
+def user_admin_headers(auth_headers):
+    return auth_headers("uadmin", "uadmin")
+
+
+@pytest.fixture
+def participant_headers(auth_headers):
+    return auth_headers("user", "user")

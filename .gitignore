@@ -37,3 +37,4 @@ pnpm-debug.log*
 traefik/data/acme.json
 traefik/traefik-pass-hint
 traefik/.htpasswd
+backend/tests/junit.xml

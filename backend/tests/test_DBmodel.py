@@ -8,7 +8,7 @@ def test_init_db_command(app,runner, monkeypatch):
     def fake_init_db():
         Recorder.called = True
     # create the database 
-    monkeypatch.setattr("TAFC.DBmodel.init_db", fake_init_db)
+    monkeypatch.setattr("backend.flask_api.DBmodel.init_db", fake_init_db)
     result = runner.invoke(args=["init-db"])
     # assert "Initialized" in result.output
     assert Recorder.called

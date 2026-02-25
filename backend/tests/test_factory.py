@@ -1,4 +1,4 @@
-from backend import create_app
+from backend.flask_api import create_app
 
 def test_config():
     """Test create_app without passing test config."""
