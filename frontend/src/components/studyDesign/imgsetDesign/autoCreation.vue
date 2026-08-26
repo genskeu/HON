@@ -46,6 +46,7 @@
         <select class="form-select" ref="imgsetType" v-model="type">
           <option value="standard">standard</option>
           <option value="afc">afc</option>
+          <option value="paired">paired</option>
         </select>
       </div>
       <!-- order -->

@@ -636,6 +636,8 @@ const actions = {
       imgsets = createStandartImgsets(viewerNumber, imgsetStartPosition, imageStacks, viewport)
     } else if (type == 'afc') {
       imgsets = createAfcImgsets(viewerNumber, imgsetStartPosition, imageStacks, viewport, posPattern, negPattern)
+    } else if (type == 'paired') {
+      imgsets = createPairedImgsets(viewerNumber, imgsetStartPosition, imageStacks, viewport)
     } else {
       console.log('Error: unknown type of imgset')
     }
@@ -777,6 +779,42 @@ export default {
         imgset.stacks.push(stack)
       })
       imgsets.push(imgset)
+    })
+    return imgsets
+  }
+
+  function createPairedImgsets (viewerNumber, imgsetStartPosition, imageStacks, viewport) {
+    // group stacks by the string before the first underscore in their name
+    var groups = {}
+    imageStacks.forEach(stack => {
+      const groupKey = stack.name.split('_')[0]
+      if (!groups[groupKey]) {
+        groups[groupKey] = []
+      }
+      groups[groupKey].push(stack)
+    })
+
+    var imgsets = []
+    var groupIndex = 0
+    Object.keys(groups).forEach(groupKey => {
+      var imgset = {
+        stacks: [],
+        position: imgsetStartPosition + groupIndex
+      }
+      groups[groupKey].forEach((stackRaw, i) => {
+        const imageIds = stackRaw.cs_stack.imageIds
+        var stack = {
+          stack_id: stackRaw.stack_id,
+          div_id: 'dicom_img_' + i,
+          name: stackRaw.name,
+          segmentation_data: '',
+          tool_state: imageIds.map(() => null),
+          viewport: viewport
+        }
+        imgset.stacks.push(stack)
+      })
+      imgsets.push(imgset)
+      groupIndex++
     })
     return imgsets
   }
