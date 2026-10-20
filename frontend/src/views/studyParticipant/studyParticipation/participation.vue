@@ -35,6 +35,7 @@
           </button>
           <Instructions></Instructions>
           <Scales></Scales>
+          <TextInputs></TextInputs>
         </div>
       </div>
       <Progressbar></Progressbar>
@@ -49,6 +50,7 @@ import Scales from '@/components/studyParticipation/Scales.vue'
 import Progressbar from '@/components/studyParticipation/progressBar.vue'
 import Votebtn from '@/components/studyParticipation/Votebtn.vue'
 import Description from '@/components/studyParticipation/Description.vue'
+import TextInputs from '@/components/studyParticipation/TextInputs.vue'
 
 export default {
   name: 'participationView',
@@ -59,7 +61,8 @@ export default {
     Scales,
     Progressbar,
     Votebtn,
-    Description
+    Description,
+    TextInputs
   },
   data () {
     return {
@@ -126,7 +129,7 @@ export default {
       return this.$store.getters['currentStudy/imgsets']
     },
     resultsCurrentUser () {
-      return this.$store.getters['currentStudy/resultsCurrentUser']
+      return this.$store.getters['studyInput/resultsCurrentUser']
     },
     imgsetDisplayed () {
       return this.$store.getters['currentStudy/imgsetDisplayed']

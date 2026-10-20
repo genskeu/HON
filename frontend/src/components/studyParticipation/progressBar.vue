@@ -14,7 +14,7 @@
 export default {
   computed: {
     imgsetsFinished () {
-      return this.$store.getters['currentStudy/resultsCurrentUser'].length
+      return this.$store.getters['studyInput/resultsCurrentUser'].length
     },
     imgsetsTotal () {
       return this.$store.getters['currentStudy/imgsets'].length

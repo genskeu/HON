@@ -28,18 +28,25 @@ export default {
       return this.$store.getters['currentStudy/scales']
     },
     scalesInput () {
-      return this.$store.getters['currentStudy/scalesInput']
+      return this.$store.getters['studyInput/scalesInput']
     }
   },
   methods: {
     captureScaleInput(e) {
-      const isNumber = /^[0-9]$/.test(e.key)
-      if (e.key >= 0 && e.key <= 9 && isNumber) {
-        // find the first scale that has not been answered
-        var scale = this.scalesInput.find(scale => scale.value === null)
-        if (scale) {
-          if (e.key >= scale.min & e.key <= scale.max) {
-            scale.value = e.key
+      // check if scales are present
+      if (this.scales.length === 0) {
+        return
+      } else {
+        // check if the key is a number between 0 and 9
+        const isNumber = /^[0-9]$/.test(e.key)
+        if (e.key >= 0 && e.key <= 9 && isNumber) {
+          // find the first scale that has not been answered
+          var scale = this.scalesInput.find(scale => scale.value === null)
+          if (scale) {
+            // check if the key is within the scale's range
+            if (e.key >= scale.min & e.key <= scale.max) {
+              scale.value = e.key
+            }
           }
         }
       }

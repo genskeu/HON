@@ -184,6 +184,8 @@ class Design(db.Model):
     randomize_order = db.Column(db.Boolean)
     scales = db.relationship("Scale", lazy=True, cascade="all, delete-orphan")
     tools = db.relationship("Tool", lazy=True, cascade="all, delete-orphan")
+    text_fields = db.Column(db.String(10000)) 
+
 
     def to_dict(self):
             design_dict = {}
@@ -203,6 +205,7 @@ class Design(db.Model):
             design_dict["transition_time"] = self.transition_time
             design_dict["randomize_order"] = self.randomize_order
             design_dict["scales"] = [scale.to_dict() for scale in self.scales]
+            design_dict["text_fields"] = json.loads(self.text_fields) if self.text_fields else []
             design_dict["tools"] = [tool.to_dict() for tool in self.tools]
 
             return design_dict
@@ -229,7 +232,7 @@ class Design(db.Model):
         self.transition_time=0
         self.tools=[]
         self.scales=[]
-
+        self.text_fields="[]"
 
 class Scale(db.Model):
     """

@@ -21,11 +21,11 @@ computed: {
   scales () {
     return this.$store.getters['currentStudy/scales']
   },
-  scalesInput () {
-    return this.$store.getters['currentStudy/scalesInput']
+  textFields () {
+    return this.$store.getters['currentStudy/textFields']
   },
-  scalesInputDB () {
-    return this.$store.getters['currentStudy/scalesInputDB']
+  scaleInputs () {
+    return this.$store.getters['studyInput/scaleInputs']
   },
   imgsetDisplayed () {
     return this.$store.getters['currentStudy/imgsetDisplayed']
@@ -44,7 +44,10 @@ computed: {
   },
   isLoading () {
     return this.$store.getters['loadingState/isLoading']
-  }
+  },
+  textInputs () { 
+    return this.$store.getters['studyInput/textInputs'] 
+  },
 },
 methods: {
   saveResult () {
@@ -58,22 +61,44 @@ methods: {
       // sent data to backend via axios
       const stackIndex = this.refimageViewers.length + this.viewerIndex
       const stackPicked = imgset.stacks[stackIndex]
-      const payload = {
-        imgset_id: this.imgsetDisplayed.id,
-        picked_stack: stackPicked,
-        stacks_displayed: imgset.stacks,
-        scale_input: this.scalesInputDB
-      }
       // check all scales are filled in
-      var emptyScale = this.scalesInput.find(scaleInput => scaleInput.value === null)
+      var emptyScale = this.scaleInputs.find(scaleInput => scaleInput.value === null)
       if (emptyScale) {
         alert('Scales empty: ' + emptyScale.name)
+        return
+      }
+      // all text inputs must be filled
+      var emptyTextInput = this.textInputs.find(textInput => textInput.value === null || textInput.value === '')
+      if (emptyTextInput) {
+        alert('Text input empty: ' + (emptyTextInput.text || ('Field ' + (this.textInputs.indexOf(emptyTextInput) + 1))))
         return
       }
       if (!this.checkLabeledAnnsPresent(stackPicked)) {
         return
       }
-      this.$store.dispatch('currentStudy/saveResult', payload)
+      // format for database
+      // old: multiple values for one scaleInput possible (FROC, LROC)
+      // new: each scaleInput has only one value and uuid 
+      const scaleInputsDB = {}
+      this.scaleInputs.forEach((scaleInput, index) => {
+        const value = scaleInput.value
+        const scaleName = 'Scale ' + (index + 1) + ' ' + scaleInput.name
+        scaleInputsDB[scaleName] = { values: [value], uuids: [null] }
+      })   
+      const textInputDB = {}
+      this.textInputs.forEach((textInput, i) => {
+        const value = textInput.value
+        const name = 'Textinput ' + (i + 1) + ' ' + textInput.name
+        textInputDB[name] = { values: [value], uuids: [null] }
+      })
+      const payload = {
+        imgset_id: this.imgsetDisplayed.id,
+        picked_stack: stackPicked,
+        stacks_displayed: imgset.stacks,
+        scale_input: { ...scaleInputsDB, ...textInputDB }
+      }
+
+      this.$store.dispatch('studyInput/saveResult', payload)
     }
   },
   // helper function to check if labeled tools are used in this study
@@ -127,7 +152,7 @@ created () {
   // add event listener for number key if viewer number is more than 1 and no scales are present
   if (this.imageViewers.length === 1) {
     document.addEventListener('keydown', this.nextImgsetSpace)
-  } else if (this.scales.length === 0) {
+  } else if (this.scales.length === 0 && this.textFields.length === 0) {
     document.addEventListener('keydown', this.nextImgsetNumber)
   }
 },

@@ -28,6 +28,7 @@
             <GeneralSettings class="accordion-item"></GeneralSettings>
             <Instructions class="accordion-item"></Instructions>
             <Scales class="accordion-item"></Scales>
+            <TextInputs class="accordion-item"></TextInputs>
             <Tools class="accordion-item"></Tools>
             <button @click="saveDesign" class="btn btn-lg btn-success w-100">
                 Save Design
@@ -42,6 +43,7 @@ import GeneralSettings from '@/components/studyDesign/designOptions/GeneralSetti
 import Scales from '@/components/studyDesign/designOptions/Scales.vue'
 import Instructions from '@/components/studyDesign/designOptions/Instructions.vue'
 import Tools from '@/components/studyDesign/designOptions/Tools.vue'
+import TextInputs from '@/components/studyDesign/designOptions/TextInputs.vue'
 import { Popover } from 'bootstrap'
 
 export default {
@@ -50,7 +52,8 @@ export default {
     GeneralSettings,
     Scales,
     Instructions,
-    Tools
+    Tools,
+    TextInputs
   },
   data () {
     return {

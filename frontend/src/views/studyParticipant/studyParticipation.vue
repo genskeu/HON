@@ -35,7 +35,11 @@ export default {
     const id = this.$route.params.id
     if (id) {
       this.$store.dispatch('currentStudy/openStudy', { id:id, preLoadImages:true } )
-    }
+      this.$store.commit('studyInput/openStudyInput', {
+          studyId: id,
+          userId: store.getters['auth/user'] ? store.getters['auth/user'].id : null,
+        })
+      }
   },
   methods: {
     studyLogout () {

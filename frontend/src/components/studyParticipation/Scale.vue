@@ -51,7 +51,7 @@ export default {
     },
     scaleInput: {
       get () {
-        const scaleInput = this.$store.getters['currentStudy/scaleInput'](this.scaleIndex)
+        const scaleInput = this.$store.getters['studyInput/scaleInput'](this.scaleIndex)
         if (scaleInput) {
           return scaleInput.value
         } else {
@@ -59,7 +59,7 @@ export default {
         }
       },
       set (value) {
-        this.$store.commit('currentStudy/updScaleInput',
+        this.$store.commit('studyInput/updScaleInput',
           {
             index: this.scaleIndex,
             scaleValue: value
@@ -72,7 +72,7 @@ export default {
     }
   },
   mounted () {
-    this.$store.commit('currentStudy/scaleInput',
+    this.$store.commit('studyInput/scaleInput',
       {
         index: this.scaleIndex,
         scaleName: this.scaleText,

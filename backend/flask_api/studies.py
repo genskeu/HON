@@ -178,7 +178,7 @@ def design(study):
     study.design.img_height_auto = design["img_height_auto"]
     study.design.img_per_row = design["img_per_row"]
     study.design.numb_rois = design["numb_rois"]
-    
+    study.design.text_fields = json.dumps(design["text_fields"])
     # delete old tools
     for tool in study.design.tools:
         db.session.delete(tool)
@@ -542,10 +542,11 @@ def save_result(study):
         db.session.commit()
     else:
         error = "Result was not saved. There is already a result for this user and image-set present. Please reload the page."
-
+        study_progress = User_study_progress.query.filter_by(study_id=study.id,
+                                                             user_id=user_id).first()
     # response
     response = {}
-    response["error"] = error
+    response["error_msg"] = error
     response["result"] = result.to_dict()    
     response["study_progress"] = study_progress.to_dict()
 
