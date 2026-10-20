@@ -1,6 +1,5 @@
 <template>
   <div id="study_management" class="">
-    <loadingModal id="globalLoadingState" :isLoading="loadingState.isLoading" :title="loadingState.title" :errorOccured="loadingState.errorOccured" :errorData="loadingState.errorData"></loadingModal>
     <div id="nav" class="navbar bg-dark p-0 pb-2" style="height: 50px;">
       <div class="container mx-auto" v-if="studyOpened">
           <a @click="closeStudy" class="btn router-link">&times; Close {{studyTitle}}</a>
@@ -26,13 +25,8 @@
 </template>
 
 <script>
-import loadingModal from '@/components/misc/loadingModal'
-
 export default {
   name: 'StudyManagement',
-  components: {
-    loadingModal
-  },
   data () {
     return {
     }
@@ -57,9 +51,6 @@ export default {
     studyTitle () {
       return this.$store.getters['currentStudy/studyTitle']
     },
-    loadingState () {
-      return this.$store.getters['loadingState/state']
-    }
   },
   mounted () {
     // get study data from backend

@@ -26,7 +26,7 @@
               <router-link to="/tutorials" class="nav-link">Tutorials</router-link>
             </li>
             <li v-if="loggedIn" class="nav-item">
-              <router-link to="" class="nav-link">Logged in as {{getUsername}}</router-link>
+              <router-link to="/user-profile" class="nav-link">Logged in as {{getUsername}}</router-link>
             </li>
             <li v-if="loggedIn" @click="handleLogout" class="nav-item">
               <a class="btn nav-link">Logout</a>
@@ -43,10 +43,18 @@
     </nav>
     <router-view />
   </div>
+    <loadingModal id="globalLoadingState" :isLoading="loadingState.isLoading" :title="loadingState.title" :errorOccured="loadingState.errorOccured" :errorData="loadingState.errorData"></loadingModal>
+
 </template>
 
 <script>
+import loadingModal from '@/components/misc/loadingModal'
+
 export default {
+  name: 'App',
+  components: {
+    loadingModal
+  },
   computed: {
     currentUser () {
       return this.$store.state.auth.user
@@ -80,6 +88,9 @@ export default {
     },
     studyOpened () {
       return this.$store.getters['currentStudy/studyTitle'] !== String
+    },
+    loadingState () {
+      return this.$store.getters['loadingState/state']
     }
   },
   methods: {

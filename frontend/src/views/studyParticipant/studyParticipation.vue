@@ -1,6 +1,5 @@
 <template>
   <div id="study_participation">
-    <loadingModal id="globalLoadingState" :isLoading="loadingState.isLoading" :title="loadingState.title" :errorOccured="loadingState.errorOccured" :errorData="loadingState.errorData"></loadingModal>
     <div id="nav" class="navbar bg-dark p-0" style="height: 50px;">
       <div class="container-fluid mx-auto" v-if="studyOpened">
         <div class="btn btn-danger ms-auto" @click="studyLogout">Pause {{studyTitle}} (Back to Study Login)</div>
@@ -26,9 +25,6 @@ export default {
     studyTitle () {
       return this.$store.getters['currentStudy/studyTitle']
     },
-    loadingState () {
-      return this.$store.getters['loadingState/state']
-    }
   },
   mounted () {
     // get study data from backend

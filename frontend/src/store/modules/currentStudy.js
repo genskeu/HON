@@ -198,9 +198,6 @@ const getters = {
   usersStudyProgress (state) {
     return state.usersStudyProgress
   },
-  loadingState (state) {
-    return state.loadingState
-  },
   // text fields
   textFields (state) { 
     return state.design.text_fields 
