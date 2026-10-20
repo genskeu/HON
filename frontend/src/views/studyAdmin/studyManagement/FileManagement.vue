@@ -12,7 +12,11 @@
                         <table class="table table-hover text-middle">
                             <thead class="thead sticky-top bg-white">
                                 <tr>
-                                    <th >Name</th>
+                                    <th >Name 
+                                        <button @click="showFilter = !showFilter" class="btn-white btn mr-1" title="Toggle name filter">
+                                        ▼  <!-- funnel/filter symbol, like the existing ☰ usage in this file -->
+                                        </button>
+                                    </th>
                                     <th >Slices</th>
                                     <th >Size (Mb)</th>
                                     <th ></th>
@@ -20,9 +24,12 @@
                                         <button @click="selectAll" class="btn-secondary btn mr-1">Select All</button>
                                     </th>
                                 </tr>
+                                <div class="row mx-auto mt-1 mb-2">
+                                    <input v-if="showFilter" type="text" v-model.trim="stackFilter" class="form-control" placeholder="Filter stacks by name...">
+                                </div>
                             </thead>
                             <tbody id="file_list">
-                                <template v-for="stack in studyStacks" :key="stack.name">
+                                <template v-for="stack in filteredStacks" :key="stack.name">
                                 <tr >
                                     <th>{{stack.name}}</th>
                                     <th>{{stack.slices}}</th>
@@ -104,24 +111,31 @@ export default {
   },
   data () {
     return {
-      filesToDelete: []
+        filesToDelete: [],
+        stackFilter: '',
+        showFilter: false
     }
   },
   computed: {
     studyStacks () {
       return this.$store.getters['currentStudy/stacks']
+    },
+    filteredStacks () {
+        if (this.stackFilter === '') return this.studyStacks
+        const filter = this.stackFilter.toLowerCase()
+        return this.studyStacks.filter(stack => stack.name.toLowerCase().includes(filter))
     }
   },
   methods: {
     selectAll () {
-      if (this.studyStacks.length !== this.filesToDelete.length) {
-        this.filesToDelete = []
-        this.studyStacks.forEach(stack => {
-          this.filesToDelete.push(stack)
-        })
-      } else {
-        this.filesToDelete = []
-      }
+        if (this.filteredStacks.length !== this.filesToDelete.length) {
+            this.filesToDelete = []
+            this.filteredStacks.forEach(stack => {
+            this.filesToDelete.push(stack)
+            })
+        } else {
+            this.filesToDelete = []
+        }
     },
     deleteSelectedFiles () {
       const studyId = this.$route.params.id
@@ -129,7 +143,12 @@ export default {
         this.filesToDelete = []
       })
     }
-  }
+  },
+    watch: {
+    showFilter (val) {
+        if (!val) this.stackFilter = ''
+    }
+    }
 }
 </script>
 
