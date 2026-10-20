@@ -15,7 +15,8 @@
 
         <div class="input-group mx-auto">
           <label class="input-group-text col-3">Type</label>
-          <select v-model="userAccesslevel" class="form-select" name="access_level" id="access_level">
+          <select v-model="userAccesslevel" class="form-select" name="access_level" id="access_level"
+            :disabled="accessLevelLocked" :title="accessLevelLocked ? 'Only a user admin can change the type of a different user.' : ''">
             <option value=""></option>
             <option value="1">Participant</option>
             <option value="2">Study Admin</option>
@@ -24,7 +25,7 @@
         </div>
 
         <div class="row mx-auto mt-2">
-          <input class="btn-secondary btn" value="update user information" @click="saveUser">
+          <input class="btn-success btn" value="update user information" @click="saveUser">
         </div>
       </form>
     </div>
@@ -38,6 +39,12 @@ export default {
   computed: {
     user () {
       return this.$store.getters['users/currentUser']
+    },
+    accessLevelLocked () {
+      const authUser = this.$store.getters['auth/user']
+      const isSelf = !!authUser && this.user.id === authUser.id
+      const isAdmin = Number(this.user.access_level) === 3
+      return !isAdmin || isSelf
     },
     userAccesslevel: {
       get () {

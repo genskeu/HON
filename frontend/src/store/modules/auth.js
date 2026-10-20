@@ -1,5 +1,6 @@
 import { authService } from '@/api'
 import router from '@/router'
+import store from '@/store'
 const user = JSON.parse(localStorage.getItem('user'))
 
 const state = user
@@ -43,13 +44,16 @@ const actions = {
       })
   },
   register ({ commit }, user) {
+    store.commit('loadingState/startLoading', { title: 'Registering' })
     authService.register(user)
       .then(() => {
         commit('registerSuccess')
         router.push('/login')
+        store.commit('loadingState/finishLoading')
       })
       .catch(error => {
         commit('registerFailure', error.response)
+        store.commit('loadingState/errorOccured', { errorData: error })
       })
   }
 }

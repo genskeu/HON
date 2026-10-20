@@ -20,6 +20,36 @@ const getters = {
   currentUser: state => state.currentUser
 }
 
+const mutations = {
+  reset (state) {
+    Object.assign(state, getDefaultState())
+  },
+  initUsers (state, users) {
+    state.users = users
+  },
+  adduser (state, user) {
+    state.users.push(user)
+  },
+  deleteStudy (state, userId) {
+    const index = state.users.findIndex(user => user.id === userId)
+    state.users.splice(index, 1)
+  },
+  setUser (state, user) {
+    state.currentUser = user
+  },
+  updCurrentUser (state, user) {
+    for (const key in user) {
+      state.currentUser[key] = user[key]
+    }
+  },
+  updUser (state, user) {
+    const index = state.users.findIndex(u => u.id === user.id)
+    if (index > -1) {
+      state.users.splice(index, 1, user)
+    }
+  }
+}
+
 const actions = {
   initUsers ({ commit }) {
     store.commit('loadingState/startLoading', { title: 'Loading User Overview' })
@@ -74,33 +104,6 @@ const actions = {
     }
 }
 
-const mutations = {
-  reset (state) {
-    Object.assign(state, getDefaultState())
-  },
-  initUsers (state, users) {
-    state.users = users
-  },
-  adduser (state, user) {
-    state.users.push(user)
-  },
-  deleteStudy (state, userId) {
-    const index = state.users.findIndex(user => user.id === userId)
-    state.users.splice(index, 1)
-  },
-  setUser (state, user) {
-    state.currentUser = user
-  },
-  updCurrentUser (state, user) {
-    for (const key in user) {
-      state.currentUser[key] = user[key]
-    }
-  },
-  updUser (state, user) {
-    const index = state.users.findIndex(u => u.id === user.id)
-    state.users.splice(index, 1, user)
-  }
-}
 
 export default {
   namespaced: true,

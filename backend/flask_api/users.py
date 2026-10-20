@@ -4,7 +4,7 @@ from .DBmodel import db, User
 from werkzeug.security import generate_password_hash
 import os
 import shutil
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity
 
 bp = Blueprint("users", __name__)
 
@@ -81,45 +81,68 @@ def create_user():
 # edit an exisiting user
 @bp.route('/user/<int:id>', methods=["PUT"])
 @jwt_required()
-@access_level_required(["user_admin"])
+@access_level_required(["study_participant", "study_admin", "user_admin"])
 def modify_user(id):
+    claims = get_jwt()
+    current_user_id = get_jwt_identity()
+    role = claims["role"]
+
     user = User.query.filter_by(id=id).first()
     error = None
+    if user is None:
+        error = f"User with id: {id} not found."
 
-    # get form data from request
-    data = request.get_json()
-    username = data["username"]
-    password = data["password"]
-    access_level = int(data["access_level"])
-        
- 
-    # check if the updated username already exists for another user
-    if User.query.filter(User.username == username, User.id != id).first() is not None:
-        error = "User {} is already registered.".format(username)
+    is_self = str(current_user_id) == str(id)
+    if error is None:
+        # non-admins may only update their own account
+        if role != "user_admin" and not is_self:
+            error = "Permission denied."
+        # user admins may not modify other user admins (unchanged behavior)
+        elif role == "user_admin" and not is_self and user.access_level >= 3:
+            error = "Permission denied."
 
     if error is None:
-        if user.access_level < 3:
-            # only update attr which are not none or empty
-            if username:
-                user.username = username
-            if password:
-                user.password = generate_password_hash(password)
+        # get form data from request
+        data = request.get_json()
+        username = data.get("username")
+        password = data.get("password")
+        access_level = data.get("access_level")
+        if access_level is not None and access_level != "":
+            try:
+                access_level = int(access_level)
+            except (TypeError, ValueError):
+                error = "Invalid access level."
+
+        # check if the updated username already exists for another user
+        if error is None and username is not None and \
+                User.query.filter(User.username == username, User.id != id).first() is not None:
+            error = "User {} is already registered.".format(username)
+
+    if error is None:
+        # only update attr which are not none or empty
+        if username:
+            user.username = username
+        if password:
+            user.password = generate_password_hash(password)
+        # the access level may only be changed by a user admin acting on
+        # a different user; self-updates never touch it
+        if role == "user_admin" and not is_self and access_level is not None:
             user.access_level = access_level
-            db.session.commit()
-            # for study admin create folder in image dir 
-            path = os.path.join(current_app.config['IMAGE_PATH'],str(user.id))
-            if user.access_level == 2 and not os.path.isdir(path):
-                try:
-                    os.makedirs(path)
-                except:
-                    print(f"Could not create {path}.")
-                    return jsonify({"error_msg":"Could not create {path}."}), 400
-            return jsonify({"user":user.to_dict()}), 200
-        else:
-            error = "Permission denied." 
-            return jsonify({"error_msg": error}), 401
+        db.session.commit()
+        # for study admin create folder in image dir 
+        path = os.path.join(current_app.config['IMAGE_PATH'], str(user.id))
+        if user.access_level == 2 and not os.path.isdir(path):
+            try:
+                os.makedirs(path)
+            except:
+                print(f"Could not create {path}.")
+                return jsonify({"error_msg": "Could not create {path}."}), 400
+        return jsonify({"user": user.to_dict()}), 200
     else:
-        return jsonify({"error_msg": error}), 400
+        status = 404 if error.startswith("User with id") else 400
+        if error == "Permission denied.":
+            status = 401
+        return jsonify({"error_msg": error}), status
 
 
 
