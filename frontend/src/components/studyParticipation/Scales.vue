@@ -27,8 +27,8 @@ export default {
     scales () {
       return this.$store.getters['currentStudy/scales']
     },
-    scalesInput () {
-      return this.$store.getters['studyInput/scalesInput']
+    scaleInputs () {
+      return this.$store.getters['studyInput/scaleInputs']
     }
   },
   methods: {
@@ -41,7 +41,7 @@ export default {
         const isNumber = /^[0-9]$/.test(e.key)
         if (e.key >= 0 && e.key <= 9 && isNumber) {
           // find the first scale that has not been answered
-          var scale = this.scalesInput.find(scale => scale.value === null)
+          var scale = this.scaleInputs.find(scale => scale.value === null)
           if (scale) {
             // check if the key is within the scale's range
             if (e.key >= scale.min & e.key <= scale.max) {
